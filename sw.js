@@ -1,4 +1,4 @@
-const CACHE="locha-v7-20260920";
+const CACHE="locha-v8-20260920";
 const ASSETS=[
   "./manifest.webmanifest",
   "./apple-touch-icon.png",

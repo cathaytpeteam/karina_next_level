@@ -115,6 +115,15 @@ input::placeholder{color:#A9B1BA}
   white-space:nowrap;
 }
 .countryBadge.show{display:flex}
+.phoneWarning{
+  display:none;
+  margin-top:10px;
+  color:#B42318;
+  font-size:15px;
+  font-weight:800;
+  text-align:left;
+}
+.phoneWarning.show{display:block}
 .countryBadge .flag{font-size:20px;line-height:1}
 .countryBadge .code{letter-spacing:.2px}
 
@@ -183,7 +192,8 @@ input::placeholder{color:#A9B1BA}
       <div class="prefixOutside">+</div>
       <div class="field"><input id="phoneInput" inputmode="numeric" maxlength="15" autocomplete="tel" placeholder="852 1234 5678"><span id="countryBadge" class="countryBadge" aria-live="polite"><span class="flag"></span><span class="code"></span></span></div>
     </div>
-    <button id="phoneNext" class="next" disabled>Next</button>
+    <div id="phoneWarning" class="phoneWarning" role="alert">罐頭號碼 無用</div>
+      <button id="phoneNext" class="next" disabled>Next</button>
   </div>
   <div class="spacer"></div>
 </section>
@@ -323,6 +333,7 @@ input::placeholder{color:#A9B1BA}
     document.querySelectorAll("input").forEach(i=>i.value="");
     document.querySelectorAll(".next").forEach(b=>b.disabled=true);
     $("countryBadge").classList.remove("show");
+    $("phoneWarning").classList.remove("show");
     show("phone",false,false);
     try{history.replaceState({page:"phone"},"","#phone");}catch(e){}
   }
@@ -335,10 +346,14 @@ input::placeholder{color:#A9B1BA}
     setTimeout(resetAll,700);
   }
 
+  const blockedPhones=new Set(["85289648964"]);
+
   $("phoneInput").addEventListener("input",function(){
     this.value=digits(this.value);
     updateCountry(this.value);
-    $("phoneNext").disabled=this.value.length<6;
+    const blocked=blockedPhones.has(this.value);
+    $("phoneWarning").classList.toggle("show",blocked);
+    $("phoneNext").disabled=this.value.length<6 || blocked;
   });
   $("phoneNext").onclick=function(){
     phone=digits($("phoneInput").value);
