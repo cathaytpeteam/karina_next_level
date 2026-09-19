@@ -105,6 +105,18 @@ input::placeholder{color:#A9B1BA}
   font-size:30px;font-weight:400;color:var(--green);
 }
 #phone .field{padding-left:58px}
+#phone .field input{min-width:0;padding-right:8px}
+.countryBadge{
+  flex:0 0 auto;
+  display:none;align-items:center;gap:6px;
+  height:34px;margin-right:12px;padding:0 9px;
+  border-radius:9px;background:var(--green-soft);
+  color:var(--green);font-size:14px;font-weight:800;
+  white-space:nowrap;
+}
+.countryBadge.show{display:flex}
+.countryBadge .flag{font-size:20px;line-height:1}
+.countryBadge .code{letter-spacing:.2px}
 
 /* Scenario: intentionally no heading or top icon */
 #scenario{
@@ -169,7 +181,7 @@ input::placeholder{color:#A9B1BA}
   <div class="form">
     <div class="row">
       <div class="prefixOutside">+</div>
-      <div class="field"><input id="phoneInput" inputmode="numeric" maxlength="15" autocomplete="tel" placeholder="852 1234 5678"></div>
+      <div class="field"><input id="phoneInput" inputmode="numeric" maxlength="15" autocomplete="tel" placeholder="852 1234 5678"><span id="countryBadge" class="countryBadge" aria-live="polite"><span class="flag"></span><span class="code"></span></span></div>
     </div>
     <button id="phoneNext" class="next" disabled>Next</button>
   </div>
@@ -269,6 +281,36 @@ input::placeholder{color:#A9B1BA}
     $(id).classList.add("active");
   });
 
+
+  const countryCodes=[
+    ["852","🇭🇰","HK"],["886","🇹🇼","TW"],["853","🇲🇴","MO"],["855","🇰🇭","KH"],["856","🇱🇦","LA"],
+    ["880","🇧🇩","BD"],["977","🇳🇵","NP"],["975","🇧🇹","BT"],["960","🇲🇻","MV"],["971","🇦🇪","AE"],
+    ["972","🇮🇱","IL"],["974","🇶🇦","QA"],["965","🇰🇼","KW"],["966","🇸🇦","SA"],["968","🇴🇲","OM"],
+    ["962","🇯🇴","JO"],["961","🇱🇧","LB"],["973","🇧🇭","BH"],["964","🇮🇶","IQ"],["98","🇮🇷","IR"],
+    ["81","🇯🇵","JP"],["82","🇰🇷","KR"],["86","🇨🇳","CN"],["65","🇸🇬","SG"],["60","🇲🇾","MY"],
+    ["66","🇹🇭","TH"],["63","🇵🇭","PH"],["62","🇮🇩","ID"],["84","🇻🇳","VN"],["91","🇮🇳","IN"],
+    ["94","🇱🇰","LK"],["92","🇵🇰","PK"],["95","🇲🇲","MM"],["976","🇲🇳","MN"],
+    ["44","🇬🇧","UK"],["33","🇫🇷","FR"],["49","🇩🇪","DE"],["39","🇮🇹","IT"],["34","🇪🇸","ES"],
+    ["351","🇵🇹","PT"],["31","🇳🇱","NL"],["32","🇧🇪","BE"],["41","🇨🇭","CH"],["43","🇦🇹","AT"],
+    ["45","🇩🇰","DK"],["46","🇸🇪","SE"],["47","🇳🇴","NO"],["358","🇫🇮","FI"],["353","🇮🇪","IE"],
+    ["48","🇵🇱","PL"],["420","🇨🇿","CZ"],["36","🇭🇺","HU"],["30","🇬🇷","GR"],["40","🇷🇴","RO"],
+    ["7","🇷🇺","RU"],["380","🇺🇦","UA"],["90","🇹🇷","TR"],
+    ["61","🇦🇺","AU"],["64","🇳🇿","NZ"],
+    ["1","🇺🇸","US/CA"],["52","🇲🇽","MX"],["55","🇧🇷","BR"],["54","🇦🇷","AR"],["56","🇨🇱","CL"],
+    ["57","🇨🇴","CO"],["51","🇵🇪","PE"],
+    ["27","🇿🇦","ZA"],["20","🇪🇬","EG"],["234","🇳🇬","NG"],["254","🇰🇪","KE"],["212","🇲🇦","MA"]
+  ].sort((a,b)=>b[0].length-a[0].length);
+
+  function updateCountry(value){
+    const n=digits(value);
+    const hit=countryCodes.find(c=>n.startsWith(c[0]));
+    const badge=$("countryBadge");
+    if(!hit){badge.classList.remove("show");return;}
+    badge.querySelector(".flag").textContent=hit[1];
+    badge.querySelector(".code").textContent=hit[2];
+    badge.classList.add("show");
+  }
+
   function dateCode(){
     const d=new Date();
     const dd=String(d.getDate()).padStart(2,"0");
@@ -280,6 +322,7 @@ input::placeholder{color:#A9B1BA}
     phone="";flight="";
     document.querySelectorAll("input").forEach(i=>i.value="");
     document.querySelectorAll(".next").forEach(b=>b.disabled=true);
+    $("countryBadge").classList.remove("show");
     show("phone",false,false);
     try{history.replaceState({page:"phone"},"","#phone");}catch(e){}
   }
@@ -294,6 +337,7 @@ input::placeholder{color:#A9B1BA}
 
   $("phoneInput").addEventListener("input",function(){
     this.value=digits(this.value);
+    updateCountry(this.value);
     $("phoneNext").disabled=this.value.length<6;
   });
   $("phoneNext").onclick=function(){
