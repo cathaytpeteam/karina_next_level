@@ -118,8 +118,8 @@ input::placeholder{color:#A9B1BA}
 .phoneWarning{
   display:none;
   margin-top:14px;
-  color:#B42318;
-  font-size:22px;
+  color:#D92D20;
+  font-size:24px;
   line-height:1.35;
   font-weight:800;
   text-align:center;
@@ -177,6 +177,23 @@ input::placeholder{color:#A9B1BA}
   .next{height:52px}
   .choice{height:78px}
 }
+
+.phoneBottomMark{
+  position:absolute;
+  left:50%;
+  bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  border-radius:18px;
+  pointer-events:none;
+  user-select:none;
+}
+@media (max-height:650px){
+  .phoneBottomMark{width:22px;height:22px;bottom:calc(10px + env(safe-area-inset-bottom,0px));}
+}
+
 </style>
 
 </head>
@@ -198,6 +215,7 @@ input::placeholder{color:#A9B1BA}
       <button id="phoneNext" class="next" disabled>Next</button>
   </div>
   <div class="spacer"></div>
+  <img class="phoneBottomMark" src="phone-bottom-icon.png" alt="" aria-hidden="true">
 </section>
 
 <section id="scenario" class="page">

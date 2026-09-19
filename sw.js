@@ -1,5 +1,5 @@
-const CACHE="locha-v9-20260920";
-const ASSETS=[
+const CACHE="locha-v1.0-20260920";
+const ASSETS=["phone-bottom-icon.png",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
   "./icon-192.png",
