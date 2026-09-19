@@ -245,6 +245,7 @@ body.keyboardOpen .phoneBottomMark{
     </button>
   </div>
   <div class="spacer"><button id="wronglyPickup" class="choice"><span class="num">3</span><span class="choiceIcon" aria-hidden="true">🧳</span><span>Wrongly Pick-up</span></button>
+<button id="disruptedPax" class="choice"><span class="num">4</span><span class="choiceIcon" aria-hidden="true">✈︎◷</span><span>Disrupted Pax</span></button>
 </div>
 </section>
 
@@ -524,6 +525,81 @@ Thank you for your cooperation.`;
     btn.onclick=()=>show(btn.dataset.back);
   });
   wppSync();
+
+
+  let dpStatusChoice="", dpArrangeChoice="";
+  const dpFlight=$("dpFlightInput"), dpDelay=$("dpDelayTime"), dpAltFlight=$("dpAltFlight"), dpAltTime=$("dpAltTime"), dpArrive=$("dpArriveTime");
+  $("disruptedPax").onclick=()=>show("dpFlight");
+  dpFlight.oninput=()=>{dpFlight.value=digits(dpFlight.value).slice(0,3);$("dpFlightNext").disabled=!/^\d{1,3}$/.test(dpFlight.value);};
+  $("dpFlightNext").onclick=()=>show("dpStatus");
+
+  $("dpStatusPossible").onclick=()=>{dpStatusChoice="possible";$("dpDelayTimeWrap").style.display="none";show("dpArrange");};
+  $("dpStatusUnknown").onclick=()=>{dpStatusChoice="unknown";$("dpDelayTimeWrap").style.display="none";show("dpArrange");};
+  $("dpStatusDelayed").onclick=()=>{dpStatusChoice="delayed";$("dpDelayTimeWrap").style.display="block";$("dpStatusNext").disabled=!dpDelay.value;};
+  dpDelay.oninput=()=>{$("dpStatusNext").disabled=!dpDelay.value;};
+  $("dpStatusNext").onclick=()=>{if(dpDelay.value)show("dpArrange");};
+
+  $("dpArrangeKnown").onclick=()=>{dpArrangeChoice="known";$("dpArrangeKnownWrap").style.display="block";};
+  $("dpArrangeUnknown").onclick=()=>{dpArrangeChoice="unknown";$("dpArrangeKnownWrap").style.display="none";show("dpArrive");};
+  function dpArrangeSync(){
+    dpAltFlight.value=digits(dpAltFlight.value).slice(0,3);
+    $("dpArrangeNext").disabled=!(/^\d{1,3}$/.test(dpAltFlight.value)&&dpAltTime.value);
+  }
+  dpAltFlight.oninput=dpArrangeSync; dpAltTime.oninput=dpArrangeSync;
+  $("dpArrangeNext").onclick=()=>{if(!this.disabled)show("dpArrive");};
+  dpArrive.oninput=()=>{$("dpArriveNext").disabled=!dpArrive.value;};
+  $("dpArriveNext").onclick=()=>{if(dpArrive.value)show("dpLanguage");};
+
+  function dpMessages(zhFirst){
+    const f="CX"+dpFlight.value;
+    let zStatus="", eStatus="";
+    if(dpStatusChoice==="possible"){
+      zStatus="今天可能會延遲";
+      eStatus="may be delayed today";
+    }else if(dpStatusChoice==="delayed"){
+      zStatus="目前已經延遲至"+dpDelay.value;
+      eStatus="is currently delayed until "+dpDelay.value;
+    }else{
+      zStatus="目前航班及起飛動態尚未確定";
+      eStatus="has a current status and departure time that have not yet been confirmed";
+    }
+    let zArrange="", eArrange="";
+    if(dpArrangeChoice==="known"){
+      const af="CX"+dpAltFlight.value;
+      zArrange=`我們將會替您安排替代的航班${af}起飛時間為${dpAltTime.value}，`;
+      eArrange=`We will arrange an alternative flight ${af}, departing at ${dpAltTime.value}.`;
+    }else{
+      zArrange="我們將會為您安排替代的航班，";
+      eArrange="We will arrange an alternative flight for you.";
+    }
+    const zh=`您好：
+
+這裡是國泰航空桃園機場辦公室
+
+由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程，${zArrange}想請問您是否有辦法於${dpArrive.value}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
+    let enFirstSentence="";
+    if(dpStatusChoice==="unknown"){
+      enFirstSentence=`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection in Hong Kong.`;
+    }else{
+      enFirstSentence=`Your flight ${f} to Hong Kong ${eStatus}, which may affect your onward connection in Hong Kong.`;
+    }
+    const en=`Hello,
+
+This is Cathay Pacific at Taoyuan Airport.
+
+${enFirstSentence}
+
+${eArrange}
+
+Could you please let us know if you are able to arrive at Taoyuan Airport before ${dpArrive.value}?
+
+We are located at Counter 4, Terminal 1. Please contact our staff at the counter directly when you arrive at the airport.
+
+Thank you.`;
+    return zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh;
+  }
+  $("dpZhFirst").onclick=()=>openWA(dpMessages(true));
+  $("dpEnFirst").onclick=()=>openWA(dpMessages(false));
 
 })();
 </script>

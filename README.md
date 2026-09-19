@@ -175,3 +175,28 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 2. `English`：英文訊息在上、中文在下。
 
 原本漏查中英文訊息內容與最後的 `cx{flight}/sec{sec}/{DD}{mmm}` identifier 均不變，只切換中英文排列順序。
+
+
+## v1.3 — Disrupted Pax
+
+第二頁新增 `4 Disrupted Pax`。
+
+頁面：
+- `Disrupted flight number`
+- `Flight status`
+- `Flight arrange`
+- `Pax should be arrive before ?`
+- `Preferred Language`
+
+Flight status 三個實際選項（App 不顯示 A/B/C 代號）：
+- 今天可能會延遲
+- 目前已經延遲至（必填時間）
+- 目前航班及起飛動態尚未確定
+
+Flight arrange 兩個實際選項（App 不顯示 C/D 等代號）：
+- 已知替代航班：必填替代 CX 航班號碼與起飛時間
+- 尚未確定替代航班
+
+抵達桃園機場時間必填。
+
+全 App 原本「優先語言」標題統一改為 `Preferred Language`，選項仍為 `中文` / `English`。
