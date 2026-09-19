@@ -1,6 +1,6 @@
 {
-  "name": "Late Pax",
-  "short_name": "Late Pax",
+  "name": "Find Pax",
+  "short_name": "Find Pax",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

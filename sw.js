@@ -1,4 +1,4 @@
-const CACHE="late-pax-v1.3-disrupted-pax-20260920";
+const CACHE="find-pax-v1.4-transfer-flight-20260920";
 const ASSETS=["phone-bottom-icon.png",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",

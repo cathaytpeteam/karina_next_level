@@ -1,4 +1,4 @@
-# Late Pax
+# Find Pax
 
 跨平台 GitHub Pages / PWA，支援 iPhone Safari / iOS PWA、Android Chrome / Android PWA 與桌面瀏覽器。
 
@@ -110,12 +110,12 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 - 底部圖示縮小為約 22px，作為低調的頁面識別。
 
 
-## Late Pax naming / phone-page icon
+## Find Pax naming / phone-page icon
 
-- PWA `name`：`Late Pax`
-- PWA `short_name`：`Late Pax`
-- iPhone 主畫面名稱：`Late Pax`
-- 瀏覽器頁面標題：`Late Pax`
+- PWA `name`：`Find Pax`
+- PWA `short_name`：`Find Pax`
+- iPhone 主畫面名稱：`Find Pax`
+- 瀏覽器頁面標題：`Find Pax`
 - Phone 頁底部 icon：90 × 90px
 
 
@@ -200,3 +200,20 @@ Flight arrange 兩個實際選項（App 不顯示 C/D 等代號）：
 抵達桃園機場時間必填。
 
 全 App 原本「優先語言」標題統一改為 `Preferred Language`，選項仍為 `中文` / `English`。
+
+
+## App rename
+App 顯示名稱、HTML title、iPhone Web App title、PWA manifest name / short_name 已統一改為 `Find Pax`。
+
+
+## v1.4 — Transfer flight number
+
+Disrupted Pax 在 `Flight status` 後新增必填頁：
+- `Transfer flight number`
+- 固定 `CX` 前綴 + 1–3 位數字
+- App 不顯示討論用的 F 代號
+
+流程：
+`Disrupted flight number → Flight status → Transfer flight number → Flight arrange → Pax should be arrive before ? → Preferred Language → WhatsApp`
+
+WhatsApp 中英文訊息都會帶入受影響的香港轉機航班號碼。
