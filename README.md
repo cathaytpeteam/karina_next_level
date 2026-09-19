@@ -116,4 +116,11 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 - PWA `short_name`：`Late Pax`
 - iPhone 主畫面名稱：`Late Pax`
 - 瀏覽器頁面標題：`Late Pax`
-- Phone 頁底部 icon：66 × 66px（原 22 × 22px 的三倍）
+- Phone 頁底部 icon：90 × 90px
+
+
+## Approved icon
+
+所有圖示已統一使用核准版本：站直人物雙手舉起米色行李箱。
+包含 iPhone、Android/PWA、maskable icons，以及 Phone 頁底部 90 × 90px 圖示。
+其他 icon 提案不再使用。

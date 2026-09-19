@@ -1,4 +1,4 @@
-const CACHE="late-pax-v1.0-20260920";
+const CACHE="late-pax-v1.0-unified-icons-20260920";
 const ASSETS=["phone-bottom-icon.png",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
