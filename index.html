@@ -34,8 +34,19 @@ button,input{font:inherit}
   flex-direction:column;
   background:#fff;
   padding:clamp(76px,14vh,132px) 22px calc(18px + env(safe-area-inset-bottom,0px));
+  position:relative;
 }
 .page.active{display:flex}
+.back{
+  position:absolute;
+  top:calc(18px + env(safe-area-inset-top,0px));
+  left:18px;
+  border:0;background:transparent;padding:8px 10px 8px 2px;
+  color:var(--green);font-size:18px;font-weight:700;
+  display:flex;align-items:center;gap:3px;cursor:pointer;
+}
+.back .arrow{font-size:34px;line-height:.7;font-weight:400}
+
 .top{
   display:flex;
   flex-direction:column;
@@ -166,6 +177,7 @@ input::placeholder{color:#A9B1BA}
 </section>
 
 <section id="scenario" class="page">
+  <button class="back" type="button" data-back="phone"><span class="arrow">‹</span>Back</button>
   <div class="top"></div>
   <div class="choices">
     <button id="missBtn" class="choice one" aria-label="1 漏查">
@@ -192,6 +204,7 @@ input::placeholder{color:#A9B1BA}
 </section>
 
 <section id="flight" class="page">
+  <button class="back" type="button" data-back="scenario"><span class="arrow">‹</span>Back</button>
   <div class="top">
     <div class="icon">
       <svg viewBox="0 0 24 24">
@@ -211,6 +224,7 @@ input::placeholder{color:#A9B1BA}
 </section>
 
 <section id="sec" class="page">
+  <button class="back" type="button" data-back="flight"><span class="arrow">‹</span>Back</button>
   <div class="top">
     <div class="icon">
       <svg viewBox="0 0 24 24"><path d="M7 3h8l3 3v15H7z"/><path d="M15 3v4h4M10 11h5M10 15h5"/></svg>
@@ -286,6 +300,16 @@ input::placeholder{color:#A9B1BA}
     phone=digits($("phoneInput").value);
     if(phone.length>=6) show("scenario",true,false);
   };
+
+  document.querySelectorAll(".back").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const target=btn.dataset.back;
+      try{
+        if(history.length>1){history.back();return;}
+      }catch(e){}
+      show(target,false,false);
+    });
+  });
 
   $("missBtn").onclick=()=>show("flight",true,true);
   $("callBtn").onclick=()=>openWA("您好");
