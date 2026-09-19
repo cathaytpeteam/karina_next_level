@@ -244,7 +244,8 @@ body.keyboardOpen .phoneBottomMark{
       <span class="chev" aria-hidden="true">›</span>
     </button>
   </div>
-  <div class="spacer"></div>
+  <div class="spacer"><button id="wronglyPickup" class="choice"><span class="num">3</span><span class="choiceIcon" aria-hidden="true">🧳</span><span>Wrongly Pick-up</span></button>
+</div>
 </section>
 
 <section id="flight" class="page">
@@ -420,13 +421,110 @@ body.keyboardOpen .phoneBottomMark{
     const n=this.value===""?-1:Number(this.value);
     $("secNext").disabled=!(n>=0&&n<=580);
   });
+  let missSec="";
   $("secNext").onclick=function(){
     const n=Number($("secInput").value);
     if(!(n>=0&&n<=580)) return;
-    const sec=String(n).padStart(3,"0");
-    const tag="cx"+flight+"/sec"+sec+"/"+dateCode();
-    openWA('您好：\n\n這是國泰航空桃園機場辦公室。\n\n由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。\n\n如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。\n\n請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。\n\nHello, this is Cathay Pacific at Taoyuan Airport.\n\nYour checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.\n\nPlease return to Check-in Counter 4 and contact our staff.\n\nIf you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.\n\nPlease contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.\n\n'+tag);
+    missSec=String(n).padStart(3,"0");
+    show("missLanguage",true,true);
   };
+
+  function missMessage(zhFirst){
+    const tag="cx"+flight+"/sec"+missSec+"/"+dateCode();
+    const zh=`您好：
+
+這是國泰航空桃園機場辦公室。
+
+由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。
+
+如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。
+
+請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。`;
+    const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
+
+Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
+
+Please return to Check-in Counter 4 and contact our staff.
+
+If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
+
+Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
+    return (zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh) + "\n\n" + tag;
+  }
+  $("missZhFirst").onclick=()=>openWA(missMessage(true));
+  $("missEnFirst").onclick=()=>openWA(missMessage(false));
+
+  const wppFlight=$("wppFlightInput"), b1a=$("wppBag1Airline"), b1n=$("wppBag1Num"), b2a=$("wppBag2Airline"), b2n=$("wppBag2Num");
+  function upper2(el){ el.value=el.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2); }
+  function six(el){ el.value=digits(el.value).slice(0,6); }
+  function wppValidBag(a,n){ return /^[A-Z]{2}$/.test(a.value) && /^\d{6}$/.test(n.value); }
+  function wppSync(){
+    $("wppFlightNext").disabled=!/^\d{1,3}$/.test(wppFlight.value);
+    $("wppBag1Next").disabled=!wppValidBag(b1a,b1n);
+    $("wppBag2Next").disabled=!wppValidBag(b2a,b2n);
+  }
+  $("wronglyPickup").onclick=()=>show("wppFlight");
+  wppFlight.oninput=()=>{wppFlight.value=digits(wppFlight.value).slice(0,3);wppSync();};
+  b1a.oninput=()=>{upper2(b1a);wppSync();}; b1n.oninput=()=>{six(b1n);wppSync();};
+  b2a.oninput=()=>{upper2(b2a);wppSync();}; b2n.oninput=()=>{six(b2n);wppSync();};
+  $("wppFlightNext").onclick=()=>show("wppBag1");
+  $("wppBag1Next").onclick=()=>show("wppBag2");
+  $("wppBag2Next").onclick=()=>show("wppLanguage");
+
+  function wppMessage(zhFirst){
+    const flight="CX"+wppFlight.value;
+    const bag1=b1a.value+b1n.value, bag2=b2a.value+b2n.value;
+    const zh=`您好：
+
+這是桃園機場國泰航空行李辦公室。
+
+我們發現一件搭乘 ${flight} 抵達台北後無人領取的行李，該行李的行李牌號碼 ${bag1} 登記於您的名下。
+
+目前另有一名旅客正在尋找一件外觀相似的行李。
+
+請您協助確認您所領取的行李，其行李牌號碼是否為 ${bag2}？
+
+您也可以直接拍攝您所領取行李的行李牌照片並傳送給我們確認。
+
+為了避免耽誤您的行程，請您務必儘速聯絡我們，以確保您拿到的是正確的行李。
+
+Email: tpe8bag@cathaypacific.com
+Tel: +88627727630
+
+謝謝您的配合。`;
+    const en=`Hello,
+
+This is the Cathay Pacific Baggage Services Office at Taoyuan Airport.
+
+We found one piece of unclaimed baggage from ${flight} arriving in Taipei. The baggage tag number ${bag1} is registered under your name.
+
+Another passenger is currently looking for a similar bag.
+
+Could you please confirm whether the baggage you collected has the baggage tag number ${bag2}?
+
+You may also simply take a photo of the baggage tag on the bag you collected and send it to us for verification.
+
+To avoid any disruption to your journey, please contact us as soon as possible so that we can ensure you have collected the correct baggage.
+
+Email: tpe8bag@cathaypacific.com
+Tel: +88627727630
+
+Thank you for your cooperation.`;
+    return zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh;
+  }
+  function openWpp(zhFirst){
+    const phone=digits($("phoneInput").value);
+    window.location.href="https://wa.me/+"+phone+"?text="+encodeURIComponent(wppMessage(zhFirst));
+    setTimeout(resetAll,700);
+  }
+  $("wppZhFirst").onclick=()=>openWpp(true);
+  $("wppEnFirst").onclick=()=>openWpp(false);
+
+  document.querySelectorAll("[data-back]").forEach(btn=>{
+    btn.onclick=()=>show(btn.dataset.back);
+  });
+  wppSync();
+
 })();
 </script>
 <script>

@@ -134,3 +134,44 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 - 偵測到手機螢幕鍵盤開啟時，底部圖示會暫時隱藏，避免遮住 Next / 輸入區。
 - 鍵盤收起後，圖示自動回到底部中央。
 - App / PWA 主畫面 icon 仍維持核准版白底圖示，避免影響 iOS / Android 桌面圖示呈現。
+
+
+## v1.1 — Wrongly Pick-up
+
+第二頁新增 `3 Wrongly Pick-up`。
+
+流程：
+`Wrongly Pick-up → Flight Number → Bag Tag 1 → Bag Tag 2 → Message Order → WhatsApp`
+
+- Scenario 1「漏查」不顯示行李 icon。
+- Scenario 3 使用行李 icon。
+- Flight 固定顯示 CX，輸入 1–3 碼航班數字。
+- Bag Tag 1 / 2 預設航空公司代碼 CX；兩碼代碼可編輯，只接受英文字母並自動轉大寫。
+- Bag Tag 號碼固定 6 碼數字；未滿 6 碼不能 Next。
+- Message Order：
+  1. 中文在上
+  2. English First
+- 中英文內容相同，只切換排列順序。
+- 使用第一頁已輸入的電話號碼開啟 WhatsApp。
+
+
+### 優先語言頁面
+標題：`優先語言`
+
+按鈕：
+1. `中文`
+2. `English`
+
+功能不變：選中文時中文訊息在上；選 English 時英文訊息在上。
+
+
+## v1.2 — 漏查優先語言
+
+`1 漏查` 流程更新為：
+`漏查 → Flight Number → SEC → 優先語言 → WhatsApp`
+
+優先語言頁：
+1. `中文`：中文訊息在上、英文在下。
+2. `English`：英文訊息在上、中文在下。
+
+原本漏查中英文訊息內容與最後的 `cx{flight}/sec{sec}/{DD}{mmm}` identifier 均不變，只切換中英文排列順序。
