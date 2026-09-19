@@ -217,3 +217,7 @@ Disrupted Pax 在 `Flight status` 後新增必填頁：
 `Disrupted flight number → Flight status → Transfer flight number → Flight arrange → Pax should be arrive before ? → Preferred Language → WhatsApp`
 
 WhatsApp 中英文訊息都會帶入受影響的香港轉機航班號碼。
+
+
+## v1.5 fixed
+修正 3 Wrongly Pick-up 與 4 Disrupted Pax 無法點入的問題。補齊實際 HTML 頁面，重新整理首頁四個按鈕版面，並套用使用者提供的飛機＋時鐘圖示。Disrupted Pax 包含 Transfer flight number，且所有語言頁標題為 Preferred Language。

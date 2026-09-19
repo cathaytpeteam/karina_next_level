@@ -1,5 +1,5 @@
-const CACHE="find-pax-v1.4-transfer-flight-20260920";
-const ASSETS=["phone-bottom-icon.png",
+const CACHE="find-pax-v1.5-fixed-20260920";
+const ASSETS=["phone-bottom-icon.png","disrupted-pax-icon.png",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
   "./icon-192.png",
