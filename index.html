@@ -315,7 +315,14 @@ input::placeholder{color:#A9B1BA}
 })();
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+if("serviceWorker" in navigator){
+window.addEventListener("load",async()=>{
+  try{
+    const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});
+    await reg.update();
+  }catch(e){}
+});
+}
 </script>
 </body>
 </html>
