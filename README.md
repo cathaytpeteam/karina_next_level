@@ -124,3 +124,13 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 所有圖示已統一使用核准版本：站直人物雙手舉起米色行李箱。
 包含 iPhone、Android/PWA、maskable icons，以及 Phone 頁底部 90 × 90px 圖示。
 其他 icon 提案不再使用。
+
+
+## Phone bottom icon fix
+
+- Phone 頁底部圖示維持 90 × 90px。
+- Phone 頁使用透明背景 PNG（去背）。
+- 圖示固定在畫面底部中央。
+- 偵測到手機螢幕鍵盤開啟時，底部圖示會暫時隱藏，避免遮住 Next / 輸入區。
+- 鍵盤收起後，圖示自動回到底部中央。
+- App / PWA 主畫面 icon 仍維持核准版白底圖示，避免影響 iOS / Android 桌面圖示呈現。
