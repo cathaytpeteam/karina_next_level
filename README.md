@@ -1,4 +1,4 @@
-# 漏查 LATE
+# Late Pax
 
 跨平台 GitHub Pages / PWA，支援 iPhone Safari / iOS PWA、Android Chrome / Android PWA 與桌面瀏覽器。
 
@@ -108,3 +108,12 @@ Phone 輸入頁的畫面最下方中央加入目前的 App 圖示：
 - `罐頭號碼 無用`：24px、紅色、粗體、置中。
 - Phone 頁最下方中央圖示改用選定的「雙手舉行李」版本。
 - 底部圖示縮小為約 22px，作為低調的頁面識別。
+
+
+## Late Pax naming / phone-page icon
+
+- PWA `name`：`Late Pax`
+- PWA `short_name`：`Late Pax`
+- iPhone 主畫面名稱：`Late Pax`
+- 瀏覽器頁面標題：`Late Pax`
+- Phone 頁底部 icon：66 × 66px（原 22 × 22px 的三倍）

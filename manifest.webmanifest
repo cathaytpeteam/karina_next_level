@@ -1,6 +1,6 @@
 {
-  "name": "漏查 LATE",
-  "short_name": "漏查",
+  "name": "Late Pax",
+  "short_name": "Late Pax",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
