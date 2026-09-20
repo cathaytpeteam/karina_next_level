@@ -1,6 +1,0 @@
-JavaScript syntax: PASS
-Duplicate IDs: []
-Missing JS IDs: []
-Missing Back targets: []
-Native time inputs remaining: 0
-HHMM validation: 00-23 / 00-59
