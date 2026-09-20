@@ -304,3 +304,9 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 
 ## v1.18
 - Bag Tag 2 中文說明改為「疑似被客人Wrong P帶走的行李」。
+
+## v1.19 — Clean split fields
+- Transfer flight number 移除灰色 `450` placeholder，未輸入時保持空白。
+- Bag Tag 1 / 2 改為與 Transfer flight 相同的左右分隔欄位：左側航空公司代碼、右側 6 位數字。
+- Bag Tag 數字欄位不顯示灰色範例文字。
+- 航空公司代碼仍可編輯，既有驗證與流程不變。
