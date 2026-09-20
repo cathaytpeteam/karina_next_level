@@ -259,3 +259,8 @@ Wrongly Pick-up：
 - Bag Tag 1 顯示「沒有人拿走的行李」
 - Bag Tag 2 顯示「被拿錯，目前找不到的行李」
 - Bag Tag 1 / 2 的預設航空公司代碼 `CX` 加大、加粗；仍可編輯其他兩碼航空公司代碼。
+
+## v1.10 — Editable transfer airline code
+- Transfer flight number 的航空公司代碼預設 `CX`，但可直接編輯。
+- 限制 2 個英文字母，自動轉大寫。
+- WhatsApp 訊息使用實際輸入的航空公司代碼。
