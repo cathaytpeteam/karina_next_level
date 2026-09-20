@@ -126,10 +126,15 @@ h1 + .chip{margin-top:-8px}
 @media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
-/* Center flight/DEP input content as a visual unit. */
-#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-transfer .field, #s-bag1 .field, #s-bag2 .field{justify-content:center}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-transfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code){flex:0 1 auto;width:auto;max-width:180px}
-#s-darrange .field.time input{max-width:150px;text-align:center}
+/* Prefix + value fields share one centered two-column geometry across the app. */
+#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-transfer .field, #s-bag1 .field, #s-bag2 .field{display:grid;grid-template-columns:72px 7.2ch;justify-content:center;align-items:center;column-gap:12px}
+#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-transfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code{width:72px;margin-right:0;justify-self:end}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-transfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code){flex:0 0 auto;width:7.2ch;max-width:none;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-darrange .field.time input{width:7.2ch;text-align:left}
+/* Expanded message editor fills the remaining viewport instead of shrinking to content. */
+#s-preview.preview-focus{display:flex;flex-direction:column;min-height:calc(var(--vh, 100vh) - 125px)}
+#s-preview.preview-focus .msgToggle{flex:none}
+#s-preview.preview-focus .msg{display:block;flex:1 1 auto;height:auto;min-height:0;margin-bottom:0;overflow-y:auto}
 </style>
 </head>
 <body>
