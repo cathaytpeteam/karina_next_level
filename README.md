@@ -366,3 +366,12 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - Will Protect to 的替代航班改為與 Connecting flight 一致的 `CX │ 航班號` 分隔欄位。
 - 替代航班時間 HHMM 維持獨立欄位。
 - CX 仍預設存在、可修改，既有驗證與 WhatsApp 組字邏輯不變。
+
+## v1.30 — Universal keyboard-safe mode
+- 鍵盤避讓改為全 App 套用，不再只針對單一輸入頁。
+- 依每支手機 `visualViewport` 的實際可視高度判斷鍵盤佔用空間。
+- 鍵盤開啟時優先確保「目前輸入欄位 + Next」完整位於鍵盤上方。
+- 必要時頁面自動捲動，而不是使用固定 15% 位移。
+- 鍵盤開啟時縮短標題／上方留白；裝飾 icon 若符合現有 class 會縮小，增加操作空間。
+- 鍵盤關閉後恢復正常頁面配置。
+- v1.29 的 Will Protect to `CX │ 航班號` + 獨立 HHMM 保留。
