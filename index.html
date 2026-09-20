@@ -118,6 +118,7 @@ h1 + .chip{margin-top:-8px}
 .sum dt{color:var(--muted);flex:none;display:flex;align-items:center;gap:14px;white-space:nowrap}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.sum dd .flightAccent{color:var(--brand);font-weight:900}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
@@ -262,6 +263,12 @@ h1 + .chip{margin-top:-8px}
       <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
+    <!-- Call Pax confirmation -->
+    <section class="screen" id="s-callconfirm" hidden>
+      <h1>Confirm Details</h1>
+      <dl class="sum" id="callSum"></dl>
+    </section>
+
     <!-- shared preview -->
     <section class="screen" id="s-preview" hidden>
       <h1>Confirm Details</h1>
@@ -352,6 +359,7 @@ h1 + .chip{margin-top:-8px}
     dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
+    callconfirm:()=>true,
     preview:()=>true
   };
   function bagHint(a,n){
@@ -370,6 +378,7 @@ h1 + .chip{margin-top:-8px}
     dstatus:()=>timeHint("delayTime"),
     darrange:()=>!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
+    callconfirm:()=>"",
     preview:()=>"Check details before sending"
   };
   const NEXT={
@@ -378,6 +387,7 @@ h1 + .chip{margin-top:-8px}
     wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
     dstatus:()=>go("darrange"), darrange:()=>go("darrive"), darrive:()=>go("preview"),
+    callconfirm:()=>openWA("您好"),
     preview:()=>send()
   };
 
@@ -498,7 +508,7 @@ Thank you.`;
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
-      rows.push(["Arrangement",S.arrange==="known" ? "Will protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
+      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
       rows.push(["Arrive airport before",v("arriveTime")]);
     }
     return rows;
@@ -593,7 +603,7 @@ Thank you.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
-    const hasWho=cur!=="phone"&&cur!=="preview"&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="preview"&&cur!=="callconfirm"&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -620,13 +630,26 @@ Thank you.`;
       $("arUnknown").setAttribute("aria-pressed",S.arrange==="unknown");
       $("altWrap").hidden=S.arrange!=="known";
     }
+    if(cur==="callconfirm"){
+      const sum=$("callSum");sum.textContent="";
+      const c=findCountry(S.phone);
+      const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
+      t.textContent="Call"; dd.textContent=(c?c[1]+" ":"")+"+"+S.phone;
+      d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
+    }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
       buildRows().forEach(r=>{
         const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
         t.textContent=r[0];
         if(r[2]){const sub=document.createElement("small");sub.textContent=r[2];sub.lang="zh-Hant";t.appendChild(sub);}
-        dd.textContent=r[1];d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
+        if(flow==="dp" && r[0]==="Arrangement" && S.arrange==="known"){
+          const flight=v("altA")+v("altN"), parts=r[1].split(flight);
+          dd.appendChild(document.createTextNode(parts[0]||""));
+          const a=document.createElement("span");a.className="flightAccent";a.textContent=flight;dd.appendChild(a);
+          dd.appendChild(document.createTextNode(parts[1]||""));
+        }else dd.textContent=r[1];
+        d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
       $("ordZh").setAttribute("aria-pressed",S.order==="zh");
       $("ordEn").setAttribute("aria-pressed",S.order==="en");
@@ -647,7 +670,7 @@ Thank you.`;
     hint.classList.toggle("bad",/Invalid time|Max 580/.test(text));
     const cta=$("cta");
     cta.disabled=!ok;
-    cta.textContent=cur==="preview"?"Send on What's App":"Next";
+    cta.textContent=cur==="preview"?"Send on What's App":cur==="callconfirm"?"Call on What's App":"Next";
   }
   $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
 
@@ -667,7 +690,7 @@ Thank you.`;
   ["delayTime","altTime","arriveTime"].forEach(id=>$(id).addEventListener("input",function(){fmtTime(this);render();}));
 
   $("goMiss").onclick=()=>{flow="miss";go("mflight");};
-  $("goCall").onclick=()=>{flow="";openWA("您好");};
+  $("goCall").onclick=()=>{flow="call";go("callconfirm");};
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};
 
