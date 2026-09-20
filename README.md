@@ -34,16 +34,18 @@ Phone 頁會先把輸入轉成純數字，再依國際電話國碼在本機判�
 在 `index.html` 搜尋：
 
 ```js
-const blockedPhones=new Set(["85289648964"]);
+const blocked=new Set(["85289648964","85262374313"]);
 ```
 
 例如新增第二個號碼：
 
 ```js
-const blockedPhones=new Set(["85289648964","886912345678"]);
+const blocked=new Set(["85289648964","85262374313","886912345678"]);
 ```
 
 請一律使用「國碼 + 電話號碼」的純數字格式。
+
+(變數名稱為 `blocked`,舊版文件誤寫為 `blockedPhones`,已更正。)
 
 提示文字要修改時，在 `index.html` 搜尋 `罐頭號碼 無用`。
 
@@ -414,3 +416,55 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - `sw.js` CACHE：`find-pax-v2.0-ui-refresh-20260920`，預先快取清單已移除不再使用的兩張圖。
 
 注意：舊 PWA 若仍顯示舊版，請先用 `?v=2` 網址開一次，或移除舊主畫面捷徑後重新加入。
+
+
+## v2.1 — Bug fixes(基於 v2.0)
+
+本次只修 bug 與版面一致性,**未更動任何介面文字或 WhatsApp 訊息內容**。
+
+### 訊息殘留修正(最重要)
+- 送出 WhatsApp 後重置時,一併清空訊息預覽框內容、草稿狀態與展開狀態。
+  修正「下一位客人會看到／收到上一位客人已編輯訊息」的問題。
+- 從預覽頁 Back 回去修改任何欄位後,訊息會自動重建,不再停留在舊版本。
+  作法:以所有輸入欄位組成簽章,簽章一變動即丟棄舊草稿。
+- 切換 `中文` / `English` 不再清空已編輯內容。
+  編輯內容改為依語言分別保存,切回去可完整取回。
+
+### 介面提示
+- 移除 `.hint:not(.bad){display:none}`。Next 按鈕上方的提示恢復顯示
+  (例如 `2 more digits`、`6 digits`、`HHMM, for example 0811`、`Airline code: 2 letters`)。
+- `Invalid time (00:00–23:59)` 與 `Max 580` 會以紅色標示。
+- 提示列固定保留一行高度,出現／消失時 Next 不再跳動。
+- 罐頭號碼不再同時在畫面中段與底部重複顯示,只保留中段紅色警告框。
+
+### 版面一致性
+- 修正 CSS 選擇器 `#s-transfer` → `#s-dtransfer`。Connecting flight 的
+  航空公司代碼與航班號碼欄位,現在與 Bag Tag / Will protect to 使用同一種幾何。
+- SEC 頁(`#s-msec`)納入同一套置中窄欄版面,與前一頁 Flight number 的數字位置對齊。
+- `font-weight:750` 改為 `700`(750 非標準字重,PingFang TC 不支援,
+  原本就會被瀏覽器降成 700;改寫以確保 iOS / Android 呈現一致)。
+- 新增 `max-width:380px` 斷點:窄螢幕 Android 上縮小情境列的 icon、
+  編號與字級,避免 `Wrongly Pick-up` 這類較長標籤被擠出畫面。
+- 輸入文字顏色 `#263737` 改為 CSS 變數 `--input-ink`(顏色不變)。
+- 移除無效規則 `#s-scenario > h1{display:none}`(該頁沒有 h1)。
+- 移除正式版殘留的 `window.__fp` 除錯物件。
+
+### 無障礙
+- 中文內容區塊(罐頭號碼警告、Bag Tag 說明、Flight status 選項、
+  `中文` 按鈕、訊息編輯框)加上 `lang="zh-Hant"`,
+  避免螢幕閱讀器以英文發音規則唸中文。HTML 根層維持 `lang="en"`。
+
+### Service Worker
+- CACHE 版本更新為 `find-pax-v2.1-bugfix-20260921`。
+- 預快取清單補上 `phone-bottom-icon.png` 與 `disrupted-pax-icon-v2.png`
+  (v2.0 說明稱兩張圖已移除,但程式實際仍在使用,會造成離線首次開啟破圖)。
+
+### 本次刻意不改的項目
+以下為設計決定或另行處理,非 bug:
+- `中文` / `English` 維持上下排列。
+- 預覽頁不顯示 Flight status。
+- 可編輯與不可編輯的 `CX` 外觀維持相同。
+- 時間欄位維持無格式提示文字。
+- 情境 1 與情境 3 的圖示相似度,待另行設計。
+- Scenario 頁的寫死配色 `#EEF3F7` / `#DDF2F2` 維持原樣。
+- `2 Call Pax` 維持直接開啟 WhatsApp,不加確認步驟。
