@@ -352,3 +352,9 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - iPhone Safari / Home Screen PWA 與 Android Chrome / PWA 均套用 light color scheme。
 - manifest 與 browser theme color 固定為白色。
 - 其他流程、文字、罐頭號碼與透明 icon 維持 v1.26。
+
+## v1.28 — Reduce Android autofill/history popups
+- 全 App form/input 關閉 browser autocomplete。
+- 關閉 autocorrect、autocapitalize、spellcheck，降低 Android Chrome / 鍵盤的歷史輸入干擾。
+- 保留原本 `inputmode` 與欄位驗證，所以電話、航班號、Bag Tag、HHMM 的鍵盤類型不變。
+- 注意：Gboard / Samsung Keyboard 自己的剪貼簿或個人化建議由手機鍵盤控制，網頁無法完全禁止。
