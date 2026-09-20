@@ -24,6 +24,7 @@
 html,body{height:100%;margin:0;background:#fff}
 body{color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}
 button,input,textarea{font:inherit;color:inherit}
+input,textarea,.sum dd{color:#263737}
 button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 
 .app{position:fixed;top:var(--vt,0px);left:0;right:0;height:var(--vh,100%);max-width:480px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
@@ -57,7 +58,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .field.bad{border-color:var(--danger)}
 .plus{font-size:26px;color:var(--brand-strong);padding:0 4px 0 10px}
 .field input{border:0;outline:0;background:transparent;width:100%;min-width:0;height:64px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 8px}
-.field input::placeholder{color:var(--muted);opacity:.45;font-weight:500}
+.field input::placeholder{color:transparent;opacity:0}
 .field .code{flex:none;width:64px;margin-right:6px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);text-align:center;font-weight:800;text-transform:uppercase;height:52px;padding:0}
 span.code{display:grid;place-items:center;font-size:28px}
 .field.time{min-height:72px}
@@ -102,7 +103,7 @@ h1 + .chip{margin-top:-8px}
 .bagHelp{margin:-8px 0 20px;font-size:20px;line-height:1.35;font-weight:700;color:var(--brand-strong)}
 /* Phone landing page */
 #s-phone h1{text-align:center}
-.phoneHeroIcon{display:block;width:72px;height:72px;object-fit:contain;margin:0 auto 22px}
+.phoneHeroIcon{display:block;width:72px;height:72px;object-fit:contain;margin:22px auto 0}
 /* Only actionable validation errors are shown in the footer; backend format hints stay hidden. */
 .hint:not(.bad){display:none}
 /* Message focus mode: when the preview is open, reclaim the upper screen space. */
@@ -120,10 +121,15 @@ h1 + .chip{margin-top:-8px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--bg);color:var(--brand-strong);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .previewLangTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
-.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;min-height:320px;background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:var(--text)}
+.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:#263737}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 @media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+
+/* Center flight/DEP input content as a visual unit. */
+#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-transfer .field, #s-bag1 .field, #s-bag2 .field{justify-content:center}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-transfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code){flex:0 1 auto;width:auto;max-width:180px}
+#s-darrange .field.time input{max-width:150px;text-align:center}
 </style>
 </head>
 <body>
@@ -140,12 +146,12 @@ h1 + .chip{margin-top:-8px}
   <main id="main">
     <section class="screen" id="s-phone">
       <h1>Input phone number<br>on CTCM</h1>
-      <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
       <div class="field" id="phoneField">
         <span class="plus">+</span>
-        <input id="phoneInput" inputmode="numeric" maxlength="15" placeholder="852 1234 5678" aria-label="Phone number">
+        <input id="phoneInput" inputmode="numeric" maxlength="15" aria-label="Phone number">
         <span class="badge" id="badge" hidden></span>
       </div>
+      <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
       <div class="warn" id="warn" role="alert">罐頭號碼 無用</div>
     </section>
 
@@ -173,39 +179,39 @@ h1 + .chip{margin-top:-8px}
     <!-- Missed check -->
     <section class="screen" id="s-mflight" hidden>
       <h1>flight number</h1>
-      <div class="field"><span class="code">CX</span><input id="mFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
       <h1>sec</h1>
-      <div class="field"><input id="mSec" inputmode="numeric" maxlength="3" placeholder="000" aria-label="SEC number"></div>
+      <div class="field"><input id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
     </section>
 
     <!-- Wrongly Pick-up -->
     <section class="screen" id="s-wflight" hidden>
       <h1>Flight number</h1>
-      <div class="field"><span class="code">CX</span><input id="wFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
       <p class="bagHelp">沒有人拿走的行李</p>
-      <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" placeholder="000000" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
       <h1>Bag Tag 2</h1>
       <p class="bagHelp">疑似被客人Wrong P帶走的行李</p>
-      <div class="field"><input class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input id="b2n" inputmode="numeric" maxlength="6" placeholder="000000" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
 
     <!-- Disrupted Pax -->
     <section class="screen" id="s-dflight" hidden>
       <h1>Disrupted flight</h1>
       <div class="chip">TPE</div>
-      <div class="field"><span class="code">CX</span><input id="dFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dtransfer" hidden>
       <h1>Connecting flight</h1>
       <div class="chip">HKG</div>
-      <div class="field"><input class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input id="tN" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+      <div class="field"><input class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dstatus" hidden>
       <h1>Flight status</h1>
@@ -215,7 +221,7 @@ h1 + .chip{margin-top:-8px}
         <button class="opt" id="stUnknown" type="button" aria-pressed="false">目前航班及起飛動態尚未確定</button>
       </div>
       <div class="optExtra" id="delayWrap" hidden>
-        <div class="field time"><input id="delayTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Delayed to, HHMM"></div>
+        <div class="field time"><input id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
@@ -225,13 +231,13 @@ h1 + .chip{margin-top:-8px}
         <button class="opt" id="arUnknown" type="button" aria-pressed="false">Not decided yet</button>
       </div>
       <div class="optExtra" id="altWrap" hidden>
-        <div class="field"><input class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input id="altN" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
-        <div class="field time"><input id="altTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Departure time, HHMM"></div>
+        <div class="field"><input class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+        <div class="field time"><span class="code">DEP</span><input id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrive" hidden>
-      <h1>Pax should arrive before ?</h1>
-      <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Arrive before, HHMM"></div>
+      <h1>Pax should arrive airport before ?</h1>
+      <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
     <!-- shared preview -->
@@ -470,8 +476,8 @@ Thank you.`;
       rows.push(["Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n")],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
-      rows.push(["Arrangement",S.arrange==="known" ? "Will protect to "+v("altA")+v("altN") : "Not decided yet"]);
-      rows.push(["Arrive before",v("arriveTime")]);
+      rows.push(["Arrangement",S.arrange==="known" ? "Will protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
+      rows.push(["Arrive airport before",v("arriveTime")]);
     }
     return rows;
   }
