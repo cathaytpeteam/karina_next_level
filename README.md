@@ -359,15 +359,10 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 保留原本 `inputmode` 與欄位驗證，所以電話、航班號、Bag Tag、HHMM 的鍵盤類型不變。
 - 注意：Gboard / Samsung Keyboard 自己的剪貼簿或個人化建議由手機鍵盤控制，網頁無法完全禁止。
 
-## v1.29 — Will Protect to split field
-- `Will Protect to` 展開後的替代航班改為與 `Connecting flight` 相同概念：`CX │ 航班號`。
-- `CX` 維持預設且可修改。
-- 航班號在右側輸入，無灰色範例字。
-- `HHMM` 時間欄位維持獨立放在下方。
-- 其他 v1.28 功能與設定維持不變。
-
-## v1.30 — HHMM live validation
-- 所有 HHMM 欄位在輸入當下限制合法時間。
-- 小時只能 00–23，分鐘只能 00–59。
-- `3272`、`2400`、`1265` 等錯誤時間無法完整輸入。
-- `0811` 等合法時間會自動格式化為 `08:11`。
+## v1.29 — Dynamic keyboard-safe layout + Protected split field
+- 移除以固定百分比猜測鍵盤高度的做法。
+- 支援 Visual Viewport 的手機會依「實際可視高度」動態計算需要上移的距離。
+- 鍵盤關閉後版面自動回復正常位置。
+- Will Protect to 的替代航班改為與 Connecting flight 一致的 `CX │ 航班號` 分隔欄位。
+- 替代航班時間 HHMM 維持獨立欄位。
+- CX 仍預設存在、可修改，既有驗證與 WhatsApp 組字邏輯不變。

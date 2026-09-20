@@ -577,11 +577,7 @@ input,button{font-family:inherit;}
   border-radius:999px;background:#eef3f4;color:var(--green);
   font-size:23px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:.02em;
 }
-/* Visually single-field pages: same 15% upward adjustment as the first phone page. */
-#phone .form,#flight .form,#sec .form,#wppFlight .form,#wppBag1 .form,#wppBag2 .form,
-#dpFlight .form,#dpTransfer .form,#dpArrive .form{
-  transform:translateY(-15%);transform-origin:center top;
-}
+
 /* First-page decorative icon: 1.4× original 90px. */
 #phone .phoneBottomMark{
   width:126px !important;height:126px !important;max-width:126px !important;object-fit:contain;
@@ -618,55 +614,54 @@ input,.inputbox,.field,
 }
 
 
-/* v1.29 — Will Protect to: airline | flight number split field */
-#dpArrange .protectedFlightSplit{
+/* v1.29 — Protected-to split field */
+.protectedFlightRow{
   display:grid;
   grid-template-columns:120px 1fr;
   gap:0;
   width:100%;
   min-height:92px;
-  margin-top:14px;
+  margin-top:12px;
   border:2px solid #cfd6dd;
   border-radius:16px;
   background:#fff;
   overflow:hidden;
 }
-#dpArrange .protectedFlightSplit #dpAltAirline{
+.protectedAirlineBox,.protectedNumberBox{
+  min-height:88px;
+  display:flex;
+  align-items:center;
+  background:#fff;
+}
+.protectedAirlineBox{
+  border-right:2px solid #cfd6dd;
+}
+#dpAltAirline,#dpAltFlight{
   width:100% !important;
-  max-width:none !important;
   min-height:88px;
   margin:0 !important;
-  padding:0 18px !important;
+  padding:0 20px !important;
   border:0 !important;
-  border-right:2px solid #cfd6dd !important;
   border-radius:0 !important;
+  outline:0;
   background:#fff !important;
   color:var(--green) !important;
   -webkit-text-fill-color:var(--green);
   font-size:28px !important;
   font-weight:800 !important;
   text-align:left;
-  outline:0;
 }
-#dpArrange .protectedFlightSplit #dpAltFlight{
-  width:100% !important;
-  min-height:88px;
-  margin:0 !important;
-  padding:0 22px !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:#fff !important;
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-  text-align:left;
-  outline:0;
+#dpAltFlight::placeholder{color:transparent !important;}
+
+/* Dynamic keyboard-safe motion. JS sets --kb-lift to only the distance needed. */
+.screen{
+  --kb-lift:0px;
 }
-#dpArrange .protectedFlightSplit #dpAltFlight::placeholder{
-  color:transparent !important;
+.screen.keyboard-active .form,
+.screen.keyboard-active .keyboardLift{
+  transform:translateY(var(--kb-lift)) !important;
+  transition:transform .16s ease-out;
 }
-/* HHMM remains its own field below the split flight field. */
 
 </style>
 
@@ -801,7 +796,7 @@ input,.inputbox,.field,
   <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will Protect to</span></span></button>
   <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Not decided yet</span></span></button>
  </div>
- <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><div class="protectedFlightSplit"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
+ <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpArrive" class="page">
  <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should arrive before ?</h1></div>
@@ -1054,15 +1049,7 @@ wppSync();
 
 
   function hhmmInput(el){
-    const raw=digits(el.value).slice(0,4);
-    let d="";
-    for(let i=0;i<raw.length;i++){
-      const ch=raw[i];
-      if(i===0 && !/[0-2]/.test(ch)) break;
-      if(i===1 && Number(d+ch)>23) break;
-      if(i===2 && !/[0-5]/.test(ch)) break;
-      d+=ch;
-    }
+    let d=digits(el.value).slice(0,4);
     if(d.length>=3) el.value=d.slice(0,2)+":"+d.slice(2);
     else el.value=d;
     if(d.length!==4) return false;
@@ -1187,6 +1174,64 @@ document.addEventListener("DOMContentLoaded", function(){
     el.setAttribute("spellcheck","false");
   });
 });
+</script>
+
+
+<script>
+(function(){
+  if(!window.visualViewport) return;
+  const vv=window.visualViewport;
+  let raf=0;
+
+  function updateKeyboardSafeArea(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(function(){
+      const active=document.activeElement;
+      const screen=active && active.closest ? active.closest(".screen") : null;
+      document.querySelectorAll(".screen.keyboard-active").forEach(function(x){
+        if(x!==screen){ x.classList.remove("keyboard-active"); x.style.removeProperty("--kb-lift"); }
+      });
+      if(!screen || !active || !/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return;
+
+      const layoutH=window.innerHeight;
+      const visibleBottom=vv.offsetTop+vv.height;
+      const keyboardOpen=(layoutH-visibleBottom)>120;
+      if(!keyboardOpen){
+        screen.classList.remove("keyboard-active");
+        screen.style.removeProperty("--kb-lift");
+        return;
+      }
+
+      // Keep focused field safely above the actual visible keyboard edge.
+      const r=active.getBoundingClientRect();
+      const safety=28;
+      let needed=Math.max(0, r.bottom+safety-visibleBottom);
+
+      // If Next is nearby on a simple page, try to keep it visible too, without excessive lift.
+      const next=screen.querySelector(".next");
+      if(next){
+        const nr=next.getBoundingClientRect();
+        needed=Math.max(needed, Math.min(120, Math.max(0,nr.bottom+16-visibleBottom)));
+      }
+      const lift=-Math.min(needed, Math.max(0, vv.height*0.28));
+      screen.style.setProperty("--kb-lift", lift+"px");
+      screen.classList.add("keyboard-active");
+    });
+  }
+
+  vv.addEventListener("resize",updateKeyboardSafeArea);
+  vv.addEventListener("scroll",updateKeyboardSafeArea);
+  document.addEventListener("focusin",function(){setTimeout(updateKeyboardSafeArea,60);});
+  document.addEventListener("focusout",function(){
+    setTimeout(function(){
+      if(!document.activeElement || !document.activeElement.closest || !document.activeElement.closest(".screen")){
+        document.querySelectorAll(".screen.keyboard-active").forEach(function(x){
+          x.classList.remove("keyboard-active"); x.style.removeProperty("--kb-lift");
+        });
+      }
+    },100);
+  });
+})();
 </script>
 
 </body>
