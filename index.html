@@ -49,11 +49,17 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .app.kb .head{padding-top:max(4px,env(safe-area-inset-top,0px));min-height:48px}
 .app.kb .headrow{min-height:40px}
 .app.kb .bar,.app.kb .step{display:none!important}
-.app.kb main{padding-top:6px;padding-bottom:8px;scroll-padding-top:12px;scroll-padding-bottom:68px}
-.app.kb h1{margin:6px 0 10px;font-size:23px}
-.app.kb .foot{padding:6px 20px max(6px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.app.kb main{padding-top:4px;padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
+.app.kb h1{margin:3px 0 6px;font-size:21px;line-height:1.12}
+.app.kb .chip{margin-top:2px;margin-bottom:6px;padding-top:7px;padding-bottom:7px}
+.app.kb .opts{gap:6px;margin-bottom:6px}
+.app.kb .opt{min-height:54px;padding:9px 12px}
+.app.kb .field{min-height:58px}
+.app.kb .field + .field{margin-top:7px}
+.app.kb .optExtra{margin-top:6px}
+.app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .app.kb .hint{display:none}
-.app.kb .cta{min-height:48px;font-size:18px;border-radius:14px}
+.app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}
 .foot[hidden]{display:none}
 .hint{min-height:22px;margin:0 0 8px;font-size:15px;color:var(--muted);text-align:center}
 .hint:not(.bad){visibility:hidden}
@@ -741,16 +747,33 @@ Thank you.`;
   if(vv){
     let vvFrame=0, settleTimer=0;
     const keyboardOpen=()=>vv.height<window.innerHeight-100;
-    const revealActive=()=>{
+    const revealWorkspace=()=>{
       const el=document.activeElement;
       if(!keyboardOpen()||!el||!["INPUT","TEXTAREA"].includes(el.tagName)) return;
       const main=$("main"), foot=$("foot");
       if(!main||!foot||foot.hidden) return;
-      const er=el.closest(".field")?.getBoundingClientRect() || el.getBoundingClientRect();
+      const screen=el.closest(".screen");
       const mr=main.getBoundingClientRect(), fr=foot.getBoundingClientRect();
-      const top=mr.top+8, bottom=Math.min(mr.bottom,fr.top)-8;
-      if(er.bottom>bottom) main.scrollBy({top:er.bottom-bottom+12,behavior:"auto"});
-      else if(er.top<top) main.scrollBy({top:er.top-top-12,behavior:"auto"});
+      const top=mr.top+6, bottom=Math.min(mr.bottom,fr.top)-6, available=bottom-top;
+      const fields=screen ? [...screen.querySelectorAll(".field")].filter(f=>{
+        const r=f.getBoundingClientRect(), cs=getComputedStyle(f);
+        return cs.display!=="none" && cs.visibility!=="hidden" && r.width>0 && r.height>0;
+      }) : [];
+      // Treat all visible fields on this page as one work area so pages with
+      // Flight + DEP (or other multi-field forms) stay visible together.
+      const rects=fields.map(f=>f.getBoundingClientRect());
+      let wt=rects.length?Math.min(...rects.map(r=>r.top)):0;
+      let wb=rects.length?Math.max(...rects.map(r=>r.bottom)):0;
+      if(rects.length && wb-wt<=available){
+        if(wb>bottom) main.scrollBy({top:wb-bottom+8,behavior:"auto"});
+        else if(wt<top) main.scrollBy({top:wt-top-8,behavior:"auto"});
+        return;
+      }
+      // If the complete work area physically cannot fit, keep the active field
+      // visible while leaving the content scrollable for the neighbouring fields.
+      const er=el.closest(".field")?.getBoundingClientRect() || el.getBoundingClientRect();
+      if(er.bottom>bottom) main.scrollBy({top:er.bottom-bottom+8,behavior:"auto"});
+      else if(er.top<top) main.scrollBy({top:er.top-top-8,behavior:"auto"});
     };
     const syncNow=()=>{
       vvFrame=0;
@@ -758,13 +781,13 @@ Thank you.`;
       app.classList.toggle("kb",open);
       app.style.setProperty("--vh",open?Math.round(vv.height)+"px":"100%");
       app.style.setProperty("--vt",open?Math.round(vv.offsetTop)+"px":"0px");
-      if(open) revealActive();
+      if(open) revealWorkspace();
     };
     const sync=()=>{
       if(vvFrame) cancelAnimationFrame(vvFrame);
       vvFrame=requestAnimationFrame(syncNow);
       clearTimeout(settleTimer);
-      settleTimer=setTimeout(()=>{syncNow();revealActive();},180);
+      settleTimer=setTimeout(()=>{syncNow();revealWorkspace();},180);
     };
     vv.addEventListener("resize",sync,{passive:true});
     vv.addEventListener("scroll",sync,{passive:true});
