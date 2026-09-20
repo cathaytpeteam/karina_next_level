@@ -114,8 +114,8 @@ h1 + .chip{margin-top:-8px}
 .sum{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 16px}
 .sum div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:17px}
 .sum div + div{border-top:1px solid var(--line)}
-.sum dt{color:var(--muted);flex:none}
-.sum dt small{display:block;margin-top:3px;font-size:12px;line-height:1.25;color:var(--brand-strong);font-weight:700}
+.sum dt{color:var(--muted);flex:none;display:flex;align-items:center;gap:14px;white-space:nowrap}
+.sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
@@ -211,7 +211,7 @@ h1 + .chip{margin-top:-8px}
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
-      <p class="bagHelp" lang="zh-Hant">沒有人拿走的行李</p>
+      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
       <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
@@ -345,7 +345,7 @@ h1 + .chip{margin-top:-8px}
     bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
     dflight:()=>isFlt(v("dFlight")),
     dtransfer:()=>isAir(v("tA"))&&isFlt(v("tN")),
-    dstatus:()=>S.status==="delayed"&&timeOk("delayTime"),
+    dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime"),
     darrive:()=>timeOk("arriveTime"),
     preview:()=>true
@@ -491,7 +491,7 @@ Thank you.`;
     if(flow==="miss"){
       rows.push(["Flight","CX"+String(Number(v("mFlight")))],["SEC",String(Number(v("mSec"))).padStart(3,"0")]);
     }else if(flow==="wpp"){
-      rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"沒有人拿走的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
+      rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
       rows.push(["Arrangement",S.arrange==="known" ? "Will protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
@@ -623,7 +623,7 @@ Thank you.`;
       $("s-preview").classList.toggle("preview-focus",!$("msg").hidden);
     }
 
-    const showFoot=!(cur==="scenario"||(cur==="dstatus"&&S.status!=="delayed")||(cur==="darrange"&&S.arrange!=="known"));
+    const showFoot=!(cur==="scenario"||(cur==="darrange"&&S.arrange!=="known"));
     $("foot").hidden=!showFoot;
     const ok=OK[cur]?OK[cur]():false;
     const hint=$("hint");
@@ -658,8 +658,8 @@ Thank you.`;
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};
 
-  $("stPossible").onclick=()=>{S.status="possible";go("darrange");};
-  $("stUnknown").onclick=()=>{S.status="unknown";go("darrange");};
+  $("stPossible").onclick=()=>{S.status="possible";render();};
+  $("stUnknown").onclick=()=>{S.status="unknown";render();};
   $("stDelayed").onclick=()=>{S.status="delayed";render();try{$("delayTime").focus();}catch(e){}};
   $("arUnknown").onclick=()=>{S.arrange="unknown";go("darrive");};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
