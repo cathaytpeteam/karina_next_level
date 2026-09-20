@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <title>Find Pax</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2D9FA3">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Find Pax">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -506,7 +506,7 @@ input,button{font-family:inherit;}
   text-align:center;
 }
 
-/* Editable-airline split fields: ONLY Bag Tags + Transfer + Will protect to.
+/* Editable-airline split fields: ONLY Bag Tags + Transfer + Will Protect to.
    Existing logic remains unchanged; this only harmonizes appearance. */
 #wppBag1 .bagTagSplit,
 #wppBag2 .bagTagSplit{
@@ -691,167 +691,6 @@ input,.inputbox,.field,
   transition:none !important;
 }
 
-
-/* v1.31 — complete visual update from latest review */
-:root {
-  --green:#2D9FA3 !important;
-  --green-soft:#E3F2F2 !important;
-  --choice2:#F1F6F7 !important;
-  --inputText:#252A2E;
-}
-
-/* Flight number typography: airline code teal, digits larger/bolder dark gray. */
-#flight .field, #wppFlight .field, #dpFlight .field,
-#dpTransfer .transferFlightRow, #dpArrange .compactFlightField {
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:16px !important;
-}
-#flight .inPrefix, #wppFlight .inPrefix, #dpFlight .inPrefix,
-#dpTransferAirline, #dpAltAirline {
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green) !important;
-  font-size:28px !important;
-  font-weight:800 !important;
-  line-height:1 !important;
-}
-#flightInput, #wppFlightInput, #dpFlightInput,
-#dpTransferFlight, #dpAltFlight {
-  color:var(--inputText) !important;
-  -webkit-text-fill-color:var(--inputText) !important;
-  font-size:28px !important;
-  font-weight:700 !important;
-  line-height:1 !important;
-}
-
-/* Editable airline + flight: remove divider/box split and keep the pair close together. */
-#dpTransfer .transferFlightRow {
-  grid-template-columns:none !important;
-}
-#dpTransfer .transferAirlineBox,
-#dpTransfer .transferNumberBox {
-  min-height:0 !important;
-  width:auto !important;
-  flex:0 0 auto !important;
-  padding:0 !important;
-  border:0 !important;
-  background:transparent !important;
-}
-#dpTransferAirline, #dpAltAirline {
-  width:54px !important;
-  min-width:54px !important;
-  padding:0 !important;
-  text-align:center !important;
-  border:0 !important;
-  background:transparent !important;
-}
-#dpTransferFlight, #dpAltFlight {
-  width:72px !important;
-  min-width:72px !important;
-  padding:0 !important;
-  text-align:left !important;
-  border:0 !important;
-  background:transparent !important;
-}
-#dpArrange .compactFlightField {
-  min-height:88px !important;
-  padding:0 20px !important;
-}
-
-/* Bag Tag uses the same compact visual language: no vertical divider. */
-#wppBag1 .bagTagSplit, #wppBag2 .bagTagSplit {
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:16px !important;
-  grid-template-columns:none !important;
-}
-#wppBag1 .bagTagSplit .bagAirline,
-#wppBag2 .bagTagSplit .bagAirline {
-  width:54px !important;
-  min-width:54px !important;
-  max-width:54px !important;
-  min-height:0 !important;
-  height:auto !important;
-  padding:0 !important;
-  border:0 !important;
-  border-right:0 !important;
-  background:transparent !important;
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green) !important;
-  font-size:28px !important;
-  font-weight:800 !important;
-  text-align:center !important;
-}
-#wppBag1 .bagTagSplit input:not(.bagAirline),
-#wppBag2 .bagTagSplit input:not(.bagAirline) {
-  width:170px !important;
-  min-width:170px !important;
-  max-width:170px !important;
-  min-height:0 !important;
-  height:auto !important;
-  padding:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  color:var(--inputText) !important;
-  -webkit-text-fill-color:var(--inputText) !important;
-  font-size:28px !important;
-  font-weight:700 !important;
-  text-align:left !important;
-}
-
-/* All HHMM fields: less empty space, centered, larger and bolder. */
-.timeField {
-  min-height:74px !important;
-  height:74px !important;
-  padding:0 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-}
-#dpDelayTime, #dpAltTime, #dpArriveTime {
-  width:100% !important;
-  height:72px !important;
-  min-height:72px !important;
-  padding:0 16px !important;
-  border:0 !important;
-  background:transparent !important;
-  text-align:center !important;
-  color:var(--inputText) !important;
-  -webkit-text-fill-color:var(--inputText) !important;
-  font-size:28px !important;
-  font-weight:700 !important;
-}
-#dpDelayTime::placeholder, #dpAltTime::placeholder, #dpArriveTime::placeholder {
-  text-align:center !important;
-  color:#AEB6BF !important;
-  font-size:28px !important;
-  font-weight:600 !important;
-  opacity:1 !important;
-}
-
-/* Keep all flight-number groups visually centered as a whole. */
-#flight .field input, #wppFlight .field input, #dpFlight .field input {
-  flex:0 0 72px !important;
-  width:72px !important;
-  min-width:72px !important;
-  padding-left:0 !important;
-  padding-right:0 !important;
-  text-align:left !important;
-}
-#flight .inPrefix, #wppFlight .inPrefix, #dpFlight .inPrefix {
-  position:static !important;
-  transform:none !important;
-  flex:0 0 auto !important;
-  margin:0 !important;
-}
-
-/* Choice/button text follows the new teal consistently. */
-.choice, .back, .title, .airportCode, .bagHelp {
-  color:var(--green) !important;
-}
-
 </style>
 
 </head>
@@ -973,7 +812,7 @@ input,.inputbox,.field,
   <button id="dpStatusDelayed" class="choice"><span class="choiceText"><span>目前已經延遲至</span></span></button>
   <button id="dpStatusUnknown" class="choice"><span class="choiceText"><span>目前航班及起飛動態尚未確定</span></span></button>
  </div>
- <div id="dpDelayTimeWrap" class="form" style="display:none"><div class="field timeField"><input id="dpDelayTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpStatusNext" class="next" disabled>Next</button></div>
+ <div id="dpDelayTimeWrap" class="form" style="display:none"><div class="field"><input id="dpDelayTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpStatusNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpTransfer" class="page">
  <button class="back" data-back="dpFlight"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Connecting flight</h1><div class="airportCode">HKG</div></div>
@@ -982,14 +821,14 @@ input,.inputbox,.field,
 <section id="dpArrange" class="page">
  <button class="back" data-back="dpStatus"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight arrangement</h1></div>
  <div class="choices">
-  <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will protect to</span></span></button>
+  <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will Protect to</span></span></button>
   <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Not decided yet</span></span></button>
  </div>
- <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field compactFlightField"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field timeField"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
+ <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpArrive" class="page">
  <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should arrive before ?</h1></div>
- <div class="form"><div class="field timeField"><input id="dpArriveTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArriveNext" class="next" disabled>Next</button></div>
+ <div class="form"><div class="field"><input id="dpArriveTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArriveNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpLanguage" class="page">
  <button class="back" data-back="dpArrive"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Preferred Language</h1></div>
