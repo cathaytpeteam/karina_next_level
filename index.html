@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <title>Find Pax</title>
@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 
 <style>
@@ -143,14 +142,16 @@ input::placeholder{color:#A9B1BA}
   width:100%;height:86px;border:0;border-radius:16px;
   display:grid;grid-template-columns:64px 1fr 28px;
   align-items:center;padding:0 22px;
-  color:var(--green);
+  color:var(--green);background:var(--choice2);
+  -webkit-appearance:none;appearance:none;
+  touch-action:manipulation;cursor:pointer;
 }
 .choice.one{background:var(--choice1)}
 .choice.two{background:var(--choice2)}
 .choiceIcon{
   width:48px;height:48px;display:grid;place-items:center;color:var(--green);
 }
-.choiceIcon svg{width:44px;height:44px;fill:currentColor}.choiceIcon img{width:48px;height:48px;object-fit:contain;mix-blend-mode:multiply}
+.choiceIcon svg{width:44px;height:44px;fill:currentColor}.choiceIcon img{width:48px;height:48px;object-fit:contain}
 .choiceText{
   display:flex;align-items:baseline;justify-content:center;gap:18px;
   font-size:25px;font-weight:800;letter-spacing:-.3px;
@@ -159,6 +160,50 @@ input::placeholder{color:#A9B1BA}
 .chev{
   font-size:44px;line-height:1;font-weight:400;transform:translateY(-2px);
 }
+
+
+/* Text-only choice pages: force a simple flex layout.
+   This avoids iOS Safari retaining the 64px icon grid column. */
+#missLanguage .choice,
+#wppLanguage .choice,
+#dpStatus .choice,
+#dpArrange .choice,
+#dpLanguage .choice{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:78px;
+  height:auto;
+  padding:18px 20px;
+  text-align:center;
+}
+#missLanguage .choiceText,
+#wppLanguage .choiceText,
+#dpStatus .choiceText,
+#dpArrange .choiceText,
+#dpLanguage .choiceText{
+  display:block !important;
+  width:auto !important;
+  min-width:0;
+  max-width:100%;
+  flex:1 1 auto;
+  text-align:center;
+  font-size:20px;
+  line-height:1.35;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:normal;
+}
+#missLanguage .choiceText > span,
+#wppLanguage .choiceText > span,
+#dpStatus .choiceText > span,
+#dpArrange .choiceText > span,
+#dpLanguage .choiceText > span{
+  display:inline;
+  width:auto;
+}
+.form .field + .field{margin-top:12px}
 
 /* Flight / SEC use the same lower, balanced vertical rhythm */
 #flight .top,#sec .top{margin-top:6px}
@@ -237,7 +282,7 @@ body.keyboardOpen .phoneBottomMark{
       <span class="choiceText"><span class="num">3</span><span>Wrongly Pick-up</span></span><span class="chev">›</span>
     </button>
     <button id="disruptedPax" class="choice" aria-label="4 Disrupted Pax">
-      <span class="choiceIcon"><img src="disrupted-pax-icon.png" alt=""></span>
+      <span class="choiceIcon"><img src="disrupted-pax-icon-v2.png" alt=""></span>
       <span class="choiceText"><span class="num">4</span><span>Disrupted Pax</span></span><span class="chev">›</span>
     </button>
   </div>
@@ -416,17 +461,24 @@ body.keyboardOpen .phoneBottomMark{
   }
 
   function resetAll(){
-    phone="";flight="";
+    phone="";flight="";missSec="";
     document.querySelectorAll("input").forEach(i=>i.value="");
+    $("wppBag1Airline").value="CX";
+    $("wppBag2Airline").value="CX";
     document.querySelectorAll(".next").forEach(b=>b.disabled=true);
     $("countryBadge").classList.remove("show");
     $("phoneWarning").classList.remove("show");
+    $("dpDelayTimeWrap").style.display="none";
+    $("dpArrangeKnownWrap").style.display="none";
+    dpStatusChoice="";
+    dpArrangeChoice="";
+    document.body.classList.remove("keyboardOpen");
     show("phone",false,false);
     try{history.replaceState({page:"phone"},"","#phone");}catch(e){}
   }
 
   function openWA(text){
-    const url="https://wa.me/+"+phone+"?text="+encodeURIComponent(text);
+    const url="https://wa.me/"+phone+"?text="+encodeURIComponent(text);
     const a=document.createElement("a");
     a.href=url;a.target="_blank";a.rel="noopener";
     document.body.appendChild(a);a.click();a.remove();
@@ -567,17 +619,11 @@ Thank you for your cooperation.`;
     return zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh;
   }
   function openWpp(zhFirst){
-    const phone=digits($("phoneInput").value);
-    window.location.href="https://wa.me/+"+phone+"?text="+encodeURIComponent(wppMessage(zhFirst));
-    setTimeout(resetAll,700);
+    openWA(wppMessage(zhFirst));
   }
   $("wppZhFirst").onclick=()=>openWpp(true);
   $("wppEnFirst").onclick=()=>openWpp(false);
-
-  document.querySelectorAll("[data-back]").forEach(btn=>{
-    btn.onclick=()=>show(btn.dataset.back);
-  });
-  wppSync();
+wppSync();
 
 
   let dpStatusChoice="", dpArrangeChoice="";
@@ -633,7 +679,7 @@ Thank you for your cooperation.`;
 
 這裡是國泰航空桃園機場辦公室
 
-由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程${tf}航班，${zArrange}想請問您是否有辦法於${dpArrive.value}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
+由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程 ${tf} 航班，${zArrange}想請問您是否有辦法於${dpArrive.value}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
     let enFirstSentence="";
     if(dpStatusChoice==="unknown"){
       enFirstSentence=`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection ${tf} in Hong Kong.`;

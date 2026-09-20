@@ -1,11 +1,15 @@
-const CACHE="find-pax-v1.5-fixed-20260920";
-const ASSETS=["phone-bottom-icon.png","disrupted-pax-icon.png",
+const CACHE="find-pax-v1.7-layout-hotfix-20260920-0806";
+const ASSETS=[
+  "./",
+  "./index.html",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
   "./icon-192.png",
   "./icon-512.png",
   "./icon-maskable-192.png",
-  "./icon-maskable-512.png"
+  "./icon-maskable-512.png",
+  "./phone-bottom-icon.png",
+  "./disrupted-pax-icon-v2.png"
 ];
 
 self.addEventListener("install",event=>{

@@ -221,3 +221,25 @@ WhatsApp 中英文訊息都會帶入受影響的香港轉機航班號碼。
 
 ## v1.5 fixed
 修正 3 Wrongly Pick-up 與 4 Disrupted Pax 無法點入的問題。補齊實際 HTML 頁面，重新整理首頁四個按鈕版面，並套用使用者提供的飛機＋時鐘圖示。Disrupted Pax 包含 Transfer flight number，且所有語言頁標題為 Preferred Language。
+
+
+## v1.6 — Dual-system QA / bug fixes
+
+針對 iPhone Safari / 加到主畫面，以及 Android Chrome / PWA 做靜態檢查與修正：
+
+- 修正 Back 按鈕同時綁定兩套事件造成的導覽衝突。
+- 修正文字型選項在手機上被擠進 64px 欄位的版面問題。
+- 修正完成一次 WhatsApp 後，Wrongly Pick-up 的航空公司前綴 `CX` 被清空。
+- 重置時同步清除 Disrupted Pax 的延誤時間/替代航班展開狀態。
+- WhatsApp `wa.me` 路徑統一使用純國際號碼（不在路徑中加入 `+`）。
+- Wrongly Pick-up 與其他功能統一使用相同 WhatsApp 開啟/重置流程。
+- Service Worker 預先快取 `./` 與 `index.html`，提高 iOS/Android 主畫面離線啟動可靠度。
+- 移除重複的 Apple touch icon 宣告。
+- Disrupted Pax 圖示改成真正透明背景的版本，避免棋盤格背景。
+- 按鈕加入 `appearance:none` / `touch-action:manipulation`，降低 Safari 與 Chrome 的原生樣式差異。
+
+
+## v1.7 — iPhone/Android layout hotfix
+修正 Flight status 等純文字選項在 iOS Safari 被壓進原本 icon grid 欄位、造成中文字逐字換行的問題。
+這些頁面的按鈕改用獨立 flex 版面，不再繼承首頁三欄 grid。
+同時更新 Service Worker cache key，避免手機繼續讀到舊 CSS。
