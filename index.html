@@ -617,6 +617,57 @@ input,.inputbox,.field,
   }
 }
 
+
+/* v1.29 — Will Protect to: airline | flight number split field */
+#dpArrange .protectedFlightSplit{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:0;
+  width:100%;
+  min-height:92px;
+  margin-top:14px;
+  border:2px solid #cfd6dd;
+  border-radius:16px;
+  background:#fff;
+  overflow:hidden;
+}
+#dpArrange .protectedFlightSplit #dpAltAirline{
+  width:100% !important;
+  max-width:none !important;
+  min-height:88px;
+  margin:0 !important;
+  padding:0 18px !important;
+  border:0 !important;
+  border-right:2px solid #cfd6dd !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+  text-align:left;
+  outline:0;
+}
+#dpArrange .protectedFlightSplit #dpAltFlight{
+  width:100% !important;
+  min-height:88px;
+  margin:0 !important;
+  padding:0 22px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+  text-align:left;
+  outline:0;
+}
+#dpArrange .protectedFlightSplit #dpAltFlight::placeholder{
+  color:transparent !important;
+}
+/* HHMM remains its own field below the split flight field. */
+
 </style>
 
 </head>
@@ -750,7 +801,7 @@ input,.inputbox,.field,
   <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will Protect to</span></span></button>
   <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Not decided yet</span></span></button>
  </div>
- <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
+ <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><div class="protectedFlightSplit"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpArrive" class="page">
  <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should arrive before ?</h1></div>
@@ -1003,7 +1054,15 @@ wppSync();
 
 
   function hhmmInput(el){
-    let d=digits(el.value).slice(0,4);
+    const raw=digits(el.value).slice(0,4);
+    let d="";
+    for(let i=0;i<raw.length;i++){
+      const ch=raw[i];
+      if(i===0 && !/[0-2]/.test(ch)) break;
+      if(i===1 && Number(d+ch)>23) break;
+      if(i===2 && !/[0-5]/.test(ch)) break;
+      d+=ch;
+    }
     if(d.length>=3) el.value=d.slice(0,2)+":"+d.slice(2);
     else el.value=d;
     if(d.length!==4) return false;
