@@ -310,3 +310,8 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - Bag Tag 1 / 2 改為與 Transfer flight 相同的左右分隔欄位：左側航空公司代碼、右側 6 位數字。
 - Bag Tag 數字欄位不顯示灰色範例文字。
 - 航空公司代碼仍可編輯，既有驗證與流程不變。
+
+## v1.20 — Transfer flight default CX
+- Transfer flight 的航空公司代碼預設顯示 `CX`。
+- `CX` 仍可直接修改為其他兩碼航空公司代碼。
+- 右側航班號碼保持空白，不顯示 450 或其他灰色範例。
