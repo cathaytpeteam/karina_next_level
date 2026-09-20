@@ -270,3 +270,20 @@ Wrongly Pick-up：
 `Disrupted flight number → Transfer flight number → Flight status → Flight arrange → Pax should be arrive before ? → Preferred Language → WhatsApp`
 
 Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不變。
+
+## v1.12 — Transfer flight input clarity
+- Transfer flight number 拆成兩個清楚的輸入區：
+  - Airline：預設 CX，可編輯 2 碼航空公司代碼。
+  - Flight number：獨立數字欄位，手機使用 numeric keypad，1–3 碼。
+- 避免游標停在 CX 後方時讓使用者誤以為可直接接著輸入數字。
+- v1.11 的頁面順序及既有訊息邏輯維持不變。
+
+## v1.13 — Clean transfer input
+- 移除 Transfer flight number 輸入區上方的 `Airline` / `Flight number` 顯示文字。
+- 保留左右分開的航空公司代碼與航班號碼輸入區。
+- 航空公司代碼預設 CX、可編輯；航班號碼仍使用數字鍵盤。
+
+## v1.14 — Editable protected airline
+- Flight arrange 的 Protected to 航班航空公司代碼預設 `CX`，現在也可編輯。
+- 限制 2 個英文字母並自動轉大寫。
+- 替代航班 WhatsApp 內容使用實際輸入的航空公司代碼。
