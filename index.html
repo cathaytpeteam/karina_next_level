@@ -297,6 +297,52 @@ body.keyboardOpen .phoneBottomMark{
   visibility:hidden;
 }
 
+
+/* v1.15 Bag Tag heading layout */
+#wppBag1 .top, #wppBag2 .top{
+  padding-bottom:0;
+}
+#wppBag1 .title, #wppBag2 .title{
+  margin-bottom:10px;
+}
+#wppBag1 .bagHelp, #wppBag2 .bagHelp{
+  margin:0 0 22px;
+  text-align:center;
+  color:var(--green);
+  font-size:18px;
+  line-height:1.35;
+  font-weight:700;
+}
+#wppBag1 .inputbox, #wppBag2 .inputbox{
+  margin-top:0;
+}
+
+
+/* v1.16 Bag Tag airline prefix colour */
+#wppBag1 .tagAirline,
+#wppBag2 .tagAirline,
+#wppBag1 .bagAirline,
+#wppBag2 .bagAirline,
+#wppBag1 input[id*="Airline"],
+#wppBag2 input[id*="Airline"]{
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  opacity:1;
+}
+
+
+/* v1.17 Bag Tag Chinese explanation prominence */
+#wppBag1 .bagHelp,
+#wppBag2 .bagHelp{
+  margin:0 0 22px;
+  text-align:center;
+  color:var(--green);
+  font-size:24px !important;
+  line-height:1.35;
+  font-weight:800 !important;
+  letter-spacing:.01em;
+}
+
 </style>
 
 </head>
@@ -399,7 +445,7 @@ body.keyboardOpen .phoneBottomMark{
  <div class="form"><div class="field"><input id="wppBag1Airline" class="bagAirline" maxlength="2" value="CX"><input id="wppBag1Num" inputmode="numeric" maxlength="6"></div><button id="wppBag1Next" class="next" disabled>Next</button></div>
 </section>
 <section id="wppBag2" class="page">
- <button class="back" data-back="wppBag1"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Bag Tag 2</h1><div class="bagHelp">被拿錯，目前找不到的行李</div></div>
+ <button class="back" data-back="wppBag1"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Bag Tag 2</h1><div class="bagHelp">疑似被客人Wrong P帶走的行李</div></div>
  <div class="form"><div class="field"><input id="wppBag2Airline" class="bagAirline" maxlength="2" value="CX"><input id="wppBag2Num" inputmode="numeric" maxlength="6"></div><button id="wppBag2Next" class="next" disabled>Next</button></div>
 </section>
 <section id="wppLanguage" class="page">

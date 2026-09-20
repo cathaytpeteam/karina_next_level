@@ -1,4 +1,4 @@
-const CACHE="find-pax-v1.14-editable-protected-airline-20260920";
+const CACHE="find-pax-v1.18-bagtag-text-20260920";
 const ASSETS=[
   "./",
   "./index.html",

@@ -287,3 +287,20 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - Flight arrange 的 Protected to 航班航空公司代碼預設 `CX`，現在也可編輯。
 - 限制 2 個英文字母並自動轉大寫。
 - 替代航班 WhatsApp 內容使用實際輸入的航空公司代碼。
+
+## v1.15 — Bag Tag typography/layout
+- 調整 Bag Tag 1 / Bag Tag 2 的標題與中文說明間距。
+- 中文說明改為較小的輔助文字層級，避免和主標題搶視覺。
+- 說明與輸入框保留清楚間距；既有功能不變。
+
+## v1.16 — Bag Tag airline prefix colour
+- Bag Tag 1 / 2 的預設航空公司代碼 `CX` 改為與 App 主題一致的綠色。
+- 保留加粗、加大與可編輯功能。
+
+## v1.17 — Bag Tag Chinese explanation prominence
+- Bag Tag 1 / 2 中文說明不再縮小。
+- 中文說明改為 24px、粗體、主題綠色，保持明顯且易讀。
+- 保留 v1.16 的 CX 綠色、加粗、加大與可編輯功能。
+
+## v1.18
+- Bag Tag 2 中文說明改為「疑似被客人Wrong P帶走的行李」。
