@@ -1,893 +1,240 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
-<meta name="color-scheme" content="light">
 <meta charset="utf-8">
+<meta name="color-scheme" content="light">
 <title>Find Pax</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Find Pax">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 :root{
-  --green:#005D63;
-  --green-soft:#DFF2F2;
-  --text:#101927;
-  --muted:#46586B;
-  --border:#D0D8E0;
-  --choice1:#DDF2F2;
-  --choice2:#EEF3F7;
-  --white:#FFFFFF;
+  color-scheme:light only;
+  --bg:#FFFFFF; --surface:#F1F6F6; --line:#D3DDDE; --ink:#14201F; --muted:#556A6C;
+  --brand:#00747A; --brand-strong:#005D63; --brand-soft:#DCEFEF; --on-brand:#FFFFFF;
+  --danger:#C62828; --danger-soft:#FBE9E9;
+  --font:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:#fff;color:var(--text);font-family:Roboto,Arial,sans-serif}
-body{min-height:100vh;min-height:100dvh;overflow:hidden}
-button,input{font:inherit}
-.page{
-  min-height:100vh;min-height:100dvh;
-  display:none;
-  flex-direction:column;
-  background:#fff;
-  padding:clamp(76px,14vh,132px) 22px calc(18px + env(safe-area-inset-bottom,0px));
-  position:relative;
-}
-.page.active{display:flex}
-.back{
-  position:absolute;
-  top:calc(18px + env(safe-area-inset-top,0px));
-  left:18px;
-  border:0;background:transparent;padding:8px 10px 8px 2px;
-  color:var(--green);font-size:18px;font-weight:700;
-  display:flex;align-items:center;gap:3px;cursor:pointer;
-}
-.back .arrow{font-size:34px;line-height:.7;font-weight:400}
+html,body{height:100%;margin:0;background:#fff}
+body{color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 
-.top{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-}
-.title{
-  color:var(--green);
-  font-size:clamp(25px,6.2vw,32px);
-  line-height:1.12;
-  font-weight:800;
-  margin:0 0 24px;
-  letter-spacing:-.55px;
-}
-.icon{
-  width:88px;height:88px;border-radius:50%;
-  background:var(--green-soft);
-  display:grid;place-items:center;
-  margin:0 0 24px;
-}
-.icon svg{
-  width:46px;height:46px;
-  fill:none;stroke:var(--green);
-  stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round;
-}
-.icon .fill{fill:var(--green);stroke:none}
-.form{width:100%;max-width:440px;margin:0 auto}
-.row{display:flex;align-items:center}
-.field{
-  flex:1;height:62px;border:1.5px solid var(--border);
-  border-radius:12px;background:#fff;display:flex;align-items:center;overflow:hidden;
-}
-.inPrefix{
-  padding-left:18px;padding-right:4px;
-  font-size:20px;font-weight:800;color:var(--green);
-}
-input{
-  width:100%;height:100%;border:0;outline:0;background:transparent;
-  padding:0 17px;font-size:20px;color:var(--text);
-}
-input::placeholder{color:#A9B1BA}
-.next{
-  width:100%;height:58px;margin-top:14px;border:0;border-radius:12px;
-  background:var(--green);color:#fff;font-size:20px;font-weight:800;
-}
-.next:disabled{opacity:.30}
+.app{position:fixed;top:var(--vt,0px);left:0;right:0;height:var(--vh,100%);max-width:480px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
 
-/* Phone: + is visually inside the field */
-#phone .top{flex-direction:column-reverse}
-#phone .title{margin:0 0 24px}
-#phone .icon{margin:0 0 24px}
-#phone .prefixOutside{
-  width:58px;height:62px;margin-right:-58px;z-index:2;
-  display:grid;place-items:center;
-  border-right:1px solid #E0E5EA;
-  font-size:30px;font-weight:400;color:var(--green);
-}
-#phone .field{padding-left:58px}
-#phone .field input{min-width:0;padding-right:8px}
-.countryBadge{
-  flex:0 0 auto;
-  display:none;align-items:center;gap:6px;
-  height:34px;margin-right:12px;padding:0 9px;
-  border-radius:9px;background:var(--green-soft);
-  color:var(--green);font-size:14px;font-weight:800;
-  white-space:nowrap;
-}
-.countryBadge.show{display:flex}
-.phoneWarning{
-  display:none;
-  margin-top:14px;
-  color:#D92D20;
-  font-size:24px;
-  line-height:1.35;
-  font-weight:800;
-  text-align:center;
-  width:100%;
-}
-.phoneWarning.show{display:block}
-.countryBadge .flag{font-size:20px;line-height:1}
-.countryBadge .code{letter-spacing:.2px}
+.head{flex:none;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 0;min-height:64px}
+.headrow{display:flex;align-items:center;gap:10px;min-height:44px}
+.back{border:0;background:transparent;color:var(--brand-strong);font-size:17px;font-weight:700;padding:8px 8px 8px 0;min-width:64px;text-align:left;cursor:pointer}
+.back[hidden]{visibility:hidden;display:block}
+.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.who[hidden]{display:none}
+.bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
+.bar[hidden]{display:none}
+.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
+.step{font-size:14px;color:var(--muted);margin:8px 0 0;min-height:20px}
 
-/* Scenario: intentionally no heading or top icon */
-#scenario{
-  justify-content:flex-start;
-  padding-top:clamp(105px,16vh,155px);
-}
-#scenario .top{display:none}
-.choices{
-  width:100%;max-width:440px;margin:0 auto;
-  display:grid;gap:12px;
-}
-.choice{
-  width:100%;height:86px;border:0;border-radius:16px;
-  display:grid;grid-template-columns:64px 1fr 28px;
-  align-items:center;padding:0 22px;
-  color:var(--green);background:var(--choice2);
-  -webkit-appearance:none;appearance:none;
-  touch-action:manipulation;cursor:pointer;
-}
-.choice.one{background:var(--choice1)}
-.choice.two{background:var(--choice2)}
-.choiceIcon{
-  width:48px;height:48px;display:grid;place-items:center;color:var(--green);
-}
-.choiceIcon svg{width:44px;height:44px;fill:currentColor}.choiceIcon img{width:48px;height:48px;object-fit:contain}
-.choiceText{
-  display:flex;align-items:baseline;justify-content:center;gap:18px;
-  font-size:25px;font-weight:800;letter-spacing:-.3px;
-}
-.choiceText .num{font-size:28px}
-.chev{
-  font-size:44px;line-height:1;font-weight:400;transform:translateY(-2px);
-}
+main{flex:1;overflow-y:auto;padding:12px 20px 24px;-webkit-overflow-scrolling:touch}
+.screen[hidden]{display:none}
+h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);font-weight:800;letter-spacing:-.01em}
 
+.foot{flex:none;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+.app.kb .foot{padding-bottom:14px}
+.foot[hidden]{display:none}
+.hint{min-height:22px;margin:0 0 8px;font-size:15px;color:var(--muted);text-align:center}
+.hint.bad{color:var(--danger);font-weight:700}
+.cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
+.cta:disabled{opacity:.32;cursor:default}
 
+.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:0 8px;transition:border-color .12s}
+.field + .field{margin-top:12px}
+.field:focus-within{border-color:var(--brand)}
+.field.bad{border-color:var(--danger)}
+.plus{font-size:26px;color:var(--brand-strong);padding:0 4px 0 10px}
+.field input{border:0;outline:0;background:transparent;width:100%;min-width:0;height:64px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 8px}
+.field input::placeholder{color:var(--muted);opacity:.45;font-weight:500}
+.field .code{flex:none;width:64px;margin-right:6px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);text-align:center;font-weight:800;text-transform:uppercase;height:52px;padding:0}
+span.code{display:grid;place-items:center;font-size:28px}
+.field.time{min-height:72px}
+#phoneInput{font-size:24px;letter-spacing:0}
+.field.time input{text-align:center}
+.badge{flex:none;background:var(--brand-soft);color:var(--brand-strong);border-radius:10px;padding:5px 9px;font-size:15px;font-weight:800;white-space:nowrap}
+.badge[hidden]{display:none}
+.warn{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--danger-soft);color:var(--danger);font-size:22px;font-weight:800;text-align:center}
+.warn.show{display:block}
+.chip{width:max-content;margin:-8px auto 22px;padding:6px 18px;border-radius:999px;background:var(--brand-soft);color:var(--brand-strong);font-size:22px;font-weight:800;letter-spacing:.04em}
+.chip + .field{margin-top:0}
+h1 + .chip{margin-top:-8px}
 
+.choices{display:grid;gap:12px;margin-top:8px}
+.choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:18px;background:var(--surface);text-align:left;cursor:pointer}
+.choice:active{background:var(--brand-soft)}
+.ico{flex:none;width:52px;height:52px;border-radius:14px;background:var(--brand-soft);display:grid;place-items:center}
+.ico svg{width:32px;height:32px;fill:none;stroke:var(--brand-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ctext{flex:1;font-size:20px;font-weight:800}
+.chev{font-size:30px;color:var(--brand-strong)}
 
+.opts{display:grid;gap:12px}
+.opt{width:100%;min-height:68px;padding:12px 18px;border:2px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-strong)}
+.optExtra{margin-top:14px}
+.optExtra[hidden]{display:none}
 
-#dpTransfer .inputbox{height:auto;min-height:0;border:0;padding:0;background:transparent;}
-.transferFlightRow{display:grid;grid-template-columns:120px 1fr;gap:12px;width:100%;}
-.transferAirlineBox,.transferNumberBox{
-  min-height:112px;border:2px solid #cfd6dd;border-radius:16px;background:#fff;
-  display:flex;flex-direction:column;justify-content:center;padding:12px 16px;
-}
-#dpTransferAirline.editablePrefix{
-  width:100%;border:0;outline:0;background:transparent;color:var(--green);
-  font-size:30px;font-weight:800;text-transform:uppercase;text-align:left;padding:0;
-}
-#dpTransferFlight{
-  width:100%;border:0;outline:0;background:transparent;color:var(--green);
-  font-size:30px;font-weight:800;text-align:left;padding:0;
-}
-#dpTransferFlight::placeholder{color:#b5bec5;font-weight:600;}
-@media(max-width:380px){
-  .transferFlightRow{grid-template-columns:105px 1fr;gap:10px;}
-  .transferAirlineBox,.transferNumberBox{padding:10px 12px;}
-}
+.bagHelp{margin:-8px 0 20px;font-size:20px;line-height:1.35;font-weight:700;color:var(--brand-strong)}
 
-
-#dpAltAirline.editableAltPrefix{
-  width:86px;
-  flex:0 0 86px;
-  border:0;
-  outline:0;
-  background:transparent;
-  color:var(--green);
-  font-size:28px;
-  font-weight:800;
-  text-transform:uppercase;
-  text-align:center;
-  padding:0;
-}
-
-/* Wrongly Pick-up bag tag guidance */
-.bagHelp{
-  margin-top:10px;
-  text-align:center;
-  color:var(--green);
-  font-size:18px;
-  font-weight:700;
-  line-height:1.35;
-}
-.field .bagAirline{
-  max-width:88px;
-  flex:0 0 88px;
-  font-size:28px;
-  font-weight:800;
-  letter-spacing:.5px;
-  text-align:center;
-}
-
-/* Text-only choice pages: force a simple flex layout.
-   This avoids iOS Safari retaining the 64px icon grid column. */
-#missLanguage .choice,
-#wppLanguage .choice,
-#dpStatus .choice,
-#dpArrange .choice,
-#dpLanguage .choice{
-  display:flex !important;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  min-height:78px;
-  height:auto;
-  padding:18px 20px;
-  text-align:center;
-}
-#missLanguage .choiceText,
-#wppLanguage .choiceText,
-#dpStatus .choiceText,
-#dpArrange .choiceText,
-#dpLanguage .choiceText{
-  display:block !important;
-  width:auto !important;
-  min-width:0;
-  max-width:100%;
-  flex:1 1 auto;
-  text-align:center;
-  font-size:20px;
-  line-height:1.35;
-  white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:normal;
-}
-#missLanguage .choiceText > span,
-#wppLanguage .choiceText > span,
-#dpStatus .choiceText > span,
-#dpArrange .choiceText > span,
-#dpLanguage .choiceText > span{
-  display:inline;
-  width:auto;
-}
-.form .field + .field{margin-top:12px}
-
-/* Flight / SEC use the same lower, balanced vertical rhythm */
-#flight .top,#sec .top{margin-top:6px}
-#flight .title,#sec .title{margin-bottom:24px}
-#flight .form,#sec .form{margin-top:0}
-
-.spacer{flex:1}
-@media(max-height:650px){
-  .page{padding-top:58px}
-  #scenario{padding-top:112px}
-  .icon{width:70px;height:70px;margin-bottom:18px}
-  .icon svg{width:38px;height:38px}
-  .title{font-size:23px;margin-bottom:18px}
-  .field{height:54px}
-  #phone .prefixOutside{height:54px}
-  .next{height:52px}
-  .choice{height:78px}
-}
-
-.phoneBottomMark{
-  position:fixed;
-  left:50%;
-  bottom:calc(18px + env(safe-area-inset-bottom,0px));
-  transform:translateX(-50%);
-  width:90px;
-  height:90px;
-  object-fit:contain;
-  pointer-events:none;
-  user-select:none;
-  z-index:1;
-  transition:opacity .12s ease;
-}
-body.keyboardOpen .phoneBottomMark{
-  opacity:0;
-  visibility:hidden;
-}
-
-
-/* v1.15 Bag Tag heading layout */
-#wppBag1 .top, #wppBag2 .top{
-  padding-bottom:0;
-}
-#wppBag1 .title, #wppBag2 .title{
-  margin-bottom:10px;
-}
-#wppBag1 .bagHelp, #wppBag2 .bagHelp{
-  margin:0 0 22px;
-  text-align:center;
-  color:var(--green);
-  font-size:18px;
-  line-height:1.35;
-  font-weight:700;
-}
-#wppBag1 .inputbox, #wppBag2 .inputbox{
-  margin-top:0;
-}
-
-
-/* v1.16 Bag Tag airline prefix colour */
-#wppBag1 .tagAirline,
-#wppBag2 .tagAirline,
-#wppBag1 .bagAirline,
-#wppBag2 .bagAirline,
-#wppBag1 input[id*="Airline"],
-#wppBag2 input[id*="Airline"]{
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  opacity:1;
-}
-
-
-/* v1.17 Bag Tag Chinese explanation prominence */
-#wppBag1 .bagHelp,
-#wppBag2 .bagHelp{
-  margin:0 0 22px;
-  text-align:center;
-  color:var(--green);
-  font-size:24px !important;
-  line-height:1.35;
-  font-weight:800 !important;
-  letter-spacing:.01em;
-}
-
-
-/* v1.19 clean split fields */
-#dpTransferFlight::placeholder{color:transparent !important;}
-
-/* Bag Tag airline + number use the same two-part field language as Transfer flight. */
-#wppBag1 .bagTagSplit,
-#wppBag2 .bagTagSplit{
-  display:grid !important;
-  grid-template-columns:120px 1fr;
-  gap:0;
-  width:100%;
-  min-height:92px;
-  padding:0 !important;
-  border:2px solid #cfd6dd;
-  border-radius:16px;
-  background:#fff;
-  overflow:hidden;
-}
-#wppBag1 .bagTagSplit .bagAirline,
-#wppBag2 .bagTagSplit .bagAirline{
-  width:100% !important;
-  max-width:none !important;
-  height:100%;
-  min-height:88px;
-  margin:0;
-  padding:0 18px !important;
-  border:0 !important;
-  border-right:2px solid #cfd6dd !important;
-  border-radius:0 !important;
-  background:#fff;
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px;
-  font-weight:800;
-  text-align:left;
-  outline:0;
-}
-#wppBag1 .bagTagSplit input:not(.bagAirline),
-#wppBag2 .bagTagSplit input:not(.bagAirline){
-  width:100% !important;
-  height:100%;
-  min-height:88px;
-  margin:0;
-  padding:0 22px !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:#fff;
-  color:var(--green);
-  font-size:28px;
-  font-weight:800;
-  text-align:left;
-  outline:0;
-}
-#wppBag1 .bagTagSplit input::placeholder,
-#wppBag2 .bagTagSplit input::placeholder{
-  color:transparent !important;
-}
-@media(max-width:380px){
-  #wppBag1 .bagTagSplit,#wppBag2 .bagTagSplit{grid-template-columns:105px 1fr;}
-}
-
-
-/* v1.21 — Find Pax unified typography & layout */
-:root{
-  --content-max:520px;
-  --page-x:24px;
-}
-body{
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-}
-.screen{
-  padding-left:var(--page-x);
-  padding-right:var(--page-x);
-}
-.screen > *{
-  width:100%;
-  max-width:var(--content-max);
-  margin-left:auto;
-  margin-right:auto;
-}
-.top{padding-top:18px;}
-.back{
-  font-size:18px !important;
-  line-height:1.2;
-  font-weight:700 !important;
-  letter-spacing:-.01em;
-}
-.title{
-  margin-top:38px !important;
-  margin-bottom:26px !important;
-  color:var(--green);
-  font-size:33px !important;
-  line-height:1.15 !important;
-  font-weight:800 !important;
-  letter-spacing:-.025em;
-  text-align:center;
-}
-.subtitle{
-  margin-top:-10px;
-  margin-bottom:22px;
-  color:var(--green);
-  font-size:19px;
-  line-height:1.4;
-  font-weight:700;
-  text-align:center;
-}
-input,button{font-family:inherit;}
-.inputbox,.field{border-radius:16px !important;}
-.next{
-  min-height:70px !important;
-  margin-top:20px !important;
-  border-radius:16px !important;
-  font-size:22px !important;
-  line-height:1.2;
-  font-weight:800 !important;
-  letter-spacing:-.01em;
-}
-.choice{border-radius:16px !important;}
-.choiceText{
-  font-size:20px !important;
-  line-height:1.3 !important;
-  font-weight:750 !important;
-  letter-spacing:-.01em;
-}
-
-/* Scenario */
-#scenario .title{margin-bottom:24px !important;}
-#scenario .choice{min-height:82px;margin-bottom:12px;}
-
-/* Text-only choice pages */
-#missLanguage .choice,
-#wppLanguage .choice,
-#dpStatus .choice,
-#dpArrange .choice,
-#dpLanguage .choice{
-  min-height:76px !important;
-  height:auto !important;
-  padding:17px 20px !important;
-  margin-bottom:12px;
-}
-#missLanguage .choiceText,
-#wppLanguage .choiceText,
-#dpStatus .choiceText,
-#dpArrange .choiceText,
-#dpLanguage .choiceText{
-  width:100%;
-  text-align:center;
-}
-
-/* Bag Tag explanatory text is intentionally prominent */
-#wppBag1 .title,#wppBag2 .title{margin-bottom:10px !important;}
-#wppBag1 .bagHelp,#wppBag2 .bagHelp{
-  margin:0 0 20px !important;
-  color:var(--green);
-  font-size:24px !important;
-  line-height:1.3 !important;
-  font-weight:800 !important;
-  letter-spacing:-.012em;
-  text-align:center;
-}
-
-/* Editable-airline split fields: ONLY Bag Tags + Transfer + Will Protect to.
-   Existing logic remains unchanged; this only harmonizes appearance. */
-#wppBag1 .bagTagSplit,
-#wppBag2 .bagTagSplit{
-  min-height:92px;
-  border-radius:16px !important;
-}
-#wppBag1 .bagTagSplit .bagAirline,
-#wppBag2 .bagTagSplit .bagAirline{
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-}
-#wppBag1 .bagTagSplit input:not(.bagAirline),
-#wppBag2 .bagTagSplit input:not(.bagAirline){
-  color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-}
-.transferFlightRow{margin-top:4px;}
-.transferAirlineBox,.transferNumberBox{
-  min-height:96px !important;
-  padding:12px 18px !important;
-}
-#dpTransferAirline.editablePrefix,#dpTransferFlight{
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-}
-#dpTransferFlight::placeholder{color:transparent !important;}
-
-/* Protected-to editable airline stays prominent and editable */
-#dpAltAirline.editableAltPrefix{
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-}
-
-/* Long operational titles: slightly smaller to avoid awkward wrapping */
-#dpTransfer .title,
-#dpArrivePage .title{
-  font-size:30px !important;
-  line-height:1.18 !important;
-}
-
-/* Time and expanded arrangement fields */
-#dpArrange .expand{margin-top:14px;}
-#dpArrange .inputbox{margin-top:12px;}
-
-@media(max-width:390px){
-  :root{--page-x:20px;}
-  .title{
-    margin-top:34px !important;
-    margin-bottom:23px !important;
-    font-size:30px !important;
-  }
-  #dpTransfer .title,#dpArrivePage .title{font-size:27px !important;}
-  #wppBag1 .bagHelp,#wppBag2 .bagHelp{font-size:22px !important;}
-  .next{min-height:68px !important;}
-}
-
-
-/* v1.24 — latest wording and keyboard-clearance adjustments */
-#dpFlight .airportCode,#dpTransfer .airportCode{
-  width:max-content;min-width:86px;margin:-14px auto 20px;padding:8px 20px;
-  border-radius:999px;background:#eef3f4;color:var(--green);
-  font-size:23px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:.02em;
-}
-
-/* First-page decorative icon: 1.4× original 90px. */
-#phone .phoneBottomMark{
-  width:126px !important;height:126px !important;max-width:126px !important;object-fit:contain;
-}
-
-
-/* v1.27 — fixed light appearance on all devices */
-:root{
-  color-scheme:light only;
-}
-html,body{
-  background:#ffffff !important;
-  color-scheme:light only !important;
-}
-body,.screen{
-  background:#ffffff !important;
-}
-input,textarea,select,button{
-  color-scheme:light only !important;
-}
-input,.inputbox,.field,
-.transferAirlineBox,.transferNumberBox,
-#wppBag1 .bagTagSplit,#wppBag2 .bagTagSplit{
-  background:#ffffff !important;
-}
-@media (prefers-color-scheme: dark){
-  :root,html,body,.screen{
-    color-scheme:light only !important;
-    background:#ffffff !important;
-  }
-  input,textarea,select,button{
-    color-scheme:light only !important;
-  }
-}
-
-
-/* v1.29 — Protected-to split field */
-.protectedFlightRow{
-  display:grid;
-  grid-template-columns:120px 1fr;
-  gap:0;
-  width:100%;
-  min-height:92px;
-  margin-top:12px;
-  border:2px solid #cfd6dd;
-  border-radius:16px;
-  background:#fff;
-  overflow:hidden;
-}
-.protectedAirlineBox,.protectedNumberBox{
-  min-height:88px;
-  display:flex;
-  align-items:center;
-  background:#fff;
-}
-.protectedAirlineBox{
-  border-right:2px solid #cfd6dd;
-}
-#dpAltAirline,#dpAltFlight{
-  width:100% !important;
-  min-height:88px;
-  margin:0 !important;
-  padding:0 20px !important;
-  border:0 !important;
-  border-radius:0 !important;
-  outline:0;
-  background:#fff !important;
-  color:var(--green) !important;
-  -webkit-text-fill-color:var(--green);
-  font-size:28px !important;
-  font-weight:800 !important;
-  text-align:left;
-}
-#dpAltFlight::placeholder{color:transparent !important;}
-
-/* Dynamic keyboard-safe motion. JS sets --kb-lift to only the distance needed. */
-.page{
-  --kb-lift:0px;
-}
-.page.keyboard-active .form,
-.page.keyboard-active .keyboardLift{
-  transform:translateY(var(--kb-lift)) !important;
-  transition:transform .16s ease-out;
-}
-
-
-/* v1.30 — universal mobile keyboard safe mode */
-.page.keyboard-active{
-  overflow-y:auto !important;
-  overscroll-behavior:contain;
-  padding-bottom:var(--keyboard-pad, 0px) !important;
-}
-.page.keyboard-active .top{
-  padding-top:4px !important;
-}
-.page.keyboard-active .title{
-  margin-top:8px !important;
-  margin-bottom:12px !important;
-}
-.page.keyboard-active .heroIcon,
-.page.keyboard-active .pageIcon,
-.page.keyboard-active .phoneIcon,
-.page.keyboard-active .topIcon{
-  transform:scale(.72);
-  transform-origin:center bottom;
-  margin-top:-12px !important;
-  margin-bottom:-10px !important;
-}
-.page.keyboard-active .form{
-  transform:none !important;
-  transition:none !important;
-}
-
-
-/* v1.30.1 — allow tall pages to scroll (body is overflow:hidden) */
-.page{
-  height:100vh;height:100dvh;
-  overflow-y:auto;overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-}
-.page > *:not(.spacer){flex-shrink:0;}
-.page > .spacer{flex:1 0 0;}
+.sum{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 16px}
+.sum div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:17px}
+.sum div + div{border-top:1px solid var(--line)}
+.sum dt{color:var(--muted);flex:none}
+.sum dd{margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
+.seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--brand-strong);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.msg{background:var(--surface);border-radius:16px;padding:16px;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+@media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
-
 </head>
 <body>
-
-<section id="phone" class="page active">
-  <div class="top">
-    <h1 class="title">Input phone number<br>on CTCM</h1>
-    <div class="icon">
-      <svg viewBox="0 0 24 24"><path d="M7 4l2.2 4.5-2.1 1.7c1.3 3 3.6 5.3 6.6 6.6l1.7-2.1L20 17l-.9 3.1c-.2.8-.9 1.3-1.7 1.3C9.2 21.4 2.6 14.8 2.6 6.6c0-.8.5-1.5 1.3-1.7z"/></svg>
+<div class="app" id="app">
+  <header class="head">
+    <div class="headrow">
+      <button class="back" id="back" type="button" hidden>‹ Back</button>
+      <div class="who" id="who" hidden><span id="whoFlag"></span><span id="whoNum"></span></div>
     </div>
-  </div>
-  <div class="form">
-    <div class="row">
-      <div class="prefixOutside">+</div>
-      <div class="field"><input id="phoneInput" inputmode="numeric" maxlength="15" autocomplete="tel" placeholder="852 1234 5678"><span id="countryBadge" class="countryBadge" aria-live="polite"><span class="flag"></span><span class="code"></span></span></div>
-    </div>
-    <div id="phoneWarning" class="phoneWarning" role="alert">罐頭號碼 無用</div>
-      <button id="phoneNext" class="next" disabled>Next</button>
-  </div>
-  <div class="spacer"></div>
-  <img class="phoneBottomMark" src="phone-bottom-icon.png" alt="" aria-hidden="true">
-</section>
+    <div class="bar" id="bar" hidden><i id="barFill"></i></div>
+    <p class="step" id="step"></p>
+  </header>
 
-<section id="scenario" class="page">
-  <button class="back" type="button" data-back="phone"><span class="arrow">‹</span>Back</button>
-  <div class="top"></div>
-  <div class="choices">
-    <button id="missBtn" class="choice one" aria-label="1 漏查">
-      <span class="choiceIcon" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M22 15V9c0-3.3 2.7-6 6-6h8c3.3 0 6 2.7 6 6v6h8c4.4 0 8 3.6 8 8v27c0 4.4-3.6 8-8 8H14c-4.4 0-8-3.6-8-8V23c0-4.4 3.6-8 8-8h8zm5 0h10V9c0-.6-.4-1-1-1h-8c-.6 0-1 .4-1 1v6zM17 20h-3c-1.7 0-3 1.3-3 3v27c0 1.7 1.3 3 3 3h3V20zm30 0v33h3c1.7 0 3-1.3 3-3V23c0-1.7-1.3-3-3-3h-3z"/></svg></span>
-      <span class="choiceText"><span class="num">1</span><span>漏查</span></span><span class="chev">›</span>
-    </button>
-    <button id="callBtn" class="choice two" aria-label="2 Call Pax">
-      <span class="choiceIcon" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M18.1 7.8c1.8-1.8 4.7-1.8 6.5 0l7.1 7.1c1.5 1.5 1.8 3.9.6 5.7l-4.2 6.3c3.2 6.1 8.2 11.1 14.3 14.3l6.3-4.2c1.8-1.2 4.2-.9 5.7.6l7.1 7.1c1.8 1.8 1.8 4.7 0 6.5l-4.4 4.4c-3 3-7.5 4-11.5 2.5C25.8 50.8 13.2 38.2 5.9 18.4c-1.5-4-.5-8.5 2.5-11.5l4.4-4.4 5.3 5.3z"/></svg></span>
-      <span class="choiceText"><span class="num">2</span><span>Call Pax</span></span><span class="chev">›</span>
-    </button>
-    <button id="wronglyPickup" class="choice" aria-label="3 Wrongly Pick-up">
-      <span class="choiceIcon" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M22 15V9c0-3.3 2.7-6 6-6h8c3.3 0 6 2.7 6 6v6h8c4.4 0 8 3.6 8 8v27c0 4.4-3.6 8-8 8H14c-4.4 0-8-3.6-8-8V23c0-4.4 3.6-8 8-8h8zm5 0h10V9c0-.6-.4-1-1-1h-8c-.6 0-1 .4-1 1v6z"/></svg></span>
-      <span class="choiceText"><span class="num">3</span><span>Wrongly Pick-up</span></span><span class="chev">›</span>
-    </button>
-    <button id="disruptedPax" class="choice" aria-label="4 Disrupted Pax">
-      <span class="choiceIcon"><img src="disrupted-pax-icon-v2.png" alt=""></span>
-      <span class="choiceText"><span class="num">4</span><span>Disrupted Pax</span></span><span class="chev">›</span>
-    </button>
-  </div>
-</section>
+  <main id="main">
+    <section class="screen" id="s-phone">
+      <h1>Input phone number<br>on CTCM</h1>
+      <div class="field" id="phoneField">
+        <span class="plus">+</span>
+        <input id="phoneInput" inputmode="numeric" maxlength="15" placeholder="852 1234 5678" aria-label="Phone number">
+        <span class="badge" id="badge" hidden></span>
+      </div>
+      <div class="warn" id="warn" role="alert">Canned number. Do not use.</div>
+    </section>
 
-<section id="flight" class="page">
-  <button class="back" type="button" data-back="scenario"><span class="arrow">‹</span>Back</button>
-  <div class="top">
-    <div class="icon">
-      <svg viewBox="0 0 24 24">
-        <path class="fill" d="M21.5 14.8v-2.1l-8.1-4.9V3.6c0-1.2-.7-2.1-1.6-2.1s-1.6.9-1.6 2.1v4.2l-8.1 4.9v2.1l8.1-2.4v5.2l-2.4 1.8V21l4-1.1 4 1.1v-1.6l-2.4-1.8v-5.2z"/>
-      </svg>
-    </div>
-    <h1 class="title">flight number</h1>
-  </div>
-  <div class="form">
-    <div class="row">
-      <div class="prefixOutside"></div>
-      <div class="field"><span class="inPrefix">CX</span><input autocomplete="off" id="flightInput" inputmode="numeric" maxlength="3"></div>
-    </div>
-    <button id="flightNext" class="next" disabled>Next</button>
-  </div>
-  <div class="spacer"></div>
-</section>
+    <section class="screen" id="s-scenario" hidden>
+      <h1>Scenario</h1>
+      <div class="choices">
+        <button class="choice" id="goMiss" type="button">
+          <span class="ico"><svg viewBox="0 0 32 32"><rect x="5" y="9" width="22" height="16" rx="3"/><path d="M12 9V6h8v3M5 17h22"/></svg></span>
+          <span class="ctext">1&nbsp; Missed check</span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goCall" type="button">
+          <span class="ico"><svg viewBox="0 0 32 32"><path d="M8 5l4 5-2 3c2 4 5 7 9 9l3-2 5 4-2 4c-1 1-3 1-5 1C13 27 5 19 4 10c0-2 0-4 1-5z"/></svg></span>
+          <span class="ctext">2&nbsp; Call Pax</span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goWpp" type="button">
+          <span class="ico"><svg viewBox="0 0 32 32"><rect x="3" y="10" width="11" height="9" rx="2"/><rect x="18" y="14" width="11" height="9" rx="2"/><path d="M7 7h9M13 4l3 3-3 3M25 27h-9M19 24l-3 3 3 3"/></svg></span>
+          <span class="ctext">3&nbsp; Wrongly Pick-up</span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goDp" type="button">
+          <span class="ico"><svg viewBox="0 0 32 32"><path d="M4 13l10 2 6-7c1-1 3-1 3 0l-3 8 5 1 2-2 1 1-2 4-6-1-4 6h-2l1-6-6-1-2 3-2-1z"/><circle cx="24" cy="24" r="6"/><path d="M24 21v3l2 1.5"/></svg></span>
+          <span class="ctext">4&nbsp; Disrupted Pax</span><span class="chev">›</span>
+        </button>
+      </div>
+    </section>
 
-<section id="sec" class="page">
-  <button class="back" type="button" data-back="flight"><span class="arrow">‹</span>Back</button>
-  <div class="top">
-    <div class="icon">
-      <svg viewBox="0 0 24 24"><path d="M7 3h8l3 3v15H7z"/><path d="M15 3v4h4M10 11h5M10 15h5"/></svg>
-    </div>
-    <h1 class="title">sec</h1>
-  </div>
-  <div class="form">
-    <div class="row">
-      <div class="prefixOutside"></div>
-      <div class="field"><input autocomplete="off" id="secInput" inputmode="numeric" maxlength="3"></div>
-    </div>
-    <button id="secNext" class="next" disabled>Next</button>
-  </div>
-  <div class="spacer"></div>
-</section>
+    <!-- Missed check -->
+    <section class="screen" id="s-mflight" hidden>
+      <h1>Flight number</h1>
+      <div class="field"><span class="code">CX</span><input id="mFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-msec" hidden>
+      <h1>SEC</h1>
+      <div class="field"><input id="mSec" inputmode="numeric" maxlength="3" placeholder="000" aria-label="SEC number"></div>
+    </section>
 
+    <!-- Wrongly Pick-up -->
+    <section class="screen" id="s-wflight" hidden>
+      <h1>Flight number</h1>
+      <div class="field"><span class="code">CX</span><input id="wFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-bag1" hidden>
+      <h1>Bag Tag 1</h1>
+      <p class="bagHelp">Unclaimed bag</p>
+      <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" placeholder="000000" aria-label="6-digit bag tag number"></div>
+    </section>
+    <section class="screen" id="s-bag2" hidden>
+      <h1>Bag Tag 2</h1>
+      <p class="bagHelp">Bag taken by mistake</p>
+      <div class="field"><input class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input id="b2n" inputmode="numeric" maxlength="6" placeholder="000000" aria-label="6-digit bag tag number"></div>
+    </section>
 
+    <!-- Disrupted Pax -->
+    <section class="screen" id="s-dflight" hidden>
+      <h1>Disrupted flight</h1>
+      <div class="chip">TPE</div>
+      <div class="field"><span class="code">CX</span><input id="dFlight" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-dtransfer" hidden>
+      <h1>Connecting flight</h1>
+      <div class="chip">HKG</div>
+      <div class="field"><input class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input id="tN" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-dstatus" hidden>
+      <h1>Flight status</h1>
+      <div class="opts">
+        <button class="opt" id="stPossible" type="button" aria-pressed="false">May be delayed today</button>
+        <button class="opt" id="stDelayed" type="button" aria-pressed="false">Delayed to</button>
+        <button class="opt" id="stUnknown" type="button" aria-pressed="false">Not confirmed yet</button>
+      </div>
+      <div class="optExtra" id="delayWrap" hidden>
+        <div class="field time"><input id="delayTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Delayed to, HHMM"></div>
+      </div>
+    </section>
+    <section class="screen" id="s-darrange" hidden>
+      <h1>Flight arrangement</h1>
+      <div class="opts">
+        <button class="opt" id="arKnown" type="button" aria-pressed="false">Will protect to</button>
+        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Not decided yet</button>
+      </div>
+      <div class="optExtra" id="altWrap" hidden>
+        <div class="field"><input class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input id="altN" inputmode="numeric" maxlength="3" placeholder="000" aria-label="Flight number digits"></div>
+        <div class="field time"><input id="altTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Departure time, HHMM"></div>
+      </div>
+    </section>
+    <section class="screen" id="s-darrive" hidden>
+      <h1>Pax should arrive before ?</h1>
+      <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" placeholder="HHMM" aria-label="Arrive before, HHMM"></div>
+    </section>
 
-<section id="missLanguage" class="page">
- <button class="back" data-back="sec"><span class="arrow">‹</span>Back</button>
- <div class="top"><h1 class="title">Preferred Language</h1></div>
- <div class="choices"><button id="missZhFirst" class="choice"><span class="choiceText"><span>中文</span></span></button><button id="missEnFirst" class="choice"><span class="choiceText"><span>English</span></span></button></div>
-</section>
+    <!-- shared preview -->
+    <section class="screen" id="s-preview" hidden>
+      <h1>Confirm and send</h1>
+      <dl class="sum" id="sum"></dl>
+      <div class="seg" role="group" aria-label="Message order">
+        <button type="button" id="ordZh" aria-pressed="true">Chinese first</button>
+        <button type="button" id="ordEn" aria-pressed="false">English first</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </section>
+  </main>
 
-<section id="wppFlight" class="page">
- <button class="back" data-back="scenario"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight number</h1></div>
- <div class="form"><div class="field"><span class="inPrefix">CX</span><input autocomplete="off" id="wppFlightInput" inputmode="numeric" maxlength="3"></div><button id="wppFlightNext" class="next" disabled>Next</button></div>
-</section>
-<section id="wppBag1" class="page">
- <button class="back" data-back="wppFlight"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Bag Tag 1</h1><div class="bagHelp">沒有人拿走的行李</div></div>
- <div class="form"><div class="field bagTagSplit"><input autocomplete="off" id="wppBag1Airline" class="bagAirline" maxlength="2" value="CX"><input autocomplete="off" id="wppBag1Num" inputmode="numeric" maxlength="6"></div><button id="wppBag1Next" class="next" disabled>Next</button></div>
-</section>
-<section id="wppBag2" class="page">
- <button class="back" data-back="wppBag1"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Bag Tag 2</h1><div class="bagHelp">疑似被客人Wrong P帶走的行李</div></div>
- <div class="form"><div class="field bagTagSplit"><input autocomplete="off" id="wppBag2Airline" class="bagAirline" maxlength="2" value="CX"><input autocomplete="off" id="wppBag2Num" inputmode="numeric" maxlength="6"></div><button id="wppBag2Next" class="next" disabled>Next</button></div>
-</section>
-<section id="wppLanguage" class="page">
- <button class="back" data-back="wppBag2"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Preferred Language</h1></div>
- <div class="choices"><button id="wppZhFirst" class="choice"><span class="choiceText"><span>中文</span></span></button><button id="wppEnFirst" class="choice"><span class="choiceText"><span>English</span></span></button></div>
-</section>
-
-<section id="dpFlight" class="page">
- <button class="back" data-back="scenario"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Disrupted flight</h1><div class="airportCode">TPE</div></div>
- <div class="form"><div class="field"><span class="inPrefix">CX</span><input autocomplete="off" id="dpFlightInput" inputmode="numeric" maxlength="3"></div><button id="dpFlightNext" class="next" disabled>Next</button></div>
-</section>
-<section id="dpStatus" class="page">
- <button class="back" data-back="dpTransfer"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight status</h1></div>
- <div class="choices">
-  <button id="dpStatusPossible" class="choice"><span class="choiceText"><span>今天可能會延遲</span></span></button>
-  <button id="dpStatusDelayed" class="choice"><span class="choiceText"><span>目前已經延遲至</span></span></button>
-  <button id="dpStatusUnknown" class="choice"><span class="choiceText"><span>目前航班及起飛動態尚未確定</span></span></button>
- </div>
- <div id="dpDelayTimeWrap" class="form" style="display:none"><div class="field"><input id="dpDelayTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpStatusNext" class="next" disabled>Next</button></div>
-</section>
-<section id="dpTransfer" class="page">
- <button class="back" data-back="dpFlight"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Connecting flight</h1><div class="airportCode">HKG</div></div>
- <div class="form"><div class="field"><div class="transferFlightRow"><div class="transferAirlineBox"><input id="dpTransferAirline" class="editablePrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"></div><div class="transferNumberBox"><input autocomplete="off" id="dpTransferFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="" aria-label="Flight number"></div></div></div><button id="dpTransferNext" class="next" disabled>Next</button></div>
-</section>
-<section id="dpArrange" class="page">
- <button class="back" data-back="dpStatus"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight arrangement</h1></div>
- <div class="choices">
-  <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will Protect to</span></span></button>
-  <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Not decided yet</span></span></button>
- </div>
- <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input autocomplete="off" id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
-</section>
-<section id="dpArrive" class="page">
- <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should arrive before ?</h1></div>
- <div class="form"><div class="field"><input id="dpArriveTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArriveNext" class="next" disabled>Next</button></div>
-</section>
-<section id="dpLanguage" class="page">
- <button class="back" data-back="dpArrive"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Preferred Language</h1></div>
- <div class="choices"><button id="dpZhFirst" class="choice"><span class="choiceText"><span>中文</span></span></button><button id="dpEnFirst" class="choice"><span class="choiceText"><span>English</span></span></button></div>
-</section>
+  <footer class="foot" id="foot" hidden>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <button class="cta" id="cta" type="button" disabled>Next</button>
+  </footer>
+</div>
 
 <script>
 (function(){
-  let phone="", flight="", current="phone";
+  "use strict";
   const $=id=>document.getElementById(id);
   const digits=s=>String(s||"").replace(/\D/g,"");
-  const baseViewportHeight=window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  function syncKeyboardState(){
-    const h=window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    document.body.classList.toggle("keyboardOpen", h < baseViewportHeight * 0.78);
-  }
-  if(window.visualViewport){
-    window.visualViewport.addEventListener("resize",syncKeyboardState);
-    window.visualViewport.addEventListener("scroll",syncKeyboardState);
-  }
+  const v=id=>$(id).value;
 
-
-  try{history.replaceState({page:"phone"},"","#phone");}catch(e){}
-
-  function show(id, push=true, focus=true){
-    current=id;
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    $(id).classList.add("active");
-    if(push){try{history.pushState({page:id},"","#"+id);}catch(e){}}
-    if(focus){
-      setTimeout(()=>{
-        const inp=$(id).querySelector("input:not(.bagAirline):not(.editablePrefix):not(.editableAltPrefix)");
-        if(inp && inp.offsetParent!==null) inp.focus();
-      },80);
-    }
-  }
-
-  window.addEventListener("popstate",e=>{
-    let id=(e.state&&e.state.page)||"phone";
-    if(!phone && id!=="phone"){
-      id="phone";
-      try{history.replaceState({page:"phone"},"","#phone");}catch(err){}
-    }
-    current=id;
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    $(id).classList.add("active");
-  });
-
-
+  const blocked=new Set(["85289648964","85262374313"]);
   const countryCodes=[
     ["852","🇭🇰","HK"],["886","🇹🇼","TW"],["853","🇲🇴","MO"],["855","🇰🇭","KH"],["856","🇱🇦","LA"],
     ["880","🇧🇩","BD"],["977","🇳🇵","NP"],["975","🇧🇹","BT"],["960","🇲🇻","MV"],["971","🇦🇪","AE"],
@@ -906,103 +253,86 @@ input,.inputbox,.field,
     ["57","🇨🇴","CO"],["51","🇵🇪","PE"],
     ["27","🇿🇦","ZA"],["20","🇪🇬","EG"],["234","🇳🇬","NG"],["254","🇰🇪","KE"],["212","🇲🇦","MA"]
   ].sort((a,b)=>b[0].length-a[0].length);
+  const findCountry=n=>countryCodes.find(c=>n.startsWith(c[0]));
 
-  function updateCountry(value){
-    const n=digits(value);
-    const hit=countryCodes.find(c=>n.startsWith(c[0]));
-    const badge=$("countryBadge");
-    if(!hit){badge.classList.remove("show");return;}
-    badge.querySelector(".flag").textContent=hit[1];
-    badge.querySelector(".code").textContent=hit[2];
-    badge.classList.add("show");
+  // ---- state -------------------------------------------------------------
+  const S={phone:"",status:"",arrange:"",order:"zh"};
+  try{const o=localStorage.getItem("fp-order");if(o==="en"||o==="zh")S.order=o;}catch(e){}
+
+  const FLOWS={
+    miss:{name:"Missed check",steps:["mflight","msec","preview"]},
+    wpp:{name:"Wrongly Pick-up",steps:["wflight","bag1","bag2","preview"]},
+    dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
+  };
+  let flow="", cur="phone", resetting=false;
+  const stack=["phone"];
+
+  // ---- validation --------------------------------------------------------
+  const isAir=s=>/^[A-Z]{2}$/.test(s);
+  const isFlt=s=>/^\d{1,3}$/.test(s);
+  function timeState(id){
+    const d=digits(v(id));
+    if(d.length<4) return d.length?"partial":"empty";
+    return (+d.slice(0,2)<=23 && +d.slice(2)<=59)?"ok":"bad";
+  }
+  const timeOk=id=>timeState(id)==="ok";
+  function timeHint(id){
+    const t=timeState(id);
+    return t==="empty"?"HHMM":t==="partial"?"HHMM, for example 0811":t==="bad"?"Invalid time (00:00–23:59)":"";
+  }
+  function fmtTime(el){
+    const d=digits(el.value).slice(0,4);
+    el.value=d.length>=3?d.slice(0,2)+":"+d.slice(2):d;
   }
 
+  const OK={
+    phone:()=>{const n=digits(v("phoneInput"));return n.length>=6&&!blocked.has(n);},
+    mflight:()=>isFlt(v("mFlight")),
+    msec:()=>isFlt(v("mSec"))&&+v("mSec")<=580,
+    wflight:()=>isFlt(v("wFlight")),
+    bag1:()=>isAir(v("b1a"))&&/^\d{6}$/.test(v("b1n")),
+    bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
+    dflight:()=>isFlt(v("dFlight")),
+    dtransfer:()=>isAir(v("tA"))&&isFlt(v("tN")),
+    dstatus:()=>S.status==="delayed"&&timeOk("delayTime"),
+    darrange:()=>S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime"),
+    darrive:()=>timeOk("arriveTime"),
+    preview:()=>true
+  };
+  function bagHint(a,n){
+    if(!isAir(v(a))) return "Airline code: 2 letters";
+    const l=v(n).length; return l<6?(l?(6-l)+" more digits":"6 digits"):"";
+  }
+  const HINT={
+    phone:()=>{const n=digits(v("phoneInput"));if(blocked.has(n))return "Canned number";return n.length&&n.length<6?"At least 6 digits ("+(6-n.length)+" more)":"";},
+    mflight:()=>isFlt(v("mFlight"))?"":"1–3 digits",
+    msec:()=>{const x=v("mSec");return !x?"0–580":(+x>580?"Max 580":"");},
+    wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
+    bag1:()=>bagHint("b1a","b1n"),
+    bag2:()=>bagHint("b2a","b2n"),
+    dflight:()=>isFlt(v("dFlight"))?"":"1–3 digits",
+    dtransfer:()=>!isAir(v("tA"))?"Airline code: 2 letters":(isFlt(v("tN"))?"":"1–3 digits"),
+    dstatus:()=>timeHint("delayTime"),
+    darrange:()=>!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
+    darrive:()=>timeHint("arriveTime"),
+    preview:()=>"Check details before sending"
+  };
+  const NEXT={
+    phone:()=>{S.phone=digits(v("phoneInput"));go("scenario");},
+    mflight:()=>go("msec"), msec:()=>go("preview"),
+    wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
+    dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
+    dstatus:()=>go("darrange"), darrange:()=>go("darrive"), darrive:()=>go("preview"),
+    preview:()=>send()
+  };
+
+  // ---- messages ----------------------------------------------------------
   function dateCode(){
     const d=new Date();
-    const dd=String(d.getDate()).padStart(2,"0");
-    const m=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"][d.getMonth()];
-    return dd+m;
+    return String(d.getDate()).padStart(2,"0")+["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"][d.getMonth()];
   }
-
-  function resetAll(){
-    phone="";flight="";missSec="";
-    document.querySelectorAll("input").forEach(i=>i.value="");
-    $("wppBag1Airline").value="CX";
-    $("wppBag2Airline").value="CX";
-    $("dpTransferAirline").value="CX";
-    $("dpAltAirline").value="CX";
-    document.querySelectorAll(".next").forEach(b=>b.disabled=true);
-    $("countryBadge").classList.remove("show");
-    $("phoneWarning").classList.remove("show");
-    $("dpDelayTimeWrap").style.display="none";
-    $("dpArrangeKnownWrap").style.display="none";
-    dpStatusChoice="";
-    dpArrangeChoice="";
-    document.body.classList.remove("keyboardOpen");
-    show("phone",false,false);
-    try{history.replaceState({page:"phone"},"","#phone");}catch(e){}
-  }
-
-  function openWA(text){
-    const url="https://wa.me/"+phone+"?text="+encodeURIComponent(text);
-    const a=document.createElement("a");
-    a.href=url;a.target="_blank";a.rel="noopener";
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(resetAll,700);
-  }
-
-  const blockedPhones=new Set(["85289648964","85262374313"]);
-
-  $("phoneInput").addEventListener("input",function(){
-    this.value=digits(this.value);
-    updateCountry(this.value);
-    const blocked=blockedPhones.has(this.value);
-    $("phoneWarning").classList.toggle("show",blocked);
-    $("phoneNext").disabled=this.value.length<6 || blocked;
-  });
-  $("phoneNext").onclick=function(){
-    phone=digits($("phoneInput").value);
-    if(phone.length>=6) show("scenario",true,false);
-  };
-
-  document.querySelectorAll(".back").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const target=btn.dataset.back;
-      try{
-        if(history.length>1){history.back();return;}
-      }catch(e){}
-      show(target,false,false);
-    });
-  });
-
-  $("missBtn").onclick=()=>show("flight",true,true);
-  $("callBtn").onclick=()=>openWA("您好");
-
-  $("flightInput").addEventListener("input",function(){
-    this.value=digits(this.value).slice(0,3);
-    const n=this.value===""?-1:Number(this.value);
-    $("flightNext").disabled=!(n>=0&&n<=999);
-  });
-  $("flightNext").onclick=function(){
-    const n=Number($("flightInput").value);
-    if(n>=0&&n<=999){flight=String(n);show("sec",true,true)}
-  };
-
-  $("secInput").addEventListener("input",function(){
-    this.value=digits(this.value).slice(0,3);
-    const n=this.value===""?-1:Number(this.value);
-    $("secNext").disabled=!(n>=0&&n<=580);
-  });
-  let missSec="";
-  $("secNext").onclick=function(){
-    const n=Number($("secInput").value);
-    if(!(n>=0&&n<=580)) return;
-    missSec=String(n).padStart(3,"0");
-    show("missLanguage",true,true);
-  };
-
-  function missMessage(zhFirst){
-    const tag="cx"+flight+"/sec"+missSec+"/"+dateCode();
+  function textMiss(zhFirst){
+    const tag="cx"+String(Number(v("mFlight")))+"/sec"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
 這是國泰航空桃園機場辦公室。
@@ -1021,31 +351,10 @@ Please return to Check-in Counter 4 and contact our staff.
 If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
 Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
-    return (zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh) + "\n\n" + tag;
+    return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
-  $("missZhFirst").onclick=()=>openWA(missMessage(true));
-  $("missEnFirst").onclick=()=>openWA(missMessage(false));
-
-  const wppFlight=$("wppFlightInput"), b1a=$("wppBag1Airline"), b1n=$("wppBag1Num"), b2a=$("wppBag2Airline"), b2n=$("wppBag2Num");
-  function upper2(el){ el.value=el.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2); }
-  function six(el){ el.value=digits(el.value).slice(0,6); }
-  function wppValidBag(a,n){ return /^[A-Z]{2}$/.test(a.value) && /^\d{6}$/.test(n.value); }
-  function wppSync(){
-    $("wppFlightNext").disabled=!/^\d{1,3}$/.test(wppFlight.value);
-    $("wppBag1Next").disabled=!wppValidBag(b1a,b1n);
-    $("wppBag2Next").disabled=!wppValidBag(b2a,b2n);
-  }
-  $("wronglyPickup").onclick=()=>show("wppFlight");
-  wppFlight.oninput=()=>{wppFlight.value=digits(wppFlight.value).slice(0,3);wppSync();};
-  b1a.oninput=()=>{upper2(b1a);wppSync();}; b1n.oninput=()=>{six(b1n);wppSync();};
-  b2a.oninput=()=>{upper2(b2a);wppSync();}; b2n.oninput=()=>{six(b2n);wppSync();};
-  $("wppFlightNext").onclick=()=>show("wppBag1");
-  $("wppBag1Next").onclick=()=>show("wppBag2");
-  $("wppBag2Next").onclick=()=>show("wppLanguage");
-
-  function wppMessage(zhFirst){
-    const flight="CX"+wppFlight.value;
-    const bag1=b1a.value+b1n.value, bag2=b2a.value+b2n.value;
+  function textWpp(zhFirst){
+    const flight="CX"+v("wFlight"), bag1=v("b1a")+v("b1n"), bag2=v("b2a")+v("b2n");
     const zh=`您好：
 
 這是桃園機場國泰航空行李辦公室。
@@ -1082,83 +391,18 @@ Email: tpe8bag@cathaypacific.com
 Tel: +88627727630
 
 Thank you for your cooperation.`;
-    return zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh;
+    return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
-  function openWpp(zhFirst){
-    openWA(wppMessage(zhFirst));
-  }
-  $("wppZhFirst").onclick=()=>openWpp(true);
-  $("wppEnFirst").onclick=()=>openWpp(false);
-wppSync();
-
-
-  function hhmmInput(el){
-    let d=digits(el.value).slice(0,4);
-    if(d.length>=3) el.value=d.slice(0,2)+":"+d.slice(2);
-    else el.value=d;
-    if(d.length!==4) return false;
-    const hh=Number(d.slice(0,2)), mm=Number(d.slice(2));
-    return hh>=0 && hh<=23 && mm>=0 && mm<=59;
-  }
-  function validHHMM(el){
-    const d=digits(el.value);
-    if(d.length!==4) return false;
-    const hh=Number(d.slice(0,2)), mm=Number(d.slice(2));
-    return hh>=0 && hh<=23 && mm>=0 && mm<=59;
-  }
-
-  let dpStatusChoice="", dpArrangeChoice="";
-  const dpFlight=$("dpFlightInput"), dpDelay=$("dpDelayTime"), dpTransferAirline=$("dpTransferAirline"), dpTransfer=$("dpTransferFlight"), dpAltAirline=$("dpAltAirline"), dpAltFlight=$("dpAltFlight"), dpAltTime=$("dpAltTime"), dpArrive=$("dpArriveTime");
-  $("disruptedPax").onclick=()=>show("dpFlight");
-  dpFlight.oninput=()=>{dpFlight.value=digits(dpFlight.value).slice(0,3);$("dpFlightNext").disabled=!/^\d{1,3}$/.test(dpFlight.value);};
-
-  $("dpFlightNext").onclick=()=>show("dpTransfer");
-  function dpTransferSync(){
-    dpTransferAirline.value=dpTransferAirline.value.replace(/[^a-z]/gi,"").slice(0,2).toUpperCase();
-    dpTransfer.value=digits(dpTransfer.value).slice(0,3);
-    $("dpTransferNext").disabled=!(/^[A-Z]{2}$/.test(dpTransferAirline.value)&&/^\d{1,3}$/.test(dpTransfer.value));
-  }
-  dpTransferAirline.oninput=dpTransferSync;
-  dpTransfer.oninput=dpTransferSync;
-  $("dpTransferNext").onclick=()=>{if(/^[A-Z]{2}$/.test(dpTransferAirline.value)&&/^\d{1,3}$/.test(dpTransfer.value))show("dpStatus");};
-
-  $("dpStatusPossible").onclick=()=>{dpStatusChoice="possible";$("dpDelayTimeWrap").style.display="none";show("dpArrange");};
-  $("dpStatusUnknown").onclick=()=>{dpStatusChoice="unknown";$("dpDelayTimeWrap").style.display="none";show("dpArrange");};
-  $("dpStatusDelayed").onclick=()=>{dpStatusChoice="delayed";$("dpDelayTimeWrap").style.display="block";$("dpStatusNext").disabled=!validHHMM(dpDelay);dpDelay.focus();};
-  dpDelay.oninput=()=>{$("dpStatusNext").disabled=!hhmmInput(dpDelay);};
-  $("dpStatusNext").onclick=()=>{if(validHHMM(dpDelay))show("dpArrange");};
-
-  $("dpArrangeKnown").onclick=()=>{dpArrangeChoice="known";$("dpArrangeKnownWrap").style.display="block";};
-  $("dpArrangeUnknown").onclick=()=>{dpArrangeChoice="unknown";$("dpArrangeKnownWrap").style.display="none";show("dpArrive");};
-  function dpArrangeSync(){
-    dpAltFlight.value=digits(dpAltFlight.value).slice(0,3);
-    $("dpArrangeNext").disabled=!(/^[A-Z]{2}$/.test(dpAltAirline.value)&&/^\d{1,3}$/.test(dpAltFlight.value)&&validHHMM(dpAltTime));
-  }
-  dpAltAirline.oninput=()=>{dpAltAirline.value=dpAltAirline.value.replace(/[^a-z]/gi,"").slice(0,2).toUpperCase();dpArrangeSync();};
-  dpAltFlight.oninput=dpArrangeSync; dpAltTime.oninput=()=>{hhmmInput(dpAltTime);dpArrangeSync();};
-  $("dpArrangeNext").onclick=()=>{if(!$("dpArrangeNext").disabled)show("dpArrive");};
-  dpArrive.oninput=()=>{$("dpArriveNext").disabled=!hhmmInput(dpArrive);};
-  $("dpArriveNext").onclick=()=>{if(validHHMM(dpArrive))show("dpLanguage");};
-
-  function dpMessages(zhFirst){
-    const f="CX"+dpFlight.value;
-    const tf=dpTransferAirline.value+dpTransfer.value;
-    let zStatus="", eStatus="";
-    if(dpStatusChoice==="possible"){
-      zStatus="今天可能會延遲";
-      eStatus="may be delayed today";
-    }else if(dpStatusChoice==="delayed"){
-      zStatus="目前已經延遲至"+dpDelay.value;
-      eStatus="is currently delayed until "+dpDelay.value;
-    }else{
-      zStatus="目前航班及起飛動態尚未確定";
-      eStatus="has a current status and departure time that have not yet been confirmed";
-    }
-    let zArrange="", eArrange="";
-    if(dpArrangeChoice==="known"){
-      const af=dpAltAirline.value+dpAltFlight.value;
-      zArrange=`我們將會替您安排替代的航班${af}，起飛時間為${dpAltTime.value}，`;
-      eArrange=`We will arrange an alternative flight ${af}, departing at ${dpAltTime.value}.`;
+  function textDp(zhFirst){
+    const f="CX"+v("dFlight"), tf=v("tA")+v("tN"), delay=v("delayTime"), alt=v("altA")+v("altN"), altTime=v("altTime"), arrive=v("arriveTime");
+    let zStatus,eStatus;
+    if(S.status==="possible"){zStatus="今天可能會延遲";eStatus="may be delayed today";}
+    else if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus="is currently delayed until "+delay;}
+    else{zStatus="目前航班及起飛動態尚未確定";eStatus="has a current status and departure time that have not yet been confirmed";}
+    let zArrange,eArrange;
+    if(S.arrange==="known"){
+      zArrange=`我們將會替您安排替代的航班${alt}，起飛時間為${altTime}，`;
+      eArrange=`We will arrange an alternative flight ${alt}, departing at ${altTime}.`;
     }else{
       zArrange="我們將會為您安排替代的航班，";
       eArrange="We will arrange an alternative flight for you.";
@@ -1167,155 +411,218 @@ wppSync();
 
 這裡是國泰航空桃園機場辦公室
 
-由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程 ${tf} 航班，${zArrange}想請問您是否有辦法於${dpArrive.value}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
-    let enFirstSentence="";
-    if(dpStatusChoice==="unknown"){
-      enFirstSentence=`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection ${tf} in Hong Kong.`;
-    }else{
-      enFirstSentence=`Your flight ${f} to Hong Kong ${eStatus}, which may affect your onward connection ${tf} in Hong Kong.`;
-    }
+由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程 ${tf} 航班，${zArrange}想請問您是否有辦法於${arrive}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
+    const first=S.status==="unknown"
+      ?`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection ${tf} in Hong Kong.`
+      :`Your flight ${f} to Hong Kong ${eStatus}, which may affect your onward connection ${tf} in Hong Kong.`;
     const en=`Hello,
 
 This is Cathay Pacific at Taoyuan Airport.
 
-${enFirstSentence}
+${first}
 
 ${eArrange}
 
-Could you please let us know if you are able to arrive at Taoyuan Airport before ${dpArrive.value}?
+Could you please let us know if you are able to arrive at Taoyuan Airport before ${arrive}?
 
 We are located at Counter 4, Terminal 1. Please contact our staff at the counter directly when you arrive at the airport.
 
 Thank you.`;
-    return zhFirst ? zh+"\n\n"+en : en+"\n\n"+zh;
+    return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
-  $("dpZhFirst").onclick=()=>openWA(dpMessages(true));
-  $("dpEnFirst").onclick=()=>openWA(dpMessages(false));
+  function buildText(){
+    const zf=S.order==="zh";
+    return flow==="miss"?textMiss(zf):flow==="wpp"?textWpp(zf):textDp(zf);
+  }
+  function buildRows(){
+    const rows=[["To","+"+S.phone]];
+    if(flow==="miss"){
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["SEC",String(Number(v("mSec"))).padStart(3,"0")]);
+    }else if(flow==="wpp"){
+      rows.push(["Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n")],["Bag Tag 2",v("b2a")+v("b2n")]);
+    }else if(flow==="dp"){
+      rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
+      rows.push(["Status",S.status==="possible"?"May be delayed today":S.status==="delayed"?"Delayed to "+v("delayTime"):"Not confirmed yet"]);
+      rows.push(["Arrangement",S.arrange==="known"?v("altA")+v("altN")+"  "+v("altTime"):"Not decided yet"]);
+      rows.push(["Arrive before",v("arriveTime")]);
+    }
+    return rows;
+  }
 
-})();
-</script>
-<script>
-if("serviceWorker" in navigator){
-window.addEventListener("load",async()=>{
-  try{
-    const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});
-    await reg.update();
-  }catch(e){}
-});
-}
-</script>
+  // ---- WhatsApp ----------------------------------------------------------
+  function openWA(text){
+    const url="https://wa.me/"+S.phone+"?text="+encodeURIComponent(text);
+    const a=document.createElement("a");
+    a.href=url;a.target="_blank";a.rel="noopener";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(resetAll,700);
+  }
+  function send(){ openWA(buildText()); }
 
-<script>
-/* v1.28 — reduce Android/Chrome saved-value suggestions */
-document.addEventListener("DOMContentLoaded", function(){
-  document.querySelectorAll("form").forEach(function(f){
-    f.setAttribute("autocomplete","off");
+  // ---- navigation --------------------------------------------------------
+  function showScreen(id){
+    cur=id;
+    document.querySelectorAll(".screen").forEach(s=>s.hidden=true);
+    $("s-"+id).hidden=false;
+    render();
+    $("main").scrollTop=0;
+  }
+  function focusFirst(id){
+    const inp=$("s-"+id).querySelector("input:not(.code)");
+    if(inp&&inp.offsetParent!==null){try{inp.focus({preventScroll:true});}catch(e){inp.focus();}}
+  }
+  function go(id){
+    stack.push(id);
+    try{history.pushState({},"");}catch(e){}
+    showScreen(id);
+    focusFirst(id);
+  }
+  window.addEventListener("popstate",()=>{
+    if(resetting){resetting=false;return;}
+    if(stack.length>1){stack.pop();showScreen(stack[stack.length-1]);}
   });
-  document.querySelectorAll("input").forEach(function(el){
+  $("back").onclick=()=>{
+    if(stack.length<=1) return;
+    const len=stack.length;
+    try{history.back();}catch(e){}
+    setTimeout(()=>{if(stack.length===len){stack.pop();showScreen(stack[stack.length-1]);}},350);
+  };
+
+  function resetAll(){
+    document.querySelectorAll("input").forEach(i=>i.value="");
+    ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
+    S.phone="";S.status="";S.arrange="";flow="";
+    $("badge").hidden=true;
+    $("warn").classList.remove("show");
+    $("phoneField").classList.remove("bad");
+    const depth=stack.length-1;
+    stack.length=0;stack.push("phone");
+    if(depth>0){resetting=true;try{history.go(-depth);}catch(e){resetting=false;}}
+    showScreen("phone");
+  }
+
+  // ---- render ------------------------------------------------------------
+  function render(){
+    const hasWho=cur!=="phone"&&S.phone;
+    $("back").hidden=cur==="phone";
+    $("who").hidden=!hasWho;
+    if(hasWho){
+      const c=findCountry(S.phone);
+      $("whoFlag").textContent=c?c[1]:"";
+      $("whoNum").textContent="+"+S.phone;
+    }
+    const f=flow&&FLOWS[flow], idx=f?f.steps.indexOf(cur):-1;
+    $("bar").hidden=idx<0;
+    if(idx>=0){
+      $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
+      $("step").textContent=f.name+"  "+(idx+1)+" / "+f.steps.length;
+    }else $("step").textContent="";
+
+    // status / arrange option state
+    if(cur==="dstatus"){
+      $("stPossible").setAttribute("aria-pressed",S.status==="possible");
+      $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");
+      $("stUnknown").setAttribute("aria-pressed",S.status==="unknown");
+      $("delayWrap").hidden=S.status!=="delayed";
+    }
+    if(cur==="darrange"){
+      $("arKnown").setAttribute("aria-pressed",S.arrange==="known");
+      $("arUnknown").setAttribute("aria-pressed",S.arrange==="unknown");
+      $("altWrap").hidden=S.arrange!=="known";
+    }
+    if(cur==="preview"){
+      const sum=$("sum");sum.textContent="";
+      buildRows().forEach(r=>{
+        const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
+        t.textContent=r[0];dd.textContent=r[1];d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
+      });
+      $("ordZh").setAttribute("aria-pressed",S.order==="zh");
+      $("ordEn").setAttribute("aria-pressed",S.order==="en");
+      $("msg").textContent=buildText();
+    }
+
+    const showFoot=!(cur==="scenario"||(cur==="dstatus"&&S.status!=="delayed")||(cur==="darrange"&&S.arrange!=="known"));
+    $("foot").hidden=!showFoot;
+    const ok=OK[cur]?OK[cur]():false;
+    const hint=$("hint");
+    hint.textContent=HINT[cur]?HINT[cur]():"";
+    hint.classList.toggle("bad",cur==="phone"&&blocked.has(digits(v("phoneInput"))));
+    const cta=$("cta");
+    cta.disabled=!ok;
+    cta.textContent=cur==="preview"?"Send on WhatsApp":"Next";
+  }
+  $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
+
+  // ---- wiring ------------------------------------------------------------
+  $("phoneInput").addEventListener("input",function(){
+    this.value=digits(this.value);
+    const c=findCountry(this.value),b=$("badge");
+    if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}else b.hidden=true;
+    const bl=blocked.has(this.value);
+    $("warn").classList.toggle("show",bl);
+    $("phoneField").classList.toggle("bad",bl);
+    render();
+  });
+  const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3};
+  Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){this.value=digits(this.value).slice(0,numInputs[id]);render();}));
+  ["b1a","b2a","tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));
+  ["delayTime","altTime","arriveTime"].forEach(id=>$(id).addEventListener("input",function(){fmtTime(this);render();}));
+
+  $("goMiss").onclick=()=>{flow="miss";go("mflight");};
+  $("goCall").onclick=()=>{flow="";openWA("您好");};
+  $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
+  $("goDp").onclick=()=>{flow="dp";go("dflight");};
+
+  $("stPossible").onclick=()=>{S.status="possible";go("darrange");};
+  $("stUnknown").onclick=()=>{S.status="unknown";go("darrange");};
+  $("stDelayed").onclick=()=>{S.status="delayed";render();try{$("delayTime").focus();}catch(e){}};
+  $("arUnknown").onclick=()=>{S.arrange="unknown";go("darrive");};
+  $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
+
+  function setOrder(o){S.order=o;try{localStorage.setItem("fp-order",o);}catch(e){}render();}
+  $("ordZh").onclick=()=>setOrder("zh");
+  $("ordEn").onclick=()=>setOrder("en");
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Enter"&&e.target&&e.target.tagName==="INPUT"&&!$("cta").disabled&&!$("foot").hidden){e.preventDefault();$("cta").click();}
+  });
+
+  // reduce browser autofill / keyboard suggestions
+  document.querySelectorAll("input").forEach(el=>{
     el.setAttribute("autocomplete","off");
     el.setAttribute("autocorrect","off");
     el.setAttribute("autocapitalize","off");
     el.setAttribute("spellcheck","false");
   });
-});
-</script>
 
-
-
-
-
-<script>
-/* v1.30 — keep the active field AND Next above the real keyboard edge */
-(function(){
+  // keep the Next button above the on-screen keyboard
   const vv=window.visualViewport;
-  if(!vv) return;
-
-  let raf=0;
-  let activeScreen=null;
-
-  function clearScreen(screen){
-    if(!screen) return;
-    screen.classList.remove("keyboard-active");
-    screen.style.removeProperty("--keyboard-pad");
+  if(vv){
+    const sync=()=>{
+      const open=vv.height<window.innerHeight-120;
+      const app=$("app");
+      app.classList.toggle("kb",open);
+      app.style.setProperty("--vh",open?vv.height+"px":"100%");
+      app.style.setProperty("--vt",open?vv.offsetTop+"px":"0px");
+      const el=document.activeElement;
+      if(open&&el&&el.tagName==="INPUT"&&el.scrollIntoView) el.scrollIntoView({block:"center"});
+    };
+    vv.addEventListener("resize",sync);
+    vv.addEventListener("scroll",sync);
   }
 
-  function ensureVisible(){
-    cancelAnimationFrame(raf);
-    raf=requestAnimationFrame(function(){
-      const el=document.activeElement;
-      const screen=el && el.closest ? el.closest(".page") : null;
-
-      if(activeScreen && activeScreen!==screen) clearScreen(activeScreen);
-      activeScreen=screen;
-
-      if(!screen || !el || !/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)){
-        clearScreen(screen);
-        return;
-      }
-
-      const keyboardHeight=Math.max(0, window.innerHeight-(vv.offsetTop+vv.height));
-      const keyboardOpen=keyboardHeight>100;
-      if(!keyboardOpen){
-        clearScreen(screen);
-        return;
-      }
-
-      screen.classList.add("keyboard-active");
-      screen.style.setProperty("--keyboard-pad", Math.ceil(keyboardHeight+28)+"px");
-
-      // After compact keyboard styles apply, calculate the real visible bottom.
-      requestAnimationFrame(function(){
-        const visibleTop=vv.offsetTop;
-        const visibleBottom=vv.offsetTop+vv.height;
-        const safeTop=visibleTop+12;
-        const safeBottom=visibleBottom-24;
-
-        const fieldRect=el.getBoundingClientRect();
-        const next=screen.querySelector(".next:not([hidden])");
-        const nextRect=next ? next.getBoundingClientRect() : null;
-
-        let targetBottom=fieldRect.bottom;
-        if(nextRect && nextRect.top < visibleBottom+260){
-          targetBottom=Math.max(targetBottom,nextRect.bottom);
-        }
-
-        let dy=0;
-        if(targetBottom>safeBottom) dy=targetBottom-safeBottom;
-        if(fieldRect.top-dy<safeTop) dy=Math.max(0,fieldRect.top-safeTop);
-
-        if(dy>0){
-          screen.scrollBy({top:Math.ceil(dy),behavior:"auto"});
-        }
-
-        // Final guarantee: focused input itself must always remain visible.
-        requestAnimationFrame(function(){
-          const r=el.getBoundingClientRect();
-          if(r.bottom>safeBottom){
-            screen.scrollBy({top:Math.ceil(r.bottom-safeBottom),behavior:"auto"});
-          }else if(r.top<safeTop){
-            screen.scrollBy({top:-Math.ceil(safeTop-r.top),behavior:"auto"});
-          }
-        });
-      });
-    });
-  }
-
-  vv.addEventListener("resize",ensureVisible);
-  vv.addEventListener("scroll",ensureVisible);
-  window.addEventListener("orientationchange",function(){setTimeout(ensureVisible,180);});
-  document.addEventListener("focusin",function(){setTimeout(ensureVisible,80);});
-  document.addEventListener("input",ensureVisible);
-  document.addEventListener("focusout",function(){
-    setTimeout(function(){
-      const el=document.activeElement;
-      if(!el || !el.closest || !el.closest(".page")){
-        clearScreen(activeScreen);
-        activeScreen=null;
-      }
-    },140);
-  });
+  showScreen("phone");
+  window.__fp={S,stack,go,get cur(){return cur;}}; // handy for debugging
 })();
-</script>
 
+if("serviceWorker" in navigator){
+  window.addEventListener("load",async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});
+      await reg.update();
+    }catch(e){}
+  });
+}
+</script>
 </body>
 </html>

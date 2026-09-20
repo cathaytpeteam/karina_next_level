@@ -398,3 +398,19 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - Service Worker 只快取成功的同源回應，並以 `waitUntil` 包住快取寫入。
 - 替代航班中文訊息在航班號與「起飛時間」之間補上逗號。
 - `disrupted-pax-icon-v2.png` 移除最右側一排不透明像素。
+
+## v2.0 — UI refresh (基於 v1.30.1)
+
+整個 UI 重新排版，並全面改為英文介面（訊息內容本身維持原本的中英文）。流程、罐頭號碼封鎖、國碼判斷與訊息文字維持原本邏輯。
+
+- 頂部固定顯示收件對象（國旗 + 號碼）、進度條與 `n / N` 步驟。
+- Next 固定在畫面底部，鍵盤開啟時會跟著移到鍵盤上方；按鈕上方一行小字說明目前缺什麼（例如 `2 more digits`）。
+- 所有流程最後都有 `Confirm and send` 預覽頁：顯示摘要與完整訊息，並可切換 `Chinese first` / `English first`（記住上次選擇），按 `Send on WhatsApp` 才會開啟 WhatsApp。`2 Call Pax` 仍直接開啟。
+- Flight status：選 `May be delayed today` / `Not confirmed yet` 會直接前進；選 `Delayed to` 才顯示時間欄與 Next。Flight arrangement 同理（`Will protect to` 顯示航班與時間欄，`Not decided yet` 直接前進）。
+- 航班 / Bag Tag / Connecting flight / Will protect to 使用同一種輸入欄樣式；可編輯的航空公司代碼預設 `CX`，發送後重置也會恢復 `CX`。
+- 進入頁面時自動聚焦數字欄。瀏覽器 / Android 返回鍵與畫面 Back 同步。
+- 固定淺色模式（`color-scheme: light only`）；主色改為較深的 `#00747A`，白字對比約 5.9:1；已移除 `user-scalable=no`，允許縮放。
+- 移除底部大圖示；`phone-bottom-icon.png` 與 `disrupted-pax-icon-v2.png` 不再使用，可從 GitHub 刪除（留著也不影響）。
+- `sw.js` CACHE：`find-pax-v2.0-ui-refresh-20260920`，預先快取清單已移除不再使用的兩張圖。
+
+注意：舊 PWA 若仍顯示舊版，請先用 `?v=2` 網址開一次，或移除舊主畫面捷徑後重新加入。
