@@ -375,3 +375,15 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 鍵盤開啟時縮短標題／上方留白；裝飾 icon 若符合現有 class 會縮小，增加操作空間。
 - 鍵盤關閉後恢復正常頁面配置。
 - v1.29 的 Will Protect to `CX │ 航班號` + 獨立 HHMM 保留。
+
+## v1.31 — Complete UI update
+- 主題色改為較明亮 Cathay-style teal `#2D9FA3`。
+- `Will Protect to` 改為 `Will protect to`。
+- 所有航班編號盡量以整組置中，航空公司與數字距離縮短。
+- Connecting flight / Will protect to / Bag Tag 移除中間直線分隔。
+- 航空公司代碼：28px / 800 / teal。
+- 航班與 Bag Tag 數字：28px / 700 / 深灰黑。
+- 所有 HHMM 時間欄位：縮短高度、水平置中、28px / 700。
+- 保留 TPE / HKG、固定淺色模式、透明 icon、罐頭號碼、自動格式化 HHMM。
+- 保留 v1.30 全 App 動態鍵盤避讓：依每支手機實際鍵盤/可視高度自動調整，優先保留輸入欄位與 Next。
+- 補齊 manifest.webmanifest 與 sw.js，ZIP 可直接解壓覆蓋 GitHub Pages。
