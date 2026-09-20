@@ -404,6 +404,171 @@ body.keyboardOpen .phoneBottomMark{
   #wppBag1 .bagTagSplit,#wppBag2 .bagTagSplit{grid-template-columns:105px 1fr;}
 }
 
+
+/* v1.21 — Find Pax unified typography & layout */
+:root{
+  --content-max:520px;
+  --page-x:24px;
+}
+body{
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.screen{
+  padding-left:var(--page-x);
+  padding-right:var(--page-x);
+}
+.screen > *{
+  width:100%;
+  max-width:var(--content-max);
+  margin-left:auto;
+  margin-right:auto;
+}
+.top{padding-top:18px;}
+.back{
+  font-size:18px !important;
+  line-height:1.2;
+  font-weight:700 !important;
+  letter-spacing:-.01em;
+}
+.title{
+  margin-top:38px !important;
+  margin-bottom:26px !important;
+  color:var(--green);
+  font-size:33px !important;
+  line-height:1.15 !important;
+  font-weight:800 !important;
+  letter-spacing:-.025em;
+  text-align:center;
+}
+.subtitle{
+  margin-top:-10px;
+  margin-bottom:22px;
+  color:var(--green);
+  font-size:19px;
+  line-height:1.4;
+  font-weight:700;
+  text-align:center;
+}
+input,button{font-family:inherit;}
+.inputbox,.field{border-radius:16px !important;}
+.next{
+  min-height:70px !important;
+  margin-top:20px !important;
+  border-radius:16px !important;
+  font-size:22px !important;
+  line-height:1.2;
+  font-weight:800 !important;
+  letter-spacing:-.01em;
+}
+.choice{border-radius:16px !important;}
+.choiceText{
+  font-size:20px !important;
+  line-height:1.3 !important;
+  font-weight:750 !important;
+  letter-spacing:-.01em;
+}
+
+/* Scenario */
+#scenario .title{margin-bottom:24px !important;}
+#scenario .choice{min-height:82px;margin-bottom:12px;}
+
+/* Text-only choice pages */
+#missLanguage .choice,
+#wppLanguage .choice,
+#dpStatus .choice,
+#dpArrange .choice,
+#dpLanguage .choice{
+  min-height:76px !important;
+  height:auto !important;
+  padding:17px 20px !important;
+  margin-bottom:12px;
+}
+#missLanguage .choiceText,
+#wppLanguage .choiceText,
+#dpStatus .choiceText,
+#dpArrange .choiceText,
+#dpLanguage .choiceText{
+  width:100%;
+  text-align:center;
+}
+
+/* Bag Tag explanatory text is intentionally prominent */
+#wppBag1 .title,#wppBag2 .title{margin-bottom:10px !important;}
+#wppBag1 .bagHelp,#wppBag2 .bagHelp{
+  margin:0 0 20px !important;
+  color:var(--green);
+  font-size:24px !important;
+  line-height:1.3 !important;
+  font-weight:800 !important;
+  letter-spacing:-.012em;
+  text-align:center;
+}
+
+/* Editable-airline split fields: ONLY Bag Tags + Transfer + Protected to.
+   Existing logic remains unchanged; this only harmonizes appearance. */
+#wppBag1 .bagTagSplit,
+#wppBag2 .bagTagSplit{
+  min-height:92px;
+  border-radius:16px !important;
+}
+#wppBag1 .bagTagSplit .bagAirline,
+#wppBag2 .bagTagSplit .bagAirline{
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+}
+#wppBag1 .bagTagSplit input:not(.bagAirline),
+#wppBag2 .bagTagSplit input:not(.bagAirline){
+  color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+}
+.transferFlightRow{margin-top:4px;}
+.transferAirlineBox,.transferNumberBox{
+  min-height:96px !important;
+  padding:12px 18px !important;
+}
+#dpTransferAirline.editablePrefix,#dpTransferFlight{
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+}
+#dpTransferFlight::placeholder{color:transparent !important;}
+
+/* Protected-to editable airline stays prominent and editable */
+#dpAltAirline.editableAltPrefix{
+  color:var(--green) !important;
+  -webkit-text-fill-color:var(--green);
+  font-size:28px !important;
+  font-weight:800 !important;
+}
+
+/* Long operational titles: slightly smaller to avoid awkward wrapping */
+#dpTransfer .title,
+#dpArrivePage .title{
+  font-size:30px !important;
+  line-height:1.18 !important;
+}
+
+/* Time and expanded arrangement fields */
+#dpArrange .expand{margin-top:14px;}
+#dpArrange .inputbox{margin-top:12px;}
+
+@media(max-width:390px){
+  :root{--page-x:20px;}
+  .title{
+    margin-top:34px !important;
+    margin-bottom:23px !important;
+    font-size:30px !important;
+  }
+  #dpTransfer .title,#dpArrivePage .title{font-size:27px !important;}
+  #wppBag1 .bagHelp,#wppBag2 .bagHelp{font-size:22px !important;}
+  .next{min-height:68px !important;}
+}
+
 </style>
 
 </head>

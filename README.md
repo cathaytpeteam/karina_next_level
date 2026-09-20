@@ -315,3 +315,11 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - Transfer flight 的航空公司代碼預設顯示 `CX`。
 - `CX` 仍可直接修改為其他兩碼航空公司代碼。
 - 右側航班號碼保持空白，不顯示 450 或其他灰色範例。
+
+## v1.21 — Full typography & layout polish
+- 全站統一主標題、Back、選項、輸入內容、Next 的字級、粗細、留白與圓角節奏。
+- Bag Tag 中文說明維持醒目大字，不縮小。
+- 可修改航空公司代碼的欄位限定為：Bag Tag 1/2、Transfer flight number、Protected to。
+- 以上三類預設 CX 並保留可編輯；其他 CX 航班欄位維持原本固定邏輯。
+- Transfer flight 右側不顯示 450 或灰色 placeholder。
+- 不更改既有流程、WhatsApp 文案或驗證規則。

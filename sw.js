@@ -1,4 +1,4 @@
-const CACHE="find-pax-v1.20-transfer-default-cx-20260920";
+const CACHE="find-pax-v1.21-full-ui-polish-20260920";
 const ASSETS=[
   "./",
   "./index.html",
