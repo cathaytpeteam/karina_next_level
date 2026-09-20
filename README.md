@@ -64,10 +64,10 @@ const blockedPhones=new Set(["85289648964","886912345678"]);
 每次發布新版，請同步提高 `sw.js` 的 `CACHE` 版本，例如：
 
 ```js
-locha-v9-20260920
+const CACHE="find-pax-v1.30.1-bugfix-20260920";
 ```
 
-下一版可改為 `locha-v9-20260920`。這可降低手機 PWA 卡住舊版的情況。
+每次發布請把版本號與日期一併更新，這可降低手機 PWA 卡住舊版的情況。
 
 發布後可先用 `?v=8` 之類的網址參數在 Safari / Chrome 確認新版。若主畫面 PWA 仍是舊版，再移除舊 PWA、清除該網站資料後重新加入主畫面。
 
@@ -375,3 +375,26 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 鍵盤開啟時縮短標題／上方留白；裝飾 icon 若符合現有 class 會縮小，增加操作空間。
 - 鍵盤關閉後恢復正常頁面配置。
 - v1.29 的 Will Protect to `CX │ 航班號` + 獨立 HHMM 保留。
+
+## v1.31 — Complete UI update
+- 主題色改為較明亮 Cathay-style teal `#2D9FA3`。
+- `Will Protect to` 改為 `Will protect to`。
+- 所有航班編號盡量以整組置中，航空公司與數字距離縮短。
+- Connecting flight / Will protect to / Bag Tag 移除中間直線分隔。
+- 航空公司代碼：28px / 800 / teal。
+- 航班與 Bag Tag 數字：28px / 700 / 深灰黑。
+- 所有 HHMM 時間欄位：縮短高度、水平置中、28px / 700。
+- 保留 TPE / HKG、固定淺色模式、透明 icon、罐頭號碼、自動格式化 HHMM。
+- 保留 v1.30 全 App 動態鍵盤避讓：依每支手機實際鍵盤/可視高度自動調整，優先保留輸入欄位與 Next。
+- 補齊 manifest.webmanifest 與 sw.js，ZIP 可直接解壓覆蓋 GitHub Pages。
+
+## v1.30.1 — Bug fixes
+- 鍵盤避讓改用實際存在的 `.page`（原 `.screen` 沒有任何元素使用，導致無作用）。
+- `.page` 改為 `100dvh` 且可垂直捲動，內容較高時（例如 Will Protect to 展開）Next 不再被擠出畫面。
+- 發送 WhatsApp 後重置時，Connecting flight 與 Will Protect to 的航空公司代碼也會回到 `CX`。
+- 進入頁面時自動聚焦數字欄，而不是航空公司代碼欄。
+- 瀏覽器返回若導致電話號碼為空，會自動回到 Phone 頁，避免開出沒有號碼的 wa.me。
+- 修正 `dpArrangeNext` 的 `this` 判斷。
+- Service Worker 只快取成功的同源回應，並以 `waitUntil` 包住快取寫入。
+- 替代航班中文訊息在航班號與「起飛時間」之間補上逗號。
+- `disrupted-pax-icon-v2.png` 移除最右側一排不透明像素。

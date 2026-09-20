@@ -654,43 +654,53 @@ input,.inputbox,.field,
 #dpAltFlight::placeholder{color:transparent !important;}
 
 /* Dynamic keyboard-safe motion. JS sets --kb-lift to only the distance needed. */
-.screen{
+.page{
   --kb-lift:0px;
 }
-.screen.keyboard-active .form,
-.screen.keyboard-active .keyboardLift{
+.page.keyboard-active .form,
+.page.keyboard-active .keyboardLift{
   transform:translateY(var(--kb-lift)) !important;
   transition:transform .16s ease-out;
 }
 
 
 /* v1.30 — universal mobile keyboard safe mode */
-.screen.keyboard-active{
+.page.keyboard-active{
   overflow-y:auto !important;
   overscroll-behavior:contain;
   padding-bottom:var(--keyboard-pad, 0px) !important;
 }
-.screen.keyboard-active .top{
+.page.keyboard-active .top{
   padding-top:4px !important;
 }
-.screen.keyboard-active .title{
+.page.keyboard-active .title{
   margin-top:8px !important;
   margin-bottom:12px !important;
 }
-.screen.keyboard-active .heroIcon,
-.screen.keyboard-active .pageIcon,
-.screen.keyboard-active .phoneIcon,
-.screen.keyboard-active .topIcon{
+.page.keyboard-active .heroIcon,
+.page.keyboard-active .pageIcon,
+.page.keyboard-active .phoneIcon,
+.page.keyboard-active .topIcon{
   transform:scale(.72);
   transform-origin:center bottom;
   margin-top:-12px !important;
   margin-bottom:-10px !important;
 }
-.screen.keyboard-active .form{
+.page.keyboard-active .form{
   transform:none !important;
   transition:none !important;
 }
 
+
+/* v1.30.1 — allow tall pages to scroll (body is overflow:hidden) */
+.page{
+  height:100vh;height:100dvh;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.page > *:not(.spacer){flex-shrink:0;}
+.page > .spacer{flex:1 0 0;}
 </style>
 
 </head>
@@ -860,14 +870,18 @@ input,.inputbox,.field,
     if(push){try{history.pushState({page:id},"","#"+id);}catch(e){}}
     if(focus){
       setTimeout(()=>{
-        const inp=$(id).querySelector("input");
-        if(inp) inp.focus();
+        const inp=$(id).querySelector("input:not(.bagAirline):not(.editablePrefix):not(.editableAltPrefix)");
+        if(inp && inp.offsetParent!==null) inp.focus();
       },80);
     }
   }
 
   window.addEventListener("popstate",e=>{
-    const id=(e.state&&e.state.page)||"phone";
+    let id=(e.state&&e.state.page)||"phone";
+    if(!phone && id!=="phone"){
+      id="phone";
+      try{history.replaceState({page:"phone"},"","#phone");}catch(err){}
+    }
     current=id;
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     $(id).classList.add("active");
@@ -915,6 +929,8 @@ input,.inputbox,.field,
     document.querySelectorAll("input").forEach(i=>i.value="");
     $("wppBag1Airline").value="CX";
     $("wppBag2Airline").value="CX";
+    $("dpTransferAirline").value="CX";
+    $("dpAltAirline").value="CX";
     document.querySelectorAll(".next").forEach(b=>b.disabled=true);
     $("countryBadge").classList.remove("show");
     $("phoneWarning").classList.remove("show");
@@ -1120,7 +1136,7 @@ wppSync();
   }
   dpAltAirline.oninput=()=>{dpAltAirline.value=dpAltAirline.value.replace(/[^a-z]/gi,"").slice(0,2).toUpperCase();dpArrangeSync();};
   dpAltFlight.oninput=dpArrangeSync; dpAltTime.oninput=()=>{hhmmInput(dpAltTime);dpArrangeSync();};
-  $("dpArrangeNext").onclick=()=>{if(!this.disabled)show("dpArrive");};
+  $("dpArrangeNext").onclick=()=>{if(!$("dpArrangeNext").disabled)show("dpArrive");};
   dpArrive.oninput=()=>{$("dpArriveNext").disabled=!hhmmInput(dpArrive);};
   $("dpArriveNext").onclick=()=>{if(validHHMM(dpArrive))show("dpLanguage");};
 
@@ -1141,7 +1157,7 @@ wppSync();
     let zArrange="", eArrange="";
     if(dpArrangeChoice==="known"){
       const af=dpAltAirline.value+dpAltFlight.value;
-      zArrange=`我們將會替您安排替代的航班${af}起飛時間為${dpAltTime.value}，`;
+      zArrange=`我們將會替您安排替代的航班${af}，起飛時間為${dpAltTime.value}，`;
       eArrange=`We will arrange an alternative flight ${af}, departing at ${dpAltTime.value}.`;
     }else{
       zArrange="我們將會為您安排替代的航班，";
@@ -1227,7 +1243,7 @@ document.addEventListener("DOMContentLoaded", function(){
     cancelAnimationFrame(raf);
     raf=requestAnimationFrame(function(){
       const el=document.activeElement;
-      const screen=el && el.closest ? el.closest(".screen") : null;
+      const screen=el && el.closest ? el.closest(".page") : null;
 
       if(activeScreen && activeScreen!==screen) clearScreen(activeScreen);
       activeScreen=screen;
@@ -1292,7 +1308,7 @@ document.addEventListener("DOMContentLoaded", function(){
   document.addEventListener("focusout",function(){
     setTimeout(function(){
       const el=document.activeElement;
-      if(!el || !el.closest || !el.closest(".screen")){
+      if(!el || !el.closest || !el.closest(".page")){
         clearScreen(activeScreen);
         activeScreen=null;
       }
