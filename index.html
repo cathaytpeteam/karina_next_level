@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+<meta name="color-scheme" content="light">
 <meta charset="utf-8">
 <title>Find Pax</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#005D63">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Find Pax">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -505,7 +506,7 @@ input,button{font-family:inherit;}
   text-align:center;
 }
 
-/* Editable-airline split fields: ONLY Bag Tags + Transfer + Protected to.
+/* Editable-airline split fields: ONLY Bag Tags + Transfer + Will Protect to.
    Existing logic remains unchanged; this only harmonizes appearance. */
 #wppBag1 .bagTagSplit,
 #wppBag2 .bagTagSplit{
@@ -567,6 +568,53 @@ input,button{font-family:inherit;}
   #dpTransfer .title,#dpArrivePage .title{font-size:27px !important;}
   #wppBag1 .bagHelp,#wppBag2 .bagHelp{font-size:22px !important;}
   .next{min-height:68px !important;}
+}
+
+
+/* v1.24 — latest wording and keyboard-clearance adjustments */
+#dpFlight .airportCode,#dpTransfer .airportCode{
+  width:max-content;min-width:86px;margin:-14px auto 20px;padding:8px 20px;
+  border-radius:999px;background:#eef3f4;color:var(--green);
+  font-size:23px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:.02em;
+}
+/* Visually single-field pages: same 15% upward adjustment as the first phone page. */
+#phone .form,#flight .form,#sec .form,#wppFlight .form,#wppBag1 .form,#wppBag2 .form,
+#dpFlight .form,#dpTransfer .form,#dpArrive .form{
+  transform:translateY(-15%);transform-origin:center top;
+}
+/* First-page decorative icon: 1.4× original 90px. */
+#phone .phoneBottomMark{
+  width:126px !important;height:126px !important;max-width:126px !important;object-fit:contain;
+}
+
+
+/* v1.27 — fixed light appearance on all devices */
+:root{
+  color-scheme:light only;
+}
+html,body{
+  background:#ffffff !important;
+  color-scheme:light only !important;
+}
+body,.screen{
+  background:#ffffff !important;
+}
+input,textarea,select,button{
+  color-scheme:light only !important;
+}
+input,.inputbox,.field,
+.transferAirlineBox,.transferNumberBox,
+#wppBag1 .bagTagSplit,#wppBag2 .bagTagSplit{
+  background:#ffffff !important;
+}
+@media (prefers-color-scheme: dark){
+  :root,html,body,.screen{
+    color-scheme:light only !important;
+    background:#ffffff !important;
+  }
+  input,textarea,select,button{
+    color-scheme:light only !important;
+  }
 }
 
 </style>
@@ -680,7 +728,7 @@ input,button{font-family:inherit;}
 </section>
 
 <section id="dpFlight" class="page">
- <button class="back" data-back="scenario"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Disrupted flight number</h1></div>
+ <button class="back" data-back="scenario"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Disrupted flight</h1><div class="airportCode">TPE</div></div>
  <div class="form"><div class="field"><span class="inPrefix">CX</span><input id="dpFlightInput" inputmode="numeric" maxlength="3"></div><button id="dpFlightNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpStatus" class="page">
@@ -693,19 +741,19 @@ input,button{font-family:inherit;}
  <div id="dpDelayTimeWrap" class="form" style="display:none"><div class="field"><input id="dpDelayTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpStatusNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpTransfer" class="page">
- <button class="back" data-back="dpFlight"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Transfer flight number</h1></div>
+ <button class="back" data-back="dpFlight"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Connecting flight</h1><div class="airportCode">HKG</div></div>
  <div class="form"><div class="field"><div class="transferFlightRow"><div class="transferAirlineBox"><input id="dpTransferAirline" class="editablePrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"></div><div class="transferNumberBox"><input id="dpTransferFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="" aria-label="Flight number"></div></div></div><button id="dpTransferNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpArrange" class="page">
- <button class="back" data-back="dpStatus"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight arrange</h1></div>
+ <button class="back" data-back="dpStatus"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Flight arrangement</h1></div>
  <div class="choices">
-  <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Protected to</span></span></button>
-  <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Protected – not confirmed</span></span></button>
+  <button id="dpArrangeKnown" class="choice"><span class="choiceText"><span>Will Protect to</span></span></button>
+  <button id="dpArrangeUnknown" class="choice"><span class="choiceText"><span>Not decided yet</span></span></button>
  </div>
  <div id="dpArrangeKnownWrap" class="form" style="display:none"><div class="field"><input id="dpAltAirline" class="editableAltPrefix" type="text" inputmode="text" maxlength="2" autocomplete="off" autocapitalize="characters" value="CX" aria-label="Airline code"><input id="dpAltFlight" inputmode="numeric" pattern="[0-9]*" maxlength="3"></div><div class="field"><input id="dpAltTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArrangeNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpArrive" class="page">
- <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should be arrive before ?</h1></div>
+ <button class="back" data-back="dpArrange"><span class="arrow">‹</span>Back</button><div class="top"><h1 class="title">Pax should arrive before ?</h1></div>
  <div class="form"><div class="field"><input id="dpArriveTime" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" placeholder="HHMM"></div><button id="dpArriveNext" class="next" disabled>Next</button></div>
 </section>
 <section id="dpLanguage" class="page">
@@ -813,7 +861,7 @@ input,button{font-family:inherit;}
     setTimeout(resetAll,700);
   }
 
-  const blockedPhones=new Set(["85289648964"]);
+  const blockedPhones=new Set(["85289648964","85262374313"]);
 
   $("phoneInput").addEventListener("input",function(){
     this.value=digits(this.value);

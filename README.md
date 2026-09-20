@@ -323,3 +323,32 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 以上三類預設 CX 並保留可編輯；其他 CX 航班欄位維持原本固定邏輯。
 - Transfer flight 右側不顯示 450 或灰色 placeholder。
 - 不更改既有流程、WhatsApp 文案或驗證規則。
+
+## v1.24 — GitHub-ready update
+- Disrupted flight + TPE
+- Connecting flight + HKG
+- Protected to → Will Protect to
+- Protected - not confirmed → Not decided yet
+- Pax should be arrive before ? → Pax should arrive before ?
+- Flight arrange → Flight arrangement
+- 單一輸入欄位頁面的表單向上 15%。
+- 第一頁底部 icon 放大 1.4 倍至 126×126。
+
+## v1.25 — Canned phone number
+- 新增罐頭號碼 `85262374313`。
+- 原有 `85289648964` 保留。
+- 兩個號碼輸入時皆顯示 `罐頭號碼 無用` 並停用 Next。
+
+## v1.26 — Transparent icon cleanup
+- 修正 `disrupted-pax-icon-v2.png` 黑色背景，改為真正透明 PNG。
+- 修正 `phone-bottom-icon.png` 周圍黑白背景／雜邊，改為真正透明 PNG。
+- 保留原本 teal 人物／飛機、米色行李與圖案設計。
+- App 主 icon 維持原本白底設計。
+
+## v1.27 — Fixed light mode
+- Find Pax 固定使用淺色模式，不跟隨手機深色主題。
+- 頁面背景、輸入框與表單元件固定白底。
+- 保留 Cathay 綠 `#005D63` 與既有 UI 配色。
+- iPhone Safari / Home Screen PWA 與 Android Chrome / PWA 均套用 light color scheme。
+- manifest 與 browser theme color 固定為白色。
+- 其他流程、文字、罐頭號碼與透明 icon 維持 v1.26。
