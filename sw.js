@@ -1,4 +1,4 @@
-const CACHE="find-pax-v1.7-layout-hotfix-20260920-0806";
+const CACHE="find-pax-v1.9-bag-tag-labels-20260920";
 const ASSETS=[
   "./",
   "./index.html",

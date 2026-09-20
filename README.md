@@ -243,3 +243,19 @@ WhatsApp 中英文訊息都會帶入受影響的香港轉機航班號碼。
 修正 Flight status 等純文字選項在 iOS Safari 被壓進原本 icon grid 欄位、造成中文字逐字換行的問題。
 這些頁面的按鈕改用獨立 flex 版面，不再繼承首頁三欄 grid。
 同時更新 Service Worker cache key，避免手機繼續讀到舊 CSS。
+
+
+## v1.8 — Flight arrange wording / HHMM keyboard input
+
+- Flight arrange 內部選項改為 `Protected to` 與 `Protected – not confirmed`。
+- Disrupted Pax 所有時間欄位不再使用原生 Time Picker。
+- 改用 numeric keypad 輸入四碼 HHMM；例如 `0811` 自動格式化為 `08:11`。
+- 驗證：HH 00–23、MM 00–59；無效時間不能進入下一步。
+- 保留原本 WhatsApp 訊息內容邏輯；上述 wording 僅供內部介面快速辨識。
+
+
+## v1.9 — Bag Tag guidance
+Wrongly Pick-up：
+- Bag Tag 1 顯示「沒有人拿走的行李」
+- Bag Tag 2 顯示「被拿錯，目前找不到的行李」
+- Bag Tag 1 / 2 的預設航空公司代碼 `CX` 加大、加粗；仍可編輯其他兩碼航空公司代碼。
