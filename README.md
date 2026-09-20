@@ -264,3 +264,9 @@ Wrongly Pick-up：
 - Transfer flight number 的航空公司代碼預設 `CX`，但可直接編輯。
 - 限制 2 個英文字母，自動轉大寫。
 - WhatsApp 訊息使用實際輸入的航空公司代碼。
+
+## v1.11 — Disrupted Pax page order
+流程調整為：
+`Disrupted flight number → Transfer flight number → Flight status → Flight arrange → Pax should be arrive before ? → Preferred Language → WhatsApp`
+
+Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不變。
