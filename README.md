@@ -627,3 +627,21 @@ Examples:
 - 中英文開頭不再於「您好：」或「Hello,」後換行，以利手機通知中心直接顯示後續內容。
 - 既有 No Message、Gate 1R、No Message 自動取消與純 WhatsApp Call 流程維持不變。
 
+
+
+## v2.3.2 — UI fixes
+
+- Restore send after closing the preview during editing; preserve the draft.
+- Fit the expanded preview to remaining layout space; scroll inside the message.
+- Align prefix/value widths and constrain the Gate input to its grid cell.
+- Wrap summary labels, preview controls and scenario labels on narrow screens.
+- Refresh the service worker cache. Existing UI text and generated messages are unchanged.
+- Validation: mocked-DOM flow/state regression checks and source/package checks. Browser rendering and real-device keyboard testing were unavailable in the review environment.
+
+
+## v2.3.3 — Call Passenger gate selector
+
+- On Call Passenger 1 / 2, rename the heading to Final Call Message.
+- Hide the native selector arrow while retaining its selectable B / C options.
+- Restrict gate-area validation to B / C; keep B as default.
+- Keep the hidden empty state for No Message and retain the v2.3.2 UI fixes.

@@ -40,7 +40,7 @@ button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 .bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
 .step{font-size:14px;color:var(--muted);margin:8px 0 0;min-height:20px}
 
-main{flex:1;overflow-y:auto;padding:12px 20px 24px;-webkit-overflow-scrolling:touch}
+main{flex:1;min-height:0;min-width:0;overflow-y:auto;padding:12px 20px 24px;-webkit-overflow-scrolling:touch}
 .screen[hidden]{display:none}
 #s-preview[hidden]{display:none!important}
 h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);font-weight:800;letter-spacing:-.01em}
@@ -98,7 +98,7 @@ h1 + .chip{margin-top:-8px}
 #s-scenario .ico img{width:52px;height:52px;object-fit:contain}
 #s-scenario .ctext{display:contents;font-family:var(--font);font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
 #s-scenario .ctext .num{font-size:30px;align-self:center;justify-self:center}
-#s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:nowrap}
+#s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:normal;overflow-wrap:anywhere}
 #s-scenario .chev{font-family:var(--font);font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
 
 .choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:18px;background:var(--surface);text-align:left;cursor:pointer}
@@ -130,9 +130,9 @@ h1 + .chip{margin-top:-8px}
 .sum{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 16px}
 .sum div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:17px}
 .sum div + div{border-top:1px solid var(--line)}
-.sum dt{color:var(--muted);flex:none;display:flex;align-items:center;gap:14px;white-space:nowrap}
+.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:anywhere}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
-.sum dd{margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.sum dd{min-width:0;overflow-wrap:anywhere;margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .sum dd .flightAccent{color:var(--brand);font-weight:900}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
@@ -155,19 +155,20 @@ h1 + .chip{margin-top:-8px}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
 /* Prefix + value fields share one centered two-column geometry across the app. */
-#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field{display:grid;grid-template-columns:72px 7.2ch;justify-content:center;align-items:center;column-gap:12px}
+#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
 #s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code{width:72px;margin-right:0;justify-self:end}
 /* SEC has no prefix chip; an empty first cell keeps its number in the same spot as the flight number. */
 #s-msec .field::before{content:"";display:block}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input{flex:0 0 auto;width:7.2ch;max-width:none;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input{flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
 #s-msec .field{grid-template-columns:1fr}
 #s-msec .field::before{display:none}
 #s-msec .field input{width:100%;justify-self:stretch;text-align:center}
-#s-darrange .field.time input{width:7.2ch;text-align:left}
+#s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
-#s-preview.preview-focus{display:flex;flex-direction:column;min-height:calc(var(--vh, 100vh) - 125px)}
+main.preview-open{display:flex;flex-direction:column;overflow:hidden}
+#s-preview.preview-focus{display:flex;flex:1 1 0;flex-direction:column;min-height:0;min-width:0}
 #s-preview.preview-focus .msgToggle{flex:none}
-#s-preview.preview-focus .msg{display:block;flex:1 1 auto;height:auto;min-height:0;margin-bottom:0;overflow-y:auto}
+#s-preview.preview-focus .msg{display:block;flex:1 1 0;height:0;min-height:0;margin-bottom:0;overflow-y:auto}
 
 /* Confirm page: compact so "Message Preview and Edit" is visible without scrolling. */
 #s-preview:not(.preview-focus) h1{font-size:22px;line-height:1.15;margin:2px 0 10px}
@@ -182,14 +183,15 @@ h1 + .chip{margin-top:-8px}
 /* Confirmed text/function updates only; preserve v2.2.9 visual system. */
 #s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1{text-align:center}
 .disruptedTitle{display:flex;align-items:center;justify-content:center;gap:9px}
-.msgToggle>span:first-child{display:flex;align-items:baseline;gap:8px;min-width:0}
+.msgToggle{gap:8px;flex-wrap:wrap}
+.msgToggle>span:first-child{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:baseline;gap:4px 8px;min-width:0;overflow-wrap:anywhere}
 .msgToggle small{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
 .msgToggle::after{content:none!important}
-.viewLabel{font-size:15px;font-weight:700;white-space:nowrap}
+.viewLabel{flex:none;margin-left:auto;font-size:15px;font-weight:700;white-space:nowrap}
 .msgPanel{position:relative;flex:1 1 auto;min-height:0;margin-top:8px;background:var(--surface);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .msgPanel[hidden]{display:none}
-#s-preview.preview-focus .msgPanel{flex:1 1 auto;min-height:0}
-#s-preview.preview-focus .msg{flex:1 1 auto;height:auto;min-height:0;margin-top:0;border-radius:16px;padding-bottom:24px;overflow-y:auto}
+#s-preview.preview-focus .msgPanel{flex:1 1 0;min-height:0}
+#s-preview.preview-focus .msg{flex:1 1 0;height:0;min-height:0;margin-top:0;border-radius:16px;padding-bottom:24px;overflow-y:auto}
 .msg[readonly]{cursor:default}
 .msgActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px;padding:0}
 .msgActions[hidden]{display:none}
@@ -201,8 +203,8 @@ h1 + .chip{margin-top:-8px}
 .callGateTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
 #callGateField{display:grid;grid-template-columns:72px minmax(72px,1fr);justify-content:center;align-items:center;column-gap:12px;width:68%;max-width:420px;margin-left:auto;margin-right:auto}
 #callGateField .code{width:72px;margin-right:0;justify-self:end}
-#callGateField select.code{border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
-#callGateField input{flex:0 0 auto;width:7.2ch;max-width:none;padding-left:0;padding-right:0;justify-self:start;text-align:left;text-transform:uppercase}
+#callGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
+#callGateField input{flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left;text-transform:uppercase}
 .callNoMessageSeg{margin-top:18px}
 .callNoMessageSeg button{width:100%}
 #previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
@@ -321,14 +323,12 @@ h1 + .chip{margin-top:-8px}
     <section class="screen" id="s-callconfirm" hidden>
       <h1>Confirm details</h1>
       <dl class="sum" id="callSum"></dl>
-      <h2 class="callGateTitle">Proceed to Gate</h2>
+      <h2 class="callGateTitle">Final Call Message</h2>
       <div class="field" id="callGateField">
         <select class="code" id="callGateZone" aria-label="Gate area">
-          <option value=""></option>
-          <option value="A">A</option>
+          <option value="" hidden disabled></option>
           <option value="B" selected>B</option>
           <option value="C">C</option>
-          <option value="D">D</option>
         </select>
         <input autocomplete="off" id="callGate" inputmode="text" maxlength="2" autocapitalize="characters" aria-label="Gate number">
       </div>
@@ -523,7 +523,7 @@ h1 + .chip{margin-top:-8px}
   function callGateFull(){
     if(S.callNoMessage) return "";
     const z=v("callGateZone"), n=callGateNumber();
-    return /^[A-D]$/.test(z)&&n?z+n:"";
+    return /^[BC]$/.test(z)&&n?z+n:"";
   }
 
   const OK={
@@ -738,6 +738,7 @@ Thank you.`;
     const m=$("msg"), panel=$("msgPanel");
     if(!m) return;
     if(panel && !panel.hidden) edits[S.order]=m.value;
+    if(document.activeElement===m) m.blur();
     if(panel) panel.hidden=true;
     $("msgActions").hidden=true;
     m.readOnly=true;
@@ -896,6 +897,7 @@ Thank you.`;
     const cta=$("cta");
     const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
     const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
+    $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
     cta.disabled=!ok || previewEditing;
     cta.textContent=cur==="preview"?(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on What's App"):"Next";
   }
@@ -975,15 +977,16 @@ Thank you.`;
     $("copyMsg").hidden=callMessageMode;
     $("msgActions").style.gridTemplateColumns=callMessageMode?"1fr":"1fr 1fr";
     if(open){syncDrafts();m.value=currentText();m.readOnly=true;$("editMsg").textContent="Edit";}
-    else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";}
+    else {closePreviewEditor();}
     $("s-preview").classList.toggle("preview-focus",open);
+    render();
     if(open) $("main").scrollTop=0;
   };
   $("editMsg").onclick=()=>{
     if(flow==="call"&&S.callNoMessage) return;
     const m=$("msg");
     if(m.readOnly){m.readOnly=false;$("editMsg").textContent="Done Editing";$("cta").disabled=true;setTimeout(()=>{try{m.focus({preventScroll:true});}catch(e){}},0);}
-    else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";$("cta").disabled=false;}
+    else {edits[S.order]=m.value;m.readOnly=true;m.blur();$("editMsg").textContent="Edit";render();}
   };
   $("copyMsg").onclick=async()=>{
     const text=$("msg").value, btn=$("copyMsg"), original="Copy Text";
