@@ -167,11 +167,12 @@ h1 + .chip{margin-top:-8px}
 #s-msec .field::before{display:none}
 #s-msec .field input{width:100%;justify-self:stretch;text-align:center}
 #s-darrange .field.time input{width:7.2ch;text-align:left}
-/* Expanded message editor fills the remaining viewport instead of shrinking to content. */
-#s-preview.preview-focus{display:flex;flex-direction:column;min-height:calc(var(--vh, 100vh) - 125px)}
+/* Expanded message editor: roomy, but deliberately not full-screen. */
+#s-preview.preview-focus{display:flex;flex-direction:column;min-height:0}
 #s-preview.preview-focus .msgToggle{flex:none}
-#s-preview.preview-focus .msg{display:block;flex:1 1 auto;height:auto;min-height:0;margin-bottom:0;overflow-y:auto}
+#s-preview.preview-focus .msg{display:block;flex:none;height:clamp(380px,68vh,620px);min-height:0;margin-bottom:0;overflow-y:auto}
 #s-preview.preview-focus .copyText{flex:none}
+@media(max-height:700px){#s-preview.preview-focus .msg{height:58vh}}
 </style>
 </head>
 <body>
