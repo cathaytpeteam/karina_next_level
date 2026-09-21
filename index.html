@@ -195,6 +195,17 @@ h1 + .chip{margin-top:-8px}
 .msgActions[hidden]{display:none}
 .msgActions button{min-height:42px;border:1px solid var(--brand);border-radius:12px;background:var(--bg);color:var(--brand-strong);font:inherit;font-weight:700;cursor:pointer}
 .msgActions button:active{transform:translateY(1px)}
+
+/* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
+#s-callconfirm h1{text-align:left}
+.callGateTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
+#callGateField{display:grid;grid-template-columns:72px minmax(72px,1fr);justify-content:center;align-items:center;column-gap:12px;width:68%;max-width:420px;margin-left:auto;margin-right:auto}
+#callGateField .code{width:72px;margin-right:0;justify-self:end}
+#callGateField select.code{border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
+#callGateField input{flex:0 0 auto;width:7.2ch;max-width:none;padding-left:0;padding-right:0;justify-self:start;text-align:left;text-transform:uppercase}
+.callNoMessageSeg{margin-top:18px}
+.callNoMessageSeg button{width:100%}
+#previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js"></script>
 </head>
@@ -306,18 +317,32 @@ h1 + .chip{margin-top:-8px}
       <div class="field time"><input autocomplete="off" id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
-    <!-- Call Pax confirmation -->
+    <!-- Call Passenger 1 / 2 -->
     <section class="screen" id="s-callconfirm" hidden>
       <h1>Confirm details</h1>
       <dl class="sum" id="callSum"></dl>
+      <h2 class="callGateTitle">Proceed to Gate</h2>
+      <div class="field" id="callGateField">
+        <select class="code" id="callGateZone" aria-label="Gate area">
+          <option value=""></option>
+          <option value="A">A</option>
+          <option value="B" selected>B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+        <input autocomplete="off" id="callGate" inputmode="text" maxlength="2" autocapitalize="characters" aria-label="Gate number">
+      </div>
+      <div class="seg callNoMessageSeg" role="group" aria-label="Message choice">
+        <button type="button" id="callNoMessage" aria-pressed="false">No Message</button>
+      </div>
     </section>
 
     <!-- shared preview -->
     <section class="screen" id="s-preview" hidden>
       <h1>Confirm details</h1>
       <dl class="sum" id="sum"></dl>
-      <h2 class="previewLangTitle">First Message Language</h2>
-      <div class="seg" role="group" aria-label="Message order">
+      <h2 class="previewLangTitle" id="previewLangTitle">First Message Language</h2>
+      <div class="seg" id="previewLangSeg" role="group" aria-label="Message order">
         <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
         <button type="button" id="ordEn" aria-pressed="false">English</button>
       </div>
@@ -454,12 +479,13 @@ h1 + .chip{margin-top:-8px}
   }
 
   // ---- state -------------------------------------------------------------
-  const S={phone:"",status:"",arrange:"",order:"zh",orderSet:false};
+  const S={phone:"",status:"",arrange:"",order:"zh",orderSet:false,callNoMessage:false};
   // Nothing is persisted between launches; drop the old saved language choice if it exists.
   try{localStorage.removeItem("fp-order");}catch(e){}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
+    call:{name:"Call Passenger",steps:["callconfirm","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
@@ -483,6 +509,22 @@ h1 + .chip{margin-top:-8px}
     const d=digits(el.value).slice(0,4);
     el.value=d.length>=3?d.slice(0,2)+":"+d.slice(2):d;
   }
+  function normalizeCallGate(raw){
+    let x=String(raw||"").toUpperCase().replace(/[^1-9R]/g,"");
+    if(!x) return "";
+    const m=x.match(/[1-9]/), d=m?m[0]:"";
+    if(!d) return "";
+    return d==="1"&&x.includes("R")?"1R":d;
+  }
+  function callGateNumber(){
+    const x=normalizeCallGate(v("callGate"));
+    return /^(?:[1-9]|1R)$/.test(x)?x:"";
+  }
+  function callGateFull(){
+    if(S.callNoMessage) return "";
+    const z=v("callGateZone"), n=callGateNumber();
+    return /^[A-D]$/.test(z)&&n?z+n:"";
+  }
 
   const OK={
     phone:()=>{const n=digits(v("phoneInput"));return !blocked.has(n)&&!!validatePhone(n);},
@@ -496,7 +538,7 @@ h1 + .chip{margin-top:-8px}
     dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
-    callconfirm:()=>true,
+    callconfirm:()=>S.callNoMessage||!!callGateFull(),
     preview:()=>true
   };
   function bagHint(a,n){
@@ -524,7 +566,7 @@ h1 + .chip{margin-top:-8px}
     wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
     dstatus:()=>go("darrange"), darrange:()=>go("darrive"), darrive:()=>go("preview"),
-    callconfirm:()=>openWA(""),
+    callconfirm:()=>go("preview"),
     preview:()=>send()
   };
 
@@ -537,19 +579,13 @@ h1 + .chip{margin-top:-8px}
     const tag="cx"+String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
-這裡是國泰航空桃園機場辦公室。
+這是國泰航空桃園機場辦公室。
 
-由於您的寄艙行李未能通過桃園機場的 X 光安全檢查，機場安檢人員需要請您在場一同進行第二次檢查。因此，您的行李目前暫時留在報到櫃檯，未能安排裝載上機。
+由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。
 
-麻煩您盡快返回 4 號報到櫃檯，並與我們的職員聯絡。
+如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。
 
-如果您已經通過隨身行李安全檢查，但尚未辦理護照查驗，請先向現場桃園機場工作人員說明情況，再返回櫃檯確認您的寄艙行李。
-
-如果您已經通過護照查驗，請與任何一位在登機閘口的國泰航空職員聯絡，我們會協助您跟進。
-
-為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回櫃檯或聯絡國泰航空職員。
-
-多謝您的理解和配合。`;
+請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。`;
     const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
 
 Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
@@ -603,78 +639,57 @@ Thank you for your cooperation.`;
   }
   function textDp(zhFirst){
     const f="CX"+v("dFlight"), tf=v("tA")+v("tN"), delay=v("delayTime"), alt=v("altA")+v("altN"), altTime=v("altTime"), arrive=v("arriveTime");
-
-    // Disrupted Pax 3 / 6 — first option: allow more connection time in Hong Kong.
-    // Only the TPE-HKG sector is changed; the onward flight from HKG remains unchanged.
-    if(S.status==="possible"){
-      const zh=`您好：
-這裡是國泰航空桃園機場辦公室
-
-由於您前往香港的${f}航班，在香港轉機時間較為緊湊，因此，如果台灣往香港航班如果有延誤，可能會影響到您在香港轉機的第二程${tf} 航班，我們很樂意為閣下提供提早出發的台灣往香港航班選擇${S.arrange==="known"?`：${alt} 航班，起飛時間為${altTime}`:""}。
-
-如果您能在${arrive}前抵達機場，我們可以為您更改航班提早出發前往香港，抵達香港後的續程航班則不做更改。
-
-我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與櫃檯職員聯繫。
-
-多謝您的理解和配合。`;
-      const en=`Hello,
-
-This is Cathay Pacific at Taoyuan Airport.
-
-To allow more time for your connection in Hong Kong, as any delay to your flight ${f} from Taiwan to Hong Kong may affect your onward flight ${tf}, we would be pleased to offer you the option of taking an earlier flight from Taiwan to Hong Kong${S.arrange==="known"?` — ${alt}, departing at ${altTime}`:""}.
-
-If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong. Your onward flight from Hong Kong will remain unchanged.
-
-We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our staff at the counter directly when you arrive at the airport.
-
-Thank you for your understanding and cooperation.`;
-      return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
-    }
-
     let zStatus,eStatus;
-    if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus=`Your flight ${f} to Hong Kong is currently delayed until ${delay}, which may affect your onward flight ${tf} from Hong Kong.`;}
-    else{zStatus="目前航班及起飛動態尚未確定";eStatus=`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward flight ${tf} from Hong Kong.`;}
-
-    const zOffer=S.arrange==="known"
-      ?`我們將會替您安排替代的航班${alt}，起飛時間為${altTime}。`
-      :"我們很樂意為閣下提供提早出發的台灣往香港航班選擇。";
-    const eOffer=S.arrange==="known"
-      ?`We will arrange an alternative flight ${alt}, departing at ${altTime}.`
-      :"We would be pleased to offer you the option of taking an earlier flight from Taiwan to Hong Kong.";
-
+    if(S.status==="possible"){zStatus="今天可能會延遲";eStatus="may be delayed today";}
+    else if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus="is currently delayed until "+delay;}
+    else{zStatus="目前航班及起飛動態尚未確定";eStatus="has a current status and departure time that have not yet been confirmed";}
+    let zArrange,eArrange;
+    if(S.arrange==="known"){
+      zArrange=`我們將會替您安排替代的航班${alt}，起飛時間為${altTime}，`;
+      eArrange=`We will arrange an alternative flight ${alt}, departing at ${altTime}.`;
+    }else{
+      zArrange="我們將會為您安排替代的航班，";
+      eArrange="We will arrange an alternative flight for you.";
+    }
     const zh=`您好：
 
 這裡是國泰航空桃園機場辦公室
 
-由於您前往香港的${f}航班，${zStatus}，因此會影響${S.status==="unknown"?"到":""}您在香港轉機的行程 ${tf} 航班，${zOffer}
-
-如果您能在${arrive}前抵達機場，我們可以為您更改航班提早出發前往香港，抵達香港後的續程航班則不做更改。
-
-我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與櫃檯職員聯繫。
-
-多謝您的理解和配合。`;
-
+由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程 ${tf} 航班，${zArrange}想請問您是否有辦法於${arrive}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
+    const first=S.status==="unknown"
+      ?`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection ${tf} in Hong Kong.`
+      :`Your flight ${f} to Hong Kong ${eStatus}, which may affect your onward connection ${tf} in Hong Kong.`;
     const en=`Hello,
 
 This is Cathay Pacific at Taoyuan Airport.
 
-${eStatus} ${eOffer}
+${first}
 
-If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong. Your onward flight from Hong Kong will remain unchanged.
+${eArrange}
 
-We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our staff at the counter directly when you arrive at the airport.
+Could you please let us know if you are able to arrive at Taoyuan Airport before ${arrive}?
 
-Thank you for your understanding and cooperation.`;
+We are located at Counter 4, Terminal 1. Please contact our staff at the counter directly when you arrive at the airport.
+
+Thank you.`;
+    return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
+  }
+  function textCall(zhFirst){
+    const gate=callGateFull();
+    const zh=`您好：這裡是國泰航空，我們結束登機時間是起飛前 15 分鐘，目前已經在最後召集中，請您儘速前往 ${gate} 號登機門。`;
+    const en=`Hello, this is Cathay Pacific. Boarding closes 15 minutes before departure, and the gate is now making the final boarding call. Please proceed to Gate ${gate} immediately. Thank you.`;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
   function buildText(){
     const zf=S.order==="zh";
-    return flow==="miss"?textMiss(zf):flow==="wpp"?textWpp(zf):textDp(zf);
+    return flow==="miss"?textMiss(zf):flow==="call"?textCall(zf):flow==="wpp"?textWpp(zf):textDp(zf);
   }
   function buildRows(){
     const c=findCountry(S.phone);
-    const rows=[["Send to",(c?c[1]+" ":"")+"+"+S.phone]];
-    if(flow==="miss"){
+    const rows=[[flow==="call"&&S.callNoMessage?"Call to":"Send to",(c?c[1]+" ":"")+"+"+S.phone]];
+    if(flow==="call"){
+      if(!S.callNoMessage) rows.push(["Proceed to Gate",callGateFull()]);
+    }else if(flow==="miss"){
       rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
@@ -694,7 +709,8 @@ Thank you for your understanding and cooperation.`;
   function sig(){
     return [flow,S.phone,S.status,S.arrange,
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
-      v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime")
+      v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
+      v("callGateZone"),v("callGate"),S.callNoMessage
     ].join("\u241F");
   }
   function clearDrafts(){ delete edits.zh; delete edits.en; msgSig=null; }
@@ -715,7 +731,7 @@ Thank you for your understanding and cooperation.`;
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(resetAll,700);
   }
-  function send(){ syncDrafts(); openWA(currentText()); }
+  function send(){ if(flow==="call"&&S.callNoMessage){openWA("");return;} syncDrafts(); openWA(currentText()); }
 
   // ---- navigation --------------------------------------------------------
   function closePreviewEditor(){
@@ -762,7 +778,10 @@ Thank you for your understanding and cooperation.`;
   function clearFields(){
     document.querySelectorAll("input").forEach(i=>i.value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.phone="";S.status="";S.arrange="";S.order="zh";S.orderSet=false;flow="";
+    S.phone="";S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;flow="";
+    $("callGateZone").value="B";
+    $("callGate").value="";
+    $("callNoMessage").setAttribute("aria-pressed","false");
     clearDrafts();
     const m=$("msg");
     m.value="";m.readOnly=true;delete m.dataset.edited;
@@ -816,8 +835,9 @@ Thank you for your understanding and cooperation.`;
       const sum=$("callSum");sum.textContent="";
       const c=findCountry(S.phone);
       const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
-      t.textContent="Call"; dd.textContent=(c?c[1]+" ":"")+"+"+S.phone;
+      t.textContent="Send to"; dd.textContent=(c?c[1]+" ":"")+"+"+S.phone;
       d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
+      $("callNoMessage").setAttribute("aria-pressed",String(S.callNoMessage));
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
@@ -833,19 +853,34 @@ Thank you for your understanding and cooperation.`;
         }else dd.textContent=r[1];
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
-      // Disrupted Pax lists English first; the first-listed language is the default until the user picks one.
-      $("ordEn").style.order=flow==="dp"?"-1":"";
-      if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
-      $("ordZh").setAttribute("aria-pressed",S.order==="zh");
-      $("ordEn").setAttribute("aria-pressed",S.order==="en");
-      syncDrafts();
-      $("msg").value=currentText();
-      $("previewOrderLabel").textContent=S.order==="en"?"English First":"中文在前";
-      const previewOpen=!$("msgPanel").hidden;
-      $("msgToggle").setAttribute("aria-expanded",previewOpen);
-      $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
-      $("s-preview").classList.toggle("preview-focus",previewOpen);
-      $("msgActions").hidden=!previewOpen;
+      const callOnly=flow==="call"&&S.callNoMessage;
+      $("previewLangTitle").hidden=callOnly;
+      $("previewLangSeg").hidden=callOnly;
+      $("msgToggle").hidden=callOnly;
+      if(callOnly){
+        $("msgPanel").hidden=true;
+        $("msgActions").hidden=true;
+        $("msg").readOnly=true;
+        $("editMsg").textContent="Edit";
+        $("s-preview").classList.remove("preview-focus");
+      }else{
+        // Disrupted Pax lists English first; the first-listed language is the default until the user picks one.
+        $("ordEn").style.order=flow==="dp"?"-1":"";
+        if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
+        $("ordZh").setAttribute("aria-pressed",S.order==="zh");
+        $("ordEn").setAttribute("aria-pressed",S.order==="en");
+        syncDrafts();
+        $("msg").value=currentText();
+        $("previewOrderLabel").textContent=S.order==="en"?"English First":"中文在前";
+        const previewOpen=!$("msgPanel").hidden;
+        $("msgToggle").setAttribute("aria-expanded",previewOpen);
+        $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
+        $("s-preview").classList.toggle("preview-focus",previewOpen);
+        $("msgActions").hidden=!previewOpen;
+        const callMessageMode=flow==="call";
+        $("copyMsg").hidden=callMessageMode;
+        $("msgActions").style.gridTemplateColumns=callMessageMode?"1fr":"1fr 1fr";
+      }
     }
 
     const showFoot=cur!=="scenario";
@@ -859,9 +894,10 @@ Thank you for your understanding and cooperation.`;
     hint.style.display=cur==="preview"?"none":"";
     hint.classList.toggle("bad",/Invalid time|Max 580/.test(text));
     const cta=$("cta");
-    const previewEditing=cur==="preview" && !$("msg").readOnly;
+    const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
+    const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
     cta.disabled=!ok || previewEditing;
-    cta.textContent=cur==="preview"?"Send on What's App":cur==="callconfirm"?"Call on What's App":"Next";
+    cta.textContent=cur==="preview"?(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on What's App"):"Next";
   }
   $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
 
@@ -885,8 +921,37 @@ Thank you for your understanding and cooperation.`;
   ["b1a","b2a","tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));
   ["delayTime","altTime","arriveTime"].forEach(id=>$(id).addEventListener("input",function(){fmtTime(this);render();}));
 
+  $("callGate").addEventListener("input",function(){this.value=normalizeCallGate(this.value);render();});
+  $("callGate").addEventListener("blur",function(){this.value=normalizeCallGate(this.value);render();});
+  $("callGateZone").addEventListener("change",()=>render());
+  function resumeCallMessageMode(){
+    if(!S.callNoMessage) return;
+    S.callNoMessage=false;
+    $("callNoMessage").setAttribute("aria-pressed","false");
+    if(!v("callGateZone")) $("callGateZone").value="B";
+    clearDrafts();
+    render();
+  }
+  $("callGateZone").addEventListener("pointerdown",resumeCallMessageMode);
+  $("callGate").addEventListener("pointerdown",resumeCallMessageMode);
+  $("callGateZone").addEventListener("focus",resumeCallMessageMode);
+  $("callGate").addEventListener("focus",resumeCallMessageMode);
+  $("callNoMessage").onclick=()=>{
+    S.callNoMessage=!S.callNoMessage;
+    $("callNoMessage").setAttribute("aria-pressed",String(S.callNoMessage));
+    if(S.callNoMessage){
+      $("callGateZone").value="";
+      $("callGate").value="";
+    }else{
+      $("callGateZone").value="B";
+      $("callGate").value="";
+    }
+    clearDrafts();
+    render();
+  };
+
   $("goMiss").onclick=()=>{flow="miss";go("mflight");};
-  $("goCall").onclick=()=>{flow="call";go("callconfirm");};
+  $("goCall").onclick=()=>{flow="call";S.callNoMessage=false;$("callNoMessage").setAttribute("aria-pressed","false");if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};
 
@@ -900,17 +965,22 @@ Thank you for your understanding and cooperation.`;
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
   $("msgToggle").onclick=()=>{
+    if(flow==="call"&&S.callNoMessage) return;
     const m=$("msg"), panel=$("msgPanel"), open=panel.hidden;
     panel.hidden=!open;
     $("msgToggle").setAttribute("aria-expanded",open);
     $("viewLabel").textContent=open?"View ▴":"View ▾";
     $("msgActions").hidden=!open;
+    const callMessageMode=flow==="call";
+    $("copyMsg").hidden=callMessageMode;
+    $("msgActions").style.gridTemplateColumns=callMessageMode?"1fr":"1fr 1fr";
     if(open){syncDrafts();m.value=currentText();m.readOnly=true;$("editMsg").textContent="Edit";}
     else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";}
     $("s-preview").classList.toggle("preview-focus",open);
     if(open) $("main").scrollTop=0;
   };
   $("editMsg").onclick=()=>{
+    if(flow==="call"&&S.callNoMessage) return;
     const m=$("msg");
     if(m.readOnly){m.readOnly=false;$("editMsg").textContent="Done Editing";$("cta").disabled=true;setTimeout(()=>{try{m.focus({preventScroll:true});}catch(e){}},0);}
     else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";$("cta").disabled=false;}

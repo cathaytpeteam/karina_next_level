@@ -54,7 +54,7 @@ const blocked=new Set(["85289648964","85262374313","886912345678"]);
 - Phone：沒有 Back。
 - Scenario：Back → Phone。
 - `1 漏查` → Flight → SEC → WhatsApp。
-- `2 Call Pax` → 直接開 WhatsApp，訊息 `您好`。
+- `2 Call Passenger` → 兩頁流程：先確認 Gate / No Message，再傳訊息或直接 WhatsApp 通話。
 - Flight：Back → Scenario；固定 `CX`，輸入 0–999。
 - SEC：Back → Flight；輸入 0–580，送出時補成三位數。
 - Back 不會清除已輸入內容。
@@ -587,3 +587,43 @@ Examples:
 - 按下 `Done Editing` 後，儲存目前文字並恢復 `Send on What's App`。
 - 編輯期間 `Copy Text` 仍可使用，且複製的是 textarea 當下最新內容。
 - 此調整不改變既有訊息內容、語言順序、電話驗證或其他流程。
+
+## v2.3.0 — Call Passenger 兩頁流程
+
+`Call Passenger` 已整合為 2 頁流程，保留 v2.2.9 與後續已確認的既有 UI / 電話驗證 / Message Preview 行為。
+
+### Call Passenger 1 / 2
+
+- `Confirm details` 顯示旅客電話。
+- `Proceed to Gate` 使用單一組合欄位，外觀沿用既有 `CX + flight number` 欄位。
+- Gate 區域可選 `A / B / C / D`，一般模式預設 `B`。
+- Gate number 接受 `1–9`；另外只有 `1` 可再加 `R`，所以 `A1R / B1R / C1R / D1R` 合法。輸入小寫 `r` 會轉成大寫 `R`。
+- `No Message` 使用與 `First Message Language` 選項相同的整條反白樣式。
+- 選取 `No Message` 時會清空 Gate 內容，但 Gate 外框仍可直接點；只要點 Gate 區域或數字欄位，就自動取消 `No Message` 並恢復可編輯的 Message 模式，不需要先再按一次 `No Message`。
+
+### Call Passenger 2 / 2
+
+一般 Message 模式：
+
+- 顯示 `Send to`、`Proceed to Gate`、`First Message Language`、`Message Preview`。
+- Gate 會自動帶入中英文訊息。
+- Preview 的 View / Edit / Done Editing / Copy Text 與 Send 鎖定規則沿用既有完整版本。
+- 底部按鈕為 `Send on WhatsApp`。
+
+`No Message` 模式：
+
+- 僅顯示 `Call to` 與旅客電話。
+- 不顯示 Gate、First Message Language、Message Preview、Edit 或 Copy Text。
+- 底部按鈕為 `Call on WhatsApp`，開啟 WhatsApp 時不預載文字訊息。
+
+`sw.js` CACHE：`find-pax-v2.3.0-call-passenger-20260921`
+
+## v2.3.1 — Call Passenger refinement
+
+- Proceed to Gate 組合欄位縮窄並置中。
+- Call Passenger 的 Message Preview 移除 Copy Text，只保留 Edit / Done Editing；其他 Scenario 的 Copy Text 不受影響。
+- 中文訊息更新為：`您好：這裡是國泰航空，我們結束登機時間是起飛前 15 分鐘，目前已經在最後召集中，請您儘速前往 {Gate} 號登機門。`
+- 英文訊息更新為：`Hello, this is Cathay Pacific. Boarding closes 15 minutes before departure, and the gate is now making the final boarding call. Please proceed to Gate {Gate} immediately. Thank you.`
+- 中英文開頭不再於「您好：」或「Hello,」後換行，以利手機通知中心直接顯示後續內容。
+- 既有 No Message、Gate 1R、No Message 自動取消與純 WhatsApp Call 流程維持不變。
+
