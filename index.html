@@ -75,7 +75,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .field input{border:0;outline:0;background:transparent;width:100%;min-width:0;height:64px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 8px}
 .field input::placeholder{color:transparent;opacity:0}
 .field .code{flex:none;width:64px;margin-right:6px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);text-align:center;font-weight:800;text-transform:uppercase;height:52px;padding:0}
-span.code{display:grid;place-items:center;font-size:28px}
+span.code{display:grid;place-items:center;font-size:28px;text-transform:none}
 .field.time{min-height:72px}
 #phoneInput{font-size:24px;letter-spacing:0}
 .field.time input{text-align:center}
@@ -186,11 +186,11 @@ h1 + .chip{margin-top:-8px}
       <h1>Input phone number<br>on CTCM</h1>
       <div class="field" id="phoneField">
         <span class="plus">+</span>
-        <input id="phoneInput" inputmode="numeric" maxlength="15" aria-label="Phone number">
+        <input autocomplete="off" id="phoneInput" inputmode="numeric" aria-label="Phone number">
         <span class="badge" id="badge" hidden></span>
       </div>
-      <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
+      <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
     </section>
 
     <section class="screen" id="s-scenario" hidden>
@@ -217,39 +217,39 @@ h1 + .chip{margin-top:-8px}
     <!-- Missed check -->
     <section class="screen" id="s-mflight" hidden>
       <h1>flight number</h1>
-      <div class="field"><span class="code">CX</span><input id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
       <h1>sec</h1>
-      <div class="field"><input id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+      <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
     </section>
 
     <!-- Wrongly Pick-up -->
     <section class="screen" id="s-wflight" hidden>
       <h1>Flight number</h1>
-      <div class="field"><span class="code">CX</span><input id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
       <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
-      <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
       <h1>Bag Tag 2</h1>
       <p class="bagHelp" lang="zh-Hant">疑似被客人Wrong P帶走的行李</p>
-      <div class="field"><input class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input autocomplete="off" class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
 
     <!-- Disrupted Pax -->
     <section class="screen" id="s-dflight" hidden>
       <h1>Disrupted flight</h1>
       <div class="chip">TPE</div>
-      <div class="field"><span class="code">CX</span><input id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dtransfer" hidden>
       <h1>Connecting flight</h1>
       <div class="chip">HKG</div>
-      <div class="field"><input class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><input autocomplete="off" class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dstatus" hidden>
       <h1>Flight status</h1>
@@ -259,34 +259,34 @@ h1 + .chip{margin-top:-8px}
         <button class="opt" id="stUnknown" type="button" aria-pressed="false" lang="zh-Hant">目前航班及起飛動態尚未確定</button>
       </div>
       <div class="optExtra" id="delayWrap" hidden>
-        <div class="field time"><input id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
+        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
       <h1>Flight arrangement</h1>
       <div class="opts">
         <button class="opt" id="arKnown" type="button" aria-pressed="false">Will protect to</button>
-        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Not decided yet</button>
+        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Arrange in airport</button>
       </div>
       <div class="optExtra" id="altWrap" hidden>
-        <div class="field"><input class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
-        <div class="field time"><span class="code">DEP</span><input id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
+        <div class="field"><input autocomplete="off" class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+        <div class="field time"><span class="code">dep</span><input autocomplete="off" id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrive" hidden>
-      <h1>Pax should arrive airport before ?</h1>
-      <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
+      <h1>Ask pax arrive airport before ?</h1>
+      <div class="field time"><input autocomplete="off" id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
     <!-- Call Pax confirmation -->
     <section class="screen" id="s-callconfirm" hidden>
-      <h1>Confirm Details</h1>
+      <h1>Confirm details</h1>
       <dl class="sum" id="callSum"></dl>
     </section>
 
     <!-- shared preview -->
     <section class="screen" id="s-preview" hidden>
-      <h1>Confirm Details</h1>
+      <h1>Confirm details</h1>
       <dl class="sum" id="sum"></dl>
       <h2 class="previewLangTitle">Pax Prefer Language</h2>
       <div class="seg" role="group" aria-label="Message order">
@@ -294,7 +294,7 @@ h1 + .chip{margin-top:-8px}
         <button type="button" id="ordEn" aria-pressed="false">English</button>
       </div>
       <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false">Message Preview and Edit</button>
-      <textarea class="msg" id="msg" hidden lang="zh-Hant" aria-label="Editable message"></textarea>
+      <textarea class="msg" id="msg" autocomplete="off" hidden lang="zh-Hant" aria-label="Editable message"></textarea>
     </section>
   </main>
 
@@ -334,7 +334,8 @@ h1 + .chip{margin-top:-8px}
 
   // ---- state -------------------------------------------------------------
   const S={phone:"",status:"",arrange:"",order:"zh"};
-  try{const o=localStorage.getItem("fp-order");if(o==="en"||o==="zh")S.order=o;}catch(e){}
+  // Nothing is persisted between launches; drop the old saved language choice if it exists.
+  try{localStorage.removeItem("fp-order");}catch(e){}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
@@ -390,8 +391,8 @@ h1 + .chip{margin-top:-8px}
     bag2:()=>bagHint("b2a","b2n"),
     dflight:()=>isFlt(v("dFlight"))?"":"1–3 digits",
     dtransfer:()=>!isAir(v("tA"))?"Airline code: 2 letters":(isFlt(v("tN"))?"":"1–3 digits"),
-    dstatus:()=>timeHint("delayTime"),
-    darrange:()=>!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
+    dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
+    darrange:()=>S.arrange!=="known"?"":!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
     callconfirm:()=>"",
     preview:()=>"Check details before sending"
@@ -402,7 +403,7 @@ h1 + .chip{margin-top:-8px}
     wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
     dstatus:()=>go("darrange"), darrange:()=>go("darrive"), darrive:()=>go("preview"),
-    callconfirm:()=>openWA("您好"),
+    callconfirm:()=>openWA(""),
     preview:()=>send()
   };
 
@@ -516,14 +517,14 @@ Thank you.`;
   }
   function buildRows(){
     const c=findCountry(S.phone);
-    const rows=[["To",(c?c[1]+" ":"")+"+"+S.phone]];
+    const rows=[["Send to",(c?c[1]+" ":"")+"+"+S.phone]];
     if(flow==="miss"){
       rows.push(["Flight","CX"+String(Number(v("mFlight")))],["SEC",String(Number(v("mSec"))).padStart(3,"0")]);
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
-      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
+      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);
       rows.push(["Arrive airport before",v("arriveTime")]);
     }
     return rows;
@@ -552,7 +553,7 @@ Thank you.`;
 
   // ---- WhatsApp ----------------------------------------------------------
   function openWA(text){
-    const url="https://wa.me/"+S.phone+"?text="+encodeURIComponent(text);
+    const url="https://wa.me/"+S.phone+(text?"?text="+encodeURIComponent(text):"");
     const a=document.createElement("a");
     a.href=url;a.target="_blank";a.rel="noopener";
     document.body.appendChild(a);a.click();a.remove();
@@ -598,10 +599,10 @@ Thank you.`;
     setTimeout(()=>{if(stack.length===len){stack.pop();showScreen(stack[stack.length-1]);}},350);
   };
 
-  function resetAll(){
+  function clearFields(){
     document.querySelectorAll("input").forEach(i=>i.value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.phone="";S.status="";S.arrange="";flow="";
+    S.phone="";S.status="";S.arrange="";S.order="zh";flow="";
     clearDrafts();
     const m=$("msg");
     m.value="";m.hidden=true;delete m.dataset.edited;
@@ -610,9 +611,12 @@ Thank you.`;
     $("badge").hidden=true;
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
+  }
+  function resetAll(){
+    clearFields();
     const depth=stack.length-1;
     stack.length=0;stack.push("phone");
-    if(depth>0){resetting=true;try{history.go(-depth);}catch(e){resetting=false;}}
+    if(depth>0){resetting=true;setTimeout(()=>{resetting=false;},1200);try{history.go(-depth);}catch(e){resetting=false;}}
     showScreen("phone");
   }
 
@@ -691,7 +695,7 @@ Thank you.`;
 
   // ---- wiring ------------------------------------------------------------
   $("phoneInput").addEventListener("input",function(){
-    this.value=digits(this.value);
+    this.value=digits(this.value).slice(0,15);
     const c=findCountry(this.value),b=$("badge");
     if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}else b.hidden=true;
     const bl=blocked.has(this.value);
@@ -715,7 +719,7 @@ Thank you.`;
   $("arUnknown").onclick=()=>{S.arrange="unknown";render();};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 
-  function setOrder(o){S.order=o;try{localStorage.setItem("fp-order",o);}catch(e){}syncDrafts();$("msg").value=currentText();render();}
+  function setOrder(o){S.order=o;syncDrafts();$("msg").value=currentText();render();}
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
   $("msgToggle").onclick=()=>{
@@ -746,7 +750,7 @@ Thank you.`;
   const vv=window.visualViewport;
   if(vv){
     let vvFrame=0, settleTimer=0;
-    const keyboardOpen=()=>vv.height<window.innerHeight-100;
+    const keyboardOpen=()=>vv.scale<1.05&&vv.height<window.innerHeight-100;
     const revealWorkspace=()=>{
       const el=document.activeElement;
       if(!keyboardOpen()||!el||!["INPUT","TEXTAREA"].includes(el.tagName)) return;
@@ -796,13 +800,21 @@ Thank you.`;
     sync();
   }
 
+  // Always start blank: undo any form state the browser restored on relaunch / reload / bfcache.
+  clearFields();
   showScreen("phone");
+  window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});
+  window.addEventListener("pageshow",e=>{if(e.persisted) resetAll();});
 })();
 
 if("serviceWorker" in navigator){
   let reloadingForUpdate=false;
+  const hadController=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{
-    if(reloadingForUpdate) return;
+    if(reloadingForUpdate||!hadController) return;
+    // Only swap to the new version while idle on an empty Phone screen; otherwise it applies on next launch.
+    const idle=!document.getElementById("s-phone").hidden&&!document.getElementById("phoneInput").value;
+    if(!idle) return;
     reloadingForUpdate=true;
     location.reload();
   });

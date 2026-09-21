@@ -468,3 +468,40 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 情境 1 與情境 3 的圖示相似度,待另行設計。
 - Scenario 頁的寫死配色 `#EEF3F7` / `#DDF2F2` 維持原樣。
 - `2 Call Pax` 維持直接開啟 WhatsApp,不加確認步驟。
+
+
+## v2.2 — 移除「記住上次輸入」+ Bug 修正(基於 v2.1)
+
+未更動任何介面文字或 WhatsApp 訊息內容。
+
+### 移除上次輸入自動帶入
+- 移除 `localStorage` 的 `fp-order`(原本會記住上次選的 `中文` / `English`);啟動時會順手清掉舊的殘留值。v2.1 內「記住上次選擇」的說明不再適用。
+- 所有 `<input>` / `<textarea>` 在 HTML 內直接加上 `autocomplete="off"`,避免瀏覽器在重新整理 / 重開 PWA 時還原表單內容。
+- 啟動、`load`、`pageshow`(bfcache 還原)時一律清空所有欄位並回到預設(`CX`、`中文`)。
+- 送出 WhatsApp 後重置時,訊息語言順序也回到 `中文`。
+
+### Bug 修正
+- 電話貼上:原本 `maxlength=15` 在過濾前計算,貼上 `+886 912 345 678` 這類含空格/加號的號碼會被截掉末幾碼。改為先取純數字再限制 15 位。
+- `Flight status` / `Flight arrangement`:切換選項後,先前輸入的無效時間不再讓紅色錯誤提示殘留(此時 Next 其實是可按的)。
+- 罐頭號碼紅色警告改放在電話欄正下方(原本因 DOM 順序被圖示擠到畫面最底)。
+- 雙指縮放不再被誤判成「鍵盤開啟」而壓縮版面。
+- Service Worker 自動重新載入:首次安裝不再重載;只在停在空白 Phone 頁時才切換新版,避免作業中途被重整而遺失已輸入資料。
+- `history.go()` 重置後的 `resetting` 旗標加上逾時保護,避免下一次 Back 被吃掉。
+- `sw.js`:離線時只有頁面導覽才回退到 `index.html`(不再把 HTML 當成圖片回傳);查詢字串(`?v=8`)不影響快取比對。CACHE 更新為 `find-pax-v2.2-no-carryover-bugfix-20260921`。
+
+## v2.2.1 — 文字調整
+- `Pax should arrive airport before ?` → `Ask pax arrive airport before ?`
+- `Confirm Details` → `Confirm details`(Call Pax 確認頁與預覽頁)
+- 時間欄位標籤 `DEP` → `dep`(該標籤不再強制轉大寫)
+- 預覽頁摘要 `To` → `Send to`
+- `sw.js` CACHE:`find-pax-v2.2.1-text-20260921`
+
+## v2.2.2 — 文字調整
+- 預覽頁 `Protect to ... / DEP` → `/ dep`
+- `Not decided yet` → `Arrange in airport`(選項按鈕與預覽頁摘要)
+- `sw.js` CACHE:`find-pax-v2.2.2-text-20260921`
+
+## v2.2.3 — Call Pax 不預填訊息
+- `2 Call Pax` 開啟 WhatsApp 時不再帶入 `您好`,只開啟對話。
+- 情境 1 / 3 / 4 預覽頁第一列為 `Send to`;情境 2 確認頁維持 `Call`。
+- `sw.js` CACHE:`find-pax-v2.2.3-call-blank-20260921`
