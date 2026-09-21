@@ -320,7 +320,7 @@ h1 + .chip{margin-top:-8px}
         <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
         <button type="button" id="ordEn" aria-pressed="false">English</button>
       </div>
-      <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false"><span>Message Preview <small id="previewOrderLabel">Chinese First</small></span><span class="viewLabel" id="viewLabel">View ▾</span></button>
+      <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false"><span>Message Preview <small id="previewOrderLabel">中文在前</small></span><span class="viewLabel" id="viewLabel">View ▾</span></button>
       <div class="msgPanel" id="msgPanel" hidden>
         <textarea class="msg" id="msg" autocomplete="off" readonly lang="zh-Hant" aria-label="Message preview"></textarea>
         <div class="msgActions" id="msgActions">
@@ -760,7 +760,7 @@ Thank you.`;
       $("ordEn").setAttribute("aria-pressed",S.order==="en");
       syncDrafts();
       $("msg").value=currentText();
-      $("previewOrderLabel").textContent=S.order==="en"?"English First":"Chinese First";
+      $("previewOrderLabel").textContent=S.order==="en"?"English First":"中文在前";
       const previewOpen=!$("msgPanel").hidden;
       $("msgToggle").setAttribute("aria-expanded",previewOpen);
       $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
