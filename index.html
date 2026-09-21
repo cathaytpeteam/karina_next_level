@@ -626,37 +626,39 @@ Thank you for your understanding and cooperation.`;
     }
 
     let zStatus,eStatus;
-    if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus="is currently delayed until "+delay;}
-    else{zStatus="目前航班及起飛動態尚未確定";eStatus="has a current status and departure time that have not yet been confirmed";}
-    let zArrange,eArrange;
-    if(S.arrange==="known"){
-      zArrange=`我們將會替您安排替代的航班${alt}，起飛時間為${altTime}，`;
-      eArrange=`We will arrange an alternative flight ${alt}, departing at ${altTime}.`;
-    }else{
-      zArrange="我們將會為您安排替代的航班，";
-      eArrange="We will arrange an alternative flight for you.";
-    }
+    if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus=`Your flight ${f} to Hong Kong is currently delayed until ${delay}, which may affect your onward flight ${tf} from Hong Kong.`;}
+    else{zStatus="目前航班及起飛動態尚未確定";eStatus=`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward flight ${tf} from Hong Kong.`;}
+
+    const zOffer=S.arrange==="known"
+      ?`我們將會替您安排替代的航班${alt}，起飛時間為${altTime}。`
+      :"我們很樂意為閣下提供提早出發的台灣往香港航班選擇。";
+    const eOffer=S.arrange==="known"
+      ?`We will arrange an alternative flight ${alt}, departing at ${altTime}.`
+      :"We would be pleased to offer you the option of taking an earlier flight from Taiwan to Hong Kong.";
+
     const zh=`您好：
 
 這裡是國泰航空桃園機場辦公室
 
-由於您前往香港的${f}航班，${zStatus}，因此會影響到您在香港轉機的行程 ${tf} 航班，${zArrange}想請問您是否有辦法於${arrive}前抵達桃園機場？我們在第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。`;
-    const first=S.status==="unknown"
-      ?`The current status and departure time of your flight ${f} to Hong Kong have not yet been confirmed, which may affect your onward connection ${tf} in Hong Kong.`
-      :`Your flight ${f} to Hong Kong ${eStatus}, which may affect your onward connection ${tf} in Hong Kong.`;
+由於您前往香港的${f}航班，${zStatus}，因此會影響${S.status==="unknown"?"到":""}您在香港轉機的行程 ${tf} 航班，${zOffer}
+
+如果您能在${arrive}前抵達機場，我們可以為您更改航班提早出發前往香港，抵達香港後的續程航班則不做更改。
+
+我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與櫃檯職員聯繫。
+
+多謝您的理解和配合。`;
+
     const en=`Hello,
 
 This is Cathay Pacific at Taoyuan Airport.
 
-${first}
+${eStatus} ${eOffer}
 
-${eArrange}
+If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong. Your onward flight from Hong Kong will remain unchanged.
 
-Could you please let us know if you are able to arrive at Taoyuan Airport before ${arrive}?
+We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our staff at the counter directly when you arrive at the airport.
 
-We are located at Counter 4, Terminal 1. Please contact our staff at the counter directly when you arrive at the airport.
-
-Thank you.`;
+Thank you for your understanding and cooperation.`;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
   function buildText(){
