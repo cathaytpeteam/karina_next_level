@@ -343,7 +343,7 @@ h1 + .chip{margin-top:-8px}
   const findCountry=n=>countryCodes.find(c=>n.startsWith(c[0]));
 
   // ---- state -------------------------------------------------------------
-  const S={phone:"",status:"",arrange:"",order:"zh"};
+  const S={phone:"",status:"",arrange:"",order:"zh",orderSet:false};
   // Nothing is persisted between launches; drop the old saved language choice if it exists.
   try{localStorage.removeItem("fp-order");}catch(e){}
 
@@ -612,7 +612,7 @@ Thank you.`;
   function clearFields(){
     document.querySelectorAll("input").forEach(i=>i.value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.phone="";S.status="";S.arrange="";S.order="zh";flow="";
+    S.phone="";S.status="";S.arrange="";S.order="zh";S.orderSet=false;flow="";
     clearDrafts();
     const m=$("msg");
     m.value="";m.hidden=true;delete m.dataset.edited;
@@ -680,6 +680,9 @@ Thank you.`;
         }else dd.textContent=r[1];
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
+      // Disrupted Pax lists English first; the first-listed language is the default until the user picks one.
+      $("ordEn").style.order=flow==="dp"?"-1":"";
+      if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
       $("ordZh").setAttribute("aria-pressed",S.order==="zh");
       $("ordEn").setAttribute("aria-pressed",S.order==="en");
       syncDrafts();
@@ -729,7 +732,7 @@ Thank you.`;
   $("arUnknown").onclick=()=>{S.arrange="unknown";render();};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 
-  function setOrder(o){S.order=o;syncDrafts();$("msg").value=currentText();render();}
+  function setOrder(o){S.order=o;S.orderSet=true;syncDrafts();$("msg").value=currentText();render();}
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
   $("msgToggle").onclick=()=>{

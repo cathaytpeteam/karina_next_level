@@ -522,3 +522,13 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - `2 Call Pax` → `2 Call Passenger`
 - `3 Wrongly Pick-up` → `3 Wrong Pick-up`(選單按鈕與流程進度列名稱)
 - `sw.js` CACHE:`find-pax-v2.2.6-labels-20260921`
+
+## v2.2.7 — Disrupted Pax 語言按鈕順序
+- 4 Disrupted Pax 確認頁:`English` 在上、`中文` 在下。1 漏查 / 3 Wrong Pick-up 維持 `中文` 在上。
+- 預設選取仍是 `中文`,訊息內容與排列邏輯不變。
+- `sw.js` CACHE:`find-pax-v2.2.7-dp-lang-order-20260921`
+
+## v2.2.8 — 預設語言 = 排在第一個的按鈕
+- 4 Disrupted Pax:預設選取 `English`(排第一)。1 漏查 / 3 Wrong Pick-up:預設 `中文`。
+- 使用者手動選過語言後,同一次作業內保留其選擇;送出重置後回到預設。
+- `sw.js` CACHE:`find-pax-v2.2.8-dp-default-en-20260921`

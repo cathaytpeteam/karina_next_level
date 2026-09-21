@@ -1,5 +1,5 @@
 const CACHE_PREFIX="find-pax-";
-const CACHE="find-pax-v2.2.6-labels-20260921";
+const CACHE="find-pax-v2.2.8-dp-default-en-20260921";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./apple-touch-icon.png","./icon-192.png","./icon-512.png","./icon-maskable-192.png","./icon-maskable-512.png","./phone-bottom-icon.png","./disrupted-pax-icon-v2.png","./scenario-icon-1.png","./scenario-icon-2.png","./scenario-icon-3.png","./scenario-icon-4.png"];
 
 self.addEventListener("install",e=>e.waitUntil(
