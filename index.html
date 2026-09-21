@@ -168,6 +168,16 @@ h1 + .chip{margin-top:-8px}
 #s-preview.preview-focus{display:flex;flex-direction:column;min-height:calc(var(--vh, 100vh) - 125px)}
 #s-preview.preview-focus .msgToggle{flex:none}
 #s-preview.preview-focus .msg{display:block;flex:1 1 auto;height:auto;min-height:0;margin-bottom:0;overflow-y:auto}
+
+/* Confirm page: compact so "Message Preview and Edit" is visible without scrolling. */
+#s-preview:not(.preview-focus) h1{font-size:22px;line-height:1.15;margin:2px 0 10px}
+#s-preview:not(.preview-focus) .sum{margin:0 0 10px}
+#s-preview:not(.preview-focus) .sum div{padding:8px 14px;font-size:15px}
+#s-preview:not(.preview-focus) .sum dt small{font-size:15px}
+#s-preview:not(.preview-focus) .previewLangTitle{margin:12px 0 8px;font-size:18px}
+#s-preview:not(.preview-focus) .seg{margin-bottom:10px;gap:2px;padding:3px}
+#s-preview:not(.preview-focus) .seg button{min-height:40px}
+#s-preview .msgToggle{padding:14px 16px;background:var(--bg);border:2px solid var(--brand);color:var(--brand-strong)}
 </style>
 </head>
 <body>
@@ -750,7 +760,16 @@ Thank you.`;
   const vv=window.visualViewport;
   if(vv){
     let vvFrame=0, settleTimer=0;
-    const keyboardOpen=()=>vv.scale<1.05&&vv.height<window.innerHeight-100;
+    // Keyboard = an editable field is focused AND the visible height dropped well below its resting height.
+    // Works whether the browser shrinks only the visual viewport (iOS, Chrome) or resizes the whole
+    // layout viewport (many in-app WebViews such as LINE on Android).
+    let base=Math.max(window.innerHeight,vv.height), baseW=window.innerWidth;
+    const editing=()=>{const a=document.activeElement;return !!a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA");};
+    const keyboardOpen=()=>{
+      if(window.innerWidth!==baseW){baseW=window.innerWidth;base=Math.max(window.innerHeight,vv.height);}
+      base=Math.max(base,window.innerHeight,vv.height);
+      return vv.scale<1.05&&editing()&&base-vv.height>120;
+    };
     const revealWorkspace=()=>{
       const el=document.activeElement;
       if(!keyboardOpen()||!el||!["INPUT","TEXTAREA"].includes(el.tagName)) return;
@@ -794,6 +813,7 @@ Thank you.`;
       settleTimer=setTimeout(()=>{syncNow();revealWorkspace();},180);
     };
     vv.addEventListener("resize",sync,{passive:true});
+    window.addEventListener("resize",sync,{passive:true});
     vv.addEventListener("scroll",sync,{passive:true});
     document.addEventListener("focusin",()=>{setTimeout(sync,30);setTimeout(sync,260)});
     document.addEventListener("focusout",()=>setTimeout(sync,120));

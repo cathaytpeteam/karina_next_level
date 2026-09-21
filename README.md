@@ -505,3 +505,11 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - `2 Call Pax` 開啟 WhatsApp 時不再帶入 `您好`,只開啟對話。
 - 情境 1 / 3 / 4 預覽頁第一列為 `Send to`;情境 2 確認頁維持 `Call`。
 - `sw.js` CACHE:`find-pax-v2.2.3-call-blank-20260921`
+
+## v2.2.4 — 預覽頁精簡 + 鍵盤偵測補強
+- 確認頁(`Confirm details`)標題、摘要列、`Pax Prefer Language` 與中英按鈕的字級/間距縮小,`Message Preview and Edit` 在 iPhone / 一般 Android 上不用捲動即可看到(iPhone SE 也在可視範圍內)。
+- `Message Preview and Edit` 改為品牌色外框按鈕,更容易看出可以點開。文字內容不變。
+- 鍵盤偵測:改為記錄「未輸入時的最高視窗高度」,並要求目前有輸入框聚焦才判定鍵盤開啟。
+  這讓「鍵盤開啟時直接縮小版面」的手機 WebView(例如部分 LINE 內建瀏覽器)也能套用鍵盤避讓,不再只有 visualViewport 縮小的情況才有效。
+- 補上 `window.resize` 監聽。
+- `sw.js` CACHE:`find-pax-v2.2.4-preview-compact-20260921`
