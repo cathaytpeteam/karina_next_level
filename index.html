@@ -17,8 +17,8 @@
   color-scheme:light only;
   --bg:#FFFFFF; --surface:#F1F6F6; --line:#D3DDDE; --ink:#14201F; --muted:#556A6C;
   --brand:#00747A; --brand-strong:#005D63; --brand-soft:#DCEFEF; --on-brand:#FFFFFF;
-  --danger:#C62828; --danger-soft:#FBE9E9; --input-ink:#0B3B3F; --field-bg:#EEF6F6; --field-line:#BBD9D9;
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  --danger:#C62828; --danger-soft:#FBE9E9; --input-ink:#263737;
+  --font:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:#fff}
@@ -67,7 +67,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
 .cta:disabled{opacity:.32;cursor:default}
 
-.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
+.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:0 8px;transition:border-color .12s}
 .field + .field{margin-top:12px}
 .field:focus-within{border-color:var(--brand)}
 .field.bad{border-color:var(--danger)}
@@ -75,7 +75,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .field input{border:0;outline:0;background:transparent;width:100%;min-width:0;height:64px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 8px}
 .field input::placeholder{color:transparent;opacity:0}
 .field .code{flex:none;width:64px;margin-right:6px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);text-align:center;font-weight:800;text-transform:uppercase;height:52px;padding:0}
-span.code{display:grid;place-items:center;font-size:28px;text-transform:none}
+span.code{display:grid;place-items:center;font-size:28px}
 .field.time{min-height:72px}
 #phoneInput{font-size:24px;letter-spacing:0}
 .field.time input{text-align:center}
@@ -91,15 +91,15 @@ h1 + .chip{margin-top:-8px}
 /* Scenario — original ChatGPT mixed Chinese/English labels, icons and colours */
 #s-scenario{padding-top:72px}
 #s-scenario .choices{gap:12px;margin-top:0}
-#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 16px;display:grid;grid-template-columns:56px 40px minmax(0,1fr) 24px;gap:0;color:#005D63;background:#EEF3F7}
+#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 22px;display:grid;grid-template-columns:60px 46px minmax(0,1fr) 28px;gap:0;color:#005D63;background:#EEF3F7}
 #s-scenario .choice:first-child{background:#DDF2F2}
 #s-scenario .ico{width:52px;height:52px;border-radius:0;background:transparent;color:#005D63}
 #s-scenario .ico svg{width:44px;height:44px;fill:currentColor;stroke:none}
 #s-scenario .ico img{width:52px;height:52px;object-fit:contain}
-#s-scenario .ctext{display:contents;font-family:var(--font);font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
+#s-scenario .ctext{display:contents;font-family:Roboto,Arial,sans-serif;font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
 #s-scenario .ctext .num{font-size:30px;align-self:center;justify-self:center}
 #s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:nowrap}
-#s-scenario .chev{font-family:var(--font);font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
+#s-scenario .chev{font-family:Roboto,Arial,sans-serif;font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
 
 .choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:18px;background:var(--surface);text-align:left;cursor:pointer}
 .choice:active{background:var(--brand-soft)}
@@ -134,13 +134,14 @@ h1 + .chip{margin-top:-8px}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .sum dd .flightAccent{color:var(--brand);font-weight:900}
-.disruptedFlightValue{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px}
-.disruptionWarn{width:15px;height:15px;flex:0 0 15px;color:#B54A4A;display:inline-block}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .previewLangTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
-.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:var(--input-ink)}
+.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:#263737}
+.copyText{width:100%;min-height:48px;margin-top:8px;border:2px solid var(--brand);border-radius:14px;background:var(--bg);color:var(--brand-strong);font-size:17px;font-weight:800;cursor:pointer}
+.copyText:active{background:var(--brand-soft)}
+.copyText[hidden]{display:none!important}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 @media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
 /* Narrow phones (~360px): shrink the scenario row so long labels stay on one line. */
@@ -170,16 +171,7 @@ h1 + .chip{margin-top:-8px}
 #s-preview.preview-focus{display:flex;flex-direction:column;min-height:calc(var(--vh, 100vh) - 125px)}
 #s-preview.preview-focus .msgToggle{flex:none}
 #s-preview.preview-focus .msg{display:block;flex:1 1 auto;height:auto;min-height:0;margin-bottom:0;overflow-y:auto}
-
-/* Confirm page: compact so "Message Preview and Edit" is visible without scrolling. */
-#s-preview:not(.preview-focus) h1{font-size:22px;line-height:1.15;margin:2px 0 10px}
-#s-preview:not(.preview-focus) .sum{margin:0 0 10px}
-#s-preview:not(.preview-focus) .sum div{padding:8px 14px;font-size:15px}
-#s-preview:not(.preview-focus) .sum dt small{font-size:15px}
-#s-preview:not(.preview-focus) .previewLangTitle{margin:12px 0 8px;font-size:18px}
-#s-preview:not(.preview-focus) .seg{margin-bottom:10px;gap:2px;padding:3px}
-#s-preview:not(.preview-focus) .seg button{min-height:40px}
-#s-preview .msgToggle{padding:14px 16px;background:var(--bg);border:2px solid var(--brand);color:var(--brand-strong)}
+#s-preview.preview-focus .copyText{flex:none}
 </style>
 </head>
 <body>
@@ -198,11 +190,11 @@ h1 + .chip{margin-top:-8px}
       <h1>Input phone number<br>on CTCM</h1>
       <div class="field" id="phoneField">
         <span class="plus">+</span>
-        <input autocomplete="off" id="phoneInput" inputmode="numeric" aria-label="Phone number">
+        <input id="phoneInput" inputmode="numeric" maxlength="15" aria-label="Phone number">
         <span class="badge" id="badge" hidden></span>
       </div>
-      <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
+      <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
     </section>
 
     <section class="screen" id="s-scenario" hidden>
@@ -211,13 +203,13 @@ h1 + .chip{margin-top:-8px}
           <span class="ico" aria-hidden="true"><img src="scenario-icon-1.png" alt=""></span>
           <span class="ctext"><span class="num">1</span><span>漏查</span></span><span class="chev">›</span>
         </button>
-        <button class="choice" id="goCall" type="button" aria-label="2 Call Passenger">
+        <button class="choice" id="goCall" type="button" aria-label="2 Call Pax">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-2.png" alt=""></span>
-          <span class="ctext"><span class="num">2</span><span>Call Passenger</span></span><span class="chev">›</span>
+          <span class="ctext"><span class="num">2</span><span>Call Pax</span></span><span class="chev">›</span>
         </button>
-        <button class="choice" id="goWpp" type="button" aria-label="3 Wrong Pick-up">
+        <button class="choice" id="goWpp" type="button" aria-label="3 Wrongly Pick-up">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-3.png" alt=""></span>
-          <span class="ctext"><span class="num">3</span><span>Wrong Pick-up</span></span><span class="chev">›</span>
+          <span class="ctext"><span class="num">3</span><span>Wrongly Pick-up</span></span><span class="chev">›</span>
         </button>
         <button class="choice" id="goDp" type="button" aria-label="4 Disrupted Pax">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-4.png" alt=""></span>
@@ -228,40 +220,40 @@ h1 + .chip{margin-top:-8px}
 
     <!-- Missed check -->
     <section class="screen" id="s-mflight" hidden>
-      <h1>Flight number</h1>
-      <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <h1>flight number</h1>
+      <div class="field"><span class="code">CX</span><input id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
       <h1>sec</h1>
-      <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+      <div class="field"><input id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
     </section>
 
     <!-- Wrongly Pick-up -->
     <section class="screen" id="s-wflight" hidden>
       <h1>Flight number</h1>
-      <div class="field"><span class="code">CX</span><input autocomplete="off" id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
       <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
-      <div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
       <h1>Bag Tag 2</h1>
       <p class="bagHelp" lang="zh-Hant">疑似被客人Wrong P帶走的行李</p>
-      <div class="field"><input autocomplete="off" class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+      <div class="field"><input class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
 
     <!-- Disrupted Pax -->
     <section class="screen" id="s-dflight" hidden>
       <h1>Disrupted flight</h1>
       <div class="chip">TPE</div>
-      <div class="field"><span class="code">CX</span><input autocomplete="off" id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><span class="code">CX</span><input id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dtransfer" hidden>
       <h1>Connecting flight</h1>
       <div class="chip">HKG</div>
-      <div class="field"><input autocomplete="off" class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="field"><input class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dstatus" hidden>
       <h1>Flight status</h1>
@@ -271,34 +263,34 @@ h1 + .chip{margin-top:-8px}
         <button class="opt" id="stUnknown" type="button" aria-pressed="false" lang="zh-Hant">目前航班及起飛動態尚未確定</button>
       </div>
       <div class="optExtra" id="delayWrap" hidden>
-        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
+        <div class="field time"><input id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
       <h1>Flight arrangement</h1>
       <div class="opts">
         <button class="opt" id="arKnown" type="button" aria-pressed="false">Will protect to</button>
-        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Arrange in airport</button>
+        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Not decided yet</button>
       </div>
       <div class="optExtra" id="altWrap" hidden>
-        <div class="field"><input autocomplete="off" class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
-        <div class="field time"><span class="code">dep</span><input autocomplete="off" id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
+        <div class="field"><input class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+        <div class="field time"><span class="code">DEP</span><input id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrive" hidden>
-      <h1>Ask pax arrive airport before ?</h1>
-      <div class="field time"><input autocomplete="off" id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
+      <h1>Pax should arrive airport before ?</h1>
+      <div class="field time"><input id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
     <!-- Call Pax confirmation -->
     <section class="screen" id="s-callconfirm" hidden>
-      <h1>Confirm details</h1>
+      <h1>Confirm Details</h1>
       <dl class="sum" id="callSum"></dl>
     </section>
 
     <!-- shared preview -->
     <section class="screen" id="s-preview" hidden>
-      <h1>Confirm details</h1>
+      <h1>Confirm Details</h1>
       <dl class="sum" id="sum"></dl>
       <h2 class="previewLangTitle">Pax Prefer Language</h2>
       <div class="seg" role="group" aria-label="Message order">
@@ -306,7 +298,8 @@ h1 + .chip{margin-top:-8px}
         <button type="button" id="ordEn" aria-pressed="false">English</button>
       </div>
       <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false">Message Preview and Edit</button>
-      <textarea class="msg" id="msg" autocomplete="off" hidden lang="zh-Hant" aria-label="Editable message"></textarea>
+      <textarea class="msg" id="msg" hidden lang="zh-Hant" aria-label="Editable message"></textarea>
+      <button class="copyText" id="copyText" type="button" hidden>Copy Text</button>
     </section>
   </main>
 
@@ -345,13 +338,12 @@ h1 + .chip{margin-top:-8px}
   const findCountry=n=>countryCodes.find(c=>n.startsWith(c[0]));
 
   // ---- state -------------------------------------------------------------
-  const S={phone:"",status:"",arrange:"",order:"zh",orderSet:false};
-  // Nothing is persisted between launches; drop the old saved language choice if it exists.
-  try{localStorage.removeItem("fp-order");}catch(e){}
+  const S={phone:"",status:"",arrange:"",order:"zh"};
+  try{const o=localStorage.getItem("fp-order");if(o==="en"||o==="zh")S.order=o;}catch(e){}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
-    wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
+    wpp:{name:"Wrongly Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
   let flow="", cur="phone", resetting=false;
@@ -403,8 +395,8 @@ h1 + .chip{margin-top:-8px}
     bag2:()=>bagHint("b2a","b2n"),
     dflight:()=>isFlt(v("dFlight"))?"":"1–3 digits",
     dtransfer:()=>!isAir(v("tA"))?"Airline code: 2 letters":(isFlt(v("tN"))?"":"1–3 digits"),
-    dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
-    darrange:()=>S.arrange!=="known"?"":!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
+    dstatus:()=>timeHint("delayTime"),
+    darrange:()=>!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
     callconfirm:()=>"",
     preview:()=>"Check details before sending"
@@ -415,7 +407,7 @@ h1 + .chip{margin-top:-8px}
     wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
     dstatus:()=>go("darrange"), darrange:()=>go("darrive"), darrive:()=>go("preview"),
-    callconfirm:()=>openWA(""),
+    callconfirm:()=>openWA("您好"),
     preview:()=>send()
   };
 
@@ -428,34 +420,22 @@ h1 + .chip{margin-top:-8px}
     const tag="cx"+String(Number(v("mFlight")))+"/sec"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
-這裡是國泰航空桃園機場辦公室。
+這是國泰航空桃園機場辦公室。
 
-由於您的寄艙行李未能通過桃園機場的 X 光安全檢查，機場安檢人員需要請您在場一同進行第二次檢查。因此，您的行李目前暫時留在報到櫃檯，未能安排裝載上機。
+由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。
 
-麻煩您盡快返回 4 號報到櫃檯，並與我們的職員聯絡。
+如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。
 
-如果您已經通過隨身行李安全檢查，但尚未辦理護照查驗，請先向現場桃園機場工作人員說明情況，再返回櫃檯確認您的寄艙行李。
+請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。`;
+    const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
 
-如果您已經通過護照查驗，請與任何一位在登機閘口的國泰航空職員聯絡，我們會協助您跟進。
+Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
 
-為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回櫃檯或聯絡國泰航空職員。
+Please return to Check-in Counter 4 and contact our staff.
 
-多謝您的理解和配合。`;
-    const en=`Hello,
+If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
-This is Cathay Pacific at Taoyuan Airport.
-
-Your checked baggage did not pass the X-ray security screening at Taoyuan Airport. Airport security staff need you to be present for a secondary inspection. Your baggage is currently being held at the check-in counter.
-
-Please return to Check-in Counter 4 as soon as possible.
-
-If you have passed security but not immigration, please inform Taoyuan Airport staff before returning to the counter.
-
-If you have passed immigration, please contact Cathay Pacific staff at the boarding gate for assistance.
-
-To ensure your baggage can complete the inspection and be loaded onto your flight before departure, please return to the counter or contact Cathay Pacific staff as soon as possible.
-
-Thank you for your cooperation.`;
+Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
   function textWpp(zhFirst){
@@ -541,14 +521,14 @@ Thank you.`;
   }
   function buildRows(){
     const c=findCountry(S.phone);
-    const rows=[["Send to",(c?c[1]+" ":"")+"+"+S.phone]];
+    const rows=[["To",(c?c[1]+" ":"")+"+"+S.phone]];
     if(flow==="miss"){
-      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["sec",String(Number(v("mSec"))).padStart(3,"0")]);
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["SEC",String(Number(v("mSec"))).padStart(3,"0")]);
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
-      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);
+      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / DEP "+v("altTime") : "Not decided yet"]);
       rows.push(["Arrive airport before",v("arriveTime")]);
     }
     return rows;
@@ -577,7 +557,7 @@ Thank you.`;
 
   // ---- WhatsApp ----------------------------------------------------------
   function openWA(text){
-    const url="https://wa.me/"+S.phone+(text?"?text="+encodeURIComponent(text):"");
+    const url="https://wa.me/"+S.phone+"?text="+encodeURIComponent(text);
     const a=document.createElement("a");
     a.href=url;a.target="_blank";a.rel="noopener";
     document.body.appendChild(a);a.click();a.remove();
@@ -623,10 +603,10 @@ Thank you.`;
     setTimeout(()=>{if(stack.length===len){stack.pop();showScreen(stack[stack.length-1]);}},350);
   };
 
-  function clearFields(){
+  function resetAll(){
     document.querySelectorAll("input").forEach(i=>i.value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.phone="";S.status="";S.arrange="";S.order="zh";S.orderSet=false;flow="";
+    S.phone="";S.status="";S.arrange="";flow="";
     clearDrafts();
     const m=$("msg");
     m.value="";m.hidden=true;delete m.dataset.edited;
@@ -635,12 +615,9 @@ Thank you.`;
     $("badge").hidden=true;
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
-  }
-  function resetAll(){
-    clearFields();
     const depth=stack.length-1;
     stack.length=0;stack.push("phone");
-    if(depth>0){resetting=true;setTimeout(()=>{resetting=false;},1200);try{history.go(-depth);}catch(e){resetting=false;}}
+    if(depth>0){resetting=true;try{history.go(-depth);}catch(e){resetting=false;}}
     showScreen("phone");
   }
 
@@ -691,25 +668,15 @@ Thank you.`;
           dd.appendChild(document.createTextNode(parts[0]||""));
           const a=document.createElement("span");a.className="flightAccent";a.textContent=flight;dd.appendChild(a);
           dd.appendChild(document.createTextNode(parts[1]||""));
-        }else if(flow==="dp" && r[0]==="Disrupted flight"){
-          const wrap=document.createElement("span");wrap.className="disruptedFlightValue";
-          const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
-          icon.setAttribute("class","disruptionWarn");icon.setAttribute("viewBox","0 0 24 24");
-          icon.setAttribute("aria-hidden","true");icon.setAttribute("focusable","false");
-          icon.innerHTML='<path fill="currentColor" d="M10.30 3.18a2 2 0 0 1 3.40 0l8.08 13.46A2 2 0 0 1 20.08 19.7H3.92a2 2 0 0 1-1.70-3.06L10.30 3.18Z"/><rect x="11" y="7.2" width="2" height="7.2" rx="1" fill="white"/><circle cx="12" cy="17" r="1.15" fill="white"/>';
-          const value=document.createElement("span");value.textContent=r[1];
-          wrap.appendChild(icon);wrap.appendChild(value);dd.appendChild(wrap);
         }else dd.textContent=r[1];
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
-      // Disrupted Pax lists English first; the first-listed language is the default until the user picks one.
-      $("ordEn").style.order=flow==="dp"?"-1":"";
-      if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
       $("ordZh").setAttribute("aria-pressed",S.order==="zh");
       $("ordEn").setAttribute("aria-pressed",S.order==="en");
       syncDrafts();
       $("msg").value=currentText();
       $("msgToggle").setAttribute("aria-expanded",!$("msg").hidden);
+      $("copyText").hidden=$("msg").hidden;
       $("s-preview").classList.toggle("preview-focus",!$("msg").hidden);
     }
 
@@ -730,7 +697,7 @@ Thank you.`;
 
   // ---- wiring ------------------------------------------------------------
   $("phoneInput").addEventListener("input",function(){
-    this.value=digits(this.value).slice(0,15);
+    this.value=digits(this.value);
     const c=findCountry(this.value),b=$("badge");
     if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}else b.hidden=true;
     const bl=blocked.has(this.value);
@@ -754,18 +721,65 @@ Thank you.`;
   $("arUnknown").onclick=()=>{S.arrange="unknown";render();};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 
-  function setOrder(o){S.order=o;S.orderSet=true;syncDrafts();$("msg").value=currentText();render();}
+  function setOrder(o){S.order=o;try{localStorage.setItem("fp-order",o);}catch(e){}syncDrafts();$("msg").value=currentText();render();}
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
   $("msgToggle").onclick=()=>{
     const m=$("msg"), open=m.hidden;
     m.hidden=!open;
+    $("copyText").hidden=!open;
     $("msgToggle").setAttribute("aria-expanded",open);
     if(open){syncDrafts();m.value=currentText();}
     $("s-preview").classList.toggle("preview-focus",open);
     if(open){$("main").scrollTop=0;setTimeout(()=>{try{m.focus({preventScroll:true});m.scrollIntoView({block:"nearest"});}catch(e){}},50);}
   };
   $("msg").addEventListener("input",()=>{edits[S.order]=$("msg").value;});
+  $("copyText").onclick=async function(){
+    const text=$("msg").value; // Always copy the current (possibly edited) text.
+    const button=this;
+
+    function legacyCopy(value){
+      const ta=document.createElement("textarea");
+      ta.value=value;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed";
+      ta.style.left="-9999px";
+      ta.style.top="0";
+      ta.style.opacity="0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0,ta.value.length);
+      let ok=false;
+      try{ok=document.execCommand("copy");}catch(e){ok=false;}
+      ta.remove();
+      return ok;
+    }
+
+    let copied=false;
+    // Prefer the modern Clipboard API when the browser allows it.
+    if(navigator.clipboard&&window.isSecureContext){
+      try{
+        await navigator.clipboard.writeText(text);
+        copied=true;
+      }catch(e){
+        copied=legacyCopy(text);
+      }
+    }else{
+      copied=legacyCopy(text);
+    }
+
+    if(copied){
+      button.textContent="Copied!";
+    }else{
+      // Some embedded previews block clipboard access entirely. Select the
+      // edited message so the user can still copy it with Ctrl/Cmd+C.
+      const m=$("msg");
+      try{m.focus();m.select();m.setSelectionRange(0,text.length);}catch(e){}
+      button.textContent="Press Ctrl/Cmd+C";
+    }
+    setTimeout(()=>{button.textContent="Copy Text";},1800);
+  };
 
   document.addEventListener("keydown",e=>{
     if(e.key==="Enter"&&e.target&&e.target.tagName==="INPUT"&&!$("cta").disabled&&!$("foot").hidden){e.preventDefault();$("cta").click();}
@@ -785,16 +799,7 @@ Thank you.`;
   const vv=window.visualViewport;
   if(vv){
     let vvFrame=0, settleTimer=0;
-    // Keyboard = an editable field is focused AND the visible height dropped well below its resting height.
-    // Works whether the browser shrinks only the visual viewport (iOS, Chrome) or resizes the whole
-    // layout viewport (many in-app WebViews such as LINE on Android).
-    let base=Math.max(window.innerHeight,vv.height), baseW=window.innerWidth;
-    const editing=()=>{const a=document.activeElement;return !!a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA");};
-    const keyboardOpen=()=>{
-      if(window.innerWidth!==baseW){baseW=window.innerWidth;base=Math.max(window.innerHeight,vv.height);}
-      base=Math.max(base,window.innerHeight,vv.height);
-      return vv.scale<1.05&&editing()&&base-vv.height>120;
-    };
+    const keyboardOpen=()=>vv.height<window.innerHeight-100;
     const revealWorkspace=()=>{
       const el=document.activeElement;
       if(!keyboardOpen()||!el||!["INPUT","TEXTAREA"].includes(el.tagName)) return;
@@ -838,28 +843,19 @@ Thank you.`;
       settleTimer=setTimeout(()=>{syncNow();revealWorkspace();},180);
     };
     vv.addEventListener("resize",sync,{passive:true});
-    window.addEventListener("resize",sync,{passive:true});
     vv.addEventListener("scroll",sync,{passive:true});
     document.addEventListener("focusin",()=>{setTimeout(sync,30);setTimeout(sync,260)});
     document.addEventListener("focusout",()=>setTimeout(sync,120));
     sync();
   }
 
-  // Always start blank: undo any form state the browser restored on relaunch / reload / bfcache.
-  clearFields();
   showScreen("phone");
-  window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});
-  window.addEventListener("pageshow",e=>{if(e.persisted) resetAll();});
 })();
 
 if("serviceWorker" in navigator){
   let reloadingForUpdate=false;
-  const hadController=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{
-    if(reloadingForUpdate||!hadController) return;
-    // Only swap to the new version while idle on an empty Phone screen; otherwise it applies on next launch.
-    const idle=!document.getElementById("s-phone").hidden&&!document.getElementById("phoneInput").value;
-    if(!idle) return;
+    if(reloadingForUpdate) return;
     reloadingForUpdate=true;
     location.reload();
   });
