@@ -4,14 +4,16 @@
 
 ## 電話國家 / 國旗
 
-Phone 頁會先把輸入轉成純數字，再依國際電話國碼在本機判斷國家，例如：
+Phone 頁會先把輸入轉成純數字，再使用固定版本的 `libphonenumber-js` metadata 判斷國碼與國家/地區。驗證成功後會把 normalized phone number 與 country 一起保存，後續頁面不再重新用手寫國碼表猜測國家。
+
+例如：
 
 - `852...` → 🇭🇰 HK
 - `886...` → 🇹🇼 TW
-- `44...` → 🇬🇧 UK
-- `81...` → 🇯🇵 JP
+- `44...` → 🇬🇧 GB
+- shared calling code（例如 `+1`、`+7`）會在資料足夠時由 libphonenumber 判斷實際 region。
 
-不使用外部國碼 API。要調整國家資料，請在 `index.html` 搜尋 `countryCodes`。
+目前 library 固定為 `libphonenumber-js@1.12.29`。Service Worker 會在安裝時嘗試將此跨網域 bundle 預先快取，供已安裝的 PWA 離線使用。
 
 ## 罐頭號碼封鎖機制
 
@@ -19,7 +21,7 @@ Phone 頁會先把輸入轉成純數字，再依國際電話國碼在本機判�
 
 `85289648964`
 
-程式會移除 `+`、空格、`-` 等非數字字元後再比對，所以 `+852 89648964`、`852 8964 8964`、`85289648964` 都會被視為同一號碼。
+程式會先完成電話正規化再比對黑名單，所以 `+852 89648964`、`852 8964 8964`、`85289648964`，以及國碼後可容錯的多餘 `0`，都會在 normalized number 相同時視為同一號碼。
 
 完全符合時：
 
@@ -63,13 +65,13 @@ const blocked=new Set(["85289648964","85262374313","886912345678"]);
 
 ## PWA / 快取維護
 
-每次發布新版，請同步提高 `sw.js` 的 `CACHE` 版本，例如：
+每次發布新版，請同步提高 `sw.js` 的 `APP_VERSION`，例如：
 
 ```js
-const CACHE="find-pax-v1.30.1-bugfix-20260920";
+const APP_VERSION="v2.3.6-20260923";
 ```
 
-每次發布請把版本號與日期一併更新，這可降低手機 PWA 卡住舊版的情況。
+`CACHE` 會由 `CACHE_PREFIX + APP_VERSION` 產生。每次發布請把版本號與日期一併更新，這可降低手機 PWA 卡住舊版的情況。
 
 發布後可先用 `?v=8` 之類的網址參數在 Safari / Chrome 確認新版。若主畫面 PWA 仍是舊版，再移除舊 PWA、清除該網站資料後重新加入主畫面。
 
@@ -670,3 +672,14 @@ python verify_messages.py
 ```
 
 A UI/function-only change should continue to show PASS. If a message function changes, the check fails intentionally. Do not update the lock merely to make the test pass; first confirm the new message copy, then create a new Message Master version.
+
+## v2.3.5 hardening (2026-09-22)
+
+- Phone validation now has a single normalized result (`digits`, `country`, `callingCode`, `blocked`).
+- Blocked-number checks run against the normalized number, preventing bypass with tolerated zeroes after the country calling code.
+- Country/flag state is stored after phone validation instead of being guessed again from a hand-written country-code table.
+- Phone input allows up to 18 raw digits so up to three tolerated zeroes can be removed before enforcing the normalized 15-digit E.164 cap.
+- Flight-number inputs are normalized consistently (leading zeroes removed) when leaving the field / advancing the flow.
+- Service Worker cache version is explicit via `APP_VERSION`, and the cross-origin libphonenumber bundle is opportunistically pre-cached for offline PWA use.
+- `verify_messages.py` now verifies both the executable message-function hashes and the SHA-256 integrity/version of `message-master.json`.
+- The four locked message generator functions remain unchanged.

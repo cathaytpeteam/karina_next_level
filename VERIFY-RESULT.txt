@@ -1,0 +1,9 @@
+Find Pax Message Copy Check
+Message Master: 1.0
+PASS message-master.json integrity
+PASS textMiss
+PASS textWpp
+PASS textDp
+PASS textCall
+
+PASS: message-master.json integrity and all executable message generators match Find Pax Message Master v1.0.

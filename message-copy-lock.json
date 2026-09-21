@@ -1,7 +1,7 @@
 {
   "name": "Find Pax executable message-copy lock",
   "message_master_version": "1.0",
-  "app_base": "find-pax-v2.3.4-final-call-at-gate(2).zip",
+  "app_base": "find-pax-v2.3.5-hardening-20260922",
   "scenario_1_3_4_source": "find-pax-v2.2.9-checked-v5(1).zip (user-confirmed copy)",
   "scenario_2_source": "v2.3.4 final Call Passenger (user-confirmed copy)",
   "functions": {
@@ -9,5 +9,6 @@
     "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
     "textDp": "2d1f37ec3c6dc37261337ff3bbe4ef209e38afdb50709dd0d24e17782a7e5a7e",
     "textCall": "ac7748eb9ca8102fb406f7a5fd0839aa90a79ed079b166da5df0abb6d4c8b95c"
-  }
+  },
+  "message_master_sha256": "9b348dd36bdcc6ed0af23ca6e3a974a2912c17a6401fe871b59f7aeaf1d611e0"
 }
