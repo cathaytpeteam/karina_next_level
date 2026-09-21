@@ -468,3 +468,73 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 情境 1 與情境 3 的圖示相似度,待另行設計。
 - Scenario 頁的寫死配色 `#EEF3F7` / `#DDF2F2` 維持原樣。
 - `2 Call Pax` 維持直接開啟 WhatsApp,不加確認步驟。
+
+
+## v2.2 — 移除「記住上次輸入」+ Bug 修正(基於 v2.1)
+
+未更動任何介面文字或 WhatsApp 訊息內容。
+
+### 移除上次輸入自動帶入
+- 移除 `localStorage` 的 `fp-order`(原本會記住上次選的 `中文` / `English`);啟動時會順手清掉舊的殘留值。v2.1 內「記住上次選擇」的說明不再適用。
+- 所有 `<input>` / `<textarea>` 在 HTML 內直接加上 `autocomplete="off"`,避免瀏覽器在重新整理 / 重開 PWA 時還原表單內容。
+- 啟動、`load`、`pageshow`(bfcache 還原)時一律清空所有欄位並回到預設(`CX`、`中文`)。
+- 送出 WhatsApp 後重置時,訊息語言順序也回到 `中文`。
+
+### Bug 修正
+- 電話貼上:原本 `maxlength=15` 在過濾前計算,貼上 `+886 912 345 678` 這類含空格/加號的號碼會被截掉末幾碼。改為先取純數字再限制 15 位。
+- `Flight status` / `Flight arrangement`:切換選項後,先前輸入的無效時間不再讓紅色錯誤提示殘留(此時 Next 其實是可按的)。
+- 罐頭號碼紅色警告改放在電話欄正下方(原本因 DOM 順序被圖示擠到畫面最底)。
+- 雙指縮放不再被誤判成「鍵盤開啟」而壓縮版面。
+- Service Worker 自動重新載入:首次安裝不再重載;只在停在空白 Phone 頁時才切換新版,避免作業中途被重整而遺失已輸入資料。
+- `history.go()` 重置後的 `resetting` 旗標加上逾時保護,避免下一次 Back 被吃掉。
+- `sw.js`:離線時只有頁面導覽才回退到 `index.html`(不再把 HTML 當成圖片回傳);查詢字串(`?v=8`)不影響快取比對。CACHE 更新為 `find-pax-v2.2-no-carryover-bugfix-20260921`。
+
+## v2.2.1 — 文字調整
+- `Pax should arrive airport before ?` → `Ask pax arrive airport before ?`
+- `Confirm Details` → `Confirm details`(Call Pax 確認頁與預覽頁)
+- 時間欄位標籤 `DEP` → `dep`(該標籤不再強制轉大寫)
+- 預覽頁摘要 `To` → `Send to`
+- `sw.js` CACHE:`find-pax-v2.2.1-text-20260921`
+
+## v2.2.2 — 文字調整
+- 預覽頁 `Protect to ... / DEP` → `/ dep`
+- `Not decided yet` → `Arrange in airport`(選項按鈕與預覽頁摘要)
+- `sw.js` CACHE:`find-pax-v2.2.2-text-20260921`
+
+## v2.2.3 — Call Pax 不預填訊息
+- `2 Call Pax` 開啟 WhatsApp 時不再帶入 `您好`,只開啟對話。
+- 情境 1 / 3 / 4 預覽頁第一列為 `Send to`;情境 2 確認頁維持 `Call`。
+- `sw.js` CACHE:`find-pax-v2.2.3-call-blank-20260921`
+
+## v2.2.4 — 預覽頁精簡 + 鍵盤偵測補強
+- 確認頁(`Confirm details`)標題、摘要列、`Pax Prefer Language` 與中英按鈕的字級/間距縮小,`Message Preview and Edit` 在 iPhone / 一般 Android 上不用捲動即可看到(iPhone SE 也在可視範圍內)。
+- `Message Preview and Edit` 改為品牌色外框按鈕,更容易看出可以點開。文字內容不變。
+- 鍵盤偵測:改為記錄「未輸入時的最高視窗高度」,並要求目前有輸入框聚焦才判定鍵盤開啟。
+  這讓「鍵盤開啟時直接縮小版面」的手機 WebView(例如部分 LINE 內建瀏覽器)也能套用鍵盤避讓,不再只有 visualViewport 縮小的情況才有效。
+- 補上 `window.resize` 監聽。
+- `sw.js` CACHE:`find-pax-v2.2.4-preview-compact-20260921`
+
+## v2.2.5 — 文字調整
+- 確認頁(漏查)摘要列 `SEC` → `sec`
+- `sw.js` CACHE:`find-pax-v2.2.5-sec-20260921`
+
+## v2.2.6 — 文字調整
+- `2 Call Pax` → `2 Call Passenger`
+- `3 Wrongly Pick-up` → `3 Wrong Pick-up`(選單按鈕與流程進度列名稱)
+- `sw.js` CACHE:`find-pax-v2.2.6-labels-20260921`
+
+## v2.2.7 — Disrupted Pax 語言按鈕順序
+- 4 Disrupted Pax 確認頁:`English` 在上、`中文` 在下。1 漏查 / 3 Wrong Pick-up 維持 `中文` 在上。
+- 預設選取仍是 `中文`,訊息內容與排列邏輯不變。
+- `sw.js` CACHE:`find-pax-v2.2.7-dp-lang-order-20260921`
+
+## v2.2.8 — 預設語言 = 排在第一個的按鈕
+- 4 Disrupted Pax:預設選取 `English`(排第一)。1 漏查 / 3 Wrong Pick-up:預設 `中文`。
+- 使用者手動選過語言後,同一次作業內保留其選擇;送出重置後回到預設。
+- `sw.js` CACHE:`find-pax-v2.2.8-dp-default-en-20260921`
+
+## v2.2.9 — 輸入欄位配色 + 系統字型
+- 輸入欄位:淡綠底 `#EEF6F6`、邊框 `#BBD9D9`;輸入文字與確認頁數值改為深青黑 `#0B3B3F`(`--input-ink`,原 `#263737`)。訊息編輯框文字同色。
+- 字型:`--font` 改為系統字型優先(iPhone = SF Pro、Android = Roboto),中文字仍由 PingFang TC / Noto Sans TC 顯示。原本把 PingFang 排最前面,英數字會用 PingFang 的英數字形。
+- 選單頁原本指定 `Roboto, Arial`(iPhone 上實際是 Arial),改用同一組 `--font`。
+- `sw.js` CACHE:`find-pax-v2.2.9-input-style-20260921`
