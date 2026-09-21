@@ -645,3 +645,8 @@ Examples:
 - Hide the native selector arrow while retaining its selectable B / C options.
 - Restrict gate-area validation to B / C; keep B as default.
 - Keep the hidden empty state for No Message and retain the v2.3.2 UI fixes.
+
+
+## v2.3.4
+
+- Rename the Call Passenger 1 / 2 heading to "final call at Gate".
