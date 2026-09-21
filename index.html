@@ -209,13 +209,13 @@ h1 + .chip{margin-top:-8px}
           <span class="ico" aria-hidden="true"><img src="scenario-icon-1.png" alt=""></span>
           <span class="ctext"><span class="num">1</span><span>漏查</span></span><span class="chev">›</span>
         </button>
-        <button class="choice" id="goCall" type="button" aria-label="2 Call Pax">
+        <button class="choice" id="goCall" type="button" aria-label="2 Call Passenger">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-2.png" alt=""></span>
-          <span class="ctext"><span class="num">2</span><span>Call Pax</span></span><span class="chev">›</span>
+          <span class="ctext"><span class="num">2</span><span>Call Passenger</span></span><span class="chev">›</span>
         </button>
-        <button class="choice" id="goWpp" type="button" aria-label="3 Wrongly Pick-up">
+        <button class="choice" id="goWpp" type="button" aria-label="3 Wrong Pick-up">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-3.png" alt=""></span>
-          <span class="ctext"><span class="num">3</span><span>Wrongly Pick-up</span></span><span class="chev">›</span>
+          <span class="ctext"><span class="num">3</span><span>Wrong Pick-up</span></span><span class="chev">›</span>
         </button>
         <button class="choice" id="goDp" type="button" aria-label="4 Disrupted Pax">
           <span class="ico" aria-hidden="true"><img src="scenario-icon-4.png" alt=""></span>
@@ -349,7 +349,7 @@ h1 + .chip{margin-top:-8px}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
-    wpp:{name:"Wrongly Pick-up",steps:["wflight","bag1","bag2","preview"]},
+    wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
   let flow="", cur="phone", resetting=false;
@@ -529,7 +529,7 @@ Thank you.`;
     const c=findCountry(S.phone);
     const rows=[["Send to",(c?c[1]+" ":"")+"+"+S.phone]];
     if(flow==="miss"){
-      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["SEC",String(Number(v("mSec"))).padStart(3,"0")]);
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["sec",String(Number(v("mSec"))).padStart(3,"0")]);
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){

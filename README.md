@@ -513,3 +513,12 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
   這讓「鍵盤開啟時直接縮小版面」的手機 WebView(例如部分 LINE 內建瀏覽器)也能套用鍵盤避讓,不再只有 visualViewport 縮小的情況才有效。
 - 補上 `window.resize` 監聽。
 - `sw.js` CACHE:`find-pax-v2.2.4-preview-compact-20260921`
+
+## v2.2.5 — 文字調整
+- 確認頁(漏查)摘要列 `SEC` → `sec`
+- `sw.js` CACHE:`find-pax-v2.2.5-sec-20260921`
+
+## v2.2.6 — 文字調整
+- `2 Call Pax` → `2 Call Passenger`
+- `3 Wrongly Pick-up` → `3 Wrong Pick-up`(選單按鈕與流程進度列名稱)
+- `sw.js` CACHE:`find-pax-v2.2.6-labels-20260921`
