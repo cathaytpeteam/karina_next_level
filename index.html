@@ -397,7 +397,13 @@ h1 + .chip{margin-top:-8px}
       const candidate=code+local.slice(drop);
       try{
         const ph=lp.parsePhoneNumberFromString("+"+candidate);
-        if(ph&&ph.country&&ph.isValid()) return {digits:candidate,country:ph.country,callingCode:ph.countryCallingCode};
+        if(ph&&ph.country&&ph.isPossible()){
+          // Hong Kong (+852) numbers use an 8-digit national number.
+          // Keep country detection separate from completion validation so short
+          // inputs can show HK without enabling Next.
+          if(ph.country==="HK" && String(ph.nationalNumber||"").length!==8) continue;
+          return {digits:candidate,country:ph.country,callingCode:ph.countryCallingCode};
+        }
       }catch(e){}
     }
     return null;
@@ -780,10 +786,12 @@ Thank you.`;
   $("phoneInput").addEventListener("input",function(){
     this.value=digits(this.value).slice(0,15);
     const p=validatePhone(this.value), early=p?null:detectCountryEarly(this.value), c=(p||early)?null:findCountry(this.value), b=$("badge");
-    if(p){b.hidden=false;b.textContent=flagFor(p.country)+" "+regionName(p.country);}
-    else if(early){b.hidden=false;b.textContent=early.label;}
-    else if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}
-    else b.hidden=true;
+    if(p||early||c){
+      const known=findCountry(this.value);
+      b.hidden=false;
+      if(known) b.textContent=known[1]+" "+known[2];
+      else { const cc=(p&&p.country)||(early&&early.country); b.textContent=cc?flagFor(cc)+" "+cc:""; }
+    } else b.hidden=true;
     const bl=blocked.has(this.value);
     $("warn").classList.toggle("show",bl);
     $("phoneField").classList.toggle("bad",bl);
