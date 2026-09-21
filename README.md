@@ -650,3 +650,23 @@ Examples:
 ## v2.3.4
 
 - Rename the Call Passenger 1 / 2 heading to "final call at Gate".
+
+---
+
+## Message Copy Lock — v1.0
+
+This repository is an integrated GitHub-ready package. The app and the approved message-copy lock live together.
+
+- `index.html` contains the approved executable message generators.
+- `message-master.json` is the human-readable Master Copy v1.0.
+- `message-copy-lock.json` stores SHA-256 hashes of the executable message functions.
+- `verify_messages.py` checks that Scenario 1–4 message generators have not changed.
+- `.github/workflows/message-copy-check.yml` runs the same check automatically on every GitHub push and pull request.
+
+Before release, run:
+
+```bash
+python verify_messages.py
+```
+
+A UI/function-only change should continue to show PASS. If a message function changes, the check fails intentionally. Do not update the lock merely to make the test pass; first confirm the new message copy, then create a new Message Master version.
