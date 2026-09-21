@@ -38,3 +38,15 @@ Date: 2026-09-22
 ## Note on libphonenumber
 
 The HTML continues to reference the pinned CDN version `libphonenumber-js@1.12.29`. The Service Worker now pre-caches the cross-origin response during installation and also caches opaque cross-origin responses at runtime. This improves offline reliability without changing the page's dependency version.
+
+## 2026-09-22 blacklist normalization regression fix
+
+- Fixed a remaining blacklist bypass where a raw number such as `852089648964`
+  could be accepted before the tolerated zero was removed.
+- Blacklist matching now checks every 0–3-zero normalization candidate after
+  the detected country calling code.
+- Regression cases for both blocked numbers, including 1/2/3 inserted zeroes,
+  pass.
+- `textMiss`, `textWpp`, `textDp`, and `textCall` remain byte-identical to the
+  accepted v2.3.5 copy and `verify_messages.py` remains PASS.
+

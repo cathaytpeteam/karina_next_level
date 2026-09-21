@@ -461,8 +461,29 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
 
   function normalizePhone(raw){
-    const p=validatePhone(raw);
-    return p?{...p,blocked:blocked.has(p.digits)}:null;
+    const n=digits(raw);
+    const p=validatePhone(n);
+    if(!p) return null;
+
+    // Security rule: blacklist matching is performed against every valid
+    // normalization candidate, not only the first candidate accepted by
+    // libphonenumber. This prevents a blocked number from being bypassed by
+    // inserting 1–3 zeroes immediately after the country calling code.
+    const code=callingCodeFor(n);
+    if(code){
+      const local=n.slice(code.length);
+      for(let drop=0;drop<=3;drop++){
+        if(drop>0 && local.slice(0,drop)!=="0".repeat(drop)) break;
+        const national=local.slice(drop);
+        if(!national) continue;
+        const candidate=code+national;
+        if(blocked.has(candidate)){
+          return {...p,digits:candidate,blocked:true};
+        }
+      }
+    }
+
+    return {...p,blocked:blocked.has(p.digits)};
   }
 
   // ---- state -------------------------------------------------------------
