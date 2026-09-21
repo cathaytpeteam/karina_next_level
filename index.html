@@ -396,7 +396,7 @@ h1 + .chip{margin-top:-8px}
   }
 
   const OK={
-    phone:()=>{const n=digits(v("phoneInput"));return n.length>=6&&!blocked.has(n);},
+    phone:()=>{const n=digits(v("phoneInput"));return n.length>=6&&!blocked.has(n)&&!!findCountry(n);},
     mflight:()=>isFlt(v("mFlight")),
     msec:()=>isFlt(v("mSec"))&&+v("mSec")<=580,
     wflight:()=>isFlt(v("wFlight")),
