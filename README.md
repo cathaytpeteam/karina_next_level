@@ -532,3 +532,9 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 4 Disrupted Pax:預設選取 `English`(排第一)。1 漏查 / 3 Wrong Pick-up:預設 `中文`。
 - 使用者手動選過語言後,同一次作業內保留其選擇;送出重置後回到預設。
 - `sw.js` CACHE:`find-pax-v2.2.8-dp-default-en-20260921`
+
+## v2.2.9 — 輸入欄位配色 + 系統字型
+- 輸入欄位:淡綠底 `#EEF6F6`、邊框 `#BBD9D9`;輸入文字與確認頁數值改為深青黑 `#0B3B3F`(`--input-ink`,原 `#263737`)。訊息編輯框文字同色。
+- 字型:`--font` 改為系統字型優先(iPhone = SF Pro、Android = Roboto),中文字仍由 PingFang TC / Noto Sans TC 顯示。原本把 PingFang 排最前面,英數字會用 PingFang 的英數字形。
+- 選單頁原本指定 `Roboto, Arial`(iPhone 上實際是 Arial),改用同一組 `--font`。
+- `sw.js` CACHE:`find-pax-v2.2.9-input-style-20260921`

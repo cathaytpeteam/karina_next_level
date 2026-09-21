@@ -17,8 +17,8 @@
   color-scheme:light only;
   --bg:#FFFFFF; --surface:#F1F6F6; --line:#D3DDDE; --ink:#14201F; --muted:#556A6C;
   --brand:#00747A; --brand-strong:#005D63; --brand-soft:#DCEFEF; --on-brand:#FFFFFF;
-  --danger:#C62828; --danger-soft:#FBE9E9; --input-ink:#263737;
-  --font:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --danger:#C62828; --danger-soft:#FBE9E9; --input-ink:#0B3B3F; --field-bg:#EEF6F6; --field-line:#BBD9D9;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:#fff}
@@ -67,7 +67,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
 .cta:disabled{opacity:.32;cursor:default}
 
-.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:0 8px;transition:border-color .12s}
+.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
 .field + .field{margin-top:12px}
 .field:focus-within{border-color:var(--brand)}
 .field.bad{border-color:var(--danger)}
@@ -91,15 +91,15 @@ h1 + .chip{margin-top:-8px}
 /* Scenario — original ChatGPT mixed Chinese/English labels, icons and colours */
 #s-scenario{padding-top:72px}
 #s-scenario .choices{gap:12px;margin-top:0}
-#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 22px;display:grid;grid-template-columns:60px 46px minmax(0,1fr) 28px;gap:0;color:#005D63;background:#EEF3F7}
+#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 16px;display:grid;grid-template-columns:56px 40px minmax(0,1fr) 24px;gap:0;color:#005D63;background:#EEF3F7}
 #s-scenario .choice:first-child{background:#DDF2F2}
 #s-scenario .ico{width:52px;height:52px;border-radius:0;background:transparent;color:#005D63}
 #s-scenario .ico svg{width:44px;height:44px;fill:currentColor;stroke:none}
 #s-scenario .ico img{width:52px;height:52px;object-fit:contain}
-#s-scenario .ctext{display:contents;font-family:Roboto,Arial,sans-serif;font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
+#s-scenario .ctext{display:contents;font-family:var(--font);font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
 #s-scenario .ctext .num{font-size:30px;align-self:center;justify-self:center}
 #s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:nowrap}
-#s-scenario .chev{font-family:Roboto,Arial,sans-serif;font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
+#s-scenario .chev{font-family:var(--font);font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
 
 .choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:18px;background:var(--surface);text-align:left;cursor:pointer}
 .choice:active{background:var(--brand-soft)}
@@ -138,7 +138,7 @@ h1 + .chip{margin-top:-8px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .previewLangTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
-.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:#263737}
+.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:var(--input-ink)}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 @media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
 /* Narrow phones (~360px): shrink the scenario row so long labels stay on one line. */
