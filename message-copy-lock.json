@@ -1,7 +1,7 @@
 {
   "name": "Find Pax executable message-copy lock",
   "message_master_version": "1.0",
-  "app_base": "find-pax-v2.3.5-hardening-20260922",
+  "app_base": "Find-Pax-v1.0",
   "scenario_1_3_4_source": "find-pax-v2.2.9-checked-v5(1).zip (user-confirmed copy)",
   "scenario_2_source": "v2.3.4 final Call Passenger (user-confirmed copy)",
   "functions": {
