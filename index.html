@@ -246,7 +246,7 @@ h1 + .chip{margin-top:-8px}
       <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
-      <h1>Sec</h1>
+      <h1>SEC</h1>
       <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
     </section>
 
@@ -442,10 +442,10 @@ h1 + .chip{margin-top:-8px}
   // ---- messages ----------------------------------------------------------
   function dateCode(){
     const d=new Date();
-    return String(d.getDate()).padStart(2,"0")+["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"][d.getMonth()];
+    return String(d.getDate()).padStart(2,"0")+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
   }
   function textMiss(zhFirst){
-    const tag="cx"+String(Number(v("mFlight")))+"/sec"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
+    const tag="cx"+String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
 這是國泰航空桃園機場辦公室。
