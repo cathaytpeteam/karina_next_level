@@ -538,3 +538,52 @@ Transfer flight airline code 仍預設 CX 且可編輯；其他 v1.10 功能不�
 - 字型:`--font` 改為系統字型優先(iPhone = SF Pro、Android = Roboto),中文字仍由 PingFang TC / Noto Sans TC 顯示。原本把 PingFang 排最前面,英數字會用 PingFang 的英數字形。
 - 選單頁原本指定 `Roboto, Arial`(iPhone 上實際是 Arial),改用同一組 `--font`。
 - `sw.js` CACHE:`find-pax-v2.2.9-input-style-20260921`
+
+## Phone 頁：國家辨識與 Next 驗證邏輯
+
+Phone 頁的「顯示國家」與「允許 Next」是兩個不同階段：
+
+- 只要輸入內容已足以辨識國際國碼，就先顯示原本資料中的國旗與國家縮寫（例如 `852...` → 🇭🇰 `HK`、`886...` → 🇹🇼 `TW`）。
+- 顯示國家不代表號碼已通過；只有符合該國基本 numbering format 後，`Next` 才會啟用。
+- 驗證以「基本長度 / 必要格式」為主，不檢查該號段是否真的已分配，也不判斷是否為真實存在的電話或是否已註冊 WhatsApp。
+- 國碼後可容許 0～3 個額外前導 `0` 作為資料容錯；驗證成功後會移除這些額外 `0`，WhatsApp 使用整理後的號碼。
+- 無法辨識國碼、號碼不足、或不符合必要格式時，`Next` 維持停用。
+
+目前特別處理的基本格式包含：
+
+- 香港 `+852`：國碼後必須為 8 碼。例如 `85288888888` 可通過；`85212345` 不可通過。
+- 台灣 `+886`：若國碼後的 national number 以 `9` 開頭（手機格式），必須為 9 碼。例如 `88698395290` 不可通過。
+- `+1` NANP（美國 / 加拿大等）：以國碼後 10 碼作基本長度驗證，不因測試或尚未分配的 area/exchange prefix 而擋下。例如 `11234567890` 可通過基本驗證。
+
+其他國家仍使用 `libphonenumber-js` 的 possible-number 長度資料做基本檢查。若日後發現特定國家有「同一國家多種長度，但某個必要開頭需要固定長度」的情況，可在 `validatePhone()` 補上該國的基本格式條件，不需要改 UI。
+
+
+## Worldwide phone-number validation
+
+The Phone Number screen uses the worldwide numbering metadata bundled with `libphonenumber-js` for every supported country/region. Validation is not limited to HK, TW, US, or other manually listed countries.
+
+Behavior:
+- As soon as a country calling code can be recognized, the screen may show the flag and the app's existing country abbreviation. Country recognition alone does **not** enable `Next`.
+- `Next` is enabled only after the national-number portion has a possible length under that country/region's numbering plan.
+- The check is intentionally a **basic numbering-format / length check**. It does not attempt to prove that a number is allocated, currently active, mobile-only, or registered with WhatsApp.
+- For shared calling codes, the validator checks the regions that share that calling code. `+1` (NANP) intentionally accepts any 10-digit national part so unallocated/test area-code prefixes are not rejected by allocation-style rules.
+- Taiwan has one structural safeguard: after `+886`, a national number beginning with `9` is treated as mobile-format and must contain 9 national digits. This prevents an incomplete mobile-looking number from passing as an 8-digit fixed-line length.
+- The app tolerates 0–3 extra zeroes immediately after the country calling code. They are removed before final validation and are not carried into the normalized number used for WhatsApp.
+- If the country code is recognized but the number is incomplete, the country indicator can still be shown while `Next` remains disabled.
+
+Examples:
+- `85288888888` → HK recognized, 8-digit national part → allowed.
+- `85212345` → HK recognized, national part too short → `Next` disabled.
+- `11234567890` → +1 with 10 national digits → allowed under the app's basic-format rule.
+- `88698395290` → TW recognized, mobile-looking national part has only 8 digits → `Next` disabled.
+
+
+## Message Preview：編輯與送出控制
+
+- 展開 `Message Preview` 後，預覽文字區會使用較多可用垂直空間；收合時不顯示編輯控制。
+- `Edit / Done Editing` 與 `Copy Text` 已從 Preview 內容區分離，固定排列在底部 `Send on What's App` 按鈕正上方。
+- 只有 Preview 展開時才顯示 `Edit / Done Editing` 與 `Copy Text`。
+- 按下 `Edit` 進入編輯模式後，`Send on What's App` 立即停用，避免訊息尚未編輯完成就送出。
+- 按下 `Done Editing` 後，儲存目前文字並恢復 `Send on What's App`。
+- 編輯期間 `Copy Text` 仍可使用，且複製的是 textarea 當下最新內容。
+- 此調整不改變既有訊息內容、語言順序、電話驗證或其他流程。

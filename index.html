@@ -189,9 +189,10 @@ h1 + .chip{margin-top:-8px}
 .msgPanel{position:relative;flex:1 1 auto;min-height:0;margin-top:8px;background:var(--surface);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .msgPanel[hidden]{display:none}
 #s-preview.preview-focus .msgPanel{flex:1 1 auto;min-height:0}
-#s-preview.preview-focus .msg{flex:1 1 auto;height:auto;min-height:0;margin-top:0;border-radius:16px 16px 0 0;padding-bottom:24px;overflow-y:auto}
+#s-preview.preview-focus .msg{flex:1 1 auto;height:auto;min-height:0;margin-top:0;border-radius:16px;padding-bottom:24px;overflow-y:auto}
 .msg[readonly]{cursor:default}
-.msgActions{flex:none;position:sticky;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 12px;background:var(--surface);border-top:1px solid var(--line)}
+.msgActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px;padding:0}
+.msgActions[hidden]{display:none}
 .msgActions button{min-height:42px;border:1px solid var(--brand);border-radius:12px;background:var(--bg);color:var(--brand-strong);font:inherit;font-weight:700;cursor:pointer}
 .msgActions button:active{transform:translateY(1px)}
 </style>
@@ -323,15 +324,15 @@ h1 + .chip{margin-top:-8px}
       <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false"><span>Message Preview <small id="previewOrderLabel">中文在前</small></span><span class="viewLabel" id="viewLabel">View ▾</span></button>
       <div class="msgPanel" id="msgPanel" hidden>
         <textarea class="msg" id="msg" autocomplete="off" readonly lang="zh-Hant" aria-label="Message preview"></textarea>
-        <div class="msgActions" id="msgActions">
-          <button type="button" id="editMsg">Edit</button>
-          <button type="button" id="copyMsg">Copy Text</button>
-        </div>
       </div>
     </section>
   </main>
 
   <footer class="foot" id="foot" hidden>
+    <div class="msgActions" id="msgActions" hidden>
+      <button type="button" id="editMsg">Edit</button>
+      <button type="button" id="copyMsg">Copy Text</button>
+    </div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <button class="cta" id="cta" type="button" disabled>Next</button>
   </footer>
@@ -387,24 +388,67 @@ h1 + .chip{margin-top:-8px}
   function validatePhone(raw){
     const n=digits(raw);
     const lp=window.libphonenumber;
-    if(!n||!lp||!lp.getCountries||!lp.getCountryCallingCode||!lp.parsePhoneNumberFromString)return null;
-    const codes=[...new Set(lp.getCountries().map(c=>lp.getCountryCallingCode(c)))].sort((a,b)=>b.length-a.length);
-    const code=codes.find(c=>n.startsWith(c));
+    if(!n||!lp||!lp.getCountries||!lp.getCountryCallingCode)return null;
+
+    // Build calling-code -> regions from libphonenumber metadata. This means
+    // every country/region supported by the library participates in validation,
+    // rather than relying on a hand-written shortlist.
+    const byCode={};
+    lp.getCountries().forEach(cc=>{
+      const code=String(lp.getCountryCallingCode(cc));
+      (byCode[code]||(byCode[code]=[])).push(cc);
+    });
+    const code=Object.keys(byCode).sort((a,b)=>b.length-a.length).find(c=>n.startsWith(c));
     if(!code)return null;
     const local=n.slice(code.length);
+
+    // Try the raw national number first, then tolerate 1..3 extra zeroes
+    // immediately after the country calling code. Those zeroes are removed
+    // from the normalized number used by the rest of the app / WhatsApp.
     for(let drop=0;drop<=3;drop++){
       if(drop>0 && local.slice(0,drop)!=="0".repeat(drop)) break;
-      const candidate=code+local.slice(drop);
-      try{
-        const ph=lp.parsePhoneNumberFromString("+"+candidate);
-        if(ph&&ph.country&&ph.isPossible()){
-          // Hong Kong (+852) numbers use an 8-digit national number.
-          // Keep country detection separate from completion validation so short
-          // inputs can show HK without enabling Next.
-          if(ph.country==="HK" && String(ph.nationalNumber||"").length!==8) continue;
-          return {digits:candidate,country:ph.country,callingCode:ph.countryCallingCode};
+      const national=local.slice(drop);
+      if(!national) continue;
+      const candidate=code+national;
+      const regions=byCode[code]||[];
+
+      // NANP (+1): Find Pax intentionally performs basic-format validation,
+      // not allocation/area-code validation. A 10-digit national part passes.
+      if(code==="1"){
+        if(national.length===10){
+          let cc="US";
+          try{
+            const ph=lp.parsePhoneNumberFromString("+"+candidate);
+            if(ph&&ph.country) cc=ph.country;
+          }catch(e){}
+          return {digits:candidate,country:cc,callingCode:code};
         }
-      }catch(e){}
+        continue;
+      }
+
+      // For every other calling code, ask libphonenumber's worldwide metadata
+      // whether this NATIONAL number has a possible length for any region that
+      // uses the calling code. This checks each country's numbering-plan length
+      // without requiring the number block to be actually assigned.
+      for(const cc of regions){
+        let lengthOK=false;
+        try{
+          if(typeof lp.validatePhoneNumberLength==="function"){
+            lengthOK = lp.validatePhoneNumberLength(national,cc) === undefined;
+          }else if(typeof lp.isPossiblePhoneNumber==="function"){
+            lengthOK = lp.isPossiblePhoneNumber("+"+candidate);
+          }
+        }catch(e){}
+        if(!lengthOK) continue;
+
+        // Basic structural rule for Taiwan: numbers beginning with 9 after
+        // +886 are mobile-format and therefore require 9 national digits.
+        // This prevents an 8-digit string beginning with 9 from being accepted
+        // merely because Taiwan also has 8-digit fixed-line numbers.
+        if(cc==="TW" && national.startsWith("9") && national.length!==9) continue;
+
+        return {digits:candidate,country:cc,callingCode:code};
+      }
     }
     return null;
   }
@@ -644,6 +688,7 @@ Thank you.`;
     if(!m) return;
     if(panel && !panel.hidden) edits[S.order]=m.value;
     if(panel) panel.hidden=true;
+    $("msgActions").hidden=true;
     m.readOnly=true;
     $("editMsg").textContent="Edit";
     $("viewLabel").textContent="View ▾";
@@ -765,6 +810,7 @@ Thank you.`;
       $("msgToggle").setAttribute("aria-expanded",previewOpen);
       $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
       $("s-preview").classList.toggle("preview-focus",previewOpen);
+      $("msgActions").hidden=!previewOpen;
     }
 
     const showFoot=cur!=="scenario";
@@ -775,9 +821,11 @@ Thank you.`;
     const dupWarn=cur==="phone"&&blocked.has(digits(v("phoneInput")));
     const text=dupWarn?"":(HINT[cur]?HINT[cur]():"");
     hint.textContent=text;
+    hint.style.display=cur==="preview"?"none":"";
     hint.classList.toggle("bad",/Invalid time|Max 580/.test(text));
     const cta=$("cta");
-    cta.disabled=!ok;
+    const previewEditing=cur==="preview" && !$("msg").readOnly;
+    cta.disabled=!ok || previewEditing;
     cta.textContent=cur==="preview"?"Send on What's App":cur==="callconfirm"?"Call on What's App":"Next";
   }
   $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
@@ -821,6 +869,7 @@ Thank you.`;
     panel.hidden=!open;
     $("msgToggle").setAttribute("aria-expanded",open);
     $("viewLabel").textContent=open?"View ▴":"View ▾";
+    $("msgActions").hidden=!open;
     if(open){syncDrafts();m.value=currentText();m.readOnly=true;$("editMsg").textContent="Edit";}
     else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";}
     $("s-preview").classList.toggle("preview-focus",open);
@@ -828,8 +877,8 @@ Thank you.`;
   };
   $("editMsg").onclick=()=>{
     const m=$("msg");
-    if(m.readOnly){m.readOnly=false;$("editMsg").textContent="Done Editing";setTimeout(()=>{try{m.focus({preventScroll:true});}catch(e){}},0);}
-    else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";}
+    if(m.readOnly){m.readOnly=false;$("editMsg").textContent="Done Editing";$("cta").disabled=true;setTimeout(()=>{try{m.focus({preventScroll:true});}catch(e){}},0);}
+    else {edits[S.order]=m.value;m.readOnly=true;$("editMsg").textContent="Edit";$("cta").disabled=false;}
   };
   $("copyMsg").onclick=async()=>{
     const text=$("msg").value, btn=$("copyMsg"), original="Copy Text";
