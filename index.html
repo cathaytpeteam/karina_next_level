@@ -228,7 +228,7 @@ h1 + .chip{margin-top:-8px}
 
     <!-- Missed check -->
     <section class="screen" id="s-mflight" hidden>
-      <h1>flight number</h1>
+      <h1>Flight number</h1>
       <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
@@ -428,22 +428,34 @@ h1 + .chip{margin-top:-8px}
     const tag="cx"+String(Number(v("mFlight")))+"/sec"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
-這是國泰航空桃園機場辦公室。
+這裡是國泰航空桃園機場辦公室。
 
-由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。
+由於您的寄艙行李未能通過桃園機場的 X 光安全檢查，機場安檢人員需要請您在場一同進行第二次檢查。因此，您的行李目前暫時留在報到櫃檯，未能安排裝載上機。
 
-如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。
+麻煩您盡快返回 4 號報到櫃檯，並與我們的職員聯絡。
 
-請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。`;
-    const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
+如果您已經通過隨身行李安全檢查，但尚未辦理護照查驗，請先向現場桃園機場工作人員說明情況，再返回櫃檯確認您的寄艙行李。
 
-Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
+如果您已經通過護照查驗，請與任何一位在登機閘口的國泰航空職員聯絡，我們會協助您跟進。
 
-Please return to Check-in Counter 4 and contact our staff.
+為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回櫃檯或聯絡國泰航空職員。
 
-If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
+多謝您的理解和配合。`;
+    const en=`Hello,
 
-Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
+This is Cathay Pacific at Taoyuan Airport.
+
+Your checked baggage did not pass the X-ray security screening at Taoyuan Airport. Airport security staff need you to be present for a secondary inspection. Your baggage is currently being held at the check-in counter.
+
+Please return to Check-in Counter 4 as soon as possible.
+
+If you have passed security but not immigration, please inform Taoyuan Airport staff before returning to the counter.
+
+If you have passed immigration, please contact Cathay Pacific staff at the boarding gate for assistance.
+
+To ensure your baggage can complete the inspection and be loaded onto your flight before departure, please return to the counter or contact Cathay Pacific staff as soon as possible.
+
+Thank you for your cooperation.`;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
   function textWpp(zhFirst){
