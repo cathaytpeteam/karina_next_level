@@ -597,9 +597,36 @@ Thank you for your cooperation.`;
   }
   function textDp(zhFirst){
     const f="CX"+v("dFlight"), tf=v("tA")+v("tN"), delay=v("delayTime"), alt=v("altA")+v("altN"), altTime=v("altTime"), arrive=v("arriveTime");
+
+    // Disrupted Pax 3 / 6 — first option: allow more connection time in Hong Kong.
+    // Only the TPE-HKG sector is changed; the onward flight from HKG remains unchanged.
+    if(S.status==="possible"){
+      const zh=`您好：
+這裡是國泰航空桃園機場辦公室
+
+由於您前往香港的${f}航班，在香港轉機時間較為緊湊，因此，如果台灣往香港航班如果有延誤，可能會影響到您在香港轉機的第二程${tf} 航班，我們很樂意為閣下提供提早出發的台灣往香港航班選擇${S.arrange==="known"?`：${alt} 航班，起飛時間為${altTime}`:""}。
+
+如果您能在${arrive}前抵達機場，我們可以為您更改航班提早出發前往香港，抵達香港後的續程航班則不做更改。
+
+我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。
+
+多謝您的理解和配合。`;
+      const en=`Hello,
+
+This is Cathay Pacific at Taoyuan Airport.
+
+To allow more time for your connection in Hong Kong, as any delay to your flight ${f} from Taiwan to Hong Kong may affect your onward flight ${tf}, we would be pleased to offer you the option of taking an earlier flight from Taiwan to Hong Kong${S.arrange==="known"?` — ${alt}, departing at ${altTime}`:""}.
+
+If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong${S.arrange==="known"?` on ${alt}`:""}. Your onward flight from Hong Kong will remain unchanged.
+
+We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our staff at the counter directly when you arrive at the airport.
+
+Thank you for your understanding and cooperation.`;
+      return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
+    }
+
     let zStatus,eStatus;
-    if(S.status==="possible"){zStatus="今天可能會延遲";eStatus="may be delayed today";}
-    else if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus="is currently delayed until "+delay;}
+    if(S.status==="delayed"){zStatus="目前已經延遲至"+delay;eStatus="is currently delayed until "+delay;}
     else{zStatus="目前航班及起飛動態尚未確定";eStatus="has a current status and departure time that have not yet been confirmed";}
     let zArrange,eArrange;
     if(S.arrange==="known"){
