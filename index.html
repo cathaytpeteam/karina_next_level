@@ -574,7 +574,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     preview:()=>"Check details before sending"
   };
   const NEXT={
-    phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;S.phone=p.digits;S.country=p.country||"";go("scenario");},
+    phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
     mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>go("preview"),
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("dstatus");},
@@ -812,23 +812,28 @@ Thank you for your understanding and cooperation.`;
     showScreen(id);
     focusFirst(id);
   }
+  let backPending=false;
   window.addEventListener("popstate",()=>{
+    backPending=false;
     if(resetting){resetting=false;return;}
     if(stack.length>1){stack.pop();showScreen(stack[stack.length-1]);}
   });
   $("back").onclick=()=>{
-    if(stack.length<=1) return;
-    const len=stack.length;
-    try{history.back();}catch(e){}
-    setTimeout(()=>{if(stack.length===len){stack.pop();showScreen(stack[stack.length-1]);}},350);
+    if(stack.length<=1||backPending) return;
+    backPending=true;
+    try{history.back();}
+    catch(e){
+      backPending=false;
+      stack.pop();
+      showScreen(stack[stack.length-1]);
+    }
   };
 
-  function clearFields(){
-    document.querySelectorAll("input").forEach(i=>i.value="");
+  function clearCaseData(){
+    ["mFlight","mSec","wFlight","b1n","b2n","dFlight","tN","delayTime","altN","altTime","arriveTime","callGate"].forEach(id=>$(id).value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.phone="";S.country="";S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;flow="";
+    S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;flow="";
     $("callGateZone").value="B";
-    $("callGate").value="";
     $("callNoMessage").setAttribute("aria-pressed","false");
     clearDrafts();
     const m=$("msg");
@@ -838,6 +843,11 @@ Thank you for your understanding and cooperation.`;
     $("viewLabel").textContent="View ▾";
     $("msgToggle").setAttribute("aria-expanded","false");
     $("s-preview").classList.remove("preview-focus");
+  }
+  function clearFields(){
+    $("phoneInput").value="";
+    clearCaseData();
+    S.phone="";S.country="";
     $("badge").hidden=true;
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
