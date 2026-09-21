@@ -537,13 +537,19 @@ h1 + .chip{margin-top:-8px}
     const tag="cx"+String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
     const zh=`您好：
 
-這是國泰航空桃園機場辦公室。
+這裡是國泰航空桃園機場辦公室。
 
-由於您的行李未能通過桃園機場的X光檢查，機場安檢人員需要與您一起進行第二次檢查，因此行李目前暫時留於報到櫃檯而無法裝載，請您返回4號報到櫃台與我們職員聯繫。
+由於您的寄艙行李未能通過桃園機場的 X 光安全檢查，機場安檢人員需要請您在場一同進行第二次檢查。因此，您的行李目前暫時留在報到櫃檯，未能安排裝載上機。
 
-如您已經通過隨身行李安全檢查但尚未通過護照檢查，請您先告知現場桃園機場工作人員，並返回櫃檯確認寄艙行李，若您已通過護照檢查，請與任何在登機閘口的國泰職員聯繫。
+麻煩您盡快返回 4 號報到櫃檯，並與我們的職員聯絡。
 
-請您儘速返回櫃檯或是聯繫國泰職員，以確保行李能在航班啟程前順利裝載，謝謝您的配合。`;
+如果您已經通過隨身行李安全檢查，但尚未辦理護照查驗，請先向現場桃園機場工作人員說明情況，再返回櫃檯確認您的寄艙行李。
+
+如果您已經通過護照查驗，請與任何一位在登機閘口的國泰航空職員聯絡，我們會協助您跟進。
+
+為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回櫃檯或聯絡國泰航空職員。
+
+多謝您的理解和配合。`;
     const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
 
 Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
@@ -608,7 +614,7 @@ Thank you for your cooperation.`;
 
 如果您能在${arrive}前抵達機場，我們可以為您更改航班提早出發前往香港，抵達香港後的續程航班則不做更改。
 
-我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與我們櫃台同事聯繫。
+我們在桃園機場第一航廈4號櫃檯，請您到達機場後直接與櫃檯職員聯繫。
 
 多謝您的理解和配合。`;
       const en=`Hello,
@@ -617,7 +623,7 @@ This is Cathay Pacific at Taoyuan Airport.
 
 To allow more time for your connection in Hong Kong, as any delay to your flight ${f} from Taiwan to Hong Kong may affect your onward flight ${tf}, we would be pleased to offer you the option of taking an earlier flight from Taiwan to Hong Kong${S.arrange==="known"?` — ${alt}, departing at ${altTime}`:""}.
 
-If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong${S.arrange==="known"?` on ${alt}`:""}. Your onward flight from Hong Kong will remain unchanged.
+If you are able to arrive at the airport before ${arrive}, we can change your flight to an earlier departure to Hong Kong. Your onward flight from Hong Kong will remain unchanged.
 
 We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our staff at the counter directly when you arrive at the airport.
 
