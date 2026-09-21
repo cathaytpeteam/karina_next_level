@@ -195,6 +195,7 @@ h1 + .chip{margin-top:-8px}
 .msgActions button{min-height:42px;border:1px solid var(--brand);border-radius:12px;background:var(--bg);color:var(--brand-strong);font:inherit;font-weight:700;cursor:pointer}
 .msgActions button:active{transform:translateY(1px)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js"></script>
 </head>
 <body>
 <div class="app" id="app">
@@ -363,6 +364,44 @@ h1 + .chip{margin-top:-8px}
     ["27","🇿🇦","ZA"],["20","🇪🇬","EG"],["234","🇳🇬","NG"],["254","🇰🇪","KE"],["212","🇲🇦","MA"]
   ].sort((a,b)=>b[0].length-a[0].length);
   const findCountry=n=>countryCodes.find(c=>n.startsWith(c[0]));
+  const flagFor=cc=>cc&&cc.length===2?String.fromCodePoint(...[...cc].map(ch=>127397+ch.charCodeAt(0))):"🌐";
+  const regionName=cc=>{try{return new Intl.DisplayNames(["en"],{type:"region"}).of(cc)||cc}catch(e){return cc}};
+  function detectCountryEarly(raw){
+    const n=digits(raw), lp=window.libphonenumber;
+    if(!n||!lp||!lp.getCountries||!lp.getCountryCallingCode)return null;
+    const byCode={};
+    lp.getCountries().forEach(cc=>{
+      const code=String(lp.getCountryCallingCode(cc));
+      (byCode[code]||(byCode[code]=[])).push(cc);
+    });
+    const code=Object.keys(byCode).sort((a,b)=>b.length-a.length).find(c=>n.startsWith(c));
+    if(!code)return null;
+    const regions=byCode[code];
+    if(regions.length===1){const cc=regions[0];return {country:cc,label:flagFor(cc)+" "+regionName(cc)}}
+    try{
+      const ph=lp.parsePhoneNumberFromString("+"+n);
+      if(ph&&ph.country)return {country:ph.country,label:flagFor(ph.country)+" "+regionName(ph.country)};
+    }catch(e){}
+    return null;
+  }
+  function validatePhone(raw){
+    const n=digits(raw);
+    const lp=window.libphonenumber;
+    if(!n||!lp||!lp.getCountries||!lp.getCountryCallingCode||!lp.parsePhoneNumberFromString)return null;
+    const codes=[...new Set(lp.getCountries().map(c=>lp.getCountryCallingCode(c)))].sort((a,b)=>b.length-a.length);
+    const code=codes.find(c=>n.startsWith(c));
+    if(!code)return null;
+    const local=n.slice(code.length);
+    for(let drop=0;drop<=3;drop++){
+      if(drop>0 && local.slice(0,drop)!=="0".repeat(drop)) break;
+      const candidate=code+local.slice(drop);
+      try{
+        const ph=lp.parsePhoneNumberFromString("+"+candidate);
+        if(ph&&ph.country&&ph.isValid()) return {digits:candidate,country:ph.country,callingCode:ph.countryCallingCode};
+      }catch(e){}
+    }
+    return null;
+  }
 
   // ---- state -------------------------------------------------------------
   const S={phone:"",status:"",arrange:"",order:"zh",orderSet:false};
@@ -396,7 +435,7 @@ h1 + .chip{margin-top:-8px}
   }
 
   const OK={
-    phone:()=>{const n=digits(v("phoneInput"));return n.length>=6&&!blocked.has(n)&&!!findCountry(n);},
+    phone:()=>{const n=digits(v("phoneInput"));return !blocked.has(n)&&!!validatePhone(n);},
     mflight:()=>isFlt(v("mFlight")),
     msec:()=>isFlt(v("mSec"))&&+v("mSec")<=580,
     wflight:()=>isFlt(v("wFlight")),
@@ -415,7 +454,7 @@ h1 + .chip{margin-top:-8px}
     const l=v(n).length; return l<6?(l?(6-l)+" more digits":"6 digits"):"";
   }
   const HINT={
-    phone:()=>{const n=digits(v("phoneInput"));if(blocked.has(n))return "罐頭號碼 無用";return n.length&&n.length<6?"At least 6 digits ("+(6-n.length)+" more)":"";},
+    phone:()=>{const n=digits(v("phoneInput"));if(blocked.has(n))return "罐頭號碼 無用";return n&&!validatePhone(n)?"Invalid or incomplete phone number":"";},
     mflight:()=>isFlt(v("mFlight"))?"":"1–3 digits",
     msec:()=>{const x=v("mSec");return !x?"0–580":(+x>580?"Max 580":"");},
     wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
@@ -430,7 +469,7 @@ h1 + .chip{margin-top:-8px}
     preview:()=>"Check details before sending"
   };
   const NEXT={
-    phone:()=>{S.phone=digits(v("phoneInput"));go("scenario");},
+    phone:()=>{const p=validatePhone(v("phoneInput"));if(!p)return;S.phone=p.digits;go("scenario");},
     mflight:()=>go("msec"), msec:()=>go("preview"),
     wflight:()=>go("bag1"), bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>go("dtransfer"), dtransfer:()=>go("dstatus"),
@@ -740,8 +779,11 @@ Thank you.`;
   // ---- wiring ------------------------------------------------------------
   $("phoneInput").addEventListener("input",function(){
     this.value=digits(this.value).slice(0,15);
-    const c=findCountry(this.value),b=$("badge");
-    if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}else b.hidden=true;
+    const p=validatePhone(this.value), early=p?null:detectCountryEarly(this.value), c=(p||early)?null:findCountry(this.value), b=$("badge");
+    if(p){b.hidden=false;b.textContent=flagFor(p.country)+" "+regionName(p.country);}
+    else if(early){b.hidden=false;b.textContent=early.label;}
+    else if(c){b.hidden=false;b.textContent=c[1]+" "+c[2];}
+    else b.hidden=true;
     const bl=blocked.has(this.value);
     $("warn").classList.toggle("show",bl);
     $("phoneField").classList.toggle("bad",bl);
