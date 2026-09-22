@@ -1,14 +1,14 @@
 {
   "name": "Find Pax executable message-copy lock",
-  "message_master_version": "1.0",
-  "app_base": "Find-Pax-v1.0",
-  "scenario_1_3_4_source": "find-pax-v2.2.9-checked-v5(1).zip (user-confirmed copy)",
-  "scenario_2_source": "v2.3.4 final Call Passenger (user-confirmed copy)",
+  "message_master_version": "1.2",
+  "app_base": "Find-Pax-v1.0.6-approved-short-ja-sms",
+  "scenario_1_3_4_source": "Scenario 1 Japanese SMS explicitly approved 2026-09-22; other copy carried forward from locked v1.0.5 baseline",
+  "scenario_2_source": "user-confirmed production copy carried forward from v1.0.4",
   "functions": {
-    "textMiss": "a041609714560bbb3ac2e98ccd4637bd2bd8b0030060bc20819aaa792ea8da15",
+    "textMiss": "423e56f5984279cd5d7ca4a10017e6a3201d6c8982da860b3a1657b55b22ec52",
     "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
     "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
     "textCall": "ac7748eb9ca8102fb406f7a5fd0839aa90a79ed079b166da5df0abb6d4c8b95c"
   },
-  "message_master_sha256": "da6b093d7fbd4ab2216f4ecd3ea369768267c010dc5a2a324a28f724ddf0e4ce"
+  "message_master_sha256": "24b62c460c85912f17b171431204b31da2fe93e483513d8ad57edcbf98404b7e"
 }

@@ -1,5 +1,5 @@
 const CACHE_PREFIX="find-pax-";
-const APP_VERSION="v1.0.1";
+const APP_VERSION="v1.0.6";
 const CACHE_REV="r1";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const PHONE_LIB="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js";

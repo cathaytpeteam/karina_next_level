@@ -66,6 +66,8 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .hint.bad{color:var(--danger);font-weight:700}
 .cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
 .cta:disabled{opacity:.32;cursor:default}
+.cta.smsCta{margin-top:8px;background:var(--bg);color:var(--brand-strong);border:2px solid var(--brand)}
+.cta.smsCta[hidden]{display:none}
 
 .field{display:flex;align-items:center;min-height:72px;border:2px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
 .field + .field{margin-top:12px}
@@ -137,6 +139,7 @@ h1 + .chip{margin-top:-8px}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+#ordJa[hidden]{display:none!important}
 .previewLangTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
 .msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:var(--input-ink)}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
@@ -345,6 +348,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="seg" id="previewLangSeg" role="group" aria-label="Message order">
         <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
         <button type="button" id="ordEn" aria-pressed="false">English</button>
+        <button type="button" id="ordJa" aria-pressed="false" lang="ja" hidden>日本語</button>
       </div>
       <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false"><span>Message Preview <small id="previewOrderLabel">中文在前</small></span><span class="viewLabel" id="viewLabel">View ▾</span></button>
       <div class="msgPanel" id="msgPanel" hidden>
@@ -407,6 +411,25 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   function validatePhone(raw){
     const n=digits(raw), lp=window.libphonenumber;
     if(!n||!lp||!PHONE_META.codes.length) return null;
+
+    // Japan (+81): SMS-capable mobile numbers only. Accept the international
+    // mobile part directly (90/80/70/60 + 8 digits), or tolerate 1..3 zeroes
+    // immediately after 81 (the normal domestic trunk 0 plus up to two extra
+    // leading zeroes). Always normalize to E.164: 81 + 10 mobile digits.
+    if(n.startsWith("81")){
+      const localJP=n.slice(2);
+      for(let drop=0;drop<=3;drop++){
+        if(drop>0 && localJP.slice(0,drop)!=="0".repeat(drop)) break;
+        const mobile=localJP.slice(drop);
+        if(/^[6789]\d{9}$/.test(mobile)){
+          return {digits:"81"+mobile,country:"JP",callingCode:"81"};
+        }
+      }
+      // A number explicitly beginning with Japan's calling code must not fall
+      // through to generic validation (blocks 020, 050 and landlines).
+      return null;
+    }
+
     const code=callingCodeFor(n);
     if(!code) return null;
     const local=n.slice(code.length), regions=PHONE_META.byCode[code]||[];
@@ -614,6 +637,10 @@ Please return to Check-in Counter 4 and contact our staff.
 If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
 Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
+    const ja=`キャセイ航空 桃園空港です。
+お預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。
+出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。`;
+    if(S.order==="ja") return ja;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
   function textWpp(zhFirst){
@@ -760,10 +787,10 @@ Thank you for your understanding and cooperation.`;
       v("callGateZone"),v("callGate"),S.callNoMessage
     ].join("\u241F");
   }
-  function clearDrafts(){ delete edits.zh; delete edits.en; msgSig=null; }
+  function clearDrafts(){ delete edits.zh; delete edits.en; delete edits.ja; msgSig=null; }
   function syncDrafts(){
     const s=sig();
-    if(s!==msgSig){ msgSig=s; delete edits.zh; delete edits.en; }
+    if(s!==msgSig){ msgSig=s; delete edits.zh; delete edits.en; delete edits.ja; }
   }
   function currentText(){
     const t=edits[S.order];
@@ -808,7 +835,26 @@ Thank you for your understanding and cooperation.`;
       window.location.href=webUrl;
     }
   }
-  function send(){ if(flow==="call"&&S.callNoMessage){openWA("");return;} syncDrafts(); openWA(currentText()); }
+  function send(){
+    if(flow==="miss"&&S.order==="ja"){ sendSMS(); return; }
+    if(flow==="call"&&S.callNoMessage){openWA("");return;}
+    syncDrafts();
+    openWA(currentText());
+  }
+
+  // Scenario 1 (漏查), Japanese mode only: open the phone's native SMS
+  // composer with the passenger number and the editable Japanese message
+  // pre-filled. The user still taps Send in the Messages app.
+  function sendSMS(){
+    if(flow!=="miss") return;
+    syncDrafts();
+    const recipient="+"+S.phone;
+    const encoded=encodeURIComponent(currentText());
+    const ua=navigator.userAgent||"";
+    const isiOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+    // iOS expects &body= after the recipient; Android uses ?body=.
+    window.location.href="sms:"+recipient+(isiOS?"&":"?")+"body="+encoded;
+  }
 
   // ---- navigation --------------------------------------------------------
   function closePreviewEditor(){
@@ -950,14 +996,20 @@ Thank you for your understanding and cooperation.`;
         $("editMsg").textContent="Edit";
         $("s-preview").classList.remove("preview-focus");
       }else{
-        // Disrupted Pax lists English first; the first-listed language is the default until the user picks one.
+        // Japanese is available only for Scenario 1 (漏查). Chinese / English
+        // keep the existing bilingual order behavior; Japanese is Japanese-only.
+        $("ordJa").hidden=flow!=="miss";
+        $("previewLangTitle").textContent=flow==="miss"?"Message Language":"First Message Language";
         $("ordEn").style.order=flow==="dp"?"-1":"";
+        if(S.order==="ja"&&flow!=="miss"){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
         if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
         $("ordZh").setAttribute("aria-pressed",S.order==="zh");
         $("ordEn").setAttribute("aria-pressed",S.order==="en");
+        $("ordJa").setAttribute("aria-pressed",S.order==="ja");
         syncDrafts();
         $("msg").value=currentText();
-        $("previewOrderLabel").textContent=S.order==="en"?"English First":"中文在前";
+        $("msg").lang=S.order==="ja"?"ja":(S.order==="zh"?"zh-Hant":"en");
+        $("previewOrderLabel").textContent=S.order==="ja"?"日本語のみ":(S.order==="en"?"English First":"中文在前");
         const previewOpen=!$("msgPanel").hidden;
         $("msgToggle").setAttribute("aria-expanded",previewOpen);
         $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
@@ -985,7 +1037,11 @@ Thank you for your understanding and cooperation.`;
     const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
     $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
     cta.disabled=!ok || previewEditing;
-    cta.textContent=cur==="preview"?(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on What's App"):"Next";
+    const japaneseSMS=cur==="preview"&&flow==="miss"&&S.order==="ja";
+    cta.textContent=cur==="preview"
+      ?(japaneseSMS?"SMSを送信":(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on WhatsApp"))
+      :"Next";
+    cta.lang=japaneseSMS?"ja":"en";
   }
   $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
 
@@ -1050,6 +1106,7 @@ Thank you for your understanding and cooperation.`;
   function setOrder(o){S.order=o;S.orderSet=true;syncDrafts();$("msg").value=currentText();render();}
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
+  $("ordJa").onclick=()=>{ if(flow==="miss") setOrder("ja"); };
   $("msgToggle").onclick=()=>{
     if(flow==="call"&&S.callNoMessage) return;
     const m=$("msg"), panel=$("msgPanel"), open=panel.hidden;

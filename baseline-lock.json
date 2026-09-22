@@ -1,0 +1,66 @@
+{
+  "schema": "find-pax-regression-baseline",
+  "version": "1.0",
+  "release": "v1.0.6",
+  "status": "LOCKED",
+  "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
+  "protected": {
+    "message_copy": {
+      "message_master_version": "1.2",
+      "message_master_sha256": "24b62c460c85912f17b171431204b31da2fe93e483513d8ad57edcbf98404b7e",
+      "functions": {
+        "textMiss": "423e56f5984279cd5d7ca4a10017e6a3201d6c8982da860b3a1657b55b22ec52",
+        "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
+        "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
+        "textCall": "ac7748eb9ca8102fb406f7a5fd0839aa90a79ed079b166da5df0abb6d4c8b95c"
+      }
+    },
+    "phone_validation": {
+      "functions": {
+        "validatePhone": "b907967f41c0c796627a3907ef5f504dfdd1d9a739d8fee7ee59efead4cb1bca",
+        "normalizePhone": "d8b94122d36ee5a1182753a044362c3a732fe2c4fd95d0ee061bab6297af47fd"
+      },
+      "japan_rule": {
+        "input_model": "First page already displays +; user enters international digits. Japan numbers must start with 81.",
+        "normalized_format": "+81 plus 10 mobile digits",
+        "allowed_mobile_starts": [
+          "90",
+          "80",
+          "70",
+          "60"
+        ],
+        "mobile_digits_after_81": 10,
+        "allowed_zero_count_immediately_after_81": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "meaning_of_zero_tolerance": "0 is international mobile part; 1 is normal domestic trunk 0; 2-3 tolerate up to two extra leading zeroes.",
+        "explicitly_rejected": [
+          "020 data service",
+          "050 IP phone",
+          "Japanese landlines such as 03 and 06",
+          "wrong lengths"
+        ]
+      }
+    },
+    "scenario1_japanese_sms": {
+      "functions": {
+        "send": "b61a990a1f726fc0eb228e208c0bf6153d0d4f2a5e942bc503f272b1b9711f44",
+        "sendSMS": "80e5097547b91dd5e6ce1fc7fcea0f680f56a3f0c545c4404b928e0d556cd7d5"
+      },
+      "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad",
+      "required_markers": [
+        "id=\"ordJa\"",
+        ">日本語</button>",
+        "flow===\"miss\"&&S.order===\"ja\"",
+        "SMSを送信",
+        "if(flow!==\"miss\") return;",
+        "if(S.order===\"ja\") return ja;"
+      ],
+      "approved_japanese_sms_copy": "キャセイ航空 桃園空港です。\nお預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。\n出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。",
+      "suffix_policy": "NO flight/SEC/date suffix for Japanese SMS."
+    }
+  }
+}

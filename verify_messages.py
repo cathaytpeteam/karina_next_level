@@ -41,4 +41,4 @@ if bad:
         print(f"- {name}\n  expected {expected}\n  actual   {actual}")
     sys.exit(1)
 
-print("\nPASS: message-master.json integrity and all executable message generators match Find Pax Message Master v1.0.")
+print(f"\nPASS: message-master.json integrity and all executable message generators match Find Pax Message Master v{lock['message_master_version']}.")

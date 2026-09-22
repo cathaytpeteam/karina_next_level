@@ -1,9 +1,29 @@
-Find Pax Message Copy Check
-Message Master: 1.0
-PASS message-master.json integrity
-PASS textMiss
-PASS textWpp
-PASS textDp
-PASS textCall
+Find Pax v1.0.6 Release Guard
+Baseline status: LOCKED
+PASS baseline is LOCKED
+PASS message master version
+PASS message master SHA-256
+PASS Japanese Scenario 1 exists in master
+PASS copy function textMiss
+PASS copy function textWpp
+PASS copy function textDp
+PASS copy function textCall
+PASS message-copy lock version
+PASS message-copy master hash
+PASS phone function validatePhone
+PASS phone function normalizePhone
+PASS Japan +81 runtime cases — Japan cases OK
+PASS Japanese SMS function send
+PASS Japanese SMS function sendSMS
+PASS Japanese language selector block
+PASS required marker id="ordJa"
+PASS required marker >日本語</button>
+PASS required marker flow==="miss"&&S.order==="ja"
+PASS required marker SMSを送信
+PASS required marker if(flow!=="miss") return;
+PASS required marker if(S.order==="ja") return ja;
+PASS approved Japanese SMS copy in executable
+PASS Japanese SMS has no flight/SEC/date suffix
+PASS service worker v1.0.6
 
-PASS: message-master.json integrity and all executable message generators match Find Pax Message Master v1.0.
+PASS: locked message copy, Japan phone validation, and Scenario 1 Japanese SMS routing all match the approved baseline.
