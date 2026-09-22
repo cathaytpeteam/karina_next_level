@@ -1,6 +1,6 @@
 const CACHE_PREFIX="find-pax-";
 const APP_VERSION="v1.0.16";
-const CACHE_REV="r1";
+const CACHE_REV="r2";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
   "./",
@@ -15,20 +15,12 @@ const ASSETS=[
   "./scenario-icon-1.png",
   "./scenario-icon-2.png",
   "./scenario-icon-3.png",
-  "./scenario-icon-4.png"
+  "./scenario-icon-4.png",
+  "./libphonenumber-max.js"
 ];
-const PHONE_LIB="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js";
-
 self.addEventListener("install",e=>e.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
   await cache.addAll(ASSETS);
-  // Cross-origin library is best-effort only: a blocked CDN must never abort
-  // service-worker installation. When reachable, cache it for offline reuse.
-  try{
-    const req=new Request(PHONE_LIB,{mode:"no-cors",cache:"no-cache"});
-    const res=await fetch(req);
-    if(res) await cache.put(req,res);
-  }catch(e){}
   await self.skipWaiting();
 })()));
 

@@ -67,7 +67,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.16**. The runtime asset list is explicitly declared so install cannot fail with an undefined `ASSETS` reference.
+Service-worker cache identity is **v1.0.16**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -120,7 +120,7 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Image dimensions, filenames, UI layout, message copy, flight rules, validation, SMS and WhatsApp behavior are unchanged.
 
 ## v1.0.16 — Functional fixes
-- Fixed Service Worker installation by declaring the exact runtime `ASSETS` list and bumping cache identity to v1.0.16. The pinned libphonenumber-js 1.12.29 CDN request is best-effort and cannot abort SW install; when reachable it is cached for offline reuse.
+- Fixed Service Worker installation by declaring the exact runtime `ASSETS` list and bumping cache identity to v1.0.16. `libphonenumber-js` 1.12.29 `bundle/libphonenumber-max.js` is bundled locally and precached, removing the runtime CDN dependency.
 - Phone validation now requires `PhoneNumber.isValid()` when available and returns canonical E.164 digits, fixing country-code + domestic-trunk-zero inputs such as `886 0912...`, `86 0138...`, and `82 010...`.
 - Japan +81 validation is restricted to 90 / 80 / 70 / 60 mobile prefixes only.
 - Scenario 2 Transit release verification follows the current `callSecPrefix` SEC-origin UI.

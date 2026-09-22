@@ -88,14 +88,14 @@ ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(AS
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',
     './icon-maskable-192.png','./icon-maskable-512.png','./phone-bottom-icon.png','./scenario-icon-1.png',
-    './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png'
+    './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-max.js'
 }
 m=re.search(r'const ASSETS=\[(.*?)\];',sw,re.S)
 assets=set(re.findall(r'"([^"]+)"',m.group(1))) if m else set()
 ck('service worker asset list exact', assets==required)
 ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in assets))
-ck('phone library pinned', 'libphonenumber-js@1.12.29/bundle/libphonenumber-max.js' in sw and 'libphonenumber-js@1.12.29/bundle/libphonenumber-max.js' in s)
-ck('phone CDN cannot abort SW install', 'try{' in sw and 'await fetch(req);' in sw and '}catch(e){}' in sw)
+ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
+ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
 
 # SHA256SUMS integrity and completeness (SHA file itself is intentionally excluded).
 sha_path=r/'SHA256SUMS.txt'
