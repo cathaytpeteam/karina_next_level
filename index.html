@@ -358,7 +358,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-preview" hidden>
       <h1>Confirm details</h1>
       <dl class="sum" id="sum"></dl>
-      <h2 class="previewLangTitle" id="previewLangTitle">First Message Language</h2>
+      <h2 class="previewLangTitle" id="previewLangTitle">Message Language</h2>
       <div class="seg" id="previewLangSeg" role="group" aria-label="Message order">
         <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
         <button type="button" id="ordEn" aria-pressed="false">English</button>
@@ -589,6 +589,14 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     "451":{zh:"香港",en:"Hong Kong",ja:"香港"},
     "565":{zh:"香港",en:"Hong Kong",ja:"香港"},
     "531":{zh:"香港",en:"Hong Kong",ja:"香港"}
+  };
+  const TRANSIT_DESTINATION_CODES={
+    "450":"NRT",
+    "564":"KIX",
+    "530":"NGO",
+    "451":"HKG",
+    "565":"HKG",
+    "531":"HKG"
   };
   function callFlightOk(){
     const n=callFlightNumber();
@@ -825,7 +833,7 @@ Thank you for your understanding and cooperation.`;
     if(flow==="call"){
       if(!S.callNoMessage){
         rows.push(["Flight",callFlightFull()]);
-        if(S.callMode==="transit"){const d=TRANSIT_DESTINATIONS[callFlightNumber()];if(d)rows.push(["Destination",d.en]);}
+        if(S.callMode==="transit"){const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Proceed to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
@@ -1065,7 +1073,7 @@ Thank you for your understanding and cooperation.`;
         $("ordJa").hidden=!japanesePath;
         $("ordJa").disabled=false;
         $("ordJa").title="";
-        $("previewLangTitle").textContent=japanesePath?"Message Language":"First Message Language";
+        $("previewLangTitle").textContent="Message Language";
         $("ordEn").style.order=flow==="dp"?"-1":"";
         if(S.order==="ja"&&!japanesePath){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
         if(!S.orderSet) S.order=flow==="dp"?"en":"zh";

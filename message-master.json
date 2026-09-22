@@ -1,8 +1,8 @@
 {
   "schema": "find-pax-message-master",
-  "version": "1.3",
+  "version": "1.5",
   "status": "LOCKED",
-  "rule": "UI/function/validation changes must not alter these messages. Change only after explicit user confirmation and bump this version. Scenario 1, Scenario 2 Join, and Scenario 2 Transit Japanese SMS copies have no cx/SEC/date suffix. Transit Japanese alone appends the current Taipei time (Asia/Taipei, HH:mm).",
+  "rule": "UI/function/validation changes must not alter these messages. Change only after explicit user confirmation and bump this version. Scenario 1, Scenario 2 Join, and Scenario 2 Transit Japanese SMS copies have no cx/SEC/date suffix. Transit Japanese alone appends the current Taipei time (Asia/Taipei, HH:mm). Scenario 3 supports Chinese/English only.",
   "scenarios": {
     "scenario1_missing_baggage_xray": {
       "zh": "您好：\n\n這裡是國泰航空桃園機場辦公室。\n\n由於您的寄艙行李未能通過桃園機場的 X 光安全檢查，機場安檢人員需要請您在場一同進行第二次檢查。因此，您的行李目前暫時留在報到櫃檯，未能安排裝載上機。\n\n麻煩您盡快返回 4 號報到櫃檯，並與我們的職員聯絡。\n\n如果您已經通過隨身行李安全檢查，但尚未辦理護照查驗，請先向現場桃園機場工作人員說明情況，再返回櫃檯確認您的寄艙行李。\n\n如果您已經通過護照查驗，請與任何一位在登機閘口的國泰航空職員聯絡，我們會協助您跟進。\n\n為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回櫃檯或聯絡國泰航空職員。\n\n多謝您的理解和配合。",
@@ -68,7 +68,8 @@
     },
     "scenario3_wrong_pickup": {
       "zh": "您好：\n\n這是桃園機場國泰航空行李辦公室。\n\n我們發現一件搭乘 {Arrival Flight} 抵達台北後無人領取的行李，該行李的行李牌號碼 {Bag Tag 1} 登記於您的名下。\n\n目前另有一名旅客正在尋找一件外觀相似的行李。\n\n請您協助確認您所領取的行李，其行李牌號碼是否為 {Bag Tag 2}？\n\n您也可以直接拍攝您所領取行李的行李牌照片並傳送給我們確認。\n\n為了避免耽誤您的行程，請您務必儘速聯絡我們，以確保您拿到的是正確的行李。\n\nEmail: tpe8bag@cathaypacific.com\nTel: +88627727630\n\n謝謝您的配合。",
-      "en": "Hello,\n\nThis is the Cathay Pacific Baggage Services Office at Taoyuan Airport.\n\nWe found one piece of unclaimed baggage from {Arrival Flight} arriving in Taipei. The baggage tag number {Bag Tag 1} is registered under your name.\n\nAnother passenger is currently looking for a similar bag.\n\nCould you please confirm whether the baggage you collected has the baggage tag number {Bag Tag 2}?\n\nYou may also simply take a photo of the baggage tag on the bag you collected and send it to us for verification.\n\nTo avoid any disruption to your journey, please contact us as soon as possible so that we can ensure you have collected the correct baggage.\n\nEmail: tpe8bag@cathaypacific.com\nTel: +88627727630\n\nThank you for your cooperation."
+      "en": "Hello,\n\nThis is the Cathay Pacific Baggage Services Office at Taoyuan Airport.\n\nWe found one piece of unclaimed baggage from {Arrival Flight} arriving in Taipei. The baggage tag number {Bag Tag 1} is registered under your name.\n\nAnother passenger is currently looking for a similar bag.\n\nCould you please confirm whether the baggage you collected has the baggage tag number {Bag Tag 2}?\n\nYou may also simply take a photo of the baggage tag on the bag you collected and send it to us for verification.\n\nTo avoid any disruption to your journey, please contact us as soon as possible so that we can ensure you have collected the correct baggage.\n\nEmail: tpe8bag@cathaypacific.com\nTel: +88627727630\n\nThank you for your cooperation.",
+      "routing": "Chinese/English -> WhatsApp. No Japanese option."
     },
     "scenario4_disrupted_pax": {
       "branches": {

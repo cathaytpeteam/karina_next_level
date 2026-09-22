@@ -31,7 +31,7 @@ def check(label,ok,detail=''):
     print(('PASS' if ok else 'FAIL'),label+(f' — {detail}' if detail else ''))
     if not ok: failures.append(label)
 
-print('Find Pax v1.0.9 Release Guard')
+print('Find Pax v1.0.12 Release Guard')
 print('Baseline status:',lock.get('status'))
 check('baseline is LOCKED',lock.get('status')=='LOCKED')
 
@@ -73,6 +73,11 @@ for name,expected in jp['functions'].items():
     check('routing function '+name,body is not None and sha_text(body)==expected)
 lang_match=re.search(r'<div class="seg" id="previewLangSeg".*?</div>',src,re.S)
 check('Japanese language selector block',bool(lang_match) and sha_text(lang_match.group(0).strip())==jp['language_selector_html_sha256'])
+
+check('All scenarios use Message Language heading','First Message Language' not in src and '<h2 class="previewLangTitle" id="previewLangTitle">Message Language</h2>' in src)
+check('Scenario 3 Japanese selector removed','flow==="miss"||scenario2Ja||flow==="wpp"' not in src and 'const japanesePath=flow==="miss"||scenario2Ja;' in src)
+check('Scenario 3 Japanese copy removed','const ja=`こんにちは。' not in extract_func(src,'textWpp') and 'if(S.order==="ja") return ja;' not in extract_func(src,'textWpp'))
+
 check('Scenario 1 approved Japanese copy',jp['scenario1_approved_copy'] in src)
 check('Scenario 1 Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textMiss'))
 check('Scenario 2 Join Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textJoin'))
@@ -96,6 +101,19 @@ check('Join has no whitelist','return S.callMode==="transit"?Object.prototype.ha
 for flt in ['450','451','530','531','564','565']:
     check('Transit flight '+flt,('"'+flt+'":') in const_dest)
 
+code_const=extract_const(src,'TRANSIT_DESTINATION_CODES')
+expected_codes={'450':'NRT','564':'KIX','530':'NGO','451':'HKG','565':'HKG','531':'HKG'}
+check('Confirmation destination code constant',code_const is not None)
+if code_const:
+    for flt,code in expected_codes.items():
+        check('Confirmation destination '+flt+' → '+code,('"'+flt+'":"'+code+'"') in code_const)
+build_rows=extract_func(src,'buildRows')
+check('Confirmation Destination uses IATA code mapping',
+      build_rows is not None and 'TRANSIT_DESTINATION_CODES[callFlightNumber()]' in build_rows and
+      'rows.push(["Destination",code])' in build_rows)
+check('Message copy still uses localized destination names',
+      'const dest=TRANSIT_DESTINATIONS[n]' in extract_func(src,'textTransit'))
+
 # Runtime Scenario 2 flight validation and generated message behavior.
 needed=['normalizeCallGate','callGateNumber','callGateFull','callFlightNumber','callFlightFull','callFlightOk','taipeiTime','textJoin','textTransit']
 if all(extract_func(src,n) for n in needed) and const_dest:
@@ -107,10 +125,10 @@ if all(extract_func(src,n) for n in needed) and const_dest:
 else: check('Scenario 2 runtime cases',False,'required functions missing')
 
 sw=(root/'sw.js').read_text(encoding='utf-8')
-check('service worker v1.0.9','const APP_VERSION="v1.0.9";' in sw)
+check('service worker v1.0.12','const APP_VERSION="v1.0.12";' in sw)
 
 if failures:
     print('\nRELEASE BLOCKED. A locked behavior changed or a regression test failed.')
     print('Restore the approved behavior, or obtain explicit approval before intentionally regenerating the lock.')
     sys.exit(1)
-print('\nPASS: v1.0.9 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.')
+print('\nPASS: v1.0.12 locked copy, Message Language headings, Scenario 3 Chinese/English-only rule, phone validation, Scenario 2 structure, message destinations, confirmation destination codes, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.')
