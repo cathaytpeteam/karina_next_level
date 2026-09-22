@@ -1,6 +1,6 @@
-# Find Pax v1.0
+# Find Pax v1.0.1
 
-Initial Production Release — 2026-09-22
+WhatsApp launch reliability patch — 2026-09-22
 
 Find Pax is a lightweight PWA for preparing passenger-contact messages for airport ground operations.
 
@@ -27,5 +27,11 @@ Run `verify_messages.py` before release. All four executable message generators 
 The app includes a Service Worker for installed-PWA use and cached operation. Phone validation depends on the bundled/cached validation dependency being available.
 
 ## Release
+
+**v1.0.1 — WhatsApp launch reliability patch — 2026-09-22**
+
+- Send WhatsApp now tries the installed WhatsApp app directly via `whatsapp://` first.
+- If WhatsApp cannot be opened, the app falls back to `wa.me`.
+- Service-worker cache version bumped so installed PWAs receive the fix.
 
 **v1.0 — Initial Production Release — 2026-09-22**

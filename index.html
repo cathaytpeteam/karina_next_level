@@ -772,9 +772,41 @@ Thank you for your understanding and cooperation.`;
 
   // ---- WhatsApp ----------------------------------------------------------
   function openWA(text){
-    const url="https://wa.me/"+S.phone+(text?"?text="+encodeURIComponent(text):"");
-    // Current-context navigation is more reliable in Android standalone/PWA mode.
-    window.location.href=url;
+    const encoded=text?encodeURIComponent(text):"";
+    const appUrl="whatsapp://send?phone="+encodeURIComponent(S.phone)+(encoded?"&text="+encoded:"");
+    const webUrl="https://wa.me/"+S.phone+(encoded?"?text="+encoded:"");
+
+    // Prefer WhatsApp's custom URL scheme so Android does not depend on the
+    // phone's per-app "open supported links" setting. If no app handles the
+    // scheme, fall back to wa.me after a short delay. Cancel the fallback as
+    // soon as the page is hidden because that means WhatsApp was launched.
+    let fallbackTimer=null;
+    let appLaunched=false;
+
+    const cleanup=()=>{
+      if(fallbackTimer!==null){ clearTimeout(fallbackTimer); fallbackTimer=null; }
+      document.removeEventListener("visibilitychange",onVisibilityChange);
+      window.removeEventListener("pagehide",onPageHide);
+    };
+    const onVisibilityChange=()=>{
+      if(document.hidden){ appLaunched=true; cleanup(); }
+    };
+    const onPageHide=()=>{ appLaunched=true; cleanup(); };
+
+    document.addEventListener("visibilitychange",onVisibilityChange);
+    window.addEventListener("pagehide",onPageHide,{once:true});
+
+    fallbackTimer=setTimeout(()=>{
+      cleanup();
+      if(!appLaunched&&!document.hidden) window.location.href=webUrl;
+    },2500);
+
+    try{
+      window.location.href=appUrl;
+    }catch(e){
+      cleanup();
+      window.location.href=webUrl;
+    }
   }
   function send(){ if(flow==="call"&&S.callNoMessage){openWA("");return;} syncDrafts(); openWA(currentText()); }
 
