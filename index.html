@@ -506,29 +506,40 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return null;
   }
 
+  function blockedCandidateFor(raw){
+    const n=digits(raw), code=callingCodeFor(n);
+    if(!n||!code) return "";
+    const local=n.slice(code.length);
+    for(let drop=0;drop<=3;drop++){
+      if(drop>0 && local.slice(0,drop)!=="0".repeat(drop)) break;
+      const national=local.slice(drop);
+      if(!national) continue;
+      const candidate=code+national;
+      if(blocked.has(candidate)) return candidate;
+    }
+    return "";
+  }
+
   function normalizePhone(raw){
     const n=digits(raw);
-    const p=validatePhone(n);
-    if(!p) return null;
 
-    // Security rule: blacklist matching is performed against every valid
-    // normalization candidate, not only the first candidate accepted by
-    // libphonenumber. This prevents a blocked number from being bypassed by
-    // inserting 1–3 zeroes immediately after the country calling code.
-    const code=callingCodeFor(n);
-    if(code){
-      const local=n.slice(code.length);
-      for(let drop=0;drop<=3;drop++){
-        if(drop>0 && local.slice(0,drop)!=="0".repeat(drop)) break;
-        const national=local.slice(drop);
-        if(!national) continue;
-        const candidate=code+national;
-        if(blocked.has(candidate)){
-          return {...p,digits:candidate,blocked:true};
-        }
-      }
+    // Blacklisted canned/test numbers must always surface the dedicated warning,
+    // even when libphonenumber itself considers that exact number invalid. This
+    // check also tolerates the same 1–3 zeroes after the calling code as normal
+    // phone normalization, so the blacklist cannot be bypassed by trunk zeroes.
+    const blockedDigits=blockedCandidateFor(n);
+    if(blockedDigits){
+      const code=callingCodeFor(blockedDigits), regions=PHONE_META.byCode[code]||[];
+      let country=regions.length===1?regions[0]:"";
+      try{
+        const ph=window.libphonenumber&&window.libphonenumber.parsePhoneNumberFromString("+"+blockedDigits);
+        if(ph&&ph.country) country=ph.country;
+      }catch(e){}
+      return {digits:blockedDigits,country,callingCode:code,blocked:true};
     }
 
+    const p=validatePhone(n);
+    if(!p) return null;
     return {...p,blocked:blocked.has(p.digits)};
   }
 
@@ -539,7 +550,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
-    call:{name:"Call Passenger",steps:["calltype","callflight","callgate","preview"]},
+    call:{name:"Call Passenger",steps:["calltype","callflight","callsec","callgate","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
@@ -930,7 +941,9 @@ Thank you for your understanding and cooperation.`;
   function buildRows(){
     const rows=flow==="call"?[]:[["Send to",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]];
     if(flow==="call"){
-      if(!S.callNoMessage){
+      if(S.callNoMessage){
+        rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]);
+      }else{
         rows.push(["Flight",callFlightFull()]);
         rows.push(["Sec",callSecFull()]);
         {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
@@ -1031,7 +1044,6 @@ Thank you for your understanding and cooperation.`;
   function closePreviewEditor(){
     const m=$("msg"), panel=$("msgPanel");
     if(!m) return;
-    if(panel && !panel.hidden) edits[S.order]=m.value;
     if(document.activeElement===m) m.blur();
     if(panel) panel.hidden=true;
     $("msgActions").hidden=true;
@@ -1076,12 +1088,49 @@ Thank you for your understanding and cooperation.`;
     }
   };
 
-  function clearCaseData(){
-    ["mFlight","mSec","wFlight","b1n","b2n","dFlight","tN","delayTime","altN","altTime","arriveTime","callFlight","callSec","callGate"].forEach(id=>$(id).value="");
-    ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;S.callMode="";S.missMode="";flow="";
+  function clearMissCase(){
+    ["mFlight","mSec"].forEach(id=>$(id).value="");
+    S.missMode="";
+    clearDrafts();
+  }
+  function clearCallCase(){
+    ["callFlight","callSec","callGate"].forEach(id=>$(id).value="");
     $("callGateZone").value="B";
-        clearDrafts();
+    S.callMode="";S.callNoMessage=false;
+    clearDrafts();
+  }
+  function clearWppCase(){
+    ["wFlight","b1n","b2n"].forEach(id=>$(id).value="");
+    ["b1a","b2a"].forEach(id=>$(id).value="CX");
+    clearDrafts();
+  }
+  function clearDpCase(){
+    ["dFlight","tN","delayTime","altN","altTime","arriveTime"].forEach(id=>$(id).value="");
+    ["tA","altA"].forEach(id=>$(id).value="CX");
+    S.status="";S.arrange="";
+    clearDrafts();
+  }
+  function clearMissForModeChange(nextMode){
+    if(S.missMode && S.missMode!==nextMode){
+      ["mFlight","mSec"].forEach(id=>$(id).value="");
+      clearDrafts();
+    }
+  }
+  function clearCallForModeChange(nextMode){
+    if(S.callMode && S.callMode!==nextMode){
+      ["callFlight","callSec","callGate"].forEach(id=>$(id).value="");
+      $("callGateZone").value="B";
+      clearDrafts();
+    }
+  }
+
+  function clearCaseData(){
+    clearMissCase();
+    clearCallCase();
+    clearWppCase();
+    clearDpCase();
+    S.order="zh";S.orderSet=false;flow="";
+    clearDrafts();
     const m=$("msg");
     m.value="";m.readOnly=true;delete m.dataset.edited;
     $("msgPanel").hidden=true;
@@ -1108,7 +1157,8 @@ Thank you for your understanding and cooperation.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
-    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&(cur!=="preview"||flow==="call")&&S.phone;
+    const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
+    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&!directPreview&&(cur!=="preview"||flow==="call")&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -1116,10 +1166,13 @@ Thank you for your understanding and cooperation.`;
       $("whoNum").textContent="+"+S.phone;
     }
     const f=flow&&FLOWS[flow], idx=f?f.steps.indexOf(cur):-1;
-    $("bar").hidden=idx<0;
-    if(idx>=0){
+    $("bar").hidden=idx<0||directPreview;
+    if(idx>=0&&!directPreview){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
-      $("step").textContent=f.name+"  "+(idx+1)+" / "+f.steps.length;
+      let progressName=f.name;
+      if(flow==="miss" && (S.missMode==="join"||S.missMode==="transit")) progressName+=" "+(S.missMode==="join"?"Join Pax":"Transit Pax");
+      if(flow==="call" && (S.callMode==="join"||S.callMode==="transit")) progressName+=" "+(S.callMode==="join"?"Join Pax":"Transit Pax");
+      $("step").textContent=progressName+"  "+(idx+1)+" / "+f.steps.length;
     }else $("step").textContent="";
 
     // status / arrange option state
@@ -1201,13 +1254,13 @@ Thank you for your understanding and cooperation.`;
     $("foot").hidden=!showFoot;
     const ok=OK[cur]?OK[cur]():false;
     const hint=$("hint");
-    // The blocked-number warning already has its own red panel on the phone screen.
-    const phoneCheck=cur==="phone"?normalizePhone(v("phoneInput")):null;
-    const dupWarn=!!(phoneCheck&&phoneCheck.blocked);
-    const text=dupWarn?"":(HINT[cur]?HINT[cur]():"");
+    // Keep phone warnings visible in the footer as well as the dedicated red
+    // blocked-number panel. This prevents the canned-number warning from being
+    // hidden by the generic .hint:not(.bad) visual rule.
+    const text=HINT[cur]?HINT[cur]():"";
     hint.textContent=text;
     hint.style.display=cur==="preview"?"none":"";
-    hint.classList.toggle("bad",/Invalid time|Max 580/.test(text));
+    hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用/.test(text));
     const cta=$("cta");
     const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
     const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
@@ -1245,16 +1298,16 @@ Thank you for your understanding and cooperation.`;
   $("callGate").addEventListener("input",function(){this.value=normalizeCallGate(this.value);render();});
   $("callGate").addEventListener("blur",function(){this.value=normalizeCallGate(this.value);render();});
   $("callGateZone").addEventListener("change",()=>render());
-  $("goMiss").onclick=()=>{flow="miss";S.missMode="";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
-  $("missJoin").onclick=()=>{flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
-  $("missTransit").onclick=()=>{flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
-  $("missDirect").onclick=()=>{flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
-  $("goCall").onclick=()=>{flow="call";S.callMode="";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("calltype");};
-  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";FLOWS.call.steps=["calltype","callflight","callsec","callgate","preview"];go("callflight");};
-  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";FLOWS.call.steps=["calltype","callflight","callsec","callgate","preview"];go("callflight");};
-  $("callDirect").onclick=()=>{S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callGateZone").value="";$("callGate").value="";clearDrafts();go("preview");};
-  $("goWpp").onclick=()=>{flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
-  $("goDp").onclick=()=>{flow="dp";S.order="en";S.orderSet=false;go("dflight");};
+  $("goMiss").onclick=()=>{clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
+  $("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
+  $("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
+  $("missDirect").onclick=()=>{clearMissForModeChange("direct");flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
+  $("goCall").onclick=()=>{clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};
+  $("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
+  $("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
+  $("callDirect").onclick=()=>{clearCallForModeChange("direct");S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
+  $("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
+  $("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dflight");};
 
   $("stPossible").onclick=()=>{S.status="possible";render();};
   $("stUnknown").onclick=()=>{S.status="unknown";render();};

@@ -39,7 +39,7 @@ Both Join Pax and Transit Pax support 中文 / English / 日本語.
 
 ## Locked copy
 
-`message-master.json` v1.3 is the human-readable copy master. `message-copy-lock.json` and `baseline-lock.json` store SHA-256 locks for the approved executable message generators and protected routing/validation functions.
+`message-master.json` v1.7 is the human-readable copy master. `message-copy-lock.json` and `baseline-lock.json` store SHA-256 locks for the approved executable message generators and protected routing/validation functions.
 
 The following are release-locked unless the user explicitly approves a change:
 
@@ -67,7 +67,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.16**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
+Service-worker cache identity is **v1.0.16-r4**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -128,3 +128,14 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - `dateCode()` now uses `Asia/Taipei`, matching `taipeiTime()`.
 - Scenario 4 Connecting flight / Protect to airline codes accept two alphanumeric IATA designators such as 5J, 3K and 7C.
 - Approved message copy is unchanged.
+
+- v1.0.16 UI hotfix: restored visible `罐頭號碼 無用` phone warning; phone validation and approved message copy unchanged.
+## v1.0.16 — UI / State navigation hotfix
+
+- Back / Next within the same flow continues to preserve entered values for easy correction.
+- Re-entering Scenario 1, 2, 3, or 4 from the Scenario screen now starts that scenario with clean case fields, preventing values from a previous case from enabling Next.
+- Changing Scenario 1 or Scenario 2 Passenger Type clears fields that belong to the previous type. Scenario 2 now also clears the old Gate value.
+- Scenario 1 and Scenario 2 progress labels include the selected passenger type (Join Pax / Transit Pax). Scenario 2 Join / Transit remains fixed at five steps. Call Directly hides the progress bar and shows the phone number inside Confirm details instead of the top-right passenger badge.
+- Opening Message Preview without editing no longer creates a saved custom draft when navigating Back; generated Japanese Transit time can therefore refresh normally. Actual typed edits remain preserved per language.
+- Both blocked canned/test phone numbers now show `罐頭號碼 無用`, including entries that libphonenumber itself considers invalid.
+- Approved message copy, Japan +81 rules, SEC/IATA rules, SMS/WhatsApp routing, and visual styling are unchanged.
