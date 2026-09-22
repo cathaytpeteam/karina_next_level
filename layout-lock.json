@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.0.17",
   "status": "LOCKED",
-  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1 labels use “漏查 - Join Pax / Transit Pax”; Scenario 2 labels use “Call Passenger - Join / Transit”.",
+  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1 labels use “漏查 - Join Pax / Transit Pax”; Scenario 2 labels use “Call Passenger - Join / Transit”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable.",
   "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
   "source": "index.html",
   "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",

@@ -155,3 +155,9 @@ Scenario 1 and Scenario 2 SEC screens are now visually unified as one inline fie
 ## Authorized progress update (r6)
 
 All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - Join Pax` / `漏查 - Transit Pax`; Scenario 2 uses `Call Passenger - Join` / `Call Passenger - Transit`.
+
+## Authorized responsive keyboard / Safe Area adjustment
+- iOS/Android keyboard mode keeps the approved 20px/700 progress label visible.
+- The header continues to respect `safe-area-inset-top`.
+- Input-form screens vertically use the visible workspace above the CTA instead of leaving the form pinned to the top with a large unused gap.
+- Screen order, field order, SEC layout, copy, validation rules and CTA styling remain locked.

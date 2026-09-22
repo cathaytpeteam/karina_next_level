@@ -100,7 +100,7 @@ ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow===
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.0.16";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r6";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r7";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',
