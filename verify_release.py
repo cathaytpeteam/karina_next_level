@@ -93,14 +93,23 @@ for section in ('phone_validation','japanese_sms','datetime'):
         ck('protected '+n, body is not None and sh(body)==h)
 
 # UI regression checks: passenger type in progress and Direct phone placement.
-ck('progress labels approved', 'progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s and 'progressName+=" - "+(S.callMode==="join"?"Join":"Transit")' in s and '.step{font-size:20px;font-weight:700' in s)
+ck('progress labels approved', 'progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s and 'progressName+=" - "+(S.callMode==="join"?"Join":"Transit")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone])' in s)
 ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow==="call")&&S.phone' in s)
+
+# Message Preview is intentionally read-only. Editing/copying is delegated to WhatsApp/SMS.
+ck('preview readonly', '<textarea class="msg" id="msg" autocomplete="off" readonly' in s)
+ck('preview edit/copy controls removed', 'id="editMsg"' not in s and 'id="copyMsg"' not in s and 'Copy Text' not in s and 'Done Editing' not in s)
+
+# Explicitly authorized final visual/copy tuning.
+ck('language order labels 18px/700', '.msgToggle small{font-size:18px;font-weight:700' in s)
+ck('unclaimed bag label left aligned', 'class="bagInline"><p class="bagHelp" lang="zh-Hant">無人領取的行李</p><div class="field">' in s and '.bagInline .bagHelp{margin:0;font-size:18px' in s)
+ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0");' in s and 'const tag="cx"' not in s)
 
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.0.16";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r7";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r9";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',

@@ -120,6 +120,10 @@ h1 + .chip{margin-top:-8px}
 .optExtra[hidden]{display:none}
 
 .bagHelp{margin:-8px 0 20px;font-size:20px;line-height:1.35;font-weight:700;color:var(--brand-strong)}
+.bagInline{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 20px}
+.bagInline .bagHelp{margin:0;font-size:18px;line-height:1.25;font-weight:700;white-space:nowrap}
+.bagInline .field{margin:0!important}
+.step .progressCount{color:#718584;font:inherit;font-weight:700;white-space:nowrap}
 /* Phone landing page */
 #s-phone{min-height:100%;box-sizing:border-box;display:flex;flex-direction:column}
 #s-phone[hidden]{display:none!important}
@@ -185,7 +189,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .disruptedTitle{display:flex;align-items:center;justify-content:center;gap:9px}
 .msgToggle{gap:8px;flex-wrap:wrap}
 .msgToggle>span:first-child{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:baseline;gap:4px 8px;min-width:0;overflow-wrap:anywhere}
-.msgToggle small{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap}
 .msgToggle::after{content:none!important}
 .viewLabel{flex:none;margin-left:auto;font-size:15px;font-weight:700;white-space:nowrap}
 .msgPanel{position:relative;flex:1 1 auto;min-height:0;margin-top:8px;background:var(--surface);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
@@ -193,10 +197,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-preview.preview-focus .msgPanel{flex:1 1 0;min-height:0}
 #s-preview.preview-focus .msg{flex:1 1 0;height:0;min-height:0;margin-top:0;border-radius:16px;padding-bottom:24px;overflow-y:auto}
 .msg[readonly]{cursor:default}
-.msgActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px;padding:0}
-.msgActions[hidden]{display:none}
-.msgActions button{min-height:42px;border:1px solid var(--brand);border-radius:12px;background:var(--bg);color:var(--brand-strong);font:inherit;font-weight:700;cursor:pointer}
-.msgActions button:active{transform:translateY(1px)}
 
 /* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
 #s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callsec h1,#s-callgate h1{text-align:center}
@@ -284,8 +284,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
-      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
-      <div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+      <div class="bagInline"><p class="bagHelp" lang="zh-Hant">無人領取的行李</p><div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
       <h1>Bag Tag 2</h1>
@@ -388,10 +387,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   </main>
 
   <footer class="foot" id="foot" hidden>
-    <div class="msgActions" id="msgActions" hidden>
-      <button type="button" id="editMsg">Edit</button>
-      <button type="button" id="copyMsg">Copy Text</button>
-    </div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <button class="cta" id="cta" type="button" disabled>Next</button>
   </footer>
@@ -749,7 +744,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return String(d.getUTCDate()).padStart(2,"0")+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()];
   }
   function textMiss(zhFirst){
-    const tag="cx"+String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0")+"/"+dateCode();
+    const tag=String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0");
     const zh=`您好：
 
 這裡是國泰航空桃園機場辦公室。
@@ -1045,9 +1040,7 @@ Thank you for your understanding and cooperation.`;
     if(!m) return;
     if(document.activeElement===m) m.blur();
     if(panel) panel.hidden=true;
-    $("msgActions").hidden=true;
     m.readOnly=true;
-    $("editMsg").textContent="Edit";
     $("viewLabel").textContent="View ▾";
     $("msgToggle").setAttribute("aria-expanded","false");
     $("s-preview").classList.remove("preview-focus");
@@ -1133,7 +1126,6 @@ Thank you for your understanding and cooperation.`;
     const m=$("msg");
     m.value="";m.readOnly=true;delete m.dataset.edited;
     $("msgPanel").hidden=true;
-    $("editMsg").textContent="Edit";
     $("viewLabel").textContent="View ▾";
     $("msgToggle").setAttribute("aria-expanded","false");
     $("s-preview").classList.remove("preview-focus");
@@ -1171,7 +1163,7 @@ Thank you for your understanding and cooperation.`;
       let progressName=f.name;
       if(flow==="miss" && (S.missMode==="join"||S.missMode==="transit")) progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax");
       if(flow==="call" && (S.callMode==="join"||S.callMode==="transit")) progressName+=" - "+(S.callMode==="join"?"Join":"Transit");
-      $("step").textContent=progressName+"  "+(idx+1)+" / "+f.steps.length;
+      $("step").replaceChildren(document.createTextNode(progressName+"  "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:(idx+1)+" / "+f.steps.length}));
     }else $("step").textContent="";
 
     // status / arrange option state
@@ -1216,9 +1208,7 @@ Thank you for your understanding and cooperation.`;
       $("msgToggle").hidden=callOnly;
       if(callOnly){
         $("msgPanel").hidden=true;
-        $("msgActions").hidden=true;
         $("msg").readOnly=true;
-        $("editMsg").textContent="Edit";
         $("s-preview").classList.remove("preview-focus");
       }else{
         // Japanese is available for Scenario 1 Join/Transit and both Scenario 2 message paths.
@@ -1242,10 +1232,7 @@ Thank you for your understanding and cooperation.`;
         $("msgToggle").setAttribute("aria-expanded",previewOpen);
         $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";
         $("s-preview").classList.toggle("preview-focus",previewOpen);
-        $("msgActions").hidden=!previewOpen;
-        const callMessageMode=flow==="call";
-        $("copyMsg").hidden=callMessageMode;
-        $("msgActions").style.gridTemplateColumns=callMessageMode?"1fr":"1fr 1fr";
+        $("msg").readOnly=true;
       }
     }
 
@@ -1262,9 +1249,8 @@ Thank you for your understanding and cooperation.`;
     hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用/.test(text));
     const cta=$("cta");
     const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
     $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
-    cta.disabled=!ok || previewEditing;
+    cta.disabled=!ok;
     const japaneseSMS=cur==="preview"&&(flow==="miss"||(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")))&&S.order==="ja";
     cta.textContent=cur==="preview"
       ?(japaneseSMS?"SMSを送信":(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on WhatsApp"))
@@ -1324,34 +1310,13 @@ Thank you for your understanding and cooperation.`;
     panel.hidden=!open;
     $("msgToggle").setAttribute("aria-expanded",open);
     $("viewLabel").textContent=open?"View ▴":"View ▾";
-    $("msgActions").hidden=!open;
-    const callMessageMode=flow==="call";
-    $("copyMsg").hidden=callMessageMode;
-    $("msgActions").style.gridTemplateColumns=callMessageMode?"1fr":"1fr 1fr";
-    if(open){syncDrafts();m.value=currentText();m.readOnly=true;$("editMsg").textContent="Edit";}
+    if(open){syncDrafts();m.value=currentText();m.readOnly=true;}
     else {closePreviewEditor();}
     $("s-preview").classList.toggle("preview-focus",open);
     render();
     if(open) $("main").scrollTop=0;
   };
-  $("editMsg").onclick=()=>{
-    if(flow==="call"&&S.callNoMessage) return;
-    const m=$("msg");
-    if(m.readOnly){m.readOnly=false;$("editMsg").textContent="Done Editing";$("cta").disabled=true;setTimeout(()=>{try{m.focus({preventScroll:true});}catch(e){}},0);}
-    else {edits[S.order]=m.value;m.readOnly=true;m.blur();$("editMsg").textContent="Edit";render();}
-  };
-  $("copyMsg").onclick=async()=>{
-    const text=$("msg").value, btn=$("copyMsg"), original="Copy Text";
-    let ok=false;
-    try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);ok=true;}}catch(e){}
-    if(!ok){
-      const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";ta.style.pointerEvents="none";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,ta.value.length);
-      try{ok=document.execCommand("copy");}catch(e){} ta.remove();
-    }
-    btn.textContent=ok?"Copied!":"Copy failed";
-    setTimeout(()=>btn.textContent=original,1400);
-  };
-  $("msg").addEventListener("input",()=>{edits[S.order]=$("msg").value;});
+
 
   document.addEventListener("keydown",e=>{
     if(e.key==="Enter"&&e.target&&e.target.tagName==="INPUT"&&!$("cta").disabled&&!$("foot").hidden){e.preventDefault();$("cta").click();}

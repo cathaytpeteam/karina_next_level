@@ -161,3 +161,14 @@ All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - Join
 - The header continues to respect `safe-area-inset-top`.
 - Input-form screens vertically use the visible workspace above the CTA instead of leaving the form pinned to the top with a large unused gap.
 - Screen order, field order, SEC layout, copy, validation rules and CTA styling remain locked.
+
+## Authorized read-only Message Preview update (r8)
+All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text` controls have been removed by explicit user approval. Message text can still be reviewed with `View`, then adjusted/copied in WhatsApp or the native SMS app after handoff. This behavior is now part of the locked release baseline.
+
+
+## Authorized final visual / suffix tuning (r9)
+- `中文在前`, `English First`, and `日本語のみ` preview-order labels use **18px / 700**.
+- Scenario 3 `無人領取的行李` uses **18px / 700** and sits to the **left** of the Bag Tag 1 input group on the same row.
+- Progress names remain **20px / 700**; the numeric progress (`1 / 3`, `3 / 5`, etc.) uses a lighter gray-green to separate it visually from the flow name.
+- Scenario 1 Join suffix is shortened from `cx450/000/23Sep` style to `450/000`. Japanese and paths without a suffix remain unchanged.
+- These changes were explicitly authorized and are locked again in the release baseline.
