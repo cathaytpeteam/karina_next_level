@@ -112,6 +112,14 @@ h1 + .chip{margin-top:-8px}
 .ctext{flex:1;font-size:20px;font-weight:800}
 .chev{font-size:30px;color:var(--brand-strong)}
 #s-calltype .ctext,#s-misstype .ctext{color:var(--brand-strong)}
+/* Passenger Type hierarchy: Join is the primary, high-frequency action. */
+#s-calltype .choices,#s-misstype .choices{grid-template-columns:1fr 1fr;gap:12px}
+#s-calltype .choice,#s-misstype .choice{min-height:76px;padding:12px 14px;gap:10px}
+#s-calltype .choice.passengerPrimary,#s-misstype .choice.passengerPrimary{grid-column:1/-1;min-height:118px;padding:18px 20px;background:var(--brand-soft)}
+#s-calltype .choice.passengerPrimary .ctext,#s-misstype .choice.passengerPrimary .ctext{font-size:23px}
+#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext{font-size:17px;line-height:1.2}
+#s-calltype .choice.passengerSecondary .chev,#s-misstype .choice.passengerSecondary .chev{font-size:26px}
+@media(max-width:360px){#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{padding:10px}#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext{font-size:15px}}
 
 .opts{display:grid;gap:12px}
 .opt{width:100%;min-height:68px;padding:12px 18px;border:1px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
@@ -143,6 +151,8 @@ h1 + .chip{margin-top:-8px}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{min-width:0;overflow-wrap:anywhere;margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .sum dd .flightAccent{color:var(--brand);font-weight:900}
+.sum dd.bagConfirmValue{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.sum dd .bagConfirmNote{font-size:18px;line-height:1.2;font-weight:700;color:var(--brand-strong);white-space:nowrap}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
 .seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
@@ -258,9 +268,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-misstype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice" id="missJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice" id="missTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice" id="missDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="missJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -284,7 +294,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     </section>
     <section class="screen" id="s-bag1" hidden>
       <h1>Bag Tag 1</h1>
-      <div class="bagInline"><p class="bagHelp" lang="zh-Hant">無人領取的行李</p><div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div></div>
+      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
+      <div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
     </section>
     <section class="screen" id="s-bag2" hidden>
       <h1>Bag Tag 2</h1>
@@ -334,9 +345,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-calltype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice" id="callJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice" id="callTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="callJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -638,7 +649,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return secPrefix(callFlightNumber(),S.callMode);
   }
   function callSecFull(){
-    return callSecOrigin()+String(Number(v("callSec"))).padStart(3,"0");
+    return callSecOrigin()+" "+String(Number(v("callSec"))).padStart(3,"0");
   }
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
@@ -941,12 +952,12 @@ Thank you for your understanding and cooperation.`;
         rows.push(["Flight",callFlightFull()]);
         rows.push(["Sec",callSecFull()]);
         {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
-        rows.push(["Proceed to Gate",callGateFull()]);
+        rows.push(["Go to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
       rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[normalizeFlight(v("mFlight"))];if(code)rows.push(["Destination",code]);}
     }else if(flow==="wpp"){
-      rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
+      rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),null,"unclaimed"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
       rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);
@@ -1163,7 +1174,7 @@ Thank you for your understanding and cooperation.`;
       let progressName=f.name;
       if(flow==="miss" && (S.missMode==="join"||S.missMode==="transit")) progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax");
       if(flow==="call" && (S.callMode==="join"||S.callMode==="transit")) progressName+=" - "+(S.callMode==="join"?"Join":"Transit");
-      $("step").replaceChildren(document.createTextNode(progressName+"  "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:(idx+1)+" / "+f.steps.length}));
+      $("step").replaceChildren(document.createTextNode(progressName+" "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:(idx+1)+"/"+f.steps.length}));
     }else $("step").textContent="";
 
     // status / arrange option state
@@ -1199,6 +1210,10 @@ Thank you for your understanding and cooperation.`;
           dd.appendChild(document.createTextNode(parts[0]||""));
           const a=document.createElement("span");a.className="flightAccent";a.textContent=flight;dd.appendChild(a);
           dd.appendChild(document.createTextNode(parts[1]||""));
+        }else if(flow==="wpp" && r[3]==="unclaimed"){
+          dd.classList.add("bagConfirmValue");
+          const note=document.createElement("span");note.className="bagConfirmNote";note.lang="zh-Hant";note.textContent="無人領取的行李";dd.appendChild(note);
+          const value=document.createElement("span");value.textContent=r[1];dd.appendChild(value);
         }else dd.textContent=r[1];
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
@@ -1227,7 +1242,7 @@ Thank you for your understanding and cooperation.`;
         syncDrafts();
         $("msg").value=currentText();
         $("msg").lang=S.order==="ja"?"ja":(S.order==="zh"?"zh-Hant":"en");
-        $("previewOrderLabel").textContent=S.order==="ja"?"日本語のみ":(S.order==="en"?"English First":"中文在前");
+        $("previewOrderLabel").textContent=S.order==="ja"?"日本語のみ":(S.order==="en"?"English first":"中文在前");
         const previewOpen=!$("msgPanel").hidden;
         $("msgToggle").setAttribute("aria-expanded",previewOpen);
         $("viewLabel").textContent=previewOpen?"View ▴":"View ▾";

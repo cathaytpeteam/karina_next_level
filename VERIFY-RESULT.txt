@@ -1,17 +1,3 @@
-PASS v1.0.17 Golden Baseline + Safe Area/Keyboard + read-only Message Preview r8
-PASS approved message copy unchanged
-PASS Scenario 1 progress uses 漏查 - Join Pax / Transit Pax at 20px/700
-PASS Scenario 2 progress uses Call Passenger - Join / Transit at 20px/700
-PASS unified SEC [IATA | SEC] layout retained
-PASS Call Directly phone hidden from top-right badge and shown under Confirm details
-PASS Message Preview is read-only on all message paths
-PASS Edit control removed
-PASS Copy Text control removed
-PASS WhatsApp/SMS handoff retained
-PASS state/navigation hotfix retained
-PASS local libphonenumber / zero CDN runtime dependency retained
-PASS Service Worker cache find-pax-v1.0.16-r8
-PASS verify_layout.py
-PASS verify_messages.py
-PASS verify_release.py
-PASS SHA256 integrity
+Find Pax v1.1 final deduplicated PWA verification
+Changes: removed duplicate maskable PNG copies; shared 192/512 icons serve any + maskable; SW v1.1-r2.
+Run verify_release.py for executable checks.

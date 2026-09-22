@@ -1,10 +1,10 @@
-# Find Pax v1.0.17 — Golden Layout Baseline
+# Find Pax v1.1 — Golden Layout Baseline
 
 Release date: 2026-09-22
 
 This release is built on the locked v1.0.6 production baseline and the Scenario 2 structure work. Existing Scenario 1, 3, 4 copy and Japan +81 validation remain protected.
 
-## Golden Layout Lock (v1.0.17)
+## Golden Layout Lock (v1.1)
 
 The currently approved page structure and field placement are now release-locked. `layout-lock.json` records the approved screen order, exact protected screen markup hashes, field/control order, progress/header DOM, Confirm details placement, and bottom CTA/footer DOM. `verify_layout.py` fails if those protected areas change.
 
@@ -75,7 +75,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.16-r6**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
+Service-worker cache identity is **v1.1-r2**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -132,7 +132,7 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Phone validation now requires `PhoneNumber.isValid()` when available and returns canonical E.164 digits, fixing country-code + domestic-trunk-zero inputs such as `886 0912...`, `86 0138...`, and `82 010...`.
 - Japan +81 validation is restricted to 90 / 80 / 70 / 60 mobile prefixes only.
 - Scenario 2 Transit release verification follows the current `callSecPrefix` SEC-origin UI.
-- Scenario 3 and 4 reset message-language ordering on entry; Scenario 4 defaults to English First.
+- Scenario 3 and 4 reset message-language ordering on entry; Scenario 4 defaults to English first.
 - `dateCode()` now uses `Asia/Taipei`, matching `taipeiTime()`.
 - Scenario 4 Connecting flight / Protect to airline codes accept two alphanumeric IATA designators such as 5J, 3K and 7C.
 - Approved message copy is unchanged.
@@ -167,8 +167,16 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 
 
 ## Authorized final visual / suffix tuning (r9)
-- `中文在前`, `English First`, and `日本語のみ` preview-order labels use **18px / 700**.
+- `中文在前`, `English first`, and `日本語のみ` preview-order labels use **18px / 700**.
 - Scenario 3 `無人領取的行李` uses **18px / 700** and sits to the **left** of the Bag Tag 1 input group on the same row.
 - Progress names remain **20px / 700**; the numeric progress (`1 / 3`, `3 / 5`, etc.) uses a lighter gray-green to separate it visually from the flow name.
 - Scenario 1 Join suffix is shortened from `cx450/000/23Sep` style to `450/000`. Japanese and paths without a suffix remain unchanged.
 - These changes were explicitly authorized and are locked again in the release baseline.
+
+- Passenger Type hierarchy: Join is the large primary action; Transit and Call Directly are smaller secondary actions.
+- Progress counters are compact (`1/5`, `2/5`, etc.).
+
+## v1.1 — PWA icon deduplication
+- Removed duplicate `icon-maskable-192.png` and `icon-maskable-512.png` files.
+- `icon-192.png` and `icon-512.png` now serve both `any` and `maskable` manifest purposes.
+- Service Worker cache revision bumped to **v1.1-r2**. App UI, message copy, validation and workflow behavior are unchanged.

@@ -103,22 +103,23 @@ ck('preview edit/copy controls removed', 'id="editMsg"' not in s and 'id="copyMs
 
 # Explicitly authorized final visual/copy tuning.
 ck('language order labels 18px/700', '.msgToggle small{font-size:18px;font-weight:700' in s)
-ck('unclaimed bag label left aligned', 'class="bagInline"><p class="bagHelp" lang="zh-Hant">無人領取的行李</p><div class="field">' in s and '.bagInline .bagHelp{margin:0;font-size:18px' in s)
+ck('Scenario 3 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
 ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0");' in s and 'const tag="cx"' not in s)
 
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
-ck('service worker version', 'const APP_VERSION="v1.0.16";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r9";' in sw)
+ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r2";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',
-    './icon-maskable-192.png','./icon-maskable-512.png','./phone-bottom-icon.png','./scenario-icon-1.png',
+    './phone-bottom-icon.png','./scenario-icon-1.png',
     './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-max.js'
 }
 m=re.search(r'const ASSETS=\[(.*?)\];',sw,re.S)
 assets=set(re.findall(r'"([^"]+)"',m.group(1))) if m else set()
 ck('service worker asset list exact', assets==required)
+ck('manifest reuses icons for any/maskable', all(x in (r/'manifest.webmanifest').read_text(encoding='utf-8') for x in ['./icon-192.png','./icon-512.png','any maskable']) and 'icon-maskable-' not in (r/'manifest.webmanifest').read_text(encoding='utf-8'))
 ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in assets))
 ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
@@ -146,4 +147,4 @@ if sha_ok:
 ck('SHA256SUMS integrity',sha_ok)
 
 if bad: sys.exit(1)
-print('PASS: v1.0.17 Golden Baseline + layout lock')
+print('PASS: v1.1 Golden Baseline + layout lock')
