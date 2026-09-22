@@ -1,0 +1,161 @@
+{
+  "schema": "find-pax-layout-lock",
+  "version": "1.0",
+  "release": "v1.0.17",
+  "status": "LOCKED",
+  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change.",
+  "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
+  "source": "index.html",
+  "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
+  "screen_order": [
+    "s-phone",
+    "s-scenario",
+    "s-misstype",
+    "s-mflight",
+    "s-msec",
+    "s-wflight",
+    "s-bag1",
+    "s-bag2",
+    "s-dflight",
+    "s-dtransfer",
+    "s-dstatus",
+    "s-darrange",
+    "s-darrive",
+    "s-calltype",
+    "s-callflight",
+    "s-callsec",
+    "s-callgate",
+    "s-preview"
+  ],
+  "screen_sha256": {
+    "s-phone": "66bb4dfa11596d353a8414a8182cf4162d0ce08a945c6c71c523265eb1305e01",
+    "s-scenario": "7843156189c0fc353cec94ddcacd97d795b35d720ad88207e6cd6060b518ddb4",
+    "s-misstype": "9cd66a68217ec7cc1c2d35ee043a64ba4b205029ddf96ff9ae2dc547a7b93e25",
+    "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
+    "s-msec": "47827617fcb2a293565136002973aa097dca3b513e0a60d2a3189302c7f5a793",
+    "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
+    "s-bag1": "45ca0084918b40fadf764e4af4c07ced0c4da57f9096619fb53c589d21331289",
+    "s-bag2": "54f8a82ab9509fcabe6c14b0e8f932e8ca1cdee7ce7132c754caea12828c69f0",
+    "s-dflight": "9a03634ddfadb2ade94eddf1fd75c157a3ac9e6c82f85687f48a3d92e4decd7f",
+    "s-dtransfer": "7a43274f91983adffd80ecd83124fd7590d9ecdd7e6f559edede463ca3153e92",
+    "s-dstatus": "ba0466de22f6c31a8498c2928df20461be27ecd9fad8d5b506bd69d1605740a5",
+    "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
+    "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
+    "s-calltype": "bc5ff15389f3f3e9c61bc7cde9b4eb344c09868f1aec29f4da070bb69a15de68",
+    "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
+    "s-callsec": "7f1abb892172150481ec6c259eff18bc2e46b3eda9ae0576c72f5a5eaf5be7b1",
+    "s-callgate": "ef1270198eee7fe6dfac946792491d3b03b88f685ee67a9faed41d353c4effc0",
+    "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222"
+  },
+  "chrome_sha256": {
+    "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
+    "footer": "9b139b43410f9f6b5a69fbe7b308680f3a610f464b6fb63d3928388dcd782c00"
+  },
+  "control_order": {
+    "s-phone": [
+      "phoneField",
+      "phoneInput",
+      "badge",
+      "warn"
+    ],
+    "s-scenario": [
+      "goMiss",
+      "goCall",
+      "goWpp",
+      "goDp"
+    ],
+    "s-misstype": [
+      "missJoin",
+      "missTransit",
+      "missDirect"
+    ],
+    "s-mflight": [
+      "mFlight"
+    ],
+    "s-msec": [
+      "missTransitIata",
+      "missTransitIataValue",
+      "mSec"
+    ],
+    "s-wflight": [
+      "wFlight"
+    ],
+    "s-bag1": [
+      "b1a",
+      "b1n"
+    ],
+    "s-bag2": [
+      "b2a",
+      "b2n"
+    ],
+    "s-dflight": [
+      "dFlight"
+    ],
+    "s-dtransfer": [
+      "tA",
+      "tN"
+    ],
+    "s-dstatus": [
+      "stPossible",
+      "stDelayed",
+      "stUnknown",
+      "delayWrap",
+      "delayTime"
+    ],
+    "s-darrange": [
+      "arKnown",
+      "arUnknown",
+      "altWrap",
+      "altA",
+      "altN",
+      "altTime"
+    ],
+    "s-darrive": [
+      "arriveTime"
+    ],
+    "s-calltype": [
+      "callJoin",
+      "callTransit",
+      "callDirect"
+    ],
+    "s-callflight": [
+      "callFlightField",
+      "callFlight"
+    ],
+    "s-callsec": [
+      "callSecField",
+      "callSecPrefix",
+      "callSec"
+    ],
+    "s-callgate": [
+      "callGateField",
+      "callGateZone",
+      "callGate"
+    ],
+    "s-preview": [
+      "sum",
+      "previewLangTitle",
+      "previewLangSeg",
+      "ordZh",
+      "ordEn",
+      "ordJa",
+      "msgToggle",
+      "previewOrderLabel",
+      "viewLabel",
+      "msgPanel",
+      "msg"
+    ]
+  },
+  "protected_scope": [
+    "Scenario/page order and screen markup",
+    "Field/control order and placement inside each screen",
+    "Passenger Type option placement",
+    "Progress/top-bar DOM including phone badge placement",
+    "Confirm details / preview DOM including Call Directly Phone Number row placement",
+    "Bottom CTA/footer DOM"
+  ],
+  "not_protected_by_this_file": [
+    "Generated message copy and business logic (protected by existing message/baseline locks)",
+    "Runtime data values inserted into existing locked elements"
+  ]
+}

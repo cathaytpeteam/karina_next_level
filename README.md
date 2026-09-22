@@ -1,8 +1,16 @@
-# Find Pax v1.0.16 — Functional Fix Release
+# Find Pax v1.0.17 — Golden Layout Baseline
 
 Release date: 2026-09-22
 
 This release is built on the locked v1.0.6 production baseline and the Scenario 2 structure work. Existing Scenario 1, 3, 4 copy and Japan +81 validation remain protected.
+
+## Golden Layout Lock (v1.0.17)
+
+The currently approved page structure and field placement are now release-locked. `layout-lock.json` records the approved screen order, exact protected screen markup hashes, field/control order, progress/header DOM, Confirm details placement, and bottom CTA/footer DOM. `verify_layout.py` fails if those protected areas change.
+
+**Policy:** do not regenerate `layout-lock.json` hashes merely to make a failed build pass. A layout hash may be updated only after the user explicitly approves the specific UI/layout change. Business logic and approved message copy remain protected separately by the existing baseline/message locks.
+
+Run `python3 verify_layout.py` for the layout-only guard, or `python3 verify_release.py` for the full release guard (which now includes the layout check).
 
 ## Scenario 2 structure
 

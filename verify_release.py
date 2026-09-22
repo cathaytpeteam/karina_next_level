@@ -1,5 +1,5 @@
 from pathlib import Path
-import json, hashlib, re, sys
+import json, hashlib, re, sys, subprocess
 
 r=Path(__file__).resolve().parent
 s=(r/'index.html').read_text(encoding='utf-8')
@@ -114,6 +114,11 @@ ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in as
 ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
 
+# Layout lock: approved screen structure/field placement may change only with explicit user approval.
+layout_run=subprocess.run([sys.executable, str(r/'verify_layout.py')], cwd=r, capture_output=True, text=True)
+ck('layout lock', layout_run.returncode==0)
+if layout_run.returncode!=0 and layout_run.stdout: print(layout_run.stdout.strip())
+
 # SHA256SUMS integrity and completeness (SHA file itself is intentionally excluded).
 sha_path=r/'SHA256SUMS.txt'
 sha_ok=sha_path.exists()
@@ -132,4 +137,4 @@ if sha_ok:
 ck('SHA256SUMS integrity',sha_ok)
 
 if bad: sys.exit(1)
-print('PASS: v1.0.16 full release guard + UI/state navigation hotfix')
+print('PASS: v1.0.17 Golden Baseline + layout lock')
