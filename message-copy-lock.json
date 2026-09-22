@@ -1,18 +1,19 @@
 {
   "name": "Find Pax executable message-copy lock",
-  "message_master_version": "1.5",
-  "app_base": "Find-Pax-v1.0.12-Message-Language-No-Scenario3-Japanese-Locked",
-  "source": "Scenario 3 Japanese removed per explicit user request; existing approved Chinese/English and all other locked copy preserved.",
+  "message_master_version": "1.6",
+  "app_base": "Find-Pax-v1.0.13-Scenario1-Passenger-Type-Locked",
+  "source": "Scenario 1 Passenger Type + locked Transit copy; Scenario 1 Join Japanese explicitly retained.",
   "functions": {
     "textMiss": "423e56f5984279cd5d7ca4a10017e6a3201d6c8982da860b3a1657b55b22ec52",
     "textJoin": "9b1f7dee1a436f3042574b1fcdd54b2408e578769831a28f949a53d23dee3e81",
     "textTransit": "198a00d9510a901ee3736823051a9b29b448e1a3bf4f9c5e7ab81a370372a5e5",
     "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
     "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
-    "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384"
+    "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
+    "textMissTransit": "dcb99696b9afc2415f01f55d2ab067ccd9696efeb6b2a9d7a875ab7fdf9f31e5"
   },
   "constants": {
     "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f"
   },
-  "message_master_sha256": "b7fe76a31e8ce948f5e3855164da8a2c567ac1a90a3aea39afc336079ba0e80b"
+  "message_master_sha256": "ab698c22dfa2faeed4cb5e92c62fb3dcd7c39378a2d595d55bf5df9e9dc56b56"
 }

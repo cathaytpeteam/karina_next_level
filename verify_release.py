@@ -31,7 +31,7 @@ def check(label,ok,detail=''):
     print(('PASS' if ok else 'FAIL'),label+(f' — {detail}' if detail else ''))
     if not ok: failures.append(label)
 
-print('Find Pax v1.0.12 Release Guard')
+print('Find Pax v1.0.13 Release Guard')
 print('Baseline status:',lock.get('status'))
 check('baseline is LOCKED',lock.get('status')=='LOCKED')
 
@@ -80,6 +80,17 @@ check('Scenario 3 Japanese copy removed','const ja=`こんにちは。' not in e
 
 check('Scenario 1 approved Japanese copy',jp['scenario1_approved_copy'] in src)
 check('Scenario 1 Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textMiss'))
+
+check('Scenario 1 Passenger Type screen',all(x in src for x in ['id="s-misstype"','id="missJoin"','id="missTransit"','id="missDirect"']))
+check('Scenario 1 Passenger Type labels',all(x in src for x in ['>Join Pax &amp; Message</span>','>Transit Pax &amp; Message</span>','>Call Directly</span>']))
+miss_section=re.search(r'<section class="screen" id="s-misstype".*?</section>',src,re.S)
+check('Scenario 1 Passenger Type has no icons',bool(miss_section) and '<span class="ico"' not in miss_section.group(0))
+check('Scenario 1 Join Japanese retained',lock['protected']['japanese_sms']['scenario1_approved_copy'] in extract_func(src,'textMiss'))
+check('Scenario 1 Transit locked function',extract_func(src,'textMissTransit') is not None)
+check('Scenario 1 Transit Japanese locked copy',lock['protected']['scenario1_transit_copy']['ja'] in extract_func(src,'textMissTransit'))
+check('Scenario 1 mode message routing','S.missMode==="transit"?textMissTransit(zf):textMiss(zf)' in extract_func(src,'buildText'))
+check('Scenario 1 Call Directly shares call-only flow','S.callMode="direct";S.callNoMessage=true' in src and 'if(flow==="call"&&S.callNoMessage){openWA("");return;}' in extract_func(src,'send'))
+
 check('Scenario 2 Join Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textJoin'))
 check('Scenario 2 Transit Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textTransit'))
 check('Transit Japanese Taipei time marker','現在の台北時間は${taipeiTime()}です。' in extract_func(src,'textTransit'))
@@ -93,7 +104,7 @@ s2=lock['protected']['scenario2']
 for marker in ['id="callJoin"','>Join Pax &amp; Message</span>','id="callTransit"','>Transit Pax &amp; Message</span>','id="callDirect"','>Call Directly</span>','id="callFlight"']:
     check('Scenario 2 marker '+marker,marker in src)
 check('old No message option removed','>No message<' not in src and '>No Message<' not in src)
-check('Passenger Type labels are teal','#s-calltype .ctext{color:var(--brand-strong)}' in src)
+check('Passenger Type labels are teal',('#s-calltype .ctext{color:var(--brand-strong)}' in src) or ('#s-calltype .ctext,#s-misstype .ctext{color:var(--brand-strong)}' in src))
 check('Passenger Type has no icon elements','<span class="ico"' not in re.search(r'<section class="screen" id="s-calltype".*?</section>',src,re.S).group(0))
 const_dest=extract_const(src,'TRANSIT_DESTINATIONS')
 check('Transit destination mapping lock',const_dest is not None and sha_text(const_dest)==s2['destination_constant_sha256'])
@@ -125,10 +136,10 @@ if all(extract_func(src,n) for n in needed) and const_dest:
 else: check('Scenario 2 runtime cases',False,'required functions missing')
 
 sw=(root/'sw.js').read_text(encoding='utf-8')
-check('service worker v1.0.12','const APP_VERSION="v1.0.12";' in sw)
+check('service worker v1.0.13','const APP_VERSION="v1.0.13";' in sw)
 
 if failures:
     print('\nRELEASE BLOCKED. A locked behavior changed or a regression test failed.')
     print('Restore the approved behavior, or obtain explicit approval before intentionally regenerating the lock.')
     sys.exit(1)
-print('\nPASS: v1.0.12 locked copy, Message Language headings, Scenario 3 Chinese/English-only rule, phone validation, Scenario 2 structure, message destinations, confirmation destination codes, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.')
+print('\nPASS: v1.0.13 locked copy, Scenario 1 Passenger Type/Join/Transit/Call Directly, Message Language headings, Scenario 3 Chinese/English-only rule, phone validation, Scenario 2 structure, IATA destination codes, Japanese SMS routing, Taipei-time rule, and approved labels all match the approved release.')

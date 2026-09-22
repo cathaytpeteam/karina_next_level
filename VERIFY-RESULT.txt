@@ -1,81 +1,18 @@
-Find Pax Message Copy Check
-Message Master: 1.5
-PASS message-master.json integrity
-PASS copy function textMiss
-PASS copy function textJoin
-PASS copy function textTransit
-PASS copy function textCall
-PASS copy function textWpp
-PASS copy function textDp
-PASS copy constant TRANSIT_DESTINATIONS
-
-PASS: message master and executable copy match the locked v1.0.12 release.
-
-Find Pax v1.0.12 Release Guard
-Baseline status: LOCKED
-PASS baseline is LOCKED
-PASS message master version
-PASS message master status
-PASS message master SHA-256
-PASS message-copy lock version
-PASS message-copy master hash
-PASS copy function textMiss
-PASS copy function textJoin
-PASS copy function textTransit
-PASS copy function textCall
-PASS copy function textWpp
-PASS copy function textDp
-PASS copy constant TRANSIT_DESTINATIONS
-PASS phone function validatePhone
-PASS phone function normalizePhone
-PASS Japan +81 runtime cases — Japan cases OK
-PASS routing function send
-PASS routing function sendSMS
-PASS routing function callFlightNumber
-PASS routing function callFlightFull
-PASS routing function callFlightOk
-PASS routing function taipeiTime
-PASS Japanese language selector block
-PASS All scenarios use Message Language heading
-PASS Scenario 3 Japanese selector removed
-PASS Scenario 3 Japanese copy removed
-PASS Scenario 1 approved Japanese copy
-PASS Scenario 1 Japanese has no suffix
-PASS Scenario 2 Join Japanese has no suffix
-PASS Scenario 2 Transit Japanese has no suffix
-PASS Transit Japanese Taipei time marker
-PASS Join Japanese has no Taipei time
-PASS Taipei timezone is explicit
-PASS Japanese CTA marker
-PASS Join and Transit Japanese SMS routing
-PASS Scenario 2 marker id="callJoin"
-PASS Scenario 2 marker >Join Pax &amp; Message</span>
-PASS Scenario 2 marker id="callTransit"
-PASS Scenario 2 marker >Transit Pax &amp; Message</span>
-PASS Scenario 2 marker id="callDirect"
-PASS Scenario 2 marker >Call Directly</span>
-PASS Scenario 2 marker id="callFlight"
-PASS old No message option removed
-PASS Passenger Type labels are teal
-PASS Passenger Type has no icon elements
-PASS Transit destination mapping lock
-PASS Join has no whitelist
-PASS Transit flight 450
-PASS Transit flight 451
-PASS Transit flight 530
-PASS Transit flight 531
-PASS Transit flight 564
-PASS Transit flight 565
-PASS Confirmation destination code constant
-PASS Confirmation destination 450 → NRT
-PASS Confirmation destination 564 → KIX
-PASS Confirmation destination 530 → NGO
-PASS Confirmation destination 451 → HKG
-PASS Confirmation destination 565 → HKG
-PASS Confirmation destination 531 → HKG
-PASS Confirmation Destination uses IATA code mapping
-PASS Message copy still uses localized destination names
-PASS Scenario 2 runtime cases — Scenario 2 cases OK
-PASS service worker v1.0.12
-
-PASS: v1.0.12 locked copy, Message Language headings, Scenario 3 Chinese/English-only rule, phone validation, Scenario 2 structure, message destinations, confirmation destination codes, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.
+PASS JavaScript syntax
+PASS verify_messages.py
+PASS verify_release.py
+PASS iOS SMS body separator
+PASS Android SMS body separator
+PASS WhatsApp native scheme
+PASS WhatsApp fallback
+PASS Scenario1 Passenger Type
+PASS Scenario1 Join Japanese
+PASS Scenario1 Transit Japanese
+PASS Scenario1 Join/Transit SMS route
+PASS Scenario1 Call Directly
+PASS Scenario3 no Japanese
+PASS Message Language
+PASS IATA NRT
+PASS IATA KIX
+PASS IATA NGO
+PASS IATA HKG

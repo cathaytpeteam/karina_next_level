@@ -1,4 +1,4 @@
-# Find Pax v1.0.12 — Locked Scenario 2 Join / Transit
+# Find Pax v1.0.13 — Locked Scenario 2 Join / Transit
 
 Release date: 2026-09-22
 
@@ -67,14 +67,14 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.12** so deployed clients can refresh to the new release.
+Service-worker cache identity is **v1.0.13** so deployed clients can refresh to the new release.
 
-## v1.0.12 UI-only Scenario 2 update
+## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
 - Passenger Type option text uses the existing brand teal; no icons are shown on this page.
 - Message copy, routing, phone validation, flight rules, destination mapping, and SMS behavior remain locked and unchanged.
 
-## v1.0.12 — Call Passenger 3 / 3 Destination display
+## v1.0.13 — Call Passenger 3 / 3 Destination display
 
 The **Destination** row on the Call Passenger confirmation/preview page uses IATA airport codes:
 
@@ -85,14 +85,25 @@ The **Destination** row on the Call Passenger confirmation/preview page uses IAT
 
 This is a display-only change. Approved Transit passenger message copy continues to use the locked full destination names in Chinese / English / Japanese.
 
-## v1.0.12 — Message Language + Scenario 3 Japanese
+## v1.0.13 — Message Language + Scenario 3 Japanese
 
 All four scenarios now use the heading **Message Language**.
 
 Scenario 3 now includes a locked Japanese-only message option. Chinese/English behavior is unchanged. Scenario 3 Japanese is sent through WhatsApp, preserving the photo-sharing workflow.
 
-## v1.0.12 — Scenario 3 Japanese removed
+## v1.0.13 — Scenario 3 Japanese removed
 
 Scenario 3 is restored to Chinese / English only. The Japanese option and Japanese message introduced in v1.0.11 have been removed.
 
 The approved UI change remains: all four scenarios use **Message Language** instead of **First Message Language**.
+
+## v1.0.13 — Scenario 1 Passenger Type
+
+Scenario 1 now opens the same clean Passenger Type layer as Scenario 2:
+- Join Pax & Message — existing locked Chinese / English / Japanese copy.
+- Transit Pax & Message — newly locked Chinese / English / Japanese copy.
+- Call Directly — same call-only WhatsApp logic as Scenario 2.
+
+Existing v1.0.12 behavior is preserved, including Message Language headings, Scenario 3 Chinese/English only, +81 validation, and Scenario 2 IATA Destination codes (NRT / KIX / NGO / HKG).
+
+Japanese native SMS keeps the existing platform split: iOS uses `&body=` and Android uses `?body=`.
