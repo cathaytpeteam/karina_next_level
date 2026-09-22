@@ -6,24 +6,25 @@ PASS message master SHA-256
 PASS Japanese Scenario 1 exists in master
 PASS copy function textMiss
 PASS copy function textWpp
-PASS copy function textDp
-PASS copy function textCall
+FAIL copy function textDp
+FAIL copy function textCall
 PASS message-copy lock version
 PASS message-copy master hash
 PASS phone function validatePhone
-PASS phone function normalizePhone
+FAIL phone function normalizePhone
 PASS Japan +81 runtime cases — Japan cases OK
-PASS Japanese SMS function send
-PASS Japanese SMS function sendSMS
+FAIL Japanese SMS function send
+FAIL Japanese SMS function sendSMS
 PASS Japanese language selector block
 PASS required marker id="ordJa"
 PASS required marker >日本語</button>
-PASS required marker flow==="miss"&&S.order==="ja"
+FAIL required marker flow==="miss"&&S.order==="ja"
 PASS required marker SMSを送信
-PASS required marker if(flow!=="miss") return;
+FAIL required marker if(flow!=="miss") return;
 PASS required marker if(S.order==="ja") return ja;
 PASS approved Japanese SMS copy in executable
 PASS Japanese SMS has no flight/SEC/date suffix
 PASS service worker v1.0.6
 
-PASS: locked message copy, Japan phone validation, and Scenario 1 Japanese SMS routing all match the approved baseline.
+RELEASE BLOCKED. Protected baseline changed or a regression test failed.
+Do not update the lock merely to make the test pass. Restore the approved baseline, or obtain explicit approval for the protected change.

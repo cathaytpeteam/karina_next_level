@@ -322,6 +322,16 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="field time"><input autocomplete="off" id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
     </section>
 
+    <!-- Call Passenger type -->
+    <section class="screen" id="s-calltype" hidden>
+      <h1>Passenger Type</h1>
+      <div class="choices">
+        <button class="choice" id="callJoin" type="button"><span class="ctext"><span>Join Pax</span></span><span class="chev">›</span></button>
+        <button class="choice" id="callTransit" type="button"><span class="ctext"><span>Transit Pax</span></span><span class="chev">›</span></button>
+        <button class="choice" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
+      </div>
+    </section>
+
     <!-- Call Passenger 1 / 2 -->
     <section class="screen" id="s-callconfirm" hidden>
       <h1>Confirm details</h1>
@@ -334,9 +344,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
           <option value="C">C</option>
         </select>
         <input autocomplete="off" id="callGate" inputmode="text" maxlength="2" autocapitalize="characters" aria-label="Gate number">
-      </div>
-      <div class="seg callNoMessageSeg" role="group" aria-label="Message choice">
-        <button type="button" id="callNoMessage" aria-pressed="false">No Message</button>
       </div>
     </section>
 
@@ -510,13 +517,13 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
 
   // ---- state -------------------------------------------------------------
-  const S={phone:"",country:"",status:"",arrange:"",order:"zh",orderSet:false,callNoMessage:false};
+  const S={phone:"",country:"",status:"",arrange:"",order:"zh",orderSet:false,callNoMessage:false,callMode:""};
   // Nothing is persisted between launches; drop the old saved language choice if it exists.
   try{localStorage.removeItem("fp-order");}catch(e){}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
-    call:{name:"Call Passenger",steps:["callconfirm","preview"]},
+    call:{name:"Call Passenger",steps:["calltype","callconfirm","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
@@ -557,7 +564,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return /^(?:[1-9]|1R)$/.test(x)?x:"";
   }
   function callGateFull(){
-    if(S.callNoMessage) return "";
     const z=v("callGateZone"), n=callGateNumber();
     return /^[BC]$/.test(z)&&n?z+n:"";
   }
@@ -574,7 +580,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
-    callconfirm:()=>S.callNoMessage||!!callGateFull(),
+    callconfirm:()=>!!callGateFull(),
     preview:()=>true
   };
   function bagHint(a,n){
@@ -749,7 +755,11 @@ We are located at Counter 4, Terminal 1 of Taoyuan Airport. Please contact our s
 Thank you for your understanding and cooperation.`;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
+  // Transit Pax Japanese SMS scaffold. The production copy will be inserted
+  // only after explicit approval; until then the Japanese selector is disabled.
+  function textTransitJa(){ return ""; }
   function textCall(zhFirst){
+    if(S.callMode==="transit" && S.order==="ja") return textTransitJa();
     const gate=callGateFull();
     const zh=`您好：這裡是國泰航空，我們結束登機時間是起飛前 15 分鐘，目前已經在最後召集中，請您儘速前往 ${gate} 號登機門。`;
     const en=`Hello, this is Cathay Pacific. Boarding closes 15 minutes before departure, and the gate is now making the final boarding call. Please proceed to Gate ${gate} immediately. Thank you.`;
@@ -784,7 +794,7 @@ Thank you for your understanding and cooperation.`;
     return [flow,S.phone,S.status,S.arrange,
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
       v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
-      v("callGateZone"),v("callGate"),S.callNoMessage
+      v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode
     ].join("\u241F");
   }
   function clearDrafts(){ delete edits.zh; delete edits.en; delete edits.ja; msgSig=null; }
@@ -836,17 +846,16 @@ Thank you for your understanding and cooperation.`;
     }
   }
   function send(){
-    if(flow==="miss"&&S.order==="ja"){ sendSMS(); return; }
+    if((flow==="miss" || (flow==="call"&&S.callMode==="transit"))&&S.order==="ja"){ sendSMS(); return; }
     if(flow==="call"&&S.callNoMessage){openWA("");return;}
     syncDrafts();
     openWA(currentText());
   }
 
-  // Scenario 1 (漏查), Japanese mode only: open the phone's native SMS
-  // composer with the passenger number and the editable Japanese message
-  // pre-filled. The user still taps Send in the Messages app.
+  // Japanese SMS mode: Scenario 1, plus the prepared Transit Pax path.
+  // Transit Pax remains disabled until its approved Japanese copy is supplied.
   function sendSMS(){
-    if(flow!=="miss") return;
+    if(!(flow==="miss" || (flow==="call"&&S.callMode==="transit"))) return;
     syncDrafts();
     const recipient="+"+S.phone;
     const encoded=encodeURIComponent(currentText());
@@ -908,10 +917,9 @@ Thank you for your understanding and cooperation.`;
   function clearCaseData(){
     ["mFlight","mSec","wFlight","b1n","b2n","dFlight","tN","delayTime","altN","altTime","arriveTime","callGate"].forEach(id=>$(id).value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
-    S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;flow="";
+    S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;S.callMode="";flow="";
     $("callGateZone").value="B";
-    $("callNoMessage").setAttribute("aria-pressed","false");
-    clearDrafts();
+        clearDrafts();
     const m=$("msg");
     m.value="";m.readOnly=true;delete m.dataset.edited;
     $("msgPanel").hidden=true;
@@ -938,7 +946,7 @@ Thank you for your understanding and cooperation.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
-    const hasWho=cur!=="phone"&&cur!=="preview"&&cur!=="callconfirm"&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="preview"&&cur!=="calltype"&&cur!=="callconfirm"&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -969,7 +977,6 @@ Thank you for your understanding and cooperation.`;
       const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
       t.textContent="Send to"; dd.textContent=(S.country?flagFor(S.country)+" ":"")+"+"+S.phone;
       d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
-      $("callNoMessage").setAttribute("aria-pressed",String(S.callNoMessage));
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
@@ -996,12 +1003,16 @@ Thank you for your understanding and cooperation.`;
         $("editMsg").textContent="Edit";
         $("s-preview").classList.remove("preview-focus");
       }else{
-        // Japanese is available only for Scenario 1 (漏查). Chinese / English
-        // keep the existing bilingual order behavior; Japanese is Japanese-only.
-        $("ordJa").hidden=flow!=="miss";
-        $("previewLangTitle").textContent=flow==="miss"?"Message Language":"First Message Language";
+        // Japanese is active for Scenario 1. Transit Pax has the same SMS
+        // architecture prepared, but stays disabled until approved copy is supplied.
+        const transitJa=flow==="call"&&S.callMode==="transit";
+        const japanesePath=flow==="miss"||transitJa;
+        $("ordJa").hidden=!japanesePath;
+        $("ordJa").disabled=transitJa;
+        $("ordJa").title=transitJa?"Japanese copy pending":"";
+        $("previewLangTitle").textContent=japanesePath?"Message Language":"First Message Language";
         $("ordEn").style.order=flow==="dp"?"-1":"";
-        if(S.order==="ja"&&flow!=="miss"){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
+        if(S.order==="ja"&&!japanesePath){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
         if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
         $("ordZh").setAttribute("aria-pressed",S.order==="zh");
         $("ordEn").setAttribute("aria-pressed",S.order==="en");
@@ -1021,7 +1032,7 @@ Thank you for your understanding and cooperation.`;
       }
     }
 
-    const showFoot=cur!=="scenario";
+    const showFoot=cur!=="scenario"&&cur!=="calltype";
     $("foot").hidden=!showFoot;
     const ok=OK[cur]?OK[cur]():false;
     const hint=$("hint");
@@ -1037,7 +1048,7 @@ Thank you for your understanding and cooperation.`;
     const previewEditing=cur==="preview" && !callOnly && !$("msg").readOnly;
     $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
     cta.disabled=!ok || previewEditing;
-    const japaneseSMS=cur==="preview"&&flow==="miss"&&S.order==="ja";
+    const japaneseSMS=cur==="preview"&&(flow==="miss"||(flow==="call"&&S.callMode==="transit"))&&S.order==="ja";
     cta.textContent=cur==="preview"
       ?(japaneseSMS?"SMSを送信":(flow==="call"?(S.callNoMessage?"Call on WhatsApp":"Send on WhatsApp"):"Send on WhatsApp"))
       :"Next";
@@ -1066,34 +1077,11 @@ Thank you for your understanding and cooperation.`;
   $("callGate").addEventListener("input",function(){this.value=normalizeCallGate(this.value);render();});
   $("callGate").addEventListener("blur",function(){this.value=normalizeCallGate(this.value);render();});
   $("callGateZone").addEventListener("change",()=>render());
-  function resumeCallMessageMode(){
-    if(!S.callNoMessage) return;
-    S.callNoMessage=false;
-    $("callNoMessage").setAttribute("aria-pressed","false");
-    if(!v("callGateZone")) $("callGateZone").value="B";
-    clearDrafts();
-    render();
-  }
-  $("callGateZone").addEventListener("pointerdown",resumeCallMessageMode);
-  $("callGate").addEventListener("pointerdown",resumeCallMessageMode);
-  $("callGateZone").addEventListener("focus",resumeCallMessageMode);
-  $("callGate").addEventListener("focus",resumeCallMessageMode);
-  $("callNoMessage").onclick=()=>{
-    S.callNoMessage=!S.callNoMessage;
-    $("callNoMessage").setAttribute("aria-pressed",String(S.callNoMessage));
-    if(S.callNoMessage){
-      $("callGateZone").value="";
-      $("callGate").value="";
-    }else{
-      $("callGateZone").value="B";
-      $("callGate").value="";
-    }
-    clearDrafts();
-    render();
-  };
-
   $("goMiss").onclick=()=>{flow="miss";go("mflight");};
-  $("goCall").onclick=()=>{flow="call";S.callNoMessage=false;$("callNoMessage").setAttribute("aria-pressed","false");if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("goCall").onclick=()=>{flow="call";S.callMode="";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("calltype");};
+  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("callDirect").onclick=()=>{S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;$("callGateZone").value="";$("callGate").value="";clearDrafts();go("preview");};
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};
 
@@ -1106,7 +1094,7 @@ Thank you for your understanding and cooperation.`;
   function setOrder(o){S.order=o;S.orderSet=true;syncDrafts();$("msg").value=currentText();render();}
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
-  $("ordJa").onclick=()=>{ if(flow==="miss") setOrder("ja"); };
+  $("ordJa").onclick=()=>{ if(flow==="miss" || (flow==="call"&&S.callMode==="transit")) setOrder("ja"); };
   $("msgToggle").onclick=()=>{
     if(flow==="call"&&S.callNoMessage) return;
     const m=$("msg"), panel=$("msgPanel"), open=panel.hidden;

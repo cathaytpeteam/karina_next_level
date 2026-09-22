@@ -55,3 +55,11 @@ The app includes a Service Worker for installed-PWA use and cached operation. Ph
 - **v1.0** — Initial production release.
 
 - **v1.0.6** — Explicitly approved short Japanese Scenario 1 SMS copy; Japanese SMS suffix removed. Copy is locked by the regression guard. Japan +81 mobile validation remains unchanged from v1.0.5.
+
+
+## v1.0.7 Scenario 2 structure
+- Scenario 2 adds Join Pax / Transit Pax / Call Directly selection.
+- Join Pax uses the modified existing flow without No message.
+- Transit Pax structure reserves Japanese SMS support; Japanese copy remains pending.
+- Call Directly preserves the former No message call-only behavior.
+- v1.0.6 locked Japanese Scenario 1 SMS copy and +81 validation remain protected.

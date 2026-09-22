@@ -1,7 +1,7 @@
 {
   "schema": "find-pax-regression-baseline",
   "version": "1.0",
-  "release": "v1.0.6",
+  "release": "v1.0.7",
   "status": "LOCKED",
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
@@ -62,5 +62,7 @@
       "approved_japanese_sms_copy": "キャセイ航空 桃園空港です。\nお預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。\n出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。",
       "suffix_policy": "NO flight/SEC/date suffix for Japanese SMS."
     }
-  }
+  },
+  "parent_locked_baseline": "v1.0.6-Locked-Japanese-SMS",
+  "scenario2_structure_change": true
 }
