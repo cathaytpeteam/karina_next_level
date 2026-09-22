@@ -3,7 +3,6 @@ const APP_VERSION="v1.0.15";
 const CACHE_REV="r1";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const PHONE_LIB="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js";
-const ASSETS=["./","./index.html","./manifest.webmanifest","./apple-touch-icon.png","./icon-192.png","./icon-512.png","./icon-maskable-192.png","./icon-maskable-512.png","./phone-bottom-icon.png","./disrupted-pax-icon-v2.png","./scenario-icon-1.png","./scenario-icon-2.png","./scenario-icon-3.png","./scenario-icon-4.png"];
 
 self.addEventListener("install",e=>e.waitUntil((async()=>{
   const cache=await caches.open(CACHE);

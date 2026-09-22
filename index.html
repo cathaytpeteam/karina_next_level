@@ -66,10 +66,10 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .hint.bad{color:var(--danger);font-weight:700}
 .cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
 .cta:disabled{opacity:.32;cursor:default}
-.cta.smsCta{margin-top:8px;background:var(--bg);color:var(--brand-strong);border:2px solid var(--brand)}
+.cta.smsCta{margin-top:8px;background:var(--bg);color:var(--brand-strong);border:1px solid var(--brand)}
 .cta.smsCta[hidden]{display:none}
 
-.field{display:flex;align-items:center;min-height:72px;border:2px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
+.field{display:flex;align-items:center;min-height:72px;border:1px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
 .field + .field{margin-top:12px}
 .field:focus-within{border-color:var(--brand)}
 .field.bad{border-color:var(--danger)}
@@ -103,7 +103,7 @@ h1 + .chip{margin-top:-8px}
 #s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:normal;overflow-wrap:anywhere}
 #s-scenario .chev{font-family:var(--font);font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
 
-.choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:18px;background:var(--surface);text-align:left;cursor:pointer}
+.choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:16px;background:var(--surface);text-align:left;cursor:pointer}
 .choice:active{background:var(--brand-soft)}
 .ico{flex:none;width:52px;height:52px;border-radius:14px;background:var(--brand-soft);display:grid;place-items:center}
 .ico svg{width:32px;height:32px;fill:none;stroke:var(--brand-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -112,7 +112,7 @@ h1 + .chip{margin-top:-8px}
 #s-calltype .ctext,#s-misstype .ctext{color:var(--brand-strong)}
 
 .opts{display:grid;gap:12px}
-.opt{width:100%;min-height:68px;padding:12px 18px;border:2px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
+.opt{width:100%;min-height:68px;padding:12px 18px;border:1px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
 .opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-strong)}
 .optExtra{margin-top:14px}
 .optExtra[hidden]{display:none}
@@ -159,14 +159,14 @@ h1 + .chip{margin-top:-8px}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
 /* Prefix + value fields share one centered two-column geometry across the app. */
-#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
-#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code{width:72px;margin-right:0;justify-self:end}
+#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callsec .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
+#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-callflight .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
 /* SEC has no prefix chip; an empty first cell keeps its number in the same spot as the flight number. */
-#s-msec .field::before{content:"";display:block}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input{flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
-#s-msec .field{grid-template-columns:1fr}
-#s-msec .field::before{display:none}
-#s-msec .field input{width:100%;justify-self:stretch;text-align:center}
+#s-msec .field::before, #s-callsec .field::before{content:"";display:block}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-msec .field, #s-callsec .field{grid-template-columns:1fr}
+#s-msec .field::before, #s-callsec .field::before{display:none}
+#s-msec .field input, #s-callsec .field input{width:100%;justify-self:stretch;text-align:center}
 #s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
 main.preview-open{display:flex;flex-direction:column;overflow:hidden}
@@ -182,10 +182,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-preview:not(.preview-focus) .previewLangTitle{margin:12px 0 8px;font-size:18px}
 #s-preview:not(.preview-focus) .seg{margin-bottom:10px;gap:2px;padding:3px}
 #s-preview:not(.preview-focus) .seg button{min-height:40px}
-#s-preview .msgToggle{padding:14px 16px;background:var(--bg);border:2px solid var(--brand);color:var(--brand-strong)}
+#s-preview .msgToggle{padding:14px 16px;background:var(--bg);border:1px solid var(--brand);color:var(--brand-strong)}
 
 /* Confirmed text/function updates only; preserve v2.2.9 visual system. */
-#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1{text-align:center}
 .disruptedTitle{display:flex;align-items:center;justify-content:center;gap:9px}
 .msgToggle{gap:8px;flex-wrap:wrap}
 .msgToggle>span:first-child{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:baseline;gap:4px 8px;min-width:0;overflow-wrap:anywhere}
@@ -203,18 +202,14 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .msgActions button:active{transform:translateY(1px)}
 
 /* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
-#s-callconfirm h1{text-align:left}
-.callGateTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
-#callFlightField,#callGateField{display:grid;grid-template-columns:72px minmax(72px,1fr);justify-content:center;align-items:center;column-gap:12px;width:68%;max-width:420px;margin-left:auto;margin-right:auto}
-#callFlightField .code,#callGateField .code{width:72px;margin-right:0;justify-self:end}
+#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callsec h1,#s-callgate h1{text-align:center}
 #callGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
-#callFlightField input,#callGateField input{flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
 #callGateField input{text-transform:uppercase}
 .callNoMessageSeg{margin-top:18px}
 .callNoMessageSeg button{width:100%}
 #previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
 
-.transitIata{width:68%;max-width:420px;margin:14px auto 0;text-align:left}.transitIataLabel{font-size:.86rem;font-weight:700;color:var(--muted);margin-bottom:6px}.transitIataValue{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--soft);font-weight:800;color:var(--brand-strong);letter-spacing:.08em}#callSecField{width:68%;max-width:420px;margin-left:auto;margin-right:auto}#callSecField input{width:100%;text-align:center}
+.transitIata{width:max-content;margin:0 auto 20px;text-align:center}.transitIataLabel{display:none}.transitIataValue{display:inline-block;border:0;border-radius:999px;padding:8px 20px;background:var(--brand-soft);font-size:17px;font-weight:800;color:var(--brand-strong);letter-spacing:.08em}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js"></script>
 </head>
@@ -278,9 +273,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-msec" hidden>
-      <h1>SEC</h1>
-      <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+      <h1>Sec</h1>
       <div class="transitIata" id="missTransitIata" hidden><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="missTransitIataValue">—</div></div>
+      <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
     </section>
 
     <!-- Wrongly Pick-up -->
@@ -348,20 +343,22 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     </section>
 
     <!-- Call Passenger 1 / 2 -->
-    <section class="screen" id="s-callconfirm" hidden>
-      <h1>Confirm details</h1>
-      <dl class="sum" id="callSum"></dl>
-      <h2 class="callGateTitle">Flight Number</h2>
+    <section class="screen" id="s-callflight" hidden>
+      <h1>Flight Number</h1>
       <div class="field" id="callFlightField">
         <span class="code" aria-hidden="true">CX</span>
         <input autocomplete="off" id="callFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits">
       </div>
-      <div id="callTransitSecWrap" hidden>
-        <h2 class="callGateTitle">SEC</h2>
-        <div class="field" id="callSecField"><input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
-        <div class="transitIata"><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="callTransitIataValue">—</div></div>
-      </div>
-      <h2 class="callGateTitle">final call at Gate</h2>
+    </section>
+
+    <section class="screen" id="s-callsec" hidden>
+      <h1>Sec</h1>
+      <div class="transitIata" id="callTransitIata"><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="callTransitIataValue">—</div></div>
+      <div class="field" id="callSecField"><input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+    </section>
+
+    <section class="screen" id="s-callgate" hidden>
+      <h1>final call at Gate</h1>
       <div class="field" id="callGateField">
         <select class="code" id="callGateZone" aria-label="Gate area">
           <option value="" hidden disabled></option>
@@ -548,7 +545,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
   const FLOWS={
     miss:{name:"漏查",steps:["mflight","msec","preview"]},
-    call:{name:"Call Passenger",steps:["calltype","callconfirm","preview"]},
+    call:{name:"Call Passenger",steps:["calltype","callflight","callgate","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
@@ -642,7 +639,15 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
-    callconfirm:()=>callFlightOk()&&!!callGateFull(),
+    callflight:()=>{
+      const n=callFlightNumber();
+      if(!n) return false;
+      if(S.callMode==="transit") return transitCxOk(n);
+      if(S.callMode==="join") return generalCxOk(n);
+      return false;
+    },
+    callsec:()=>isFlt(v("callSec"))&&+v("callSec")<=580,
+    callgate:()=>!!callGateFull(),
     preview:()=>true
   };
   function bagHint(a,n){
@@ -661,14 +666,15 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
     darrange:()=>S.arrange!=="known"?"":!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
-    callconfirm:()=>{
+    callflight:()=>{
       const n=callFlightNumber();
       if(!n) return "Flight number: 1–3 digits";
       if(S.callMode==="transit"&&!transitCxOk(n)) return "Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565";
-      if(S.callMode==="transit"&&(!isFlt(v("callSec"))||+v("callSec")>580)) return "SEC: 0–580";
       if(S.callMode==="join"&&!generalCxOk(n)) return "Please select a listed CX flight";
       return "";
     },
+    callsec:()=>{const x=v("callSec");return !x?"0–580":(+x>580?"Max 580":"");},
+    callgate:()=>"",
     preview:()=>"Check details before sending"
   };
   const NEXT={
@@ -677,7 +683,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("dstatus");},
     dstatus:()=>go("darrange"), darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
-    callconfirm:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("preview");},
+    callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callsec");},
+    callsec:()=>go("callgate"),
+    callgate:()=>go("preview"),
     preview:()=>send()
   };
 
@@ -876,15 +884,16 @@ Thank you for your understanding and cooperation.`;
     return flow==="miss"?(S.missMode==="transit"?textMissTransit(zf):textMiss(zf)):flow==="call"?textCall(zf):flow==="wpp"?textWpp(zf):textDp(zf);
   }
   function buildRows(){
-    const rows=[[flow==="call"&&S.callNoMessage?"Call to":"Send to",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]];
+    const rows=flow==="call"?[]:[["Send to",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]];
     if(flow==="call"){
       if(!S.callNoMessage){
         rows.push(["Flight",callFlightFull()]);
-        if(S.callMode==="transit"){rows.push(["SEC",String(Number(v("callSec"))).padStart(3,"0")]);const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Origin IATA",origin]);const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
+        rows.push(["Sec",String(Number(v("callSec"))).padStart(3,"0")]);
+        {const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Proceed to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
-      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Origin IATA",origin]);}
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[normalizeFlight(v("mFlight"))];if(code)rows.push(["Destination",code]);}
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
@@ -1055,7 +1064,7 @@ Thank you for your understanding and cooperation.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
-    const hasWho=cur!=="phone"&&cur!=="preview"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="callconfirm"&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&(cur!=="preview"||flow==="call")&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -1082,19 +1091,20 @@ Thank you for your understanding and cooperation.`;
       $("arUnknown").setAttribute("aria-pressed",S.arrange==="unknown");
       $("altWrap").hidden=S.arrange!=="known";
     }
-    if(cur==="callconfirm"){
-      const sum=$("callSum");sum.textContent="";
-      const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
-      t.textContent="Send to"; dd.textContent=(S.country?flagFor(S.country)+" ":"")+"+"+S.phone;
-      d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
+    if(cur==="callflight"){
       const n=callFlightNumber();
       $("callFlightField").classList.toggle("bad",!!n&&((S.callMode==="transit"&&!transitCxOk(n))||(S.callMode==="join"&&!generalCxOk(n))));
-      $("callTransitSecWrap").hidden=S.callMode!=="transit";
-      $("callTransitIataValue").textContent=S.callMode==="transit"?(transitOriginIata(n)||"—"):"—";
+    }
+    if(cur==="callsec"){
+      const origin=transitOriginIata(callFlightNumber());
+      $("callTransitIata").hidden=!origin;
+      $("callTransitIataValue").textContent=origin||"—";
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
-      buildRows().forEach(r=>{
+      const rows=buildRows();
+      sum.hidden=rows.length===0;
+      rows.forEach(r=>{
         const d=document.createElement("div"),t=document.createElement("dt"),dd=document.createElement("dd");
         t.textContent=r[0];
         if(r[2]){const sub=document.createElement("small");sub.textContent=r[2];sub.lang="zh-Hant";t.appendChild(sub);}
@@ -1197,8 +1207,8 @@ Thank you for your understanding and cooperation.`;
   $("missTransit").onclick=()=>{flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
   $("missDirect").onclick=()=>{flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
   $("goCall").onclick=()=>{flow="call";S.callMode="";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("calltype");};
-  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
-  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";FLOWS.call.steps=["calltype","callflight","callsec","callgate","preview"];go("callflight");};
+  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";FLOWS.call.steps=["calltype","callflight","callsec","callgate","preview"];go("callflight");};
   $("callDirect").onclick=()=>{S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callGateZone").value="";$("callGate").value="";clearDrafts();go("preview");};
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};
