@@ -773,10 +773,8 @@ Thank you for your understanding and cooperation.`;
   // ---- WhatsApp ----------------------------------------------------------
   function openWA(text){
     const url="https://wa.me/"+S.phone+(text?"?text="+encodeURIComponent(text):"");
-    const a=document.createElement("a");
-    a.href=url;a.target="_blank";a.rel="noopener";
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(resetAll,700);
+    // Current-context navigation is more reliable in Android standalone/PWA mode.
+    window.location.href=url;
   }
   function send(){ if(flow==="call"&&S.callNoMessage){openWA("");return;} syncDrafts(); openWA(currentText()); }
 
