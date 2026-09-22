@@ -1,0 +1,73 @@
+{
+  "schema": "find-pax-navigation-lock",
+  "version": "1.0",
+  "release": "v1.1",
+  "status": "LOCKED",
+  "policy": "Scenario step counts, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized.",
+  "flows": {
+    "miss": {
+      "name": "漏查",
+      "steps": [
+        "mflight",
+        "msec",
+        "preview"
+      ],
+      "progress_denominator": 3
+    },
+    "call": {
+      "name": "Final Call",
+      "steps": [
+        "calltype",
+        "callflight",
+        "callsec",
+        "callgate",
+        "preview"
+      ],
+      "progress_denominator": 5
+    },
+    "wpp": {
+      "name": "Wrong Pick-up",
+      "steps": [
+        "wflight",
+        "bag1",
+        "bag2",
+        "preview"
+      ],
+      "progress_denominator": 4
+    },
+    "dp": {
+      "name": "Disrupted Pax",
+      "steps": [
+        "dflight",
+        "dtransfer",
+        "dstatus",
+        "darrange",
+        "darrive",
+        "preview"
+      ],
+      "progress_denominator": 6
+    }
+  },
+  "scenario1": {
+    "entry": "goMiss -> misstype",
+    "join": "missJoin -> mflight",
+    "transit": "missTransit -> mflight",
+    "direct": "missDirect -> preview",
+    "progress_labels": [
+      "漏查 - Join Pax",
+      "漏查 - Transit Pax"
+    ],
+    "message_progress": "1/3 -> 2/3 -> 3/3"
+  },
+  "scenario2": {
+    "entry": "goCall -> calltype",
+    "join": "callJoin -> callflight",
+    "transit": "callTransit -> callflight",
+    "direct": "callDirect -> preview",
+    "progress_labels": [
+      "Final Call - Join Pax",
+      "Final Call - Transit Pax"
+    ],
+    "message_progress": "1/5 -> 2/5 -> 3/5 -> 4/5 -> 5/5"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema": "find-pax-regression-baseline",
   "version": "1.1",
-  "release": "v1.1",
+  "release": "v1.0.16",
   "status": "LOCKED",
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
@@ -96,7 +96,7 @@
         "CX565": "HKG",
         "CX531": "HKG"
       },
-      "destination_display_policy": "Final Call confirmation/preview Destination row uses IATA airport codes only; approved message copy continues to use full localized destination names."
+      "destination_display_policy": "Call Passenger confirmation/preview Destination row uses IATA airport codes only; approved message copy continues to use full localized destination names."
     },
     "ui_language_heading": "All four scenarios use the heading 'Language'.",
     "scenario3_languages": "Chinese/English only; Japanese option removed per user request.",
@@ -178,7 +178,7 @@
     },
     "functional_fixes_v116": {
       "status": "LOCKED",
-      "service_worker": "At v1.0.16, ASSETS was explicitly declared and local libphonenumber-js 1.12.29 was precached. The v1.1 release retains that offline architecture; current cache revision is tracked in sw.js and release verification.",
+      "service_worker": "ASSETS is explicitly declared; APP_VERSION is v1.0.16; local libphonenumber-js 1.12.29 is precached; cache revision r3 forces the UI/state hotfix to refresh.",
       "transit_sec_ui": "Scenario 2 Transit uses callSecPrefix for the centered SEC origin prefix; verifier must not require obsolete callTransitIataValue.",
       "scenario_entry_language_reset": "Scenario 3 resets to Chinese First; Scenario 4 resets to English First; scenario re-entry also clears stale case fields.",
       "scenario4_airline_designator": "Connecting flight and Protect to accept exactly two alphanumeric IATA designator characters.",

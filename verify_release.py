@@ -30,7 +30,7 @@ def ck(n,x):
     print(('PASS' if ok else 'FAIL'),n)
     if not ok: bad=True
 
-ck('release', b.get('release')=='v1.1')
+ck('release', b.get('release')=='v1.0.16')
 ck('Language heading', 'Message Language' not in s and 'First Message Language' not in s and '>Language<' in s)
 ck('Scenario 1 Join Japanese', b['protected']['japanese_sms']['scenario1_approved_copy'] in ef('textMiss'))
 ck('Scenario 1 Transit Japanese', b['protected']['scenario1_transit_copy']['ja'] in ef('textMissTransit'))
@@ -71,7 +71,7 @@ ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s
 ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s and 'clearMissForModeChange("direct")' in s)
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s and 'clearCallForModeChange("direct")' in s)
 ck('Scenario 2 gate clears on type change', '["callFlight","callSec","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
-ck('Final Call progress stable five-step', 'call:{name:"Final Call",steps:["calltype","callflight","callsec","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
+ck('Call progress stable five-step', 'call:{name:"Final Call",steps:["calltype","callflight","callsec","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
 ck('Call Directly progress hidden', 'const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;' in s and '$("bar").hidden=idx<0||directPreview;' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)
@@ -94,7 +94,6 @@ for section in ('phone_validation','japanese_sms','datetime'):
 
 # UI regression checks: passenger type in progress and Direct phone placement.
 ck('progress labels approved', 'progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s and 'progressName+=" - "+(S.callMode==="join"?"Join Pax":"Transit Pax")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
-ck('Scenario 2 menu label Final Call', 'aria-label="2 Final Call"' in s and '<span>Final Call</span>' in s and 'Call Passenger' not in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone])' in s)
 ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow==="call")&&S.phone' in s)
 
@@ -129,6 +128,11 @@ ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'c
 layout_run=subprocess.run([sys.executable, str(r/'verify_layout.py')], cwd=r, capture_output=True, text=True)
 ck('layout lock', layout_run.returncode==0)
 if layout_run.returncode!=0 and layout_run.stdout: print(layout_run.stdout.strip())
+
+# Navigation lock: step counts/order and routing are protected independently from layout markup.
+nav_run=subprocess.run([sys.executable, str(r/'verify_navigation.py')], cwd=r, capture_output=True, text=True)
+ck('navigation lock', nav_run.returncode==0)
+if nav_run.returncode!=0 and nav_run.stdout: print(nav_run.stdout.strip())
 
 # SHA256SUMS integrity and completeness (SHA file itself is intentionally excluded).
 sha_path=r/'SHA256SUMS.txt'

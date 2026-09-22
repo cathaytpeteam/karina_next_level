@@ -75,16 +75,16 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.1-r3**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
+Service-worker cache identity is **v1.1-r2**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
 - Passenger Type option text uses the existing brand teal; no icons are shown on this page.
 - Message copy, routing, phone validation, flight rules, destination mapping, and SMS behavior remain locked and unchanged.
 
-## v1.0.13 — Scenario 2 Destination display (historically “Call Passenger”)
+## v1.0.13 — Call Passenger 3 / 3 Destination display
 
-The **Destination** row on the Scenario 2 Final Call confirmation/preview page uses IATA airport codes:
+The **Destination** row on the Call Passenger confirmation/preview page uses IATA airport codes:
 
 - CX450 → NRT
 - CX564 → KIX
@@ -154,7 +154,7 @@ Scenario 1 and Scenario 2 SEC screens are now visually unified as one inline fie
 
 ## Authorized progress update (r6)
 
-All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - Join Pax` / `漏查 - Transit Pax`; Scenario 2 uses `Final Call - Join Pax` / `Final Call - Transit Pax`.
+All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - Join Pax` / `漏查 - Transit Pax`; Scenario 2 uses `Call Passenger - Join` / `Call Passenger - Transit`.
 
 ## Authorized responsive keyboard / Safe Area adjustment
 - iOS/Android keyboard mode keeps the approved 20px/700 progress label visible.
@@ -169,7 +169,7 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 ## Authorized final visual / suffix tuning (r9)
 - `中文在前`, `English first`, and `日本語のみ` preview-order labels use **18px / 700**.
 - Scenario 3 `無人領取的行李` uses **18px / 700** and sits to the **left** of the Bag Tag 1 input group on the same row.
-- Progress names remain **20px / 700**; the numeric progress (`1/3`, `3/5`, etc.) uses a lighter gray-green to separate it visually from the flow name.
+- Progress names remain **20px / 700**; the numeric progress (`1 / 3`, `3 / 5`, etc.) uses a lighter gray-green to separate it visually from the flow name.
 - Scenario 1 Join suffix is shortened from `cx450/000/23Sep` style to `450/000`. Japanese and paths without a suffix remain unchanged.
 - These changes were explicitly authorized and are locked again in the release baseline.
 
@@ -181,8 +181,6 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 - `icon-192.png` and `icon-512.png` now serve both `any` and `maskable` manifest purposes.
 - Service Worker cache revision bumped to **v1.1-r2**. App UI, message copy, validation and workflow behavior are unchanged.
 
-## v1.1 — Scenario 2 Final Call naming
-- Scenario 2 is renamed from `Call Passenger` to `Final Call` on the Scenario menu.
-- Join/Transit progress labels are `Final Call - Join Pax` and `Final Call - Transit Pax`, with compact counters such as `1/5`.
-- Message copy, flight/SEC/gate validation, phone rules, routing, Passenger Type behavior, and screen order are unchanged.
-- Service Worker cache revision is **v1.1-r3** so deployed clients refresh the updated UI label.
+
+## v1.1 Final Call naming lock
+Scenario 2 is named **Final Call**. Its message-path progress is locked to **Final Call - Join Pax 1/5→5/5** and **Final Call - Transit Pax 1/5→5/5**. Scenario 1 remains locked to **漏查 - Join Pax / Transit Pax 1/3→3/3**. `navigation-lock.json` + `verify_navigation.py` protect step order and entry/type routing from regression.

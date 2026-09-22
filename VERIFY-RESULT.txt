@@ -1,4 +1,4 @@
-Find Pax v1.1 Final Call naming verification
-Changes: Scenario 2 menu renamed to Final Call; progress labels are Final Call - Join Pax / Final Call - Transit Pax; SW cache v1.1-r3.
-Verified: message-copy lock unchanged; layout lock updated only for the authorized Scenario 2 label; release regression checks; local/offline asset list; SHA256 integrity; JavaScript syntax; ZIP integrity.
-Status: PASS.
+Find Pax v1.1 Final Call locked PWA verification
+Authorized change: Scenario 2 Call Passenger -> Final Call; progress labels include Join Pax / Transit Pax.
+Regression guard: Scenario 1 3-step and Scenario 2 5-step navigation mappings are locked. SW v1.1-r3.
+Run verify_release.py for executable checks.
