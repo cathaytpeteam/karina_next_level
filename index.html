@@ -167,6 +167,10 @@ h1 + .chip{margin-top:-8px}
 #s-msec .field{grid-template-columns:1fr}
 #s-msec .field::before{display:none}
 #s-msec .field input{width:100%;justify-self:stretch;text-align:center}
+/* Call Passenger Sec: TPE prefix is hidden (most pax); only non-TPE origins show a prefix chip. */
+#callSecPrefix[hidden]{display:none}
+#s-callsec .field.noPrefix{grid-template-columns:1fr}
+#s-callsec .field.noPrefix input{width:100%;justify-self:stretch;text-align:center}
 #s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
 main.preview-open{display:flex;flex-direction:column;overflow:hidden}
@@ -640,7 +644,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return secPrefix(callFlightNumber(),S.callMode);
   }
   function callSecFull(){
-    return callSecOrigin()+String(Number(v("callSec"))).padStart(3,"0");
+    const o=callSecOrigin(), n=String(Number(v("callSec"))).padStart(3,"0");
+    return o===HOME_IATA?n:o+n;   // TPE 不顯示前綴,只有非 TPE 才顯示
   }
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
@@ -929,7 +934,8 @@ Thank you for your understanding and cooperation.`;
     return flow==="miss"?(S.missMode==="transit"?textMissTransit(zf):textMiss(zf)):flow==="call"?textCall(zf):flow==="wpp"?textWpp(zf):textDp(zf);
   }
   function buildRows(){
-    const rows=flow==="call"?[]:[["Send to",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]];
+    const phoneVal=(S.country?flagFor(S.country)+" ":"")+"+"+S.phone;
+    const rows=flow==="call"?(S.callNoMessage?[["Call to",phoneVal]]:[]):[["Send to",phoneVal]];
     if(flow==="call"){
       if(!S.callNoMessage){
         rows.push(["Flight",callFlightFull()]);
@@ -1109,7 +1115,7 @@ Thank you for your understanding and cooperation.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
-    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&(cur!=="preview"||flow==="call")&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&(cur!=="preview"||(flow==="call"&&!S.callNoMessage))&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -1141,7 +1147,10 @@ Thank you for your understanding and cooperation.`;
       $("callFlightField").classList.toggle("bad",!!n&&((S.callMode==="transit"&&!transitCxOk(n))||(S.callMode==="join"&&!generalCxOk(n))));
     }
     if(cur==="callsec"){
-      $("callSecPrefix").textContent=callSecOrigin();
+      const o=callSecOrigin(), showPrefix=!!o&&o!==HOME_IATA;
+      $("callSecPrefix").textContent=o;
+      $("callSecPrefix").hidden=!showPrefix;
+      $("callSecField").classList.toggle("noPrefix",!showPrefix);
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
