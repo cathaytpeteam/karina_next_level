@@ -107,3 +107,14 @@ Scenario 1 now opens the same clean Passenger Type layer as Scenario 2:
 Existing v1.0.12 behavior is preserved, including Message Language headings, Scenario 3 Chinese/English only, +81 validation, and Scenario 2 IATA Destination codes (NRT / KIX / NGO / HKG).
 
 Japanese native SMS keeps the existing platform split: iOS uses `&body=` and Android uses `?body=`.
+
+## v1.0.14
+- All Message Language headings renamed to Language.
+- Scenario 1 Join Japanese SMS replaced with newly approved copy.
+- Scenario 1/2 Transit SEC shows Origin IATA: CX450/530/564 HKG; CX451 NRT; CX531 NGO; CX565 KIX.
+- General CX whitelist applied to Scenario 1 Join, Scenario 2 Join and Scenario 4 Disrupted flight.
+- Transit, Scenario 3 Arrival, Connecting Flight and Protect to remain exceptions; Protect to allows non-CX.
+
+## v1.0.15 — Lightweight Images
+- PNG assets recompressed/reduced-color for faster loading on company phones.
+- Image dimensions, filenames, UI layout, message copy, flight rules, validation, SMS and WhatsApp behavior are unchanged.

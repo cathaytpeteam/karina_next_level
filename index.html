@@ -213,6 +213,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .callNoMessageSeg{margin-top:18px}
 .callNoMessageSeg button{width:100%}
 #previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
+
+.transitIata{width:68%;max-width:420px;margin:14px auto 0;text-align:left}.transitIataLabel{font-size:.86rem;font-weight:700;color:var(--muted);margin-bottom:6px}.transitIataValue{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--soft);font-weight:800;color:var(--brand-strong);letter-spacing:.08em}#callSecField{width:68%;max-width:420px;margin-left:auto;margin-right:auto}#callSecField input{width:100%;text-align:center}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.12.29/bundle/libphonenumber-max.js"></script>
 </head>
@@ -278,6 +280,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-msec" hidden>
       <h1>SEC</h1>
       <div class="field"><input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+      <div class="transitIata" id="missTransitIata" hidden><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="missTransitIataValue">—</div></div>
     </section>
 
     <!-- Wrongly Pick-up -->
@@ -353,6 +356,11 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         <span class="code" aria-hidden="true">CX</span>
         <input autocomplete="off" id="callFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits">
       </div>
+      <div id="callTransitSecWrap" hidden>
+        <h2 class="callGateTitle">SEC</h2>
+        <div class="field" id="callSecField"><input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+        <div class="transitIata"><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="callTransitIataValue">—</div></div>
+      </div>
       <h2 class="callGateTitle">final call at Gate</h2>
       <div class="field" id="callGateField">
         <select class="code" id="callGateZone" aria-label="Gate area">
@@ -368,7 +376,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-preview" hidden>
       <h1>Confirm details</h1>
       <dl class="sum" id="sum"></dl>
-      <h2 class="previewLangTitle" id="previewLangTitle">Message Language</h2>
+      <h2 class="previewLangTitle" id="previewLangTitle">Language</h2>
       <div class="seg" id="previewLangSeg" role="group" aria-label="Message order">
         <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
         <button type="button" id="ordEn" aria-pressed="false">English</button>
@@ -592,6 +600,12 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const n=callFlightNumber();
     return n?"CX"+n:"";
   }
+  const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
+  const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
+  const TRANSIT_ORIGIN_IATA={"450":"HKG","530":"HKG","564":"HKG","451":"NRT","531":"NGO","565":"KIX"};
+  const generalCxOk=raw=>GENERAL_CX_FLIGHTS.has(String(Number(digits(raw))));
+  const transitCxOk=raw=>TRANSIT_FLIGHTS.has(String(Number(digits(raw))));
+  const transitOriginIata=raw=>TRANSIT_ORIGIN_IATA[String(Number(digits(raw)))]||"";
   const TRANSIT_DESTINATIONS={
     "450":{zh:"東京成田",en:"Tokyo Narita",ja:"東京（成田）"},
     "564":{zh:"大阪關西",en:"Osaka Kansai",ja:"大阪（関西）"},
@@ -611,17 +625,19 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   function callFlightOk(){
     const n=callFlightNumber();
     if(!n) return false;
-    return S.callMode==="transit"?Object.prototype.hasOwnProperty.call(TRANSIT_DESTINATIONS,n):S.callMode==="join";
+    if(S.callMode==="transit") return transitCxOk(n)&&isFlt(v("callSec"))&&+v("callSec")<=580;
+    if(S.callMode==="join") return generalCxOk(n);
+    return false;
   }
 
   const OK={
     phone:()=>{const p=normalizePhone(v("phoneInput"));return !!p&&!p.blocked;},
-    mflight:()=>isFlt(v("mFlight")),
+    mflight:()=>isFlt(v("mFlight"))&&(S.missMode==="transit"?transitCxOk(v("mFlight")):S.missMode==="join"?generalCxOk(v("mFlight")):true),
     msec:()=>isFlt(v("mSec"))&&+v("mSec")<=580,
     wflight:()=>isFlt(v("wFlight")),
     bag1:()=>isAir(v("b1a"))&&/^\d{6}$/.test(v("b1n")),
     bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
-    dflight:()=>isFlt(v("dFlight")),
+    dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight")),
     dtransfer:()=>isAir(v("tA"))&&isFlt(v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isAir(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
@@ -635,12 +651,12 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
   const HINT={
     phone:()=>{const n=digits(v("phoneInput")),p=normalizePhone(n);if(p&&p.blocked)return "罐頭號碼 無用";return n&&!p?"Invalid or incomplete phone number":"";},
-    mflight:()=>isFlt(v("mFlight"))?"":"1–3 digits",
+    mflight:()=>!isFlt(v("mFlight"))?"1–3 digits":(S.missMode==="transit"&&!transitCxOk(v("mFlight"))?"Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565":(S.missMode==="join"&&!generalCxOk(v("mFlight"))?"Please select a listed CX flight":"")),
     msec:()=>{const x=v("mSec");return !x?"0–580":(+x>580?"Max 580":"");},
     wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
     bag1:()=>bagHint("b1a","b1n"),
     bag2:()=>bagHint("b2a","b2n"),
-    dflight:()=>isFlt(v("dFlight"))?"":"1–3 digits",
+    dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(generalCxOk(v("dFlight"))?"":"Please select a listed CX flight"),
     dtransfer:()=>!isAir(v("tA"))?"Airline code: 2 letters":(isFlt(v("tN"))?"":"1–3 digits"),
     dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
     darrange:()=>S.arrange!=="known"?"":!isAir(v("altA"))?"Airline code: 2 letters":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
@@ -648,7 +664,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     callconfirm:()=>{
       const n=callFlightNumber();
       if(!n) return "Flight number: 1–3 digits";
-      if(S.callMode==="transit"&&!Object.prototype.hasOwnProperty.call(TRANSIT_DESTINATIONS,n)) return "Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565";
+      if(S.callMode==="transit"&&!transitCxOk(n)) return "Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565";
+      if(S.callMode==="transit"&&(!isFlt(v("callSec"))||+v("callSec")>580)) return "SEC: 0–580";
+      if(S.callMode==="join"&&!generalCxOk(n)) return "Please select a listed CX flight";
       return "";
     },
     preview:()=>"Check details before sending"
@@ -694,9 +712,8 @@ Please return to Check-in Counter 4 and contact our staff.
 If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
 Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
-    const ja=`キャセイ航空 桃園空港です。
-お預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。
-出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。`;
+    const ja=`キャセイパシフィック航空ご利用のお客様へ
+お預けの荷物がX線検査を通過できず、再検査が必要です。出国審査前は至急カウンター4へ、出国審査後は搭乗ゲートスタッフへお申し出ください。対応されない場合、荷物を搭載できない可能性がございます。ご協力をお願いいたします。`;
     if(S.order==="ja") return ja;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
@@ -863,11 +880,11 @@ Thank you for your understanding and cooperation.`;
     if(flow==="call"){
       if(!S.callNoMessage){
         rows.push(["Flight",callFlightFull()]);
-        if(S.callMode==="transit"){const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
+        if(S.callMode==="transit"){rows.push(["SEC",String(Number(v("callSec"))).padStart(3,"0")]);const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Origin IATA",origin]);const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Proceed to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
-      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Origin IATA",origin]);}
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),"無人領取的行李"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
@@ -887,7 +904,7 @@ Thank you for your understanding and cooperation.`;
     return [flow,S.phone,S.status,S.arrange,
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
       v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
-      v("callFlight"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode
+      v("callFlight"),v("callSec"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode
     ].join("\u241F");
   }
   function clearDrafts(){ delete edits.zh; delete edits.en; delete edits.ja; msgSig=null; }
@@ -1007,7 +1024,7 @@ Thank you for your understanding and cooperation.`;
   };
 
   function clearCaseData(){
-    ["mFlight","mSec","wFlight","b1n","b2n","dFlight","tN","delayTime","altN","altTime","arriveTime","callFlight","callGate"].forEach(id=>$(id).value="");
+    ["mFlight","mSec","wFlight","b1n","b2n","dFlight","tN","delayTime","altN","altTime","arriveTime","callFlight","callSec","callGate"].forEach(id=>$(id).value="");
     ["b1a","b2a","tA","altA"].forEach(id=>$(id).value="CX");
     S.status="";S.arrange="";S.order="zh";S.orderSet=false;S.callNoMessage=false;S.callMode="";S.missMode="";flow="";
     $("callGateZone").value="B";
@@ -1053,6 +1070,7 @@ Thank you for your understanding and cooperation.`;
     }else $("step").textContent="";
 
     // status / arrange option state
+    if(cur==="msec"){const transit=S.missMode==="transit";$("missTransitIata").hidden=!transit;$("missTransitIataValue").textContent=transit?(transitOriginIata(v("mFlight"))||"—"):"—";}
     if(cur==="dstatus"){
       $("stPossible").setAttribute("aria-pressed",S.status==="possible");
       $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");
@@ -1070,7 +1088,9 @@ Thank you for your understanding and cooperation.`;
       t.textContent="Send to"; dd.textContent=(S.country?flagFor(S.country)+" ":"")+"+"+S.phone;
       d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       const n=callFlightNumber();
-      $("callFlightField").classList.toggle("bad",!!n&&S.callMode==="transit"&&!Object.prototype.hasOwnProperty.call(TRANSIT_DESTINATIONS,n));
+      $("callFlightField").classList.toggle("bad",!!n&&((S.callMode==="transit"&&!transitCxOk(n))||(S.callMode==="join"&&!generalCxOk(n))));
+      $("callTransitSecWrap").hidden=S.callMode!=="transit";
+      $("callTransitIataValue").textContent=S.callMode==="transit"?(transitOriginIata(n)||"—"):"—";
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
@@ -1103,7 +1123,7 @@ Thank you for your understanding and cooperation.`;
         $("ordJa").hidden=!japanesePath;
         $("ordJa").disabled=false;
         $("ordJa").title="";
-        $("previewLangTitle").textContent="Message Language";
+        $("previewLangTitle").textContent="Language";
         $("ordEn").style.order=flow==="dp"?"-1":"";
         if(S.order==="ja"&&!japanesePath){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
         if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
@@ -1161,7 +1181,7 @@ Thank you for your understanding and cooperation.`;
     $("phoneField").classList.toggle("bad",bl);
     render();
   });
-  const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3};
+  const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,callSec:3};
   Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){this.value=digits(this.value).slice(0,numInputs[id]);render();}));
   ["mFlight","wFlight","dFlight","tN","altN"].forEach(id=>$(id).addEventListener("blur",function(){normalizeFlightField(id);render();}));
   ["b1a","b2a","tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));
@@ -1177,8 +1197,8 @@ Thank you for your understanding and cooperation.`;
   $("missTransit").onclick=()=>{flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
   $("missDirect").onclick=()=>{flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
   $("goCall").onclick=()=>{flow="call";S.callMode="";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("calltype");};
-  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
-  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("callJoin").onclick=()=>{S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
+  $("callTransit").onclick=()=>{S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callSec").value="";if(!v("callGateZone"))$("callGateZone").value="B";go("callconfirm");};
   $("callDirect").onclick=()=>{S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;$("callFlight").value="";$("callGateZone").value="";$("callGate").value="";clearDrafts();go("preview");};
   $("goWpp").onclick=()=>{flow="wpp";go("wflight");};
   $("goDp").onclick=()=>{flow="dp";go("dflight");};

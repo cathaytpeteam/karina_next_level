@@ -1,10 +1,10 @@
 {
   "name": "Find Pax executable message-copy lock",
-  "message_master_version": "1.6",
-  "app_base": "Find-Pax-v1.0.13-Scenario1-Passenger-Type-Locked",
-  "source": "Scenario 1 Passenger Type + locked Transit copy; Scenario 1 Join Japanese explicitly retained.",
+  "message_master_version": "1.7",
+  "app_base": "Find-Pax-v1.0.14-Flight-Rules-Transit-IATA-Language-Locked",
+  "source": "v1.0.14 locked: new Scenario 1 Join Japanese, Language heading, flight rules, Transit origin IATA.",
   "functions": {
-    "textMiss": "423e56f5984279cd5d7ca4a10017e6a3201d6c8982da860b3a1657b55b22ec52",
+    "textMiss": "4ee7eeea0839e7179ec422ee31be8d37b3cab55ad02c111bba69e22a92fefc19",
     "textJoin": "9b1f7dee1a436f3042574b1fcdd54b2408e578769831a28f949a53d23dee3e81",
     "textTransit": "198a00d9510a901ee3736823051a9b29b448e1a3bf4f9c5e7ab81a370372a5e5",
     "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
@@ -15,5 +15,5 @@
   "constants": {
     "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f"
   },
-  "message_master_sha256": "ab698c22dfa2faeed4cb5e92c62fb3dcd7c39378a2d595d55bf5df9e9dc56b56"
+  "message_master_sha256": "39afce18758a783f10de9997d84dd8c6782710b7bcc132509c17df91d9b150ad"
 }

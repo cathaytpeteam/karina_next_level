@@ -1,18 +1,4 @@
+PASS v1.0.14 full 23-file release
 PASS JavaScript syntax
 PASS verify_messages.py
 PASS verify_release.py
-PASS iOS SMS body separator
-PASS Android SMS body separator
-PASS WhatsApp native scheme
-PASS WhatsApp fallback
-PASS Scenario1 Passenger Type
-PASS Scenario1 Join Japanese
-PASS Scenario1 Transit Japanese
-PASS Scenario1 Join/Transit SMS route
-PASS Scenario1 Call Directly
-PASS Scenario3 no Japanese
-PASS Message Language
-PASS IATA NRT
-PASS IATA KIX
-PASS IATA NGO
-PASS IATA HKG

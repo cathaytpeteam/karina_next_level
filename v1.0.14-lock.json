@@ -1,0 +1,50 @@
+{
+  "release": "v1.0.14",
+  "base": "v1.0.13",
+  "locked_changes": {
+    "scenario1_join_ja": "キャセイパシフィック航空ご利用のお客様へ\nお預けの荷物がX線検査を通過できず、再検査が必要です。出国審査前は至急カウンター4へ、出国審査後は搭乗ゲートスタッフへお申し出ください。対応されない場合、荷物を搭載できない可能性がございます。ご協力をお願いいたします。",
+    "language_heading": "Language",
+    "general_cx_whitelist": [
+      "CX407",
+      "CX489",
+      "CX477",
+      "CX499",
+      "CX461",
+      "CX450",
+      "CX564",
+      "CX530",
+      "CX495",
+      "CX443",
+      "CX421",
+      "CX473",
+      "CX565",
+      "CX451",
+      "CX531",
+      "CX479",
+      "CX469",
+      "CX463",
+      "CX465",
+      "CX401",
+      "CX403"
+    ],
+    "general_whitelist_applies_to": [
+      "Scenario 1 Join Pax flight",
+      "Scenario 2 Join Pax flight",
+      "Scenario 4 Disrupted flight"
+    ],
+    "exceptions": [
+      "Scenario 1/2 Transit Pax (special six-flight rule)",
+      "Scenario 3 Arrival Flight",
+      "Scenario 4 Connecting Flight",
+      "Scenario 4 Protect to"
+    ],
+    "transit_origin_iata": {
+      "CX450": "HKG",
+      "CX530": "HKG",
+      "CX564": "HKG",
+      "CX451": "NRT",
+      "CX531": "NGO",
+      "CX565": "KIX"
+    }
+  }
+}

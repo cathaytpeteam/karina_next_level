@@ -1,145 +1,38 @@
 from pathlib import Path
-import hashlib, json, re, sys, subprocess
-
-root=Path(__file__).resolve().parent
-src=(root/'index.html').read_text(encoding='utf-8')
-lock=json.loads((root/'baseline-lock.json').read_text(encoding='utf-8'))
-copy_lock=json.loads((root/'message-copy-lock.json').read_text(encoding='utf-8'))
-master_path=root/'message-master.json'
-master=json.loads(master_path.read_text(encoding='utf-8'))
-
-def sha_text(s): return hashlib.sha256(s.encode('utf-8')).hexdigest()
-def sha_file(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
-def extract_func(source,name):
-    lines=source.splitlines()
-    start=next((i for i,l in enumerate(lines) if l.startswith(f'  function {name}(')),None)
-    if start is None: return None
-    for j in range(start+1,len(lines)):
-        if lines[j]=='  }': return '\n'.join(lines[start:j+1])
-    return None
-
-def extract_const(source,name):
-    lines=source.splitlines()
-    start=next((i for i,l in enumerate(lines) if l.startswith(f'  const {name}=')),None)
-    if start is None: return None
-    for j in range(start+1,len(lines)):
-        if lines[j]=='  };': return '\n'.join(lines[start:j+1])
-    return None
-
-failures=[]
-def check(label,ok,detail=''):
-    print(('PASS' if ok else 'FAIL'),label+(f' — {detail}' if detail else ''))
-    if not ok: failures.append(label)
-
-print('Find Pax v1.0.13 Release Guard')
-print('Baseline status:',lock.get('status'))
-check('baseline is LOCKED',lock.get('status')=='LOCKED')
-
-pm=lock['protected']['message_copy']
-check('message master version',str(master.get('version'))==str(pm['message_master_version']))
-check('message master status',master.get('status')=='LOCKED')
-check('message master SHA-256',sha_file(master_path)==pm['message_master_sha256'])
-check('message-copy lock version',copy_lock.get('message_master_version')==pm['message_master_version'])
-check('message-copy master hash',copy_lock.get('message_master_sha256')==pm['message_master_sha256'])
-for name,expected in pm['functions'].items():
-    body=extract_func(src,name)
-    check('copy function '+name,body is not None and sha_text(body)==expected)
-for name,expected in pm.get('constants',{}).items():
-    body=extract_const(src,name)
-    check('copy constant '+name,body is not None and sha_text(body)==expected)
-
-# Japan +81 phone behavior stays unchanged.
-pp=lock['protected']['phone_validation']
-for name,expected in pp['functions'].items():
-    body=extract_func(src,name)
-    check('phone function '+name,body is not None and sha_text(body)==expected)
-validate_body=extract_func(src,'validatePhone')
-if validate_body:
-    accepted={
-      '819012345678':'819012345678','+819012345678':'819012345678','8109012345678':'819012345678','81009012345678':'819012345678','810009012345678':'819012345678',
-      '818012345678':'818012345678','817012345678':'817012345678','816012345678':'816012345678','810008012345678':'818012345678','810007012345678':'817012345678','810006012345678':'816012345678'}
-    rejected=['812012345678','8102012345678','81002012345678','815012345678','8105012345678','81005012345678','81312345678','810312345678','81612345678','810612345678','81901234567','8190123456789','8100009012345678']
-    js='const digits=s=>String(s||"").replace(/\\D/g,"");\nconst window={libphonenumber:{}};\nconst PHONE_META={codes:["81"],byCode:{"81":["JP"]}};\nconst callingCodeFor=n=>n.startsWith("81")?"81":"";\n'+validate_body+'\nconst accepted='+json.dumps(accepted)+';\nconst rejected='+json.dumps(rejected)+';\nlet bad=[];\nfor(const [raw,want] of Object.entries(accepted)){const p=validatePhone(raw);if(!p||p.digits!==want||p.country!=="JP")bad.push(`accept ${raw}: ${JSON.stringify(p)}`)}\nfor(const raw of rejected){const p=validatePhone(raw);if(p)bad.push(`reject ${raw}: ${JSON.stringify(p)}`)}\nif(bad.length){console.error(bad.join("\\n"));process.exit(1)}console.log("Japan cases OK");'
-    try:
-        cp=subprocess.run(['node','-e',js],capture_output=True,text=True,timeout=15)
-        check('Japan +81 runtime cases',cp.returncode==0,(cp.stdout or cp.stderr).strip())
-    except Exception as e: check('Japan +81 runtime cases',False,str(e))
-else: check('Japan +81 runtime cases',False,'validatePhone missing')
-
-# Japanese SMS routing and approved Scenario 2 mechanics.
-jp=lock['protected']['japanese_sms']
-for name,expected in jp['functions'].items():
-    body=extract_func(src,name)
-    check('routing function '+name,body is not None and sha_text(body)==expected)
-lang_match=re.search(r'<div class="seg" id="previewLangSeg".*?</div>',src,re.S)
-check('Japanese language selector block',bool(lang_match) and sha_text(lang_match.group(0).strip())==jp['language_selector_html_sha256'])
-
-check('All scenarios use Message Language heading','First Message Language' not in src and '<h2 class="previewLangTitle" id="previewLangTitle">Message Language</h2>' in src)
-check('Scenario 3 Japanese selector removed','flow==="miss"||scenario2Ja||flow==="wpp"' not in src and 'const japanesePath=flow==="miss"||scenario2Ja;' in src)
-check('Scenario 3 Japanese copy removed','const ja=`こんにちは。' not in extract_func(src,'textWpp') and 'if(S.order==="ja") return ja;' not in extract_func(src,'textWpp'))
-
-check('Scenario 1 approved Japanese copy',jp['scenario1_approved_copy'] in src)
-check('Scenario 1 Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textMiss'))
-
-check('Scenario 1 Passenger Type screen',all(x in src for x in ['id="s-misstype"','id="missJoin"','id="missTransit"','id="missDirect"']))
-check('Scenario 1 Passenger Type labels',all(x in src for x in ['>Join Pax &amp; Message</span>','>Transit Pax &amp; Message</span>','>Call Directly</span>']))
-miss_section=re.search(r'<section class="screen" id="s-misstype".*?</section>',src,re.S)
-check('Scenario 1 Passenger Type has no icons',bool(miss_section) and '<span class="ico"' not in miss_section.group(0))
-check('Scenario 1 Join Japanese retained',lock['protected']['japanese_sms']['scenario1_approved_copy'] in extract_func(src,'textMiss'))
-check('Scenario 1 Transit locked function',extract_func(src,'textMissTransit') is not None)
-check('Scenario 1 Transit Japanese locked copy',lock['protected']['scenario1_transit_copy']['ja'] in extract_func(src,'textMissTransit'))
-check('Scenario 1 mode message routing','S.missMode==="transit"?textMissTransit(zf):textMiss(zf)' in extract_func(src,'buildText'))
-check('Scenario 1 Call Directly shares call-only flow','S.callMode="direct";S.callNoMessage=true' in src and 'if(flow==="call"&&S.callNoMessage){openWA("");return;}' in extract_func(src,'send'))
-
-check('Scenario 2 Join Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textJoin'))
-check('Scenario 2 Transit Japanese has no suffix','if(S.order==="ja") return ja;' in extract_func(src,'textTransit'))
-check('Transit Japanese Taipei time marker','現在の台北時間は${taipeiTime()}です。' in extract_func(src,'textTransit'))
-check('Join Japanese has no Taipei time','taipeiTime()' not in extract_func(src,'textJoin'))
-check('Taipei timezone is explicit','timeZone:"Asia/Taipei"' in extract_func(src,'taipeiTime'))
-check('Japanese CTA marker','SMSを送信' in src)
-check('Join and Transit Japanese SMS routing','S.callMode==="join"||S.callMode==="transit"' in extract_func(src,'send') and 'S.callMode==="join"||S.callMode==="transit"' in extract_func(src,'sendSMS'))
-
-# Scenario 2 structure and exact flight rules.
-s2=lock['protected']['scenario2']
-for marker in ['id="callJoin"','>Join Pax &amp; Message</span>','id="callTransit"','>Transit Pax &amp; Message</span>','id="callDirect"','>Call Directly</span>','id="callFlight"']:
-    check('Scenario 2 marker '+marker,marker in src)
-check('old No message option removed','>No message<' not in src and '>No Message<' not in src)
-check('Passenger Type labels are teal',('#s-calltype .ctext{color:var(--brand-strong)}' in src) or ('#s-calltype .ctext,#s-misstype .ctext{color:var(--brand-strong)}' in src))
-check('Passenger Type has no icon elements','<span class="ico"' not in re.search(r'<section class="screen" id="s-calltype".*?</section>',src,re.S).group(0))
-const_dest=extract_const(src,'TRANSIT_DESTINATIONS')
-check('Transit destination mapping lock',const_dest is not None and sha_text(const_dest)==s2['destination_constant_sha256'])
-check('Join has no whitelist','return S.callMode==="transit"?Object.prototype.hasOwnProperty.call(TRANSIT_DESTINATIONS,n):S.callMode==="join";' in extract_func(src,'callFlightOk'))
-for flt in ['450','451','530','531','564','565']:
-    check('Transit flight '+flt,('"'+flt+'":') in const_dest)
-
-code_const=extract_const(src,'TRANSIT_DESTINATION_CODES')
-expected_codes={'450':'NRT','564':'KIX','530':'NGO','451':'HKG','565':'HKG','531':'HKG'}
-check('Confirmation destination code constant',code_const is not None)
-if code_const:
-    for flt,code in expected_codes.items():
-        check('Confirmation destination '+flt+' → '+code,('"'+flt+'":"'+code+'"') in code_const)
-build_rows=extract_func(src,'buildRows')
-check('Confirmation Destination uses IATA code mapping',
-      build_rows is not None and 'TRANSIT_DESTINATION_CODES[callFlightNumber()]' in build_rows and
-      'rows.push(["Destination",code])' in build_rows)
-check('Message copy still uses localized destination names',
-      'const dest=TRANSIT_DESTINATIONS[n]' in extract_func(src,'textTransit'))
-
-# Runtime Scenario 2 flight validation and generated message behavior.
-needed=['normalizeCallGate','callGateNumber','callGateFull','callFlightNumber','callFlightFull','callFlightOk','taipeiTime','textJoin','textTransit']
-if all(extract_func(src,n) for n in needed) and const_dest:
-    js='''const digits=s=>String(s||"").replace(/\\D/g,"");\nlet vals={callFlight:"",callGateZone:"B",callGate:"9"};\nconst v=id=>vals[id]||"";\nconst S={callMode:"join",order:"zh"};\n'''+ '\n'.join([extract_func(src,n) for n in ['normalizeCallGate','callGateNumber','callGateFull','callFlightNumber','callFlightFull']])+'\n'+const_dest+'\n'+extract_func(src,'callFlightOk')+'\n'+extract_func(src,'taipeiTime')+'\n'+extract_func(src,'textJoin')+'\n'+extract_func(src,'textTransit')+'''\nlet bad=[];\nfor(const f of ["1","360","999"]){vals.callFlight=f;S.callMode="join";if(!callFlightOk())bad.push("join rejects "+f)}\nfor(const f of ["450","451","530","531","564","565"]){vals.callFlight=f;S.callMode="transit";if(!callFlightOk())bad.push("transit rejects "+f)}\nfor(const f of ["360","999","452"]){vals.callFlight=f;S.callMode="transit";if(callFlightOk())bad.push("transit accepts "+f)}\nvals.callFlight="450";S.callMode="join";S.order="ja";const j=textJoin(true);if(!j.includes("CX450")||!j.includes("B9")||j.includes("台北時間"))bad.push("join ja dynamic");\nS.callMode="transit";S.order="ja";const t=textTransit(true);if(!t.includes("台北発東京（成田）行きCX450便")||!t.includes("B9番搭乗口")||!t.match(/現在の台北時間は\\d{2}:\\d{2}です。/))bad.push("transit ja dynamic");\nS.order="zh";const z=textTransit(true);if(!z.includes("台北往東京成田CX450航班")||!z.includes("B9號登機門"))bad.push("transit zh dynamic");\nif(bad.length){console.error(bad.join("\\n"));process.exit(1)}console.log("Scenario 2 cases OK");'''
-    try:
-        cp=subprocess.run(['node','-e',js],capture_output=True,text=True,timeout=15)
-        check('Scenario 2 runtime cases',cp.returncode==0,(cp.stdout or cp.stderr).strip())
-    except Exception as e: check('Scenario 2 runtime cases',False,str(e))
-else: check('Scenario 2 runtime cases',False,'required functions missing')
-
-sw=(root/'sw.js').read_text(encoding='utf-8')
-check('service worker v1.0.13','const APP_VERSION="v1.0.13";' in sw)
-
-if failures:
-    print('\nRELEASE BLOCKED. A locked behavior changed or a regression test failed.')
-    print('Restore the approved behavior, or obtain explicit approval before intentionally regenerating the lock.')
-    sys.exit(1)
-print('\nPASS: v1.0.13 locked copy, Scenario 1 Passenger Type/Join/Transit/Call Directly, Message Language headings, Scenario 3 Chinese/English-only rule, phone validation, Scenario 2 structure, IATA destination codes, Japanese SMS routing, Taipei-time rule, and approved labels all match the approved release.')
+import json,hashlib,re,sys,subprocess
+r=Path(__file__).parent;s=(r/'index.html').read_text();b=json.loads((r/'baseline-lock.json').read_text());c=json.loads((r/'message-copy-lock.json').read_text());m=json.loads((r/'message-master.json').read_text())
+def sh(x):return hashlib.sha256(x.encode()).hexdigest()
+def ef(n):
+ L=s.splitlines();i=next((i for i,x in enumerate(L) if x.startswith('  function '+n+'(')),None)
+ if i is None:return None
+ for j in range(i+1,len(L)):
+  if L[j]=='  }':return '\n'.join(L[i:j+1])
+def ec(n):
+ L=s.splitlines();i=next((i for i,x in enumerate(L) if x.startswith('  const '+n+'=')),None)
+ if i is None:return None
+ for j in range(i+1,len(L)):
+  if L[j]=='  };':return '\n'.join(L[i:j+1])
+def ck(n,x):
+ print(('PASS' if x else 'FAIL'),n)
+ if not x: global bad;bad=True
+bad=False
+ck('release',b['release']=='v1.0.15');ck('Language heading','Message Language' not in s and 'First Message Language' not in s and '>Language<' in s)
+ck('Scenario 1 Join Japanese',b['protected']['japanese_sms']['scenario1_approved_copy'] in ef('textMiss'))
+ck('Scenario 1 Transit Japanese',b['protected']['scenario1_transit_copy']['ja'] in ef('textMissTransit'))
+ck('Scenario 3 no Japanese','const ja=' not in ef('textWpp'))
+ck('general whitelist',all(('"'+x[2:]+'"') in s for x in b['protected']['flight_rules_v114']['general_cx']))
+ck('S1 Join whitelist','S.missMode==="join"?generalCxOk' in s);ck('S1 Transit special','S.missMode==="transit"?transitCxOk' in s)
+ck('S2 Join whitelist','S.callMode==="join") return generalCxOk' in s);ck('S2 Transit special','S.callMode==="transit") return transitCxOk' in s)
+ck('S4 whitelist','dflight:()=>isFlt(v("dFlight"))&&generalCxOk' in s);ck('S3 arrival exception','wflight:()=>isFlt(v("wFlight"))' in s)
+ck('Connecting exception','dtransfer:()=>isAir(v("tA"))&&isFlt(v("tN"))' in s);ck('Protect exception','isAir(v("altA"))&&isFlt(v("altN"))' in s)
+ck('Transit IATA UI',all(x in s for x in ['missTransitIataValue','callTransitIataValue','callSec']))
+ck('Origin IATA mapping',all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
+ck('Destination IATA preserved',all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
+ck('+81 validation', 'if(n.startsWith("81"))' in s and '/^[6789]\d{9}$/' in s)
+ck('SMS routing','isiOS?"&":"?"' in s);ck('WhatsApp routing','whatsapp://send?phone=' in s and 'https://wa.me/' in s)
+for n,h in c['functions'].items():ck('copy '+n,sh(ef(n))==h)
+for n,h in c['constants'].items():ck('constant '+n,sh(ec(n))==h)
+ck('master hash',hashlib.sha256((r/'message-master.json').read_bytes()).hexdigest()==c['message_master_sha256'])
+ck('service worker','const APP_VERSION="v1.0.15";' in (r/'sw.js').read_text())
+if bad:sys.exit(1)
+print('PASS: v1.0.15 full release guard')

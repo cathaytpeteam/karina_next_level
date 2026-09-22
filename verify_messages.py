@@ -48,4 +48,4 @@ for name,expected in lock.get('constants',{}).items():
 if bad:
     print('\nMessage copy or its locked mapping changed. Do not release until the change is explicitly approved and the lock is intentionally regenerated.')
     sys.exit(1)
-print('\nPASS: message master and executable copy match the locked v1.0.13 release.')
+print('\nPASS: message master and executable copy match the locked v1.0.15 release.')
