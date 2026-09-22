@@ -49,7 +49,7 @@ ck('Protect exception', 'isCarrier(v("altA"))&&isFlt(v("altN"))' in s)
 ck('Alphanumeric airline designator', 'const isCarrier=s=>/^[A-Z0-9]{2}$/.test(s);' in s and 'replace(/[^A-Za-z0-9]/g,"")' in s)
 
 # Transit SEC origin UI/rules. Scenario 2 now intentionally uses callSecPrefix.
-ck('Transit SEC origin UI', all(x in s for x in ['missTransitIataValue','callSecPrefix','callSec']))
+ck('Unified SEC origin UI', all(x in s for x in ['mSecPrefix','mSec','callSecPrefix','callSec']) and 'missTransitIataValue' not in s)
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
 ck('Destination IATA preserved', all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
@@ -93,14 +93,14 @@ for section in ('phone_validation','japanese_sms','datetime'):
         ck('protected '+n, body is not None and sh(body)==h)
 
 # UI regression checks: passenger type in progress and Direct phone placement.
-ck('progress includes passenger type', 'progressName+=" "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s and 'progressName+=" "+(S.callMode==="join"?"Join Pax":"Transit Pax")' in s)
+ck('progress labels approved', 'progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s and 'progressName+=" - "+(S.callMode==="join"?"Join":"Transit")' in s and '.step{font-size:20px;font-weight:700' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone])' in s)
 ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow==="call")&&S.phone' in s)
 
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.0.16";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r4";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r6";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',

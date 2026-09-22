@@ -75,7 +75,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.16-r4**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
+Service-worker cache identity is **v1.0.16-r6**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -147,3 +147,11 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Opening Message Preview without editing no longer creates a saved custom draft when navigating Back; generated Japanese Transit time can therefore refresh normally. Actual typed edits remain preserved per language.
 - Both blocked canned/test phone numbers now show `罐頭號碼 無用`, including entries that libphonenumber itself considers invalid.
 - Approved message copy, Japan +81 rules, SEC/IATA rules, SMS/WhatsApp routing, and visual styling are unchanged.
+
+
+## Authorized SEC layout update (r5)
+Scenario 1 and Scenario 2 SEC screens are now visually unified as one inline field: `[ IATA | SEC ]`. Join uses `TPE`; Transit derives `HKG`, `NRT`, `NGO`, or `KIX` from the selected transit flight. This was an explicitly authorized exception to the Golden Layout Lock; the updated SEC layout is locked again in `layout-lock.json`.
+
+## Authorized progress update (r6)
+
+All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - Join Pax` / `漏查 - Transit Pax`; Scenario 2 uses `Call Passenger - Join` / `Call Passenger - Transit`.

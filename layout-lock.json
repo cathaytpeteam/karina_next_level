@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.0.17",
   "status": "LOCKED",
-  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change.",
+  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1 labels use “漏查 - Join Pax / Transit Pax”; Scenario 2 labels use “Call Passenger - Join / Transit”.",
   "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
   "source": "index.html",
   "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
@@ -32,7 +32,7 @@
     "s-scenario": "7843156189c0fc353cec94ddcacd97d795b35d720ad88207e6cd6060b518ddb4",
     "s-misstype": "9cd66a68217ec7cc1c2d35ee043a64ba4b205029ddf96ff9ae2dc547a7b93e25",
     "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
-    "s-msec": "47827617fcb2a293565136002973aa097dca3b513e0a60d2a3189302c7f5a793",
+    "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
     "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
     "s-bag1": "45ca0084918b40fadf764e4af4c07ced0c4da57f9096619fb53c589d21331289",
     "s-bag2": "54f8a82ab9509fcabe6c14b0e8f932e8ca1cdee7ce7132c754caea12828c69f0",
@@ -73,8 +73,8 @@
       "mFlight"
     ],
     "s-msec": [
-      "missTransitIata",
-      "missTransitIataValue",
+      "mSecField",
+      "mSecPrefix",
       "mSec"
     ],
     "s-wflight": [
@@ -152,10 +152,17 @@
     "Passenger Type option placement",
     "Progress/top-bar DOM including phone badge placement",
     "Confirm details / preview DOM including Call Directly Phone Number row placement",
-    "Bottom CTA/footer DOM"
+    "Bottom CTA/footer DOM",
+    "Unified SEC field layout: [ IATA prefix | SEC number ] for Scenario 1/2 Join and Transit"
   ],
   "not_protected_by_this_file": [
     "Generated message copy and business logic (protected by existing message/baseline locks)",
     "Runtime data values inserted into existing locked elements"
-  ]
+  ],
+  "authorized_progress_update": {
+    "font_size": "20px",
+    "font_weight": 700,
+    "scenario1": "漏查 - Join Pax / 漏查 - Transit Pax",
+    "scenario2": "Call Passenger - Join / Call Passenger - Transit"
+  }
 }

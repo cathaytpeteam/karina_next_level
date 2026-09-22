@@ -1,4 +1,4 @@
-PASS v1.0.16 offline release + UI/state navigation hotfix r4
+PASS v1.0.16 offline release + UI/state navigation hotfix r6 + authorized unified SEC layout + progress labels 20px/700
 PASS approved message copy unchanged
 PASS Scenario 1 progress includes Join Pax / Transit Pax
 PASS Scenario 2 progress includes Join Pax / Transit Pax
@@ -8,7 +8,7 @@ PASS Call Directly phone hidden from top-right badge
 PASS Call Directly phone shown under Confirm details
 PASS state/navigation hotfix retained
 PASS local libphonenumber / zero CDN runtime dependency retained
-PASS Service Worker cache find-pax-v1.0.16-r4
+PASS Service Worker cache find-pax-v1.0.16-r6
 PASS verify_messages.py
 PASS verify_release.py
 PASS SHA256 integrity
