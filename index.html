@@ -160,13 +160,13 @@ h1 + .chip{margin-top:-8px}
 
 /* Prefix + value fields share one centered two-column geometry across the app. */
 #s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callsec .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
-#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-callflight .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
-/* SEC has no prefix chip; an empty first cell keeps its number in the same spot as the flight number. */
-#s-msec .field::before, #s-callsec .field::before{content:"";display:block}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
-#s-msec .field, #s-callsec .field{grid-template-columns:1fr}
-#s-msec .field::before, #s-callsec .field::before{display:none}
-#s-msec .field input, #s-callsec .field input{width:100%;justify-self:stretch;text-align:center}
+#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-callflight .field .code, #s-callsec .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
+/* SEC (Scenario 1) has no prefix chip; an empty first cell keeps its number in the same spot as the flight number. */
+#s-msec .field::before{content:"";display:block}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callsec .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-msec .field{grid-template-columns:1fr}
+#s-msec .field::before{display:none}
+#s-msec .field input{width:100%;justify-self:stretch;text-align:center}
 #s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
 main.preview-open{display:flex;flex-direction:column;overflow:hidden}
@@ -353,8 +353,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
     <section class="screen" id="s-callsec" hidden>
       <h1>Sec</h1>
-      <div class="transitIata" id="callTransitIata"><div class="transitIataLabel">IATA Code</div><div class="transitIataValue" id="callTransitIataValue">—</div></div>
-      <div class="field" id="callSecField"><input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number"></div>
+      <div class="field" id="callSecField">
+        <span class="code" id="callSecPrefix" aria-hidden="true">TPE</span>
+        <input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number">
+      </div>
     </section>
 
     <section class="screen" id="s-callgate" hidden>
@@ -597,6 +599,49 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const n=callFlightNumber();
     return n?"CX"+n:"";
   }
+  // ---- SEC 前綴規則 ------------------------------------------------------
+  // App 使用地為桃園機場(TPE)。SEC = 旅客「原始出發地 IATA」+ 序號。
+  //  - Join Pax:在 TPE 登機 → 前綴一律 TPE(例:TPE088)
+  //  - Transit Pax:在他地出發、經 TPE 轉機 → 前綴為原始出發地(例:HKG055)
+  //  - 前綴永遠是「出發地」,絕不可用「目的地」
+  // 下列 6 班經停台灣,同時載有 Join 與 Transit 旅客,因此各有兩組合法 SEC 前綴:
+  //   CX450 HKG→TPE→NRT : TPE / HKG   (NRT ✗ 目的地)
+  //   CX530 HKG→TPE→NGO : TPE / HKG   (NGO ✗ 目的地)
+  //   CX564 HKG→TPE→KIX : TPE / HKG   (KIX ✗ 目的地)
+  //   CX451 NRT→TPE→HKG : TPE / NRT   (HKG ✗ 目的地)
+  //   CX531 NGO→TPE→HKG : TPE / NGO   (HKG ✗ 目的地)
+  //   CX565 KIX→TPE→HKG : TPE / KIX   (HKG ✗ 目的地)
+  // 其他航班只有 Join 旅客 → 只有 TPE。
+  const HOME_IATA="TPE";
+  const SEC_PREFIXES={
+    "450":{join:"TPE",transit:"HKG"},
+    "530":{join:"TPE",transit:"HKG"},
+    "564":{join:"TPE",transit:"HKG"},
+    "451":{join:"TPE",transit:"NRT"},
+    "531":{join:"TPE",transit:"NGO"},
+    "565":{join:"TPE",transit:"KIX"}
+  };
+  // 某航班所有合法的 SEC 前綴
+  function secPrefixesFor(flight){
+    const r=SEC_PREFIXES[String(Number(digits(flight)))];
+    return r?[r.join,r.transit]:[HOME_IATA];
+  }
+  // 依旅客類型(join / transit)取得 SEC 前綴;查不到時回傳空字串,由驗證擋下
+  function secPrefix(flight,mode){
+    const r=SEC_PREFIXES[String(Number(digits(flight)))];
+    if(mode==="transit") return r?r.transit:"";
+    return HOME_IATA;
+  }
+  // 檢查某組前綴對該航班是否合法(例:CX450 + NRT → false)
+  function secPrefixOk(flight,prefix){
+    return secPrefixesFor(flight).includes(String(prefix||"").toUpperCase());
+  }
+  function callSecOrigin(){
+    return secPrefix(callFlightNumber(),S.callMode);
+  }
+  function callSecFull(){
+    return callSecOrigin()+String(Number(v("callSec"))).padStart(3,"0");
+  }
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
   const TRANSIT_ORIGIN_IATA={"450":"HKG","530":"HKG","564":"HKG","451":"NRT","531":"NGO","565":"KIX"};
@@ -646,7 +691,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       if(S.callMode==="join") return generalCxOk(n);
       return false;
     },
-    callsec:()=>isFlt(v("callSec"))&&+v("callSec")<=580,
+    callsec:()=>isFlt(v("callSec"))&&+v("callSec")<=580&&secPrefixOk(callFlightNumber(),callSecOrigin()),
     callgate:()=>!!callGateFull(),
     preview:()=>true
   };
@@ -673,7 +718,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       if(S.callMode==="join"&&!generalCxOk(n)) return "Please select a listed CX flight";
       return "";
     },
-    callsec:()=>{const x=v("callSec");return !x?"0–580":(+x>580?"Max 580":"");},
+    callsec:()=>{if(!secPrefixOk(callFlightNumber(),callSecOrigin()))return "SEC prefix not valid for this flight";const x=v("callSec");return !x?"0–580":(+x>580?"Max 580":"");},
     callgate:()=>"",
     preview:()=>"Check details before sending"
   };
@@ -888,8 +933,8 @@ Thank you for your understanding and cooperation.`;
     if(flow==="call"){
       if(!S.callNoMessage){
         rows.push(["Flight",callFlightFull()]);
-        rows.push(["Sec",String(Number(v("callSec"))).padStart(3,"0")]);
-        {const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
+        rows.push(["Sec",callSecFull()]);
+        {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Proceed to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
@@ -1096,9 +1141,7 @@ Thank you for your understanding and cooperation.`;
       $("callFlightField").classList.toggle("bad",!!n&&((S.callMode==="transit"&&!transitCxOk(n))||(S.callMode==="join"&&!generalCxOk(n))));
     }
     if(cur==="callsec"){
-      const origin=transitOriginIata(callFlightNumber());
-      $("callTransitIata").hidden=!origin;
-      $("callTransitIataValue").textContent=origin||"—";
+      $("callSecPrefix").textContent=callSecOrigin();
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
