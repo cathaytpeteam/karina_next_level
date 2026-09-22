@@ -1,4 +1,4 @@
-# Find Pax v1.0.13 — Locked Scenario 2 Join / Transit
+# Find Pax v1.0.16 — Functional Fix Release
 
 Release date: 2026-09-22
 
@@ -8,8 +8,8 @@ This release is built on the locked v1.0.6 production baseline and the Scenario 
 
 Selecting Scenario 2 now opens:
 
-- **Join Pax** — message flow with Flight Number and Gate.
-- **Transit Pax** — message flow with Flight Number and Gate, plus automatic destination mapping.
+- **Join Pax & Message** — message flow with Flight Number, SEC and Gate.
+- **Transit Pax & Message** — message flow with Flight Number, SEC and Gate, plus automatic origin/destination mapping.
 - **Call Directly** — same call-only behavior as the former **No message** option.
 
 The former **No message** choice is not shown inside the Join / Transit detail page.
@@ -18,7 +18,7 @@ The former **No message** choice is not shown inside the Join / Transit detail p
 
 Both Join Pax and Transit Pax show **Flight Number** above **final call at Gate**. `CX` is fixed and cannot be edited.
 
-- **Join Pax:** accepts any 1–3 numeric CX flight digits. There is no flight whitelist.
+- **Join Pax:** uses the approved general CX whitelist (same rule as Scenario 1 Join and Scenario 4 Disrupted flight).
 - **Transit Pax:** accepts only CX450, CX451, CX530, CX531, CX564, CX565.
 
 Transit destination mapping is locked as:
@@ -67,7 +67,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.13** so deployed clients can refresh to the new release.
+Service-worker cache identity is **v1.0.16**. The runtime asset list is explicitly declared so install cannot fail with an undefined `ASSETS` reference.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -95,7 +95,7 @@ Scenario 3 now includes a locked Japanese-only message option. Chinese/English b
 
 Scenario 3 is restored to Chinese / English only. The Japanese option and Japanese message introduced in v1.0.11 have been removed.
 
-The approved UI change remains: all four scenarios use **Message Language** instead of **First Message Language**.
+The approved UI change remains: all four scenarios use **Language**.
 
 ## v1.0.13 — Scenario 1 Passenger Type
 
@@ -118,3 +118,13 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 ## v1.0.15 — Lightweight Images
 - PNG assets recompressed/reduced-color for faster loading on company phones.
 - Image dimensions, filenames, UI layout, message copy, flight rules, validation, SMS and WhatsApp behavior are unchanged.
+
+## v1.0.16 — Functional fixes
+- Fixed Service Worker installation by declaring the exact runtime `ASSETS` list and bumping cache identity to v1.0.16. The pinned libphonenumber-js 1.12.29 CDN request is best-effort and cannot abort SW install; when reachable it is cached for offline reuse.
+- Phone validation now requires `PhoneNumber.isValid()` when available and returns canonical E.164 digits, fixing country-code + domestic-trunk-zero inputs such as `886 0912...`, `86 0138...`, and `82 010...`.
+- Japan +81 validation is restricted to 90 / 80 / 70 / 60 mobile prefixes only.
+- Scenario 2 Transit release verification follows the current `callSecPrefix` SEC-origin UI.
+- Scenario 3 and 4 reset message-language ordering on entry; Scenario 4 defaults to English First.
+- `dateCode()` now uses `Asia/Taipei`, matching `taipeiTime()`.
+- Scenario 4 Connecting flight / Protect to airline codes accept two alphanumeric IATA designators such as 5J, 3K and 7C.
+- Approved message copy is unchanged.

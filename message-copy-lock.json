@@ -1,8 +1,8 @@
 {
   "name": "Find Pax executable message-copy lock",
   "message_master_version": "1.7",
-  "app_base": "Find-Pax-v1.0.14-Flight-Rules-Transit-IATA-Language-Locked",
-  "source": "v1.0.14 locked: new Scenario 1 Join Japanese, Language heading, flight rules, Transit origin IATA.",
+  "app_base": "Find-Pax-v1.0.16-Functional-Fix",
+  "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy.",
   "functions": {
     "textMiss": "4ee7eeea0839e7179ec422ee31be8d37b3cab55ad02c111bba69e22a92fefc19",
     "textJoin": "9b1f7dee1a436f3042574b1fcdd54b2408e578769831a28f949a53d23dee3e81",

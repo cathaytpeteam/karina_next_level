@@ -1,7 +1,7 @@
 {
   "schema": "find-pax-regression-baseline",
   "version": "1.1",
-  "release": "v1.0.15",
+  "release": "v1.0.16",
   "status": "LOCKED",
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
@@ -23,7 +23,7 @@
     },
     "phone_validation": {
       "functions": {
-        "validatePhone": "b907967f41c0c796627a3907ef5f504dfdd1d9a739d8fee7ee59efead4cb1bca",
+        "validatePhone": "2fad2ef8a86016ba81aff1ff1d58d1b53dd43eeb0c512e74b1b3da48e0e39f5d",
         "normalizePhone": "593c917ef1f914ad25fde32ccc6a14b38f6ca808ab38e8ad25705a6197aa9322"
       },
       "japan_rule": {
@@ -47,9 +47,13 @@
           "020 data service",
           "050 IP phone",
           "Japanese landlines such as 03 and 06",
-          "wrong lengths"
-        ]
-      }
+          "wrong lengths",
+          "0800 toll-free"
+        ],
+        "validation_regex": "^[6789]0\\d{8}$"
+      },
+      "strict_valid_required": true,
+      "canonical_output": "Use libphonenumber PhoneNumber.isValid() when available and return PhoneNumber.number without +, so domestic trunk zeroes after the calling code are removed from E.164 output."
     },
     "japanese_sms": {
       "functions": {
@@ -72,7 +76,7 @@
         "Transit Pax & Message",
         "Call Directly"
       ],
-      "join_flight_rule": "CX fixed; any 1-3 numeric digits; no whitelist.",
+      "join_flight_rule": "CX fixed; approved general CX whitelist from flight_rules_v114.",
       "transit_flights": [
         "CX450",
         "CX451",
@@ -94,7 +98,7 @@
       },
       "destination_display_policy": "Call Passenger confirmation/preview Destination row uses IATA airport codes only; approved message copy continues to use full localized destination names."
     },
-    "ui_language_heading": "All four scenarios use the heading 'Message Language'.",
+    "ui_language_heading": "All four scenarios use the heading 'Language'.",
     "scenario3_languages": "Chinese/English only; Japanese option removed per user request.",
     "scenario1_passenger_type": {
       "status": "LOCKED",
@@ -165,6 +169,20 @@
         "CX531": "NGO",
         "CX565": "KIX"
       }
+    },
+    "datetime": {
+      "functions": {
+        "dateCode": "1b16f9f8cc6351789a110c4d737147abf3112f6fcdc81b232d3e8fb911407bcc"
+      },
+      "policy": "Both dateCode() and taipeiTime() are based on Asia/Taipei."
+    },
+    "functional_fixes_v116": {
+      "status": "LOCKED",
+      "service_worker": "ASSETS is explicitly declared; APP_VERSION is v1.0.16; libphonenumber-js 1.12.29 CDN precache is best-effort and may not abort install.",
+      "transit_sec_ui": "Scenario 2 Transit uses callSecPrefix for the centered SEC origin prefix; verifier must not require obsolete callTransitIataValue.",
+      "scenario_entry_language_reset": "Scenario 3 resets to Chinese First; Scenario 4 resets to English First.",
+      "scenario4_airline_designator": "Connecting flight and Protect to accept exactly two alphanumeric IATA designator characters.",
+      "message_copy_changed": false
     }
   },
   "parent_locked_baseline": "v1.0.6-Locked-Japanese-SMS",
