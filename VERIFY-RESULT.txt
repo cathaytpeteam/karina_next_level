@@ -1,3 +1,4 @@
-Find Pax v1.1 final deduplicated PWA verification
-Changes: removed duplicate maskable PNG copies; shared 192/512 icons serve any + maskable; SW v1.1-r2.
-Run verify_release.py for executable checks.
+Find Pax v1.1 Final Call naming verification
+Changes: Scenario 2 menu renamed to Final Call; progress labels are Final Call - Join Pax / Final Call - Transit Pax; SW cache v1.1-r3.
+Verified: message-copy lock unchanged; layout lock updated only for the authorized Scenario 2 label; release regression checks; local/offline asset list; SHA256 integrity; JavaScript syntax; ZIP integrity.
+Status: PASS.

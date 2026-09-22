@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.1",
   "status": "LOCKED",
-  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1 labels use “漏查 - Join Pax / Transit Pax”; Scenario 2 labels use “Call Passenger - Join / Transit”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/5). These authorized regions are locked again.",
+  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1 labels use “漏查 - Join Pax / Transit Pax”; Scenario 2 labels use “Final Call - Join Pax / Transit Pax”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/5). These authorized regions are locked again. Authorized Scenario 2 naming update: the Scenario 2 menu label is “Final Call”, and its Join/Transit progress labels are “Final Call - Join Pax / Final Call - Transit Pax”. This authorized text-only naming change is locked again.",
   "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
   "source": "index.html",
   "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
@@ -29,7 +29,7 @@
   ],
   "screen_sha256": {
     "s-phone": "66bb4dfa11596d353a8414a8182cf4162d0ce08a945c6c71c523265eb1305e01",
-    "s-scenario": "7843156189c0fc353cec94ddcacd97d795b35d720ad88207e6cd6060b518ddb4",
+    "s-scenario": "792622b2927ae59863a4eaf0ad28fc84c334fdb18d5452dd7d6414795eda88f1",
     "s-misstype": "0b0f438551d1b63bc7d51a2873ac1fc2558d9eb222ee32da7d49411819c1e624",
     "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
     "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
@@ -163,6 +163,6 @@
     "font_size": "20px",
     "font_weight": 700,
     "scenario1": "漏查 - Join Pax / 漏查 - Transit Pax",
-    "scenario2": "Call Passenger - Join / Call Passenger - Transit"
+    "scenario2": "Final Call - Join Pax / Final Call - Transit Pax"
   }
 }
