@@ -1,24 +1,29 @@
 {
   "schema": "find-pax-regression-baseline",
-  "version": "1.0",
-  "release": "v1.0.7",
+  "version": "1.1",
+  "release": "v1.0.8",
   "status": "LOCKED",
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
     "message_copy": {
-      "message_master_version": "1.2",
-      "message_master_sha256": "24b62c460c85912f17b171431204b31da2fe93e483513d8ad57edcbf98404b7e",
+      "message_master_version": "1.3",
+      "message_master_sha256": "74e85070f009173653a4ff0e91a666e9521d2581d5a0bde15525524329d4bc71",
       "functions": {
         "textMiss": "423e56f5984279cd5d7ca4a10017e6a3201d6c8982da860b3a1657b55b22ec52",
+        "textJoin": "9b1f7dee1a436f3042574b1fcdd54b2408e578769831a28f949a53d23dee3e81",
+        "textTransit": "198a00d9510a901ee3736823051a9b29b448e1a3bf4f9c5e7ab81a370372a5e5",
+        "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
         "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
-        "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
-        "textCall": "ac7748eb9ca8102fb406f7a5fd0839aa90a79ed079b166da5df0abb6d4c8b95c"
+        "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384"
+      },
+      "constants": {
+        "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f"
       }
     },
     "phone_validation": {
       "functions": {
         "validatePhone": "b907967f41c0c796627a3907ef5f504dfdd1d9a739d8fee7ee59efead4cb1bca",
-        "normalizePhone": "d8b94122d36ee5a1182753a044362c3a732fe2c4fd95d0ee061bab6297af47fd"
+        "normalizePhone": "593c917ef1f914ad25fde32ccc6a14b38f6ca808ab38e8ad25705a6197aa9322"
       },
       "japan_rule": {
         "input_model": "First page already displays +; user enters international digits. Japan numbers must start with 81.",
@@ -45,24 +50,40 @@
         ]
       }
     },
-    "scenario1_japanese_sms": {
+    "japanese_sms": {
       "functions": {
-        "send": "b61a990a1f726fc0eb228e208c0bf6153d0d4f2a5e942bc503f272b1b9711f44",
-        "sendSMS": "80e5097547b91dd5e6ce1fc7fcea0f680f56a3f0c545c4404b928e0d556cd7d5"
+        "send": "b56964422e5e205bf456e0302521b7f05b7cba1ce1d97f5f1f38bea30242b788",
+        "sendSMS": "9cad656538eee6abc15b34f7e2bf92f09611fd8cacacb0a98e4c9d4ff859b87f",
+        "callFlightNumber": "6ea102b4d3d127b72921fcbefaf01f2b7f74adc3cd7672430eb1a9e70e1509e7",
+        "callFlightFull": "0d2210ae916e459db0fd59c93c9a0ded787275871ef1c6f55513f702b4e45d4e",
+        "callFlightOk": "aeb76bf41ebe81e530ac430409ad1c14d60528d13eacea6b187f5a3f2b6d26bc",
+        "taipeiTime": "7a8d7c063cf9c90e5409b3e9e0a24d778bf3a998a7d99f80df4c5f354f26e7e3"
       },
       "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad",
-      "required_markers": [
-        "id=\"ordJa\"",
-        ">日本語</button>",
-        "flow===\"miss\"&&S.order===\"ja\"",
-        "SMSを送信",
-        "if(flow!==\"miss\") return;",
-        "if(S.order===\"ja\") return ja;"
+      "scenario1_approved_copy": "キャセイ航空 桃園空港です。\nお預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。\n出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。",
+      "routing": "Scenario 1 Japanese, Scenario 2 Join Japanese, and Scenario 2 Transit Japanese use native SMS; Chinese/English use WhatsApp.",
+      "suffix_policy": "No flight/SEC/date suffix for Japanese SMS.",
+      "transit_time_policy": "Only Scenario 2 Transit Japanese includes current Taipei time via Asia/Taipei in HH:mm."
+    },
+    "scenario2": {
+      "structure": [
+        "Join Pax",
+        "Transit Pax",
+        "Call Directly"
       ],
-      "approved_japanese_sms_copy": "キャセイ航空 桃園空港です。\nお預け手荷物がX線検査を通過できず、再検査が必要です。出国審査前の場合は、至急カウンター4へお戻りください。対応がない場合、搭載に間に合わない可能性がございます。\n出国審査済みの場合は、搭乗ゲートのスタッフへお申し出ください。",
-      "suffix_policy": "NO flight/SEC/date suffix for Japanese SMS."
+      "join_flight_rule": "CX fixed; any 1-3 numeric digits; no whitelist.",
+      "transit_flights": [
+        "CX450",
+        "CX451",
+        "CX530",
+        "CX531",
+        "CX564",
+        "CX565"
+      ],
+      "destination_constant_sha256": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
+      "call_direct_rule": "Same call-only behavior as former No message; open WhatsApp with no text body."
     }
   },
   "parent_locked_baseline": "v1.0.6-Locked-Japanese-SMS",
-  "scenario2_structure_change": true
+  "scenario2_restructure_approved": true
 }

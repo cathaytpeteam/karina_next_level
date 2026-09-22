@@ -1,30 +1,54 @@
-Find Pax v1.0.6 Release Guard
+Find Pax v1.0.8 Release Guard
 Baseline status: LOCKED
 PASS baseline is LOCKED
 PASS message master version
+PASS message master status
 PASS message master SHA-256
-PASS Japanese Scenario 1 exists in master
-PASS copy function textMiss
-PASS copy function textWpp
-FAIL copy function textDp
-FAIL copy function textCall
 PASS message-copy lock version
 PASS message-copy master hash
+PASS copy function textMiss
+PASS copy function textJoin
+PASS copy function textTransit
+PASS copy function textCall
+PASS copy function textWpp
+PASS copy function textDp
+PASS copy constant TRANSIT_DESTINATIONS
 PASS phone function validatePhone
-FAIL phone function normalizePhone
+PASS phone function normalizePhone
 PASS Japan +81 runtime cases — Japan cases OK
-FAIL Japanese SMS function send
-FAIL Japanese SMS function sendSMS
+PASS routing function send
+PASS routing function sendSMS
+PASS routing function callFlightNumber
+PASS routing function callFlightFull
+PASS routing function callFlightOk
+PASS routing function taipeiTime
 PASS Japanese language selector block
-PASS required marker id="ordJa"
-PASS required marker >日本語</button>
-FAIL required marker flow==="miss"&&S.order==="ja"
-PASS required marker SMSを送信
-FAIL required marker if(flow!=="miss") return;
-PASS required marker if(S.order==="ja") return ja;
-PASS approved Japanese SMS copy in executable
-PASS Japanese SMS has no flight/SEC/date suffix
-PASS service worker v1.0.6
+PASS Scenario 1 approved Japanese copy
+PASS Scenario 1 Japanese has no suffix
+PASS Scenario 2 Join Japanese has no suffix
+PASS Scenario 2 Transit Japanese has no suffix
+PASS Transit Japanese Taipei time marker
+PASS Join Japanese has no Taipei time
+PASS Taipei timezone is explicit
+PASS Japanese CTA marker
+PASS Join and Transit Japanese SMS routing
+PASS Scenario 2 marker id="callJoin"
+PASS Scenario 2 marker >Join Pax</span>
+PASS Scenario 2 marker id="callTransit"
+PASS Scenario 2 marker >Transit Pax</span>
+PASS Scenario 2 marker id="callDirect"
+PASS Scenario 2 marker >Call Directly</span>
+PASS Scenario 2 marker id="callFlight"
+PASS old No message option removed
+PASS Transit destination mapping lock
+PASS Join has no whitelist
+PASS Transit flight 450
+PASS Transit flight 451
+PASS Transit flight 530
+PASS Transit flight 531
+PASS Transit flight 564
+PASS Transit flight 565
+PASS Scenario 2 runtime cases — Scenario 2 cases OK
+PASS service worker v1.0.8
 
-RELEASE BLOCKED. Protected baseline changed or a regression test failed.
-Do not update the lock merely to make the test pass. Restore the approved baseline, or obtain explicit approval for the protected change.
+PASS: v1.0.8 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, and Taipei-time rule all match the approved release.
