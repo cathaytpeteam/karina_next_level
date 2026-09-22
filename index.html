@@ -554,7 +554,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   try{localStorage.removeItem("fp-order");}catch(e){}
 
   const FLOWS={
-    miss:{name:"漏查",steps:["mflight","msec","preview"]},
+    miss:{name:"漏查",steps:["misstype","mflight","msec"]},
     call:{name:"Final Call",steps:["calltype","callflight","callsec","callgate","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
@@ -1167,7 +1167,11 @@ Thank you for your understanding and cooperation.`;
       $("whoFlag").textContent=S.country?flagFor(S.country):"";
       $("whoNum").textContent="+"+S.phone;
     }
-    const f=flow&&FLOWS[flow], idx=f?f.steps.indexOf(cur):-1;
+    const f=flow&&FLOWS[flow], rawIdx=f?f.steps.indexOf(cur):-1;
+    // Scenario 1 counts Passenger Type as step 1/3. Its read-only preview is the
+    // completed result of step 3, so keep 3/3 visible there.
+    const missCompletedPreview=flow==="miss"&&cur==="preview"&&(S.missMode==="join"||S.missMode==="transit");
+    const idx=missCompletedPreview?f.steps.length-1:rawIdx;
     $("bar").hidden=idx<0||directPreview;
     if(idx>=0&&!directPreview){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";

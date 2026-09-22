@@ -1,6 +1,6 @@
 const CACHE_PREFIX="find-pax-";
 const APP_VERSION="v1.1";
-const CACHE_REV="r3";
+const CACHE_REV="r4";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
   "./",

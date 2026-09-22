@@ -109,7 +109,7 @@ ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r3";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r4";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',

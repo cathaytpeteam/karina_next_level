@@ -29,6 +29,8 @@ for x in [
  '$('+'"callDirect"'+').onclick=()=>{clearCallForModeChange("direct");S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
 ]: ck('Scenario 2 route '+x.split('"')[1], x in s)
 ck('Scenario 2 progress labels', 'progressName+=" - "+(S.callMode==="join"?"Join Pax":"Transit Pax")' in s)
-ck('Progress calculation remains flow-index based', 'textContent:(idx+1)+"/"+f.steps.length' in s)
+ck('Scenario 1 Passenger Type is progress step 1/3', 'miss:{name:"漏查",steps:["misstype","mflight","msec"]}' in s)
+ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
+ck('Progress calculation uses locked flow denominator', 'textContent:(idx+1)+"/"+f.steps.length' in s)
 if not all(v for _,v in checks): sys.exit(1)
-print('PASS navigation lock: Scenario 1 = 3 steps; Scenario 2 = 5 steps; routes and labels locked')
+print('PASS navigation lock: Scenario 1 Passenger Type = 1/3, Flight = 2/3, SEC/Preview = 3/3; Scenario 2 = 5 steps; routes and labels locked')

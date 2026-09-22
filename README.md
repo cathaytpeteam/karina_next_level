@@ -75,7 +75,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.1-r2**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
+Service-worker cache identity is **v1.1-r4**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.
 
 ## v1.0.13 UI-only Scenario 2 update
 - Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
@@ -183,4 +183,4 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 
 
 ## v1.1 Final Call naming lock
-Scenario 2 is named **Final Call**. Its message-path progress is locked to **Final Call - Join Pax 1/5→5/5** and **Final Call - Transit Pax 1/5→5/5**. Scenario 1 remains locked to **漏查 - Join Pax / Transit Pax 1/3→3/3**. `navigation-lock.json` + `verify_navigation.py` protect step order and entry/type routing from regression.
+Scenario 2 is named **Final Call**. Its message-path progress is locked to **Final Call - Join Pax 1/5→5/5** and **Final Call - Transit Pax 1/5→5/5**. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, the label becomes **漏查 - Join Pax / Transit Pax**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
