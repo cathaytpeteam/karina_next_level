@@ -31,7 +31,7 @@ def check(label,ok,detail=''):
     print(('PASS' if ok else 'FAIL'),label+(f' — {detail}' if detail else ''))
     if not ok: failures.append(label)
 
-print('Find Pax v1.0.8 Release Guard')
+print('Find Pax v1.0.9 Release Guard')
 print('Baseline status:',lock.get('status'))
 check('baseline is LOCKED',lock.get('status')=='LOCKED')
 
@@ -85,9 +85,11 @@ check('Join and Transit Japanese SMS routing','S.callMode==="join"||S.callMode==
 
 # Scenario 2 structure and exact flight rules.
 s2=lock['protected']['scenario2']
-for marker in ['id="callJoin"','>Join Pax</span>','id="callTransit"','>Transit Pax</span>','id="callDirect"','>Call Directly</span>','id="callFlight"']:
+for marker in ['id="callJoin"','>Join Pax &amp; Message</span>','id="callTransit"','>Transit Pax &amp; Message</span>','id="callDirect"','>Call Directly</span>','id="callFlight"']:
     check('Scenario 2 marker '+marker,marker in src)
 check('old No message option removed','>No message<' not in src and '>No Message<' not in src)
+check('Passenger Type labels are teal','#s-calltype .ctext{color:var(--brand-strong)}' in src)
+check('Passenger Type has no icon elements','<span class="ico"' not in re.search(r'<section class="screen" id="s-calltype".*?</section>',src,re.S).group(0))
 const_dest=extract_const(src,'TRANSIT_DESTINATIONS')
 check('Transit destination mapping lock',const_dest is not None and sha_text(const_dest)==s2['destination_constant_sha256'])
 check('Join has no whitelist','return S.callMode==="transit"?Object.prototype.hasOwnProperty.call(TRANSIT_DESTINATIONS,n):S.callMode==="join";' in extract_func(src,'callFlightOk'))
@@ -105,10 +107,10 @@ if all(extract_func(src,n) for n in needed) and const_dest:
 else: check('Scenario 2 runtime cases',False,'required functions missing')
 
 sw=(root/'sw.js').read_text(encoding='utf-8')
-check('service worker v1.0.8','const APP_VERSION="v1.0.8";' in sw)
+check('service worker v1.0.9','const APP_VERSION="v1.0.9";' in sw)
 
 if failures:
     print('\nRELEASE BLOCKED. A locked behavior changed or a regression test failed.')
     print('Restore the approved behavior, or obtain explicit approval before intentionally regenerating the lock.')
     sys.exit(1)
-print('\nPASS: v1.0.8 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, and Taipei-time rule all match the approved release.')
+print('\nPASS: v1.0.9 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.')

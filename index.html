@@ -109,6 +109,7 @@ h1 + .chip{margin-top:-8px}
 .ico svg{width:32px;height:32px;fill:none;stroke:var(--brand-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .ctext{flex:1;font-size:20px;font-weight:800}
 .chev{font-size:30px;color:var(--brand-strong)}
+#s-calltype .ctext{color:var(--brand-strong)}
 
 .opts{display:grid;gap:12px}
 .opt{width:100%;min-height:68px;padding:12px 18px;border:2px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
@@ -327,8 +328,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-calltype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice" id="callJoin" type="button"><span class="ctext"><span>Join Pax</span></span><span class="chev">›</span></button>
-        <button class="choice" id="callTransit" type="button"><span class="ctext"><span>Transit Pax</span></span><span class="chev">›</span></button>
+        <button class="choice" id="callJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
+        <button class="choice" id="callTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
         <button class="choice" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
       </div>
     </section>

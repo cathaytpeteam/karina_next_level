@@ -1,4 +1,4 @@
-# Find Pax v1.0.8 — Locked Scenario 2 Join / Transit
+# Find Pax v1.0.9 — Locked Scenario 2 Join / Transit
 
 Release date: 2026-09-22
 
@@ -67,4 +67,9 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 
 ## PWA / Offline
 
-Service-worker cache identity is **v1.0.8** so deployed clients can refresh to the new release.
+Service-worker cache identity is **v1.0.9** so deployed clients can refresh to the new release.
+
+## v1.0.9 UI-only Scenario 2 update
+- Passenger Type labels: Join Pax & Message / Transit Pax & Message / Call Directly.
+- Passenger Type option text uses the existing brand teal; no icons are shown on this page.
+- Message copy, routing, phone validation, flight rules, destination mapping, and SMS behavior remain locked and unchanged.

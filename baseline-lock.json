@@ -1,7 +1,7 @@
 {
   "schema": "find-pax-regression-baseline",
   "version": "1.1",
-  "release": "v1.0.8",
+  "release": "v1.0.9",
   "status": "LOCKED",
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
@@ -67,8 +67,8 @@
     },
     "scenario2": {
       "structure": [
-        "Join Pax",
-        "Transit Pax",
+        "Join Pax & Message",
+        "Transit Pax & Message",
         "Call Directly"
       ],
       "join_flight_rule": "CX fixed; any 1-3 numeric digits; no whitelist.",
@@ -81,7 +81,8 @@
         "CX565"
       ],
       "destination_constant_sha256": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
-      "call_direct_rule": "Same call-only behavior as former No message; open WhatsApp with no text body."
+      "call_direct_rule": "Same call-only behavior as former No message; open WhatsApp with no text body.",
+      "ui_policy": "Passenger Type page keeps existing layout; no icons; Join/Transit/Call labels use brand teal. Join/Transit display labels include “& Message”."
     }
   },
   "parent_locked_baseline": "v1.0.6-Locked-Japanese-SMS",

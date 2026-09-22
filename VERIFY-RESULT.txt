@@ -1,4 +1,4 @@
-Find Pax v1.0.8 Release Guard
+Find Pax v1.0.9 Release Guard
 Baseline status: LOCKED
 PASS baseline is LOCKED
 PASS message master version
@@ -33,13 +33,15 @@ PASS Taipei timezone is explicit
 PASS Japanese CTA marker
 PASS Join and Transit Japanese SMS routing
 PASS Scenario 2 marker id="callJoin"
-PASS Scenario 2 marker >Join Pax</span>
+PASS Scenario 2 marker >Join Pax &amp; Message</span>
 PASS Scenario 2 marker id="callTransit"
-PASS Scenario 2 marker >Transit Pax</span>
+PASS Scenario 2 marker >Transit Pax &amp; Message</span>
 PASS Scenario 2 marker id="callDirect"
 PASS Scenario 2 marker >Call Directly</span>
 PASS Scenario 2 marker id="callFlight"
 PASS old No message option removed
+PASS Passenger Type labels are teal
+PASS Passenger Type has no icon elements
 PASS Transit destination mapping lock
 PASS Join has no whitelist
 PASS Transit flight 450
@@ -49,6 +51,6 @@ PASS Transit flight 531
 PASS Transit flight 564
 PASS Transit flight 565
 PASS Scenario 2 runtime cases — Scenario 2 cases OK
-PASS service worker v1.0.8
+PASS service worker v1.0.9
 
-PASS: v1.0.8 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, and Taipei-time rule all match the approved release.
+PASS: v1.0.9 locked copy, phone validation, Scenario 2 structure, destinations, Japanese SMS routing, Taipei-time rule, and approved Passenger Type labels all match the approved release.
