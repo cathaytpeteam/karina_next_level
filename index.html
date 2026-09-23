@@ -1155,8 +1155,13 @@ Thank you for your understanding and cooperation.`;
     // completed result of step 3, so keep 3/3 visible there.
     const missCompletedPreview=flow==="miss"&&cur==="preview"&&(S.missMode==="join"||S.missMode==="transit");
     const idx=missCompletedPreview?f.steps.length-1:rawIdx;
-    $("bar").hidden=idx<0||directPreview;
-    if(idx>=0&&!directPreview){
+    const directProgress=directPreview;
+    $("bar").hidden=idx<0&&!directProgress;
+    if(directProgress){
+      $("barFill").style.width="100%";
+      const directName=S.missMode==="direct"?"漏查":"Final Call";
+      $("step").replaceChildren(document.createTextNode(directName+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:"1/1"}),document.createTextNode(" - Call Directly"));
+    }else if(idx>=0){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
       const passengerType=flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")

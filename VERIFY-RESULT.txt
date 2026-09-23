@@ -4,4 +4,6 @@ Scenario 2 locked flow: Passenger Type -> Flight -> Gate -> Preview (1/4 -> 4/4)
 Regression guards: message copy, layout, navigation/routes, phone validation, offline assets, and checksums remain protected. SW v1.1-r6.
 Run verify_release.py for executable checks.
 
-Back-state regression guard: Passenger Type page never carries Join/Transit annotation after Back. SW v1.1-r7.
+Back-state regression guard: Passenger Type page never carries Join/Transit annotation after Back. SW v1.1-r8.
+
+Authorized change: Call Directly now displays a one-page progress indicator: 1/1, without changing Join/Transit flows.

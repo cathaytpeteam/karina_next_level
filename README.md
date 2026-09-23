@@ -143,7 +143,7 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Back / Next within the same flow continues to preserve entered values for easy correction.
 - Re-entering Scenario 1, 2, 3, or 4 from the Scenario screen now starts that scenario with clean case fields, preventing values from a previous case from enabling Next.
 - Changing Scenario 1 or Scenario 2 Passenger Type clears fields that belong to the previous type. Scenario 2 now also clears the old Gate value.
-- Scenario 1 and Scenario 2 progress labels place numeric progress before the selected passenger type: `Flow - N/N - Join Pax / Transit Pax`. Scenario 2 Join / Transit remains fixed at five steps. Call Directly hides the progress bar and shows the phone number inside Confirm details instead of the top-right passenger badge.
+- Scenario 1 and Scenario 2 progress labels place numeric progress before the selected passenger type: `Flow - N/N - Join Pax / Transit Pax`. Scenario 2 Join / Transit remains fixed at four steps. Call Directly is a separate one-page branch and shows `1/1 - Call Directly`; the phone number remains inside Confirm details instead of the top-right passenger badge.
 - Opening Message Preview without editing no longer creates a saved custom draft when navigating Back; generated Japanese Transit time can therefore refresh normally. Actual typed edits remain preserved per language.
 - Both blocked canned/test phone numbers now show `罐頭號碼 無用`, including entries that libphonenumber itself considers invalid.
 - Approved message copy, Japan +81 rules, SEC/IATA rules, SMS/WhatsApp routing, and visual styling are unchanged.
@@ -190,3 +190,5 @@ Scenario 2 is named **Final Call**. Its current message-path progress is locked 
 Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit Pax. The locked message path is **Passenger Type → Flight Number → Gate → Message Preview**, with progress **1/4 → 4/4** and Passenger Type shown as the trailing annotation after selection. Scenario 1 SEC and its 1/3 → 3/3 flow are unchanged.
 
 - Back-state lock: returning from Scenario 1/2 message flow to Passenger Type hides the prior Join/Transit annotation; the type page shows only `漏查 - 1/3` or `Final Call - 1/4`.
+
+- Call Directly progress lock: Scenario 1 displays `漏查 - 1/1 - Call Directly`; Scenario 2 displays `Final Call - 1/1 - Call Directly`. Join/Transit step counts are unchanged.

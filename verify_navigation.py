@@ -35,5 +35,6 @@ ck('Scenario 1 Passenger Type is progress step 1/3', 'miss:{name:"漏查",steps:
 ck('Scenario 2 SEC page removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
 ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
 ck('Progress calculation uses locked flow denominator', 'const progressText=(idx+1)+"/"+f.steps.length;' in s)
+ck('Call Directly progress 1/1', 'textContent:"1/1"' in s and 'document.createTextNode(" - Call Directly")' in s and 'const directName=S.missMode==="direct"?"漏查":"Final Call";' in s)
 if not all(v for _,v in checks): sys.exit(1)
-print('PASS navigation lock: Scenario 1 = 3 steps; Scenario 2 = 4 steps with no SEC page; progress order is Flow - N/N - Passenger Type; routes and labels locked')
+print('PASS navigation lock: Scenario 1 = 3 steps; Scenario 2 = 4 steps with no SEC page; Call Directly = 1/1; routes and labels locked')

@@ -73,7 +73,7 @@ ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'cl
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s and 'clearCallForModeChange("direct")' in s)
 ck('Scenario 2 gate clears on type change', '["callFlight","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
 ck('Call progress stable four-step', 'call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
-ck('Call Directly progress hidden', 'const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;' in s and '$("bar").hidden=idx<0||directPreview;' in s)
+ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'textContent:"1/1"' in s and 'document.createTextNode(" - Call Directly")' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)
 np=ef('normalizePhone') or ''
@@ -110,7 +110,7 @@ ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r7";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r8";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',
