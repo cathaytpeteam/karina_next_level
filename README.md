@@ -292,3 +292,21 @@ Bug found and fixed by the new suite: after Scenario 1 → Call Directly, pressi
 ## r25 — Softer Delayed-to colour
 - Delayed-to time colour changed from the error red (#C62828) to a muted brick red `--delay-ink: #B0574A`, weight 700, to sit with the teal palette. The error red stays reserved for red borders / invalid hints.
 - Behaviour guard now checks the time uses `--delay-ink` and not the error red. SW cache r25.
+
+## r26 — No more "jumping" between pages
+Cause (measured before the fix, 390×844):
+- When the keyboard opened, keyboard mode shrank the header, titles (28 → 21px) and fields (72 → 58px) and re-centred the page vertically — a moment *after* the page appeared, because the keyboard is detected once it has animated in. Titles moved up to 46px and fields up to 78px.
+- The header height changed per page (76–100px) because the progress bar was removed on some pages and keyboard mode trimmed its spacing.
+- Pages switched with a hard cut.
+
+Fix (CSS only, markup unchanged):
+- Form pages use one set of sizes with or without the keyboard: title 24px, fields 64px, and they stay top-aligned. Only the footer (Next button) compacts above the keyboard.
+- Header is the same height on every page (progress bar space is reserved when hidden). All page titles start at the same height.
+- 0.16 s fade between pages (off when the phone's "reduce motion" setting is on).
+- New behaviour guard `layout_does_not_jump` measures title/field position and size with and without keyboard mode on each Scenario 4 page, plus header height across pages; it fails on the r25 layout and passes now. SW cache r26.
+
+## r27 — 4/6 Protect-to panel (suggested design)
+- Implemented the supplied `flight-arrangement` design in the app (CSS only; locked markup unchanged): "Will protect to" and its fields form one teal card; CX flight and DEP time sit **side by side** in compact 48px tinted fields (#F2F8F8, border #B5D2D5) with darker tags (#BCDADD) instead of two tall white boxes.
+- Removed the small notch where the option and panel borders met.
+- Narrow phones (≤360px) use tighter tag padding so "15:30" is never clipped (checked at 390 / 360 / 320px).
+- Behaviour spec +1 guard `s4_protect_fields_side_by_side`. SW cache r27.

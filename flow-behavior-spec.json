@@ -629,7 +629,9 @@
   "partial_flight_not_red_while_typing",
   "impossible_prefix_red_immediately",
   "s4_protect_panel_attached_to_option",
-  "s4_delayed_time_display"
+  "s4_delayed_time_display",
+  "layout_does_not_jump",
+  "s4_protect_fields_side_by_side"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",

@@ -441,6 +441,40 @@ async def g(r, name):
         ck("[guard] Delayed-to time uses the delay colour (--delay-ink), not the error red", info == want and info != "rgb(198, 40, 40)", f"{info} vs {want}")
         hint = await r.pg.locator("#hint").text_content()
         ck("[guard] no HHMM hint on Delayed-to", "HHMM" not in (hint or ""), hint)
+    elif name == "s4_protect_fields_side_by_side":
+        # r27 design: CX flight and DEP time sit side by side inside the card, and typed values
+        # are never clipped, down to a 320px-wide phone.
+        for W in (390, 360, 320):
+            await r.pg.set_viewport_size({"width": W, "height": 844})
+            if W == 390:
+                await to_s4(r, "stDelayed"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
+                await r.act("arKnown"); await r.fill("altN", "401"); await r.fill("altTime", "1530"); await r.blur("altTime")
+            await r.pg.wait_for_timeout(300)
+            a = await r.pg.locator("#altN").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")
+            t = await r.pg.locator("#altTime").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")
+            clip = await r.pg.evaluate("[...document.querySelectorAll('#altWrap input')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.id)")
+            ck(f"[guard] {W}px: CX flight and DEP time side by side", abs(a["top"] - t["top"]) < 1 and t["left"] > a["right"], f"{a} {t}")
+            ck(f"[guard] {W}px: CX401 / 15:30 not clipped", not clip, str(clip))
+    elif name == "layout_does_not_jump":
+        # Keyboard open/close must not move or resize the title and fields, and the header
+        # must keep the same height on every page (r26). Keyboard mode is forced via the
+        # same .kb class the app applies when the on-screen keyboard is up.
+        M = """() => { const s = document.querySelector('.screen:not([hidden])'); const h = s.querySelector('h1');
+          const f = s.querySelector('.field'); const r = e => e ? Math.round(e.getBoundingClientRect().top) : null;
+          return [s.id, r(h), h ? getComputedStyle(h).fontSize : '', r(f), f ? Math.round(f.getBoundingClientRect().height) : null,
+                  Math.round(document.querySelector('.head').getBoundingClientRect().height)]; }"""
+        K = "on => { const a = document.getElementById('app'); a.classList.toggle('kb', on); a.style.setProperty('--vh', on ? '470px' : '100%'); }"
+        heads, jumps = set(), []
+        async def probe():
+            n = await r.pg.evaluate(M); await r.pg.evaluate(K, True); k = await r.pg.evaluate(M); await r.pg.evaluate(K, False)
+            heads.add(n[5]); heads.add(k[5])
+            if n[1:5] != k[1:5]: jumps.append(f"{n[0]}: {n[1:5]} -> {k[1:5]}")
+        await probe(); await r.phone(); await r.act("goDp", "dstatus"); await r.act("stDelayed", "dflight"); await probe()
+        await r.fill("dFlight", "407"); await r.fill("delayTime", "1800"); await r.act("cta", "dtransfer"); await probe()
+        await r.fill("tN", "888"); await r.act("cta", "darrange"); await r.act("arKnown"); await r.pg.wait_for_timeout(350); await probe()
+        await r.fill("altN", "401"); await r.fill("altTime", "1530"); await r.act("cta", "darrive"); await probe()
+        ck("[guard] title and fields do not move or resize when the keyboard opens", not jumps, "; ".join(jumps))
+        ck("[guard] header height identical on every page", max(heads) - min(heads) <= 1, str(sorted(heads)))
     elif name == "s4_delayed_rejects_invalid_time":
         await to_s4(r, "stDelayed", delay="2575"); await r.expect("Delayed 25:75 rejected", False, ["delayTime"])
     elif name == "s4_non_delayed_hides_time":

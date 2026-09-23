@@ -36,29 +36,19 @@ button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 .who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .who[hidden]{display:none}
 .bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
-.bar[hidden]{display:none}
+.bar[hidden]{display:block;visibility:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
 .step{font-size:20px;font-weight:700;color:var(--muted);margin:8px 0 0;min-height:26px}
 
-main{flex:1;min-height:0;min-width:0;overflow-y:auto;padding:12px 20px 24px;-webkit-overflow-scrolling:touch}
+main{flex:1;min-height:0;min-width:0;overflow-y:auto;padding:8px 20px 24px;-webkit-overflow-scrolling:touch}
 .screen[hidden]{display:none}
 #s-preview[hidden]{display:none!important}
-h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);font-weight:800;letter-spacing:-.01em}
+h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);font-weight:800;letter-spacing:-.01em}
 
 .foot{flex:none;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
-.app.kb .head{padding-top:calc(8px + env(safe-area-inset-top,0px));min-height:64px}
-.app.kb .headrow{min-height:40px}
-.app.kb .bar{margin-top:5px}
-.app.kb .step{display:block!important;margin-top:5px;font-size:20px;line-height:1.15;min-height:23px}
-.app.kb main{padding-top:4px;padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
-.app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]){min-height:100%;display:flex;flex-direction:column;justify-content:center;padding-bottom:8px}
-.app.kb h1{margin:3px 0 10px;font-size:21px;line-height:1.12}
-.app.kb .chip{margin-top:2px;margin-bottom:6px;padding-top:7px;padding-bottom:7px}
-.app.kb .opts{gap:6px;margin-bottom:6px}
-.app.kb .opt{min-height:54px;padding:9px 12px}
-.app.kb .field{min-height:58px}
-.app.kb .field + .field{margin-top:7px}
-.app.kb .optExtra{margin-top:6px}
+.app.kb .step{display:block!important}
+.app.kb main{padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
+.app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]){padding-bottom:8px}
 .app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .app.kb .hint{display:none}
 .app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}
@@ -71,8 +61,8 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .cta.smsCta{margin-top:8px;background:var(--bg);color:var(--brand-strong);border:1px solid var(--brand)}
 .cta.smsCta[hidden]{display:none}
 
-.field{display:flex;align-items:center;min-height:72px;border:1px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
-.field + .field{margin-top:12px}
+.field{display:flex;align-items:center;min-height:64px;border:1px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
+.field + .field{margin-top:10px}
 .field:focus-within{border-color:var(--brand)}
 .field.bad{border-color:var(--danger)}
 .plus{font-size:26px;color:var(--brand-strong);padding:0 4px 0 10px}
@@ -124,7 +114,7 @@ h1 + .chip{margin-top:-8px}
 .opts{display:grid;gap:12px}
 .opt{width:100%;min-height:68px;padding:12px 18px;border:1px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
 .opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-strong)}
-.optExtra{margin-top:14px}
+.optExtra{margin-top:10px}
 .optExtra[hidden]{display:none}
 .delayLabel{margin:0 0 8px;color:var(--brand-strong);font-size:17px;font-weight:700}
 
@@ -219,15 +209,13 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
 .transitIata{width:max-content;margin:0 auto 20px;text-align:center}.transitIataLabel{display:none}.transitIataValue{display:inline-block;border:0;border-radius:999px;padding:8px 20px;background:var(--brand-soft);font-size:17px;font-weight:800;color:var(--brand-strong);letter-spacing:.08em}
 /* Scenario 4 Disrupted flight 2/6 — Delayed to (r15 fixed the clipped "8:00"; r24 restyle). */
-#s-dflight .delayLabel{display:flex;align-items:center;gap:14px;margin:26px 0 12px;color:var(--brand-strong);font-size:22px;font-weight:800;letter-spacing:0}
+#s-dflight .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
 #s-dflight .delayLabel::before,#s-dflight .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
 /* r24 · Delayed-to time: no icon, no placeholder; value centred in a muted brick red (--delay-ink) that sits with the teal palette.
    Flex (not the shared 2-column grid) so the whole "18:00" is always visible. */
 #s-dflight .field.time{display:flex;justify-content:center;align-items:center}
-#s-dflight .field.time input{width:100%;max-width:none;text-align:center;color:var(--delay-ink);font-size:34px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#s-dflight .field.time input{width:100%;max-width:none;text-align:center;color:var(--delay-ink);font-size:32px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 #s-dflight #delayWrap{margin-top:0}
-.app.kb #s-dflight .delayLabel{margin:12px 0 8px;font-size:20px}
-.app.kb #s-dflight .field.time input{font-size:30px}
 /* r16 · Scenario 4 Flight arrangement 4/6 — match the teal choice-card system.
    CSS only (protected s-darrange markup unchanged): brand-teal left-aligned labels,
    radio indicator, and the Protect-to fields shown directly under "Will protect to". */
@@ -235,29 +223,39 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-darrange .opts{display:contents}
 #s-darrange #arKnown{order:1}
 #s-darrange #altWrap{order:2}
-#s-darrange #arUnknown{order:3;margin-top:12px}
-#s-darrange .opt{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:76px;padding:12px 18px 12px 20px;border:1.5px solid transparent;background:var(--surface);color:var(--brand-strong);font-size:20px;font-weight:800;text-align:left;transition:background-color .12s,border-color .12s}
+#s-darrange #arUnknown{order:3;margin-top:10px}
+#s-darrange .opt{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:10px 18px 10px 20px;border:1.5px solid transparent;background:var(--surface);color:var(--brand-strong);font-size:20px;font-weight:800;text-align:left;transition:background-color .12s,border-color .12s}
 #s-darrange .opt::after{content:"";flex:none;width:24px;height:24px;border-radius:50%;box-sizing:border-box;border:2px solid #9DBDBD;background:var(--bg)}
 #s-darrange .opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand)}
 #s-darrange .opt[aria-pressed="true"]::after{border:7px solid var(--brand)}
 #s-darrange .opt:active{background:var(--brand-soft)}
 /* r23 · "Will protect to" opens as one card: the option and its fields share one
    teal outline, and the panel slides open (Arrange in airport glides down with it). */
-#s-darrange #arKnown[aria-pressed="true"]{border-bottom-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0}
-#s-darrange #altWrap{margin-top:0;padding:4px 12px 12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-top:0;border-radius:0 0 16px 16px;overflow:hidden}
-#s-darrange #altWrap:not([hidden]){animation:altReveal .24s cubic-bezier(.2,.7,.2,1)}
-#s-darrange #altWrap .field{background:#FFFFFF}
-#s-darrange #altWrap .field + .field{margin-top:10px}
-@keyframes altReveal{from{max-height:0;opacity:0;padding-top:0;padding-bottom:0}70%{opacity:1}to{max-height:260px;opacity:1}}
+#s-darrange #arKnown[aria-pressed="true"]{border-bottom-width:0;border-bottom-left-radius:0;border-bottom-right-radius:0;min-height:52px;padding-bottom:4px}
+/* r27 · Protect-to panel per the suggested design: one card, CX flight and DEP time side by side
+   in compact tinted fields (no large white boxes). */
+#s-darrange #altWrap{margin-top:0;padding:8px 12px 12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-top:0;border-radius:0 0 16px 16px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#s-darrange #altWrap[hidden]{display:none}
+#s-darrange #altWrap .field{display:flex;align-items:center;gap:8px;min-height:48px;height:48px;margin:0;padding:0 6px;background:#F2F8F8;border:1px solid #B5D2D5;border-radius:12px;min-width:0;font-size:18px}
+#s-darrange #altWrap .field.bad{border-color:var(--danger)}
+#s-darrange #altWrap .field .code{flex:none;width:auto;min-width:48px;height:32px;margin:0;padding:0 10px;border-radius:8px;background:#BCDADD;color:var(--brand-strong);font-size:15px;font-weight:700;line-height:32px;justify-self:auto}
+#s-darrange #altWrap .field input.code{width:52px;min-width:52px}
+#s-darrange #altWrap .field input:not(.code){flex:1;width:auto;min-width:0;height:44px;padding:0 2px;font-size:18px;font-weight:700;color:var(--input-ink);text-align:left}
+@media (max-width:360px){#s-darrange #altWrap{padding:8px 10px 10px;gap:6px}#s-darrange #altWrap .field{gap:5px;padding:0 4px}#s-darrange #altWrap .field .code{min-width:40px;padding:0 6px;font-size:14px}#s-darrange #altWrap .field input.code{width:42px;min-width:42px}#s-darrange #altWrap .field input:not(.code){font-size:17px}}
+#s-darrange #altWrap:not([hidden]){animation:altReveal .22s cubic-bezier(.2,.7,.2,1)}
+@keyframes altReveal{from{max-height:0;opacity:0;padding-top:0;padding-bottom:0}70%{opacity:1}to{max-height:120px;opacity:1}}
 @media (prefers-reduced-motion:reduce){#s-darrange #altWrap:not([hidden]){animation:none}}
-.app.kb #s-darrange .opt{min-height:56px;padding:9px 14px 9px 16px}
-.app.kb #s-darrange #arUnknown{margin-top:6px}
-.app.kb #s-darrange #altWrap{padding:2px 10px 8px}
-.app.kb #s-darrange #altWrap .field + .field{margin-top:6px}
-/* Keyboard open: keep 4/6 top-aligned so the page does not re-centre and jump when the panel opens. */
-.app.kb #s-darrange:not([hidden]){justify-content:flex-start;padding-top:6px}
 /* r18 · Step title stays on one line (Android / narrow screens): auto-shrinks to fit, ellipsis only as a last resort. */
 .step{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* r26 · Stable page layout. Pages used to (1) re-centre vertically and (2) shrink the header,
+   titles and fields a moment after the keyboard opened, so every page change looked like a jump.
+   Now form pages use one set of sizes with or without the keyboard and stay top-aligned, and a
+   short fade replaces the hard cut between pages. */
+#s-phone h1,#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{font-size:24px;line-height:1.15;margin:10px 0 16px}
+.chip{margin:-6px auto 14px}
+.screen:not([hidden]){animation:screenIn .16s ease-out}
+@keyframes screenIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.screen:not([hidden]){animation:none}}
 </style>
 <script src="./libphonenumber-max.js"></script>
 </head>
