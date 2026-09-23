@@ -1,49 +1,33 @@
-Find Pax r33 verification summary
+Find Pax r34 verification summary
 
-PASS index.html inline JavaScript syntax (Node --check)
-PASS sw.js JavaScript syntax (Node --check)
-PASS Python verifier syntax (py_compile)
-PASS verify_layout.py
-PASS verify_navigation.py
-PASS verify_messages.py
-PASS verify_behavior.py static checks:
-  - every screen is represented in the behaviour spec
-  - every button has a spec branch or toggle
-  - NEXT map found
-  - code routes match the behaviour spec
-  - progress numbers match FLOWS step order
+Release scope
+-------------
+1. First screen no longer waits for libphonenumber-max.js. The blocking <head> script tag was removed; the local library is loaded asynchronously after the initial phone screen render/paint.
+2. Removed the redundant load-time second clearFields() + render() pass. Startup now clears once and showScreen("phone") performs the initial render.
+3. Service Worker runtime strategy is unchanged from r33: cache-first response with background network refresh, isolated cache.put failures, and redirected navigations excluded from cache. Only CACHE_REV changed to r34.
+4. Home layout keeps the exact r32 icon-to-Next geometry, makes the home footer divider transparent, and positions only "r34" beside the icon's right foot without consuming layout height.
+5. All r33 functional changes remain, including Final Call Transit "Dep from" and Scenario 4 protect-to CX validation.
 
-PASS r33 focused Chromium UI/runtime validation:
-  - Home page shows the visible release label: v1.1 · r33
-  - Release label is 9px, below the bottom icon, and stays above the footer at 390x844, 360x740 and 320x568
-  - Final Call -> Transit Pax -> CX451 -> Confirm details shows:
-      Flight CX451
-      Dep from NRT
-      Destination HKG
-      Go to Gate C5
-    in that order
-  - Progress remains "Final Call - 4/4 - Transit Pax"
-  - No JavaScript page errors in the focused r33 runtime validation
+PASS static/regression checks
+-----------------------------
+- verify_layout.py
+- verify_navigation.py
+- verify_messages.py
+- JavaScript syntax (node --check)
+- Python verifier syntax (py_compile)
+- Service Worker diff from r33: CACHE_REV only
 
-PASS release static checks through layout/navigation locks, including:
-  - Final Call Transit Dep from row present
-  - homepage release label matches sw.js APP_VERSION + CACHE_REV
-  - Service Worker cache revision r33
-  - r31 cache-first + background-refresh behavior retained
-  - cache.put rejection isolation retained
-  - redirected-navigation cache protection retained
-  - startup reg.update() remains removed
-  - controllerchange/location.reload() forced update reload remains removed
-  - message-copy locks unchanged
-  - phone validation locks unchanged
+PASS focused Chromium runtime checks
+------------------------------------
+- r32 home icon bottom: 703px; r34 home icon bottom: 703px
+- r32 Next top: 770px; r34 Next top: 770px
+- r32 icon-to-Next gap: 67px; r34 icon-to-Next gap: 67px
+- r34 home divider is visually transparent while preserving the 1px geometry
+- r34 version label is "r34" and is absolutely positioned, so it adds no layout height
+- With the phone library intentionally unavailable, the phone screen and Next button render normally, Next stays disabled, no false Invalid warning is shown, and no JavaScript page error occurs
+- With the async phone library supplied after startup, 886983952602 validates, the TW badge appears, and Next becomes enabled
+- The broad behaviour regression run progressed through Scenario 1/2/3 and multiple Scenario 4 branches with PASS results and no page errors before the execution environment cut the long run off; focused r34-specific tests above completed successfully
 
-The full browser regression suite was started with system Chromium and reached 266 PASS checks
-with no FAIL before the execution environment's single-command limit stopped the run. It had
-already completed Scenario 1, all Scenario 2 Join/Transit language cases (including Final Call
-Transit), both Call Directly cases, Scenario 3, and multiple Scenario 4 branches. The focused r33
-checks above were then run separately to completion.
-
-r33 scope:
-  1. Final Call -> 4/4 -> Transit Pax -> Confirm details adds Dep from using the existing transit-origin map.
-  2. Home phone-number screen adds a small visible v1.1 · r33 release label below the bottom icon.
-  3. SW cache revision bumped to r33. Existing r31/r32 startup/cache behavior is retained.
+Release notes
+-------------
+The bundled libphonenumber-max.js remains in the Service Worker precache list for offline use. Delaying its page execution does not remove offline capability; it only removes the library from the first-paint critical path.

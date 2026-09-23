@@ -118,11 +118,11 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r33";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r34";' in sw)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
-_display_version=f'{_app_m.group(1)} · {_rev_m.group(1)}' if _app_m and _rev_m else ''
-ck('homepage version label matches service worker', bool(_display_version) and f'<div class="appVersion" aria-label="App version">{_display_version}</div>' in s)
+_display_version=_rev_m.group(1) if _rev_m else ''
+ck('homepage version label matches service worker', bool(_display_version) and f'<span class="appVersion" aria-label="App version">{_display_version}</span>' in s)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
 ck('service worker cache write failure isolated', 'await cache.put(key,r.clone()).catch(()=>{});' in sw)
@@ -141,6 +141,9 @@ ck('manifest separates any and maskable icons', all(x in manifest for x in ['./i
 ck('maskable icons distinct', hashlib.sha256((r/'icon-192.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-192.png').read_bytes()).hexdigest() and hashlib.sha256((r/'icon-512.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-512.png').read_bytes()).hexdigest())
 ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in assets))
 ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
+ck('phone library does not block first paint', '<script src="./libphonenumber-max.js"></script>' not in s and 'requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary))' in s and 'script.async=true;' in s)
+ck('startup has no second clear/render pass', 'window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});' not in s)
+ck('service worker strategy retained while cache revision advances', 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
 
 # Authorized Scenario 4 Flight Type change.

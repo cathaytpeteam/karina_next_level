@@ -50,6 +50,7 @@ h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);f
 .app.kb main{padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
 .app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]){padding-bottom:8px}
 .app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.app.phoneHome .foot,.app.phoneHome.kb .foot{border-top-color:transparent}
 .app.kb .hint{display:none}
 .app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}
 .foot[hidden]{display:none}
@@ -127,8 +128,9 @@ h1 + .chip{margin-top:-8px}
 #s-phone{min-height:100%;box-sizing:border-box;display:flex;flex-direction:column}
 #s-phone[hidden]{display:none!important}
 #s-phone h1{text-align:center}
-.phoneHeroIcon{display:block;width:116px;height:116px;object-fit:contain;margin:auto auto 0}
-.appVersion{margin:3px 0 0;text-align:center;font-size:9px;line-height:1.2;font-weight:600;letter-spacing:.05em;color:#98A7A8;user-select:none;-webkit-user-select:none}
+.phoneHeroWrap{position:relative;display:block;width:116px;height:116px;margin:auto auto 0;flex:none}
+.phoneHeroIcon{display:block;width:116px;height:116px;object-fit:contain;margin:0}
+.appVersion{position:absolute;left:78px;bottom:5px;font-size:9px;line-height:1;font-weight:600;letter-spacing:.04em;color:#98A7A8;white-space:nowrap;user-select:none;-webkit-user-select:none;pointer-events:none}
 /* Footer hint always reserves one line so the CTA never jumps when a hint appears. */
 /* Message focus mode: when the preview is open, reclaim the upper screen space. */
 #s-preview.preview-focus>h1,#s-preview.preview-focus>#sum,#s-preview.preview-focus>.previewLangTitle,#s-preview.preview-focus>.seg{display:none}
@@ -258,7 +260,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 @keyframes screenIn{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.screen:not([hidden]){animation:none}}
 </style>
-<script src="./libphonenumber-max.js"></script>
 </head>
 <body>
 <div class="app" id="app">
@@ -280,8 +281,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         <span class="badge" id="badge" hidden></span>
       </div>
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
-      <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-      <div class="appVersion" aria-label="App version">v1.1 · r33</div>
+      <div class="phoneHeroWrap">
+        <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
+        <span class="appVersion" aria-label="App version">r34</span>
+      </div>
     </section>
 
     <section class="screen" id="s-scenario" hidden>
@@ -458,8 +461,31 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     });
     return {byCode,codes:Object.keys(byCode).sort((a,b)=>b.length-a.length)};
   }
-  const PHONE_META=buildPhoneMeta();
+  let PHONE_META=buildPhoneMeta();
+  let phoneLibReady=PHONE_META.codes.length>0;
   const callingCodeFor=n=>PHONE_META.codes.find(code=>n.startsWith(code))||"";
+
+  function activatePhoneLibrary(){
+    if(!window.libphonenumber) return false;
+    PHONE_META=buildPhoneMeta();
+    phoneLibReady=PHONE_META.codes.length>0;
+    if(phoneLibReady){
+      const input=$("phoneInput");
+      if(input) input.dispatchEvent(new Event("input",{bubbles:false}));
+    }
+    return phoneLibReady;
+  }
+  function loadPhoneLibrary(){
+    if(activatePhoneLibrary()) return;
+    if(document.querySelector('script[data-phone-lib="1"]')) return;
+    const script=document.createElement("script");
+    script.src="./libphonenumber-max.js";
+    script.async=true;
+    script.dataset.phoneLib="1";
+    script.onload=()=>activatePhoneLibrary();
+    script.onerror=()=>{};
+    document.head.appendChild(script);
+  }
 
   function detectCountryEarly(raw){
     const n=digits(raw), lp=window.libphonenumber;
@@ -784,7 +810,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const l=v(n).length; return l<6?(l?(6-l)+" more digits":"6 digits"):"";
   }
   const HINT={
-    phone:()=>{const n=digits(v("phoneInput")),p=normalizePhone(n);if(p&&p.blocked)return "罐頭號碼 無用";return n&&!p?"Invalid or incomplete phone number":"";},
+    phone:()=>{const n=digits(v("phoneInput"));if(!n||!phoneLibReady)return "";const p=normalizePhone(n);if(p&&p.blocked)return "罐頭號碼 無用";return !p?"Invalid or incomplete phone number":"";},
     mflight:()=>!isFlt(v("mFlight"))?"1–3 digits":(S.missMode==="transit"&&!transitCxOk(v("mFlight"))?"Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565":(S.missMode==="join"&&!generalCxOk(v("mFlight"))?"":"")),
     msec:()=>{const x=v("mSec");return !x?"0–580":(+x>580?"Max 580":"");},
     wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
@@ -1250,6 +1276,7 @@ Thank you for your understanding and cooperation.`;
 
   // ---- render ------------------------------------------------------------
   function render(){
+    $("app").classList.toggle("phoneHome",cur==="phone");
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
     const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&(cur!=="preview"||flow==="call")&&S.phone;
     $("back").hidden=cur==="phone";
@@ -1554,7 +1581,8 @@ Thank you for your understanding and cooperation.`;
   // Always start blank: undo any form state the browser restored on relaunch / reload / bfcache.
   clearFields();
   showScreen("phone");
-  window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});
+  const startPhoneLibrary=()=>requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary));
+  startPhoneLibrary();
   window.addEventListener("pageshow",e=>{if(e.persisted) resetAll();});
 })();
 

@@ -178,7 +178,7 @@ class Run:
         # Load the exact app document without relying on file://, which is blocked by some
         # managed Chromium policies. The bundled phone library is inlined only in the test page.
         lib = (R / "libphonenumber-max.js").read_text(encoding="utf-8")
-        doc = HTML.replace('<script src="./libphonenumber-max.js"></script>', '<script>' + lib + '</script>')
+        doc = HTML.replace('</head>', '<script>' + lib + '</script></head>')
         await self.pg.set_content(doc, wait_until="domcontentloaded")
         await self.pg.wait_for_selector("#s-phone:not([hidden])")
         return self

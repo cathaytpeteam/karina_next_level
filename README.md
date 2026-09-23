@@ -374,3 +374,11 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - The row is shown only for Transit Pax and is placed after `Flight` and before `Destination`.
 - The phone-number home screen now shows a tiny muted `v1.1 · r33` label directly below the bottom icon so staff can confirm which release has reached the device. Release verification requires this label to match the Service Worker version/revision.
 - Existing message copy, navigation, validation, and r31/r32 Service Worker cache-first behavior are unchanged. SW cache r33.
+
+
+## r34 — faster first paint + home version placement
+
+- The phone-number home screen no longer waits for `libphonenumber-max.js`: the app shell renders first, then the local phone library is loaded asynchronously after the first paint. Phone validation stays disabled (without a false invalid warning) until the library is ready, then the current input is revalidated automatically.
+- Removed the redundant load-time second `clearFields() + render()` pass; startup now clears once and `showScreen("phone")` performs the single initial render.
+- Service Worker cache-first/background-refresh strategy is unchanged; only the cache revision advances to r34.
+- Home layout restores the r32 icon-to-Next geometry, removes the home-only footer divider, and shows only `r34` beside the icon's right foot without consuming layout height.
