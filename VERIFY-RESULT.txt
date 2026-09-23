@@ -1,25 +1,4 @@
-Find Pax r38 verification summary
-
-Authorized change
------------------
-Scenario 1 → Join Pax → English message replaced exactly with the user-approved wording.
-Existing dynamic flight/SEC/date suffix behavior is retained.
-Visible release label and Service Worker CACHE_REV advanced to r38.
-
-PASS
-----
-- verify_layout.py
-- verify_navigation.py
-- verify_messages.py
-- inline application JavaScript syntax
-- Service Worker JavaScript syntax
-- exact approved Scenario 1 Join English copy present in executable and message master
-
-Not claimed
------------
-- No broad browser regression suite is claimed in this execution.
-
-Locked / unchanged
-------------------
-Scenario 1 Chinese/Japanese and Transit copy; Scenario 2/3/4; r37 PWA update lifecycle;
-validation; navigation; visual geometry; and transition behavior.
+Find Pax r39
+PASS: layout, navigation, messages, inline JS syntax, SW JS syntax, exact Scenario 1 Join Chinese copy.
+Not claimed: broad browser regression.
+Locked unchanged: r38 English, Japanese, Transit, Scenario 2/3/4, PWA lifecycle, validation, navigation, visual geometry, transitions.

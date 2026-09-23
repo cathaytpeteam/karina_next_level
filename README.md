@@ -422,3 +422,7 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Existing dynamic flight/SEC tag behavior remains unchanged.
 - Scenario 1 Chinese/Japanese and Transit copy remain unchanged.
 - Scenario 2/3/4, r37 PWA update lifecycle, validation, navigation, visual geometry and transitions remain unchanged.
+
+## r39 — Scenario 1 Join Chinese message
+
+- Scenario 1 → Join Pax → Chinese message replaced exactly with the user-approved wording. r38 English and all other Golden Baseline behavior remain unchanged.
