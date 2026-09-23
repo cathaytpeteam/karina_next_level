@@ -283,7 +283,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">r37</span>
+        <span class="appVersion" aria-label="App version">r38</span>
       </div>
     </section>
 
@@ -879,13 +879,17 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 多謝您的理解和配合。`;
     const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
 
-Your checked baggage did not pass the X-ray screening at the check-in counter, and airport security needs to conduct a second inspection with you. Your baggage is therefore being held at the counter and cannot be loaded at this time.
+Airport Security found an item in your baggage that cannot be checked in. Your baggage is currently being held at Check-in Counter 4 and cannot be sent for loading until the item is checked, removed for carry-on, or disposed of.
 
-Please return to Check-in Counter 4 and contact our staff.
+• Please return to Counter 4 as soon as possible and contact our staff.
 
-If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
+• If you have passed security but not immigration, please inform airport staff and return to the check-in counter.
 
-Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
+• If you have already passed immigration, please come to the boarding gate and contact our staff as soon as possible.
+
+Please note that once you have passed immigration, you are not permitted to return to the check-in counter. In this case, the identified item may need to be disposed of by Airport Security without your presence at the counter.
+
+Thank you for your understanding and cooperation.`;
     const ja=`【キャセイパシフィック航空】預け手荷物のX線再検査に立会いが必要です。出国審査前は至急4番カウンターへ。保安検査後・出国審査前は係員に申し出て4番へお戻りください。出国審査後はゲート係員にお申し出ください。お越しいただけない場合、荷物が搭載できない可能性があります。`;
     if(S.order==="ja") return ja;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;

@@ -6,10 +6,10 @@
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
     "message_copy": {
-      "message_master_version": "1.12",
-      "message_master_sha256": "e06a546cff70b303bdb957eab9db236a4942ede0d5ff46bafb285b37cec4acb4",
+      "message_master_version": "1.13",
+      "message_master_sha256": "107668fe8b8647c7a0d9bd14c0575f2c4bc9e04044a850ea2f2587a9016caace",
       "functions": {
-        "textMiss": "b353b9884f0b4353dd2af20dc3a9514a4f389bcecb76bae9060ac811645867b4",
+        "textMiss": "a2d69a9156f490915942c79e3612f5f43b89237398eddbd1b34be44167e7e5d9",
         "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
         "textTransit": "523d7456c3f9f89a253680f75ae195ccb5d73794949b4a6b5eeb9a95b5b95a26",
         "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",

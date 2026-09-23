@@ -415,3 +415,10 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Existing `skipWaiting()` / `clients.claim()` behavior is retained; no `controllerchange -> location.reload()` was added.
 - Service Worker fetch/cache strategy is otherwise unchanged; CACHE_REV advanced to r37.
 - No Scenario, message, validation, navigation, visual geometry or transition behavior was intentionally changed.
+
+## r38 — Scenario 1 Join English message
+
+- User-approved change: Scenario 1 → Join Pax → English message replaced exactly with the approved wording.
+- Existing dynamic flight/SEC tag behavior remains unchanged.
+- Scenario 1 Chinese/Japanese and Transit copy remain unchanged.
+- Scenario 2/3/4, r37 PWA update lifecycle, validation, navigation, visual geometry and transitions remain unchanged.
