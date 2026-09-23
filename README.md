@@ -1,3 +1,11 @@
+# r34 Stable Baseline
+
+**r34 is the user-approved stable baseline.** Existing locked behavior, layout, navigation, validation, message copy, and PWA behavior must not be changed unless the user explicitly authorizes that exact change.
+
+Before any future release, read `STABLE-BASELINE-CHECKLIST.md` and run the existing regression verifiers. Do not update lock hashes merely to silence an unexpected failure.
+
+---
+
 # Find Pax v1.1 — Golden Layout Baseline
 
 Release date: 2026-09-22
