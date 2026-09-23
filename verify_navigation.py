@@ -92,7 +92,13 @@ ck('Scenario 4 Flight Type selection itself is always continuable', 'dstatus:()=
 ck('Scenario 4 Delayed time validates on step 2/6 only', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in ok_block)
 ck('Scenario 4 To be updated has no delay-time dependency', 'S.status!=="delayed"||timeOk("delayTime")' in ok_block)
 ck('Scenario 4 delayed hint belongs to step 2/6', 'dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":(S.status==="delayed"?timeHint("delayTime"):""))' in hint_block and 'dstatus:()=>""' in hint_block)
-ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight") $("delayWrap").hidden=S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
+ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
+
+
+ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;' in s and 'const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
+ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and '$("dFlight").closest(".field").classList.toggle("bad",!!dn&&!generalCxOk(dn));' in s)
+ck('Scenario 4 Delayed valid 3-digit flight auto-focuses Delayed to', 'id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)' in s and '$("delayTime").focus()' in s)
+ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime"].forEach' in s and 'fmtTime(this);render();' in s)
 
 if not all(v for _,v in checks): sys.exit(1)
 print('PASS navigation lock: Scenario 1 = 3 steps; Scenario 2 = 4 steps with no SEC page; Scenario 4 Flight Type is direct-navigation 1/6, Delayed time is on 2/6 only; Call Directly = 1/1; routes, validation ownership, title placement, and history behavior locked')

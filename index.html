@@ -645,7 +645,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
   const TRANSIT_ORIGIN_IATA={"450":"HKG","530":"HKG","564":"HKG","451":"NRT","531":"NGO","565":"KIX"};
-  const generalCxOk=raw=>GENERAL_CX_FLIGHTS.has(String(Number(digits(raw))));
+  const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;
+  const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has(String(Number(digits(raw))));
   const transitCxOk=raw=>TRANSIT_FLIGHTS.has(String(Number(digits(raw))));
   const transitOriginIata=raw=>TRANSIT_ORIGIN_IATA[String(Number(digits(raw)))]||"";
   const TRANSIT_DESTINATIONS={
@@ -1192,7 +1193,11 @@ Thank you for your understanding and cooperation.`;
       $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");
       $("stUnknown").setAttribute("aria-pressed",S.status==="unknown");
     }
-    if(cur==="dflight") $("delayWrap").hidden=S.status!=="delayed";
+    if(cur==="dflight"){
+      $("delayWrap").hidden=S.status!=="delayed";
+      const dn=normalizeFlight(v("dFlight"));
+      $("dFlight").closest(".field").classList.toggle("bad",!!dn&&!generalCxOk(dn));
+    }
     if(cur==="darrange"){
       $("arKnown").setAttribute("aria-pressed",S.arrange==="known");
       $("arUnknown").setAttribute("aria-pressed",S.arrange==="unknown");
@@ -1292,11 +1297,21 @@ Thank you for your understanding and cooperation.`;
     render();
   });
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3};
-  Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){this.value=digits(this.value).slice(0,numInputs[id]);render();}));
+  Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){
+    this.value=digits(this.value).slice(0,numInputs[id]);
+    render();
+    if(id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)){
+      requestAnimationFrame(()=>{try{$("delayTime").focus();}catch(e){}});
+    }
+  }));
   ["mFlight","wFlight","dFlight","tN","altN"].forEach(id=>$(id).addEventListener("blur",function(){normalizeFlightField(id);render();}));
   ["b1a","b2a"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));
   ["tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,2);render();}));
-  ["delayTime","altTime","arriveTime"].forEach(id=>$(id).addEventListener("input",function(){fmtTime(this);render();}));
+  ["delayTime","altTime","arriveTime"].forEach(id=>{
+    const el=$(id);
+    el.addEventListener("input",function(){fmtTime(this);render();});
+    el.addEventListener("focus",function(){this.select?.();});
+  });
 
   $("callFlight").addEventListener("input",function(){this.value=digits(this.value).slice(0,3);render();});
   $("callFlight").addEventListener("blur",function(){const n=callFlightNumber();if(n)this.value=n;render();});

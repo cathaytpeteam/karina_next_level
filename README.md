@@ -213,3 +213,10 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 - Release build was also exercised in a 390×844 headless Chromium smoke test for all three Flight Type branches, Back/Forward, and To be updated through 6/6.
 - Message copy, phone validation, Scenario 1, Scenario 2, and Scenario 3 behavior remain protected.
 - Service worker cache revision: **v1.1-r11**.
+
+
+## r12 Scenario 4 input regression
+- Delayed: entering a valid three-digit TPE-departure CX flight (for example 407) automatically focuses Delayed to.
+- Delayed to accepts HHMM and formats it as HH:MM.
+- Disrupted flight uses the locked TPE-departure CX whitelist; a non-whitelist flight is visibly invalid and cannot continue.
+- Regression guards added to verify_navigation.py.
