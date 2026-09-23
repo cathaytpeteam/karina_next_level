@@ -1,12 +1,12 @@
-Find Pax r36 verification summary
+Find Pax r37 verification summary
 
 Authorized change
 -----------------
-- Scenario 2 -> Final Call -> Transit Pax -> Japanese SMS template updated to the user-approved structure.
-- Dynamic flight number, origin city, destination city, Gate and current Taipei time are retained.
-- CX450 / B7 / 02:02 example length: 133 Unicode characters.
-- Across the six locked Transit flights with B7 and HH:mm, message lengths are 133-134 characters, within the project's <=134-character 2-SMS target.
-- Message master advanced to v1.12; only affected message/lock metadata and release identity were intentionally regenerated.
+- PWA update lifecycle only: Service Worker registration/update check starts immediately when the bottom script executes rather than waiting for window load.
+- Cached launch remains cache-first and does not wait for network.
+- Existing skipWaiting() and clients.claim() behavior is retained.
+- No controllerchange -> location.reload() behavior was added.
+- CACHE_REV advanced to r37 and visible release label advanced to r37.
 
 PASS
 ----
@@ -22,4 +22,4 @@ Not claimed
 
 Golden baseline
 ---------------
-All behavior outside the explicitly authorized Final Call Transit Japanese copy and required r36 release identity/lock metadata remains locked.
+Scenario logic, message copy (including r35/r36 Japanese updates), validation, navigation, visual geometry and transition behavior remain locked.

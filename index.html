@@ -283,7 +283,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">r36</span>
+        <span class="appVersion" aria-label="App version">r37</span>
       </div>
     </section>
 
@@ -1587,9 +1587,11 @@ Thank you for your understanding and cooperation.`;
 })();
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{});
-  });
+  // Register as soon as the document has rendered enough to execute this script.
+  // This starts the update check earlier without delaying the cached app launch.
+  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"})
+    .then(reg=>reg.update().catch(()=>{}))
+    .catch(()=>{});
 }
 </script>
 </body>

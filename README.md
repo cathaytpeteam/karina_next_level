@@ -406,3 +406,12 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Dynamic Flight / origin city / destination city / Gate / current Taipei time remain automatic.
 - Representative CX450 / B7 / 02:02 message is 133 Unicode characters, within the project's locked <=134-character 2-SMS target.
 - All other message copy, behavior, layout, transitions, validation, navigation and PWA strategy remain unchanged from the Golden Baseline/r35 except required release identity and affected lock metadata.
+
+## r37 — Installed PWA update check
+
+- Authorized scope: PWA update lifecycle only.
+- Service Worker registration/update check now starts immediately when the bottom script executes instead of waiting for the window `load` event.
+- Cached launch remains cache-first and does not wait for network.
+- Existing `skipWaiting()` / `clients.claim()` behavior is retained; no `controllerchange -> location.reload()` was added.
+- Service Worker fetch/cache strategy is otherwise unchanged; CACHE_REV advanced to r37.
+- No Scenario, message, validation, navigation, visual geometry or transition behavior was intentionally changed.
