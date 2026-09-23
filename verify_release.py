@@ -94,7 +94,7 @@ for section in ('phone_validation','japanese_sms','datetime'):
         ck('protected '+n, body is not None and sh(body)==h)
 
 # UI regression checks: passenger type in progress and Direct phone placement.
-ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s and 'flow==="miss" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
+ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone])' in s)
 ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow==="call")&&S.phone' in s)
 
@@ -110,7 +110,7 @@ ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r6";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r7";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',

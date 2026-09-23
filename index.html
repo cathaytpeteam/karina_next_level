@@ -1159,9 +1159,9 @@ Thank you for your understanding and cooperation.`;
     if(idx>=0&&!directPreview){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
-      const passengerType=flow==="miss" && (S.missMode==="join"||S.missMode==="transit")
+      const passengerType=flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")
         ? (S.missMode==="join"?"Join Pax":"Transit Pax")
-        : flow==="call" && (S.callMode==="join"||S.callMode==="transit")
+        : flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")
           ? (S.callMode==="join"?"Join Pax":"Transit Pax") : "";
       if((flow==="miss"||flow==="call")&&passengerType){
         $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
