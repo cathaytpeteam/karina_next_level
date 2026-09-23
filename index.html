@@ -248,6 +248,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .app.kb #s-darrange #arUnknown{margin-top:6px}
 .app.kb #s-darrange #altWrap{margin-top:6px}
 .app.kb #s-darrange #altWrap .field + .field{margin-top:6px}
+/* r18 · Step title stays on one line (Android / narrow screens): auto-shrinks to fit, ellipsis only as a last resort. */
+.step{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 <script src="./libphonenumber-max.js"></script>
 </head>
@@ -336,8 +338,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
     <!-- Disrupted Pax -->
     <section class="screen" id="s-dflight" hidden>
-      <h1>Disrupted flight</h1>
-      <div class="chip">TPE</div>
+      <h1>Flight from TPE</h1>
       <div class="field"><span class="code">CX</span><input autocomplete="off" id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
       <div class="optExtra" id="delayWrap" hidden>
         <div class="delayLabel">Delayed to</div>
@@ -678,6 +679,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;
   const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has(String(Number(digits(raw))));
   const transitCxOk=raw=>TRANSIT_FLIGHTS.has(String(Number(digits(raw))));
+  // r19 · Disrupted Pax 3/6 Connecting flight = onward flight after arriving HKG,
+  // so any whitelisted CX flight departing TPE is not allowed here.
+  const tpeDepartureBlocked=(airline,raw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&generalCxOk(raw);
   const transitOriginIata=raw=>TRANSIT_ORIGIN_IATA[String(Number(digits(raw)))]||"";
   const TRANSIT_DESTINATIONS={
     "450":{zh:"東京成田",en:"Tokyo Narita",ja:"東京（成田）"},
@@ -703,6 +707,26 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     return false;
   }
 
+  // r20 · Red border on every flight-related input that breaks its rule (Scenario 1–4).
+  // Empty fields and incomplete times stay neutral; a filled field that can never pass turns red.
+  function markInvalidFields(){
+    const bad=(id,cond)=>{const el=$(id);if(el){const f=el.closest(".field");if(f)f.classList.toggle("bad",!!cond);}};
+    const filled=id=>v(id)!=="";
+    // Scenario 1 · 漏查 flight number (Join = TPE whitelist, Transit = transit list)
+    bad("mFlight",filled("mFlight")&&(!isFlt(v("mFlight"))||(S.missMode==="transit"&&!transitCxOk(v("mFlight")))||(S.missMode==="join"&&!generalCxOk(v("mFlight")))));
+    bad("mSec",filled("mSec")&&(!isFlt(v("mSec"))||+v("mSec")>580));
+    // Scenario 3 · Wrong Pick-up flight number
+    bad("wFlight",filled("wFlight")&&!isFlt(v("wFlight")));
+    // Scenario 4 · Disrupted Pax
+    bad("dFlight",filled("dFlight")&&!generalCxOk(v("dFlight")));
+    bad("tN",(filled("tA")&&!isCarrier(v("tA")))||(filled("tN")&&!isFlt(v("tN")))||tpeDepartureBlocked(v("tA"),v("tN")));
+    bad("altN",(filled("altA")&&!isCarrier(v("altA")))||(filled("altN")&&!isFlt(v("altN"))));
+    ["delayTime","altTime","arriveTime"].forEach(id=>bad(id,timeState(id)==="bad"));
+    // Scenario 2 · Final Call flight number (unchanged rule, kept here for consistency)
+    const cn=callFlightNumber();
+    bad("callFlight",!!cn&&((S.callMode==="transit"&&!transitCxOk(cn))||(S.callMode==="join"&&!generalCxOk(cn))));
+  }
+
   const OK={
     phone:()=>{const p=normalizePhone(v("phoneInput"));return !!p&&!p.blocked;},
     mflight:()=>isFlt(v("mFlight"))&&(S.missMode==="transit"?transitCxOk(v("mFlight")):S.missMode==="join"?generalCxOk(v("mFlight")):true),
@@ -711,7 +735,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     bag1:()=>isAir(v("b1a"))&&/^\d{6}$/.test(v("b1n")),
     bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
     dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime")),
-    dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN")),
+    dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))&&!tpeDepartureBlocked(v("tA"),v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown",
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
@@ -737,7 +761,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     bag1:()=>bagHint("b1a","b1n"),
     bag2:()=>bagHint("b2a","b2n"),
     dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":(S.status==="delayed"?timeHint("delayTime"):"")),
-    dtransfer:()=>!isCarrier(v("tA"))?"Airline code: 2 letters/digits":(isFlt(v("tN"))?"":"1–3 digits"),
+    dtransfer:()=>!isCarrier(v("tA"))?"Airline code: 2 letters/digits":(!isFlt(v("tN"))?"1–3 digits":(tpeDepartureBlocked(v("tA"),v("tN"))?"Departs TPE — not allowed":"")),
     dstatus:()=>"",
     darrange:()=>S.arrange!=="known"?"":!isCarrier(v("altA"))?"Airline code: 2 letters/digits":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
@@ -1076,6 +1100,11 @@ Thank you for your understanding and cooperation.`;
   }
   function showScreen(id){
     if(id!=="preview") closePreviewEditor();
+    // r21 · Scenario 1 "Call Directly" reuses the Final Call direct preview (flow="call").
+    // Back/Forward must restore the flow that owns the screen, so 漏查 - 1/3 is shown again.
+    if(id==="misstype") flow="miss";
+    else if(id==="calltype") flow="call";
+    else if(id==="preview"&&S.missMode==="direct"&&S.callNoMessage) flow="call";
     cur=id;
     document.querySelectorAll(".screen").forEach(s=>s.hidden=true);
     $("s-"+id).hidden=false;
@@ -1227,6 +1256,9 @@ Thank you for your understanding and cooperation.`;
       $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");
       $("stUnknown").setAttribute("aria-pressed",S.status==="unknown");
     }
+    if(cur==="dtransfer"){
+      $("tN").closest(".field").classList.toggle("bad",tpeDepartureBlocked(v("tA"),v("tN")));
+    }
     if(cur==="dflight"){
       $("delayWrap").hidden=S.status!=="delayed";
       const dn=normalizeFlight(v("dFlight"));
@@ -1296,6 +1328,7 @@ Thank you for your understanding and cooperation.`;
       }
     }
 
+    markInvalidFields();
     const showFoot=cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus";
     $("foot").hidden=!showFoot;
     const ok=OK[cur]?OK[cur]():false;
@@ -1306,7 +1339,7 @@ Thank you for your understanding and cooperation.`;
     const text=HINT[cur]?HINT[cur]():"";
     hint.textContent=text;
     hint.style.display=cur==="preview"?"none":"";
-    hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用/.test(text));
+    hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用|Departs TPE/.test(text));
     const cta=$("cta");
     const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
     $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
@@ -1373,6 +1406,24 @@ Thank you for your understanding and cooperation.`;
   $("stPossible").onclick=()=>selectDpFlightType("possible");
   $("stUnknown").onclick=()=>selectDpFlightType("unknown");
   $("stDelayed").onclick=()=>selectDpFlightType("delayed");
+  (function fitStepTitle(){
+    const el=$("step"); if(!el) return;
+    let busy=false;
+    const fit=()=>{
+      if(busy) return; busy=true;
+      el.style.fontSize="";
+      if(el.textContent && el.clientWidth>0){
+        let fs=parseFloat(getComputedStyle(el).fontSize)||20;
+        while(el.scrollWidth>el.clientWidth+0.5 && fs>13){fs-=0.5;el.style.fontSize=fs+"px";}
+      }
+      busy=false;
+    };
+    try{new MutationObserver(fit).observe(el,{childList:true,characterData:true,subtree:true});}catch(e){}
+    window.addEventListener("resize",fit,{passive:true});
+    if(window.visualViewport) window.visualViewport.addEventListener("resize",fit,{passive:true});
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+    fit();
+  })();
   $("arUnknown").onclick=()=>{S.arrange="unknown";render();};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 

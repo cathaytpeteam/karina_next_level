@@ -234,3 +234,46 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 ## r17 — Flight Type label locked as "Suspended"
 - User-approved: Scenario 4 Flight Type third option is "Suspended" (formerly "To be updated"). It still maps to status `unknown`; routing, copy and validation unchanged.
 - `layout-lock.json` (s-dstatus hash), `navigation-lock.json`, `verify_navigation.py` and `verify_release.py` updated to the approved label. `verify_release.py` now passes all checks.
+
+## r18 — Step title stays on one line (Android)
+- On narrower Android screens (e.g. 360px wide with Roboto), "Disrupted Pax - 2/6 - Tight connection" wrapped to two lines. The step title is now single-line and auto-shrinks from 20px (min 13px) to fit the width; ellipsis only as a last resort. Applies to every flow's step title; wording unchanged.
+- SW cache r18.
+
+## r19 — Disrupted Pax 3/6 Connecting flight: block TPE departures
+- The Connecting flight is the onward flight after arriving in HKG, so any whitelisted CX flight departing TPE (the same 21-flight list used for the Disrupted flight on 2/6) is rejected when the airline code is CX: red field border, red hint "Departs TPE — not allowed", Next disabled.
+- Other CX numbers and non-CX airline codes are unaffected. SW cache r19.
+
+## r20 — "Flight from TPE" + red borders across Scenario 1–4
+- Scenario 4 step 2/6 (all Flight Types): title is the single line "Flight from TPE"; the TPE chip is removed (user-authorized; `layout-lock.json` s-dflight re-locked). Preview row label "Disrupted flight" unchanged.
+- New `markInvalidFields()` runs on every render and gives a red border to any filled input that breaks its rule:
+  - S1 漏查: flight (Join = TPE whitelist, Transit = CX450/451/530/531/564/565), SEC > 580.
+  - S2 Final Call: flight (same Join / Transit rules, unchanged).
+  - S3 Wrong Pick-up: flight not 1–3 digits.
+  - S4 Disrupted Pax: flight from TPE not whitelisted; connecting flight with invalid airline code or a CX TPE-departure flight; Will-protect-to invalid airline code / number; any time outside 00:00–23:59.
+- Empty fields and half-typed times stay neutral. Validation rules themselves unchanged. SW cache r20.
+
+## r21 — Flow behaviour regression (`verify_behavior.py`)
+The older verifiers prove files are intact and locked HTML/copy is unchanged. `verify_behavior.py` drives the real app in headless Chromium and is now part of `verify_release.py`.
+
+Setup once: `pip install playwright && python -m playwright install chromium`. Run: `python3 verify_release.py` (≈40 s) or `python3 verify_behavior.py` alone.
+
+What it enforces, from `flow-behavior-spec.json`:
+1. **Static route scan** — every `go(...)` route reachable from a button handler or the NEXT map must equal the spec's routes, and every "n/N" in the spec must match `FLOWS[].steps`. Moving a page or re-routing a button fails and names the moved screen.
+2. **Control inventory** — every screen and every button on a screen must be in the spec; a new button with no branch fails.
+3. **All 62 outgoing branches executed** on every run (screen, progress title, progress bar, Next enabled). Any transition not in the spec fails as "unexpected".
+4. **Back + browser Forward** checked after each of the 40 in-app branches.
+5. **20 guards** — invalid input keeps Next disabled and shows a red border (S1–S4 rules, canned phone numbers).
+6. **8 state rules** — mode switch clears inputs, same mode keeps them, Flight Type switch clears Delayed time, Enter advances, Back keeps inputs, re-entering a scenario starts clean.
+7. **Send** — WhatsApp / SMS / call URL scheme, phone number and typed values.
+8. No JavaScript errors in any run.
+
+Changing a flow therefore requires updating `flow-behavior-spec.json` (explicit user approval, like the other locks); after that every outgoing branch of the changed screen is executed automatically.
+
+Mutation check (run during development, all caught): skipping 3/6, adding an untested button on 4/6, removing the TPE-departure block, and the Back bug below.
+
+Bug found and fixed by the new suite: after Scenario 1 → Call Directly, pressing Back showed Passenger Type with an empty title instead of "漏查 - 1/3" (the direct preview borrows the Final Call flow). `showScreen` now restores the owning flow for misstype / calltype / direct preview. SW cache r21.
+
+## r22 — GitHub Actions (no computer needed)
+- `.github/workflows/verify.yml` runs `verify_release.py` (including the browser flow suite) on every push / pull request, or manually via Actions → "Find Pax verify" → Run workflow. It finds the folder containing `verify_release.py` automatically.
+- Result: Actions tab shows ✓ / ✗; the run's Summary page lists every FAIL line (phone-readable); the full log is kept as the `verify-output` artifact.
+- `verify_release.py` SHA completeness now ignores repository/hosting plumbing: `.git*` (incl. `.github`), `.nojekyll`, `CNAME`.

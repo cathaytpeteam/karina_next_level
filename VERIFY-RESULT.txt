@@ -82,4 +82,5 @@ PASS Scenario 4 Flight Type behaves like Passenger Type
 PASS Scenario 4 Delayed time lives on step 2 only
 PASS layout lock
 PASS navigation lock
+PASS flow behaviour (all branches, Back/Forward, guards, state rules)
 FAIL SHA256SUMS integrity

@@ -117,7 +117,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r16";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r21";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
@@ -150,6 +150,13 @@ nav_run=subprocess.run([sys.executable, str(r/'verify_navigation.py')], cwd=r, c
 ck('navigation lock', nav_run.returncode==0)
 if nav_run.returncode!=0 and nav_run.stdout: print(nav_run.stdout.strip())
 
+# Flow behaviour: drives the real UI in headless Chromium and executes every outgoing
+# branch in flow-behavior-spec.json (plus Back/Forward, guards, state rules, send URLs).
+beh_run=subprocess.run([sys.executable, str(r/'verify_behavior.py')], cwd=r, capture_output=True, text=True)
+ck('flow behaviour (all branches, Back/Forward, guards, state rules)', beh_run.returncode==0)
+if beh_run.returncode!=0:
+    print('\n'.join(x for x in (beh_run.stdout+beh_run.stderr).splitlines() if not x.startswith('PASS'))[-4000:])
+
 # SHA256SUMS integrity and completeness (SHA file itself is intentionally excluded).
 sha_path=r/'SHA256SUMS.txt'
 sha_ok=sha_path.exists()
@@ -160,7 +167,13 @@ if sha_ok:
         parts=line.split('  ',1)
         if len(parts)!=2: sha_ok=False; break
         listed[parts[1]]=parts[0]
-actual_files={p.relative_to(r).as_posix():p for p in r.rglob('*') if p.is_file() and p.name!='SHA256SUMS.txt' and '__pycache__' not in p.parts}
+# Repository / hosting plumbing is not part of the app release: .git, .github (CI workflow),
+# .gitignore/.gitattributes, and GitHub Pages files (.nojekyll, CNAME).
+def _release_file(p):
+    rel=p.relative_to(r)
+    if p.name in ('SHA256SUMS.txt','.nojekyll','CNAME') or '__pycache__' in rel.parts: return False
+    return not any(x.startswith('.git') for x in rel.parts)
+actual_files={p.relative_to(r).as_posix():p for p in r.rglob('*') if p.is_file() and _release_file(p)}
 if sha_ok and set(listed)!=set(actual_files): sha_ok=False
 if sha_ok:
     for rel,p in actual_files.items():
