@@ -203,9 +203,13 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 - Removed the “Please select a listed CX flight” helper text while keeping whitelist validation unchanged.
 
 
-## v1.1 Scenario 4 Flight Type lock
-- Disrupted Pax now starts at **Flight Type** (1/6).
-- Options: **Tight Connection** (large primary), **Delayed**, **To be updated**.
-- Existing remaining steps keep their order and shift to 2/6–6/6.
-- Message copy and existing validation rules are unchanged.
-- Service worker cache revision: **v1.1-r10**.
+## v1.1 Scenario 4 Flight Type flow lock
+- Disrupted Pax starts at **Flight Type** (1/6), visually aligned with Passenger Type, including title/header placement.
+- Options: **Tight Connection** (large primary), **Delayed**, **To be updated**. Each choice navigates directly to 2/6; Flight Type has no footer/Next.
+- **Delayed to** is merged into **Disrupted flight** (2/6) and is visible/required only when Delayed is selected.
+- Tight Connection and To be updated do not depend on delayed-time validation.
+- Existing remaining steps keep their order through 6/6.
+- `verify_navigation.py` now guards direct choice navigation, no-Next behavior, Delayed-only validation ownership, Flight Type title/header placement, Back/Forward state handling, and the full 1/6→6/6 mapping.
+- Release build was also exercised in a 390×844 headless Chromium smoke test for all three Flight Type branches, Back/Forward, and To be updated through 6/6.
+- Message copy, phone validation, Scenario 1, Scenario 2, and Scenario 3 behavior remain protected.
+- Service worker cache revision: **v1.1-r11**.

@@ -1,4 +1,9 @@
-Find Pax v1.1 Scenario 4 Flight Type locked verification
-Authorized change: Disrupted Pax Flight Type moved from 3/6 to 1/6; options renamed Tight Connection / Delayed / To be updated; Passenger Type visual hierarchy applied.
-Regression guard: remaining Scenario 4 steps stay in order as 2/6–6/6. Message copy, phone validation, Scenario 1/2 behavior remain protected. SW v1.1-r10.
-Run verify_release.py for executable checks.
+Find Pax v1.1 Scenario 4 Flight Type flow regression lock
+Authorized fixes:
+- Flight Type remains Disrupted Pax 1/6 and matches Passenger Type title/header placement.
+- Flight Type has no footer/Next; Tight Connection / Delayed / To be updated navigate directly to 2/6.
+- Delayed-to time is merged into Disrupted flight 2/6 and is required only for the Delayed branch.
+- Tight Connection and To be updated do not depend on delayed-time validation.
+Regression guard expanded in verify_navigation.py for branch navigation, validation ownership, title/header layout, progress mapping, and browser Back/Forward state.
+Build-time headless browser smoke PASS: 390×844 viewport; Passenger Type/Flight Type title alignment, direct-choice navigation, Delayed-only validation, To be updated completion, and browser Back/Forward were exercised.
+SW v1.1-r11. Run verify_release.py for executable static/lock checks.

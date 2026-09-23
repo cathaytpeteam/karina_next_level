@@ -126,6 +126,7 @@ h1 + .chip{margin-top:-8px}
 .opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-strong)}
 .optExtra{margin-top:14px}
 .optExtra[hidden]{display:none}
+.delayLabel{margin:0 0 8px;color:var(--brand-strong);font-size:17px;font-weight:700}
 
 .bagHelp{margin:-8px 0 20px;font-size:20px;line-height:1.35;font-weight:700;color:var(--brand-strong)}
 .bagInline{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 20px}
@@ -209,7 +210,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .msg[readonly]{cursor:default}
 
 /* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
-#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{text-align:center}
+#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{text-align:center}
 #callGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
 #callGateField input{text-transform:uppercase}
 .callNoMessageSeg{margin-top:18px}
@@ -308,6 +309,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <h1>Disrupted flight</h1>
       <div class="chip">TPE</div>
       <div class="field"><span class="code">CX</span><input autocomplete="off" id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div class="optExtra" id="delayWrap" hidden>
+        <div class="delayLabel">Delayed to</div>
+        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
+      </div>
     </section>
     <section class="screen" id="s-dtransfer" hidden>
       <h1>Connecting flight</h1>
@@ -320,9 +325,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         <button class="choice passengerPrimary" id="stPossible" type="button" aria-pressed="false"><span class="ctext"><span>Tight Connection</span></span><span class="chev">›</span></button>
         <button class="choice passengerSecondary" id="stDelayed" type="button" aria-pressed="false"><span class="ctext"><span>Delayed</span></span><span class="chev">›</span></button>
         <button class="choice passengerSecondary" id="stUnknown" type="button" aria-pressed="false"><span class="ctext"><span>To be updated</span></span><span class="chev">›</span></button>
-      </div>
-      <div class="optExtra" id="delayWrap" hidden>
-        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
@@ -677,9 +679,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     wflight:()=>isFlt(v("wFlight")),
     bag1:()=>isAir(v("b1a"))&&/^\d{6}$/.test(v("b1n")),
     bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
-    dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight")),
+    dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime")),
     dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN")),
-    dstatus:()=>S.status==="possible"||S.status==="unknown"||(S.status==="delayed"&&timeOk("delayTime")),
+    dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown",
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
     callflight:()=>{
@@ -703,9 +705,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
     bag1:()=>bagHint("b1a","b1n"),
     bag2:()=>bagHint("b2a","b2n"),
-    dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(generalCxOk(v("dFlight"))?"":""),
+    dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":(S.status==="delayed"?timeHint("delayTime"):"")),
     dtransfer:()=>!isCarrier(v("tA"))?"Airline code: 2 letters/digits":(isFlt(v("tN"))?"":"1–3 digits"),
-    dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
+    dstatus:()=>"",
     darrange:()=>S.arrange!=="known"?"":!isCarrier(v("altA"))?"Airline code: 2 letters/digits":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
     darrive:()=>timeHint("arriveTime"),
     callflight:()=>{
@@ -722,7 +724,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
     mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>go("preview"),
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
-    dstatus:()=>go("dflight"), dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
+    dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
     darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
     callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callgate");},
     callgate:()=>go("preview"),
@@ -1151,7 +1153,7 @@ Thank you for your understanding and cooperation.`;
   // ---- render ------------------------------------------------------------
   function render(){
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&!directPreview&&(cur!=="preview"||flow==="call")&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&(cur!=="preview"||flow==="call")&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -1189,8 +1191,8 @@ Thank you for your understanding and cooperation.`;
       $("stPossible").setAttribute("aria-pressed",S.status==="possible");
       $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");
       $("stUnknown").setAttribute("aria-pressed",S.status==="unknown");
-      $("delayWrap").hidden=S.status!=="delayed";
     }
+    if(cur==="dflight") $("delayWrap").hidden=S.status!=="delayed";
     if(cur==="darrange"){
       $("arKnown").setAttribute("aria-pressed",S.arrange==="known");
       $("arUnknown").setAttribute("aria-pressed",S.arrange==="unknown");
@@ -1254,7 +1256,7 @@ Thank you for your understanding and cooperation.`;
       }
     }
 
-    const showFoot=cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype";
+    const showFoot=cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus";
     $("foot").hidden=!showFoot;
     const ok=OK[cur]?OK[cur]():false;
     const hint=$("hint");
@@ -1312,9 +1314,14 @@ Thank you for your understanding and cooperation.`;
   $("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
   $("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
 
-  $("stPossible").onclick=()=>{S.status="possible";render();};
-  $("stUnknown").onclick=()=>{S.status="unknown";render();};
-  $("stDelayed").onclick=()=>{S.status="delayed";render();try{$("delayTime").focus();}catch(e){}};
+  function selectDpFlightType(nextStatus){
+    if(S.status&&S.status!==nextStatus) $("delayTime").value="";
+    S.status=nextStatus;
+    go("dflight");
+  }
+  $("stPossible").onclick=()=>selectDpFlightType("possible");
+  $("stUnknown").onclick=()=>selectDpFlightType("unknown");
+  $("stDelayed").onclick=()=>selectDpFlightType("delayed");
   $("arUnknown").onclick=()=>{S.arrange="unknown";render();};
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 
