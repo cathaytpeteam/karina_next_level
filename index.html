@@ -283,7 +283,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">r35</span>
+        <span class="appVersion" aria-label="App version">r36</span>
       </div>
     </section>
 
@@ -1038,7 +1038,7 @@ Thank you for your understanding and cooperation.`;
     const zh=`您好：這裡是國泰航空，您搭乘的台北往${dest.zh}${flight}航班，已經在最後召集中，請您儘速前往 ${gate}號登機門。您需要先通過轉機區隨身行李檢查，如果尚未通過請立即請最近機場人員協助，謝謝`;
     const en=`Hello, this is Cathay Pacific. Your flight ${flight} from Taipei to ${dest.en} is now on final call. Please proceed to Gate ${gate} as soon as possible. You need to pass through the transfer security screening for carry-on baggage. If you have not yet done so, please ask the nearest airport staff for immediate assistance. Thank you.`;
     const route=TRANSIT_SMS_ROUTE_JA[n]||{from:"",to:dest.ja};
-    const ja=`【キャセイパシフィック航空】${route.from}発、台北経由${route.to}行き${flight}便は${gate}番搭乗口にて最終搭乗案内中です。台湾の入国審査へは進まず、来た道を戻って桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急、搭乗口へお越しください。現在の台北時間は${taipeiTime()}です。`;
+    const ja=`【キャセイパシフィック航空】${flight}便（${route.from}発・台北経由${route.to}行き）は${gate}番搭乗口で最終案内中です。台湾の入国審査へは進まず、到着された方向へお戻りいただき、桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急搭乗口へお越しください。現在の台北時間は${taipeiTime()}です。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }

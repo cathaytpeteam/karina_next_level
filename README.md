@@ -399,3 +399,10 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Golden visual/layout/transition baseline remains unchanged; only the visible revision label changes from `r34` to `r35` without changing its geometry.
 - Service Worker strategy is unchanged; cache revision bumped to `r35` only.
 - Message master bumped to v1.11 and the explicitly affected copy locks were regenerated.
+
+## r36 — Final Call Transit Japanese SMS
+
+- User-approved change: Scenario 2 → Final Call → Transit Pax → Japanese SMS template updated.
+- Dynamic Flight / origin city / destination city / Gate / current Taipei time remain automatic.
+- Representative CX450 / B7 / 02:02 message is 133 Unicode characters, within the project's locked <=134-character 2-SMS target.
+- All other message copy, behavior, layout, transitions, validation, navigation and PWA strategy remain unchanged from the Golden Baseline/r35 except required release identity and affected lock metadata.

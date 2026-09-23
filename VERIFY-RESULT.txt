@@ -1,26 +1,25 @@
-Find Pax r35 verification summary
+Find Pax r36 verification summary
 
 Authorized change
 -----------------
-- Scenario 1 -> Join Pax -> Japanese SMS copy updated exactly to the user-approved wording.
-- Message master advanced to v1.11 and only the affected textMiss/master locks were intentionally regenerated.
-- Release identity advanced from r34 to r35. Service Worker strategy is unchanged; CACHE_REV only changed to r35.
+- Scenario 2 -> Final Call -> Transit Pax -> Japanese SMS template updated to the user-approved structure.
+- Dynamic flight number, origin city, destination city, Gate and current Taipei time are retained.
+- CX450 / B7 / 02:02 example length: 133 Unicode characters.
+- Across the six locked Transit flights with B7 and HH:mm, message lengths are 133-134 characters, within the project's <=134-character 2-SMS target.
+- Message master advanced to v1.12; only affected message/lock metadata and release identity were intentionally regenerated.
 
 PASS
 ----
 - verify_layout.py
 - verify_navigation.py
 - verify_messages.py
-- JavaScript syntax (inline application script)
+- inline application JavaScript syntax
 - Service Worker JavaScript syntax
-- Exact approved Japanese copy is present in Scenario 1 Join
-- r35 visible revision label is present
 
-Environment limitation
-----------------------
-- verify_release.py was started but did not complete within the execution time limit, so it is NOT reported as PASS.
-- No broad browser regression suite is claimed for this build.
+Not claimed
+-----------
+- No broad browser regression suite is claimed in this execution.
 
 Golden baseline
 ---------------
-All changes outside the explicitly authorized Scenario 1 Join Japanese copy and required release identity/lock metadata are intended to remain at the r34 Golden Baseline.
+All behavior outside the explicitly authorized Final Call Transit Japanese copy and required r36 release identity/lock metadata remains locked.

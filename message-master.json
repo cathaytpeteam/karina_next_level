@@ -1,8 +1,8 @@
 {
   "schema": "find-pax-message-master",
-  "version": "1.11",
+  "version": "1.12",
   "status": "LOCKED",
-  "rule": "UI/function/validation changes must not alter these messages. Change only after explicit user confirmation and bump this version. Scenario 1 Join uses the newly approved Japanese SMS copy; Chinese/English remain unchanged. Scenario 1 Transit uses the explicitly approved Chinese/English copy and approved short Japanese SMS copy. Scenario 2 Join/Transit Japanese SMS copies have no cx/SEC/date suffix. Transit Japanese alone appends current Taipei time (Asia/Taipei, HH:mm). Scenario 3 supports Chinese/English only. v1.9 (2026-09-23): all four Japanese SMS copies replaced with the user-approved final wording; 1-SMS copies <=67 chars, 2-SMS copies <=134 chars. Chinese/English unchanged. v1.10 (2026-09-23): Scenario 2 Transit Japanese — gate first, wrong-way (immigration) guidance. v1.11 (2026-09-24): Scenario 1 Join Japanese SMS updated exactly as user-approved; all other copy unchanged.",
+  "rule": "UI/function/validation changes must not alter these messages. Change only after explicit user confirmation and bump this version. Scenario 1 Join uses the newly approved Japanese SMS copy; Chinese/English remain unchanged. Scenario 1 Transit uses the explicitly approved Chinese/English copy and approved short Japanese SMS copy. Scenario 2 Join/Transit Japanese SMS copies have no cx/SEC/date suffix. Transit Japanese alone appends current Taipei time (Asia/Taipei, HH:mm). Scenario 3 supports Chinese/English only. v1.9 (2026-09-23): all four Japanese SMS copies replaced with the user-approved final wording; 1-SMS copies <=67 chars, 2-SMS copies <=134 chars. Chinese/English unchanged. v1.10 (2026-09-23): Scenario 2 Transit Japanese — gate first, wrong-way (immigration) guidance. v1.11 (2026-09-24): Scenario 1 Join Japanese SMS updated exactly as user-approved; all other copy unchanged. v1.12 (2026-09-24): Scenario 2 Final Call Transit Japanese template updated exactly as user-approved; dynamic flight/origin/destination/gate/Taipei time retained; all other copy unchanged.",
   "scenarios": {
     "scenario1_missing_baggage_xray": {
       "structure": {
@@ -65,7 +65,7 @@
       "transit": {
         "zh": "您好：這裡是國泰航空，您搭乘的台北往{DestinationZh}{Flight}航班，已經在最後召集中，請您儘速前往 {Gate}號登機門。您需要先通過轉機區隨身行李檢查，如果尚未通過請立即請最近機場人員協助，謝謝",
         "en": "Hello, this is Cathay Pacific. Your flight {Flight} from Taipei to {DestinationEn} is now on final call. Please proceed to Gate {Gate} as soon as possible. You need to pass through the transfer security screening for carry-on baggage. If you have not yet done so, please ask the nearest airport staff for immediate assistance. Thank you.",
-        "ja": "【キャセイパシフィック航空】{OriginJa}発、台北経由{DestinationJaShort}行き{Flight}便は{Gate}番搭乗口にて最終搭乗案内中です。台湾の入国審査へは進まず、来た道を戻って桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急、搭乗口へお越しください。現在の台北時間は{TaipeiTime}です。",
+        "ja": "【キャセイパシフィック航空】{Flight}便（{OriginJa}発・台北経由{DestinationJaShort}行き）は{Gate}番搭乗口で最終案内中です。台湾の入国審査へは進まず、到着された方向へお戻りいただき、桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急搭乗口へお越しください。現在の台北時間は{TaipeiTime}です。",
         "routing": "Chinese/English -> WhatsApp; Japanese only -> native SMS. Japanese has no suffix.",
         "taipei_time": "Only Transit Japanese includes current Taipei time using Asia/Taipei in 24-hour HH:mm format.",
         "destinations": {

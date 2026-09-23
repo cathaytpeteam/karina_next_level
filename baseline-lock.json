@@ -6,12 +6,12 @@
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
     "message_copy": {
-      "message_master_version": "1.11",
-      "message_master_sha256": "7ad2f970aa98230c77eaad871fdc67ec50817fe3a04c8acb22d0f23dec7899ba",
+      "message_master_version": "1.12",
+      "message_master_sha256": "e06a546cff70b303bdb957eab9db236a4942ede0d5ff46bafb285b37cec4acb4",
       "functions": {
         "textMiss": "b353b9884f0b4353dd2af20dc3a9514a4f389bcecb76bae9060ac811645867b4",
         "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
-        "textTransit": "f2e12c53fcda5ce0d7652271d146f540585fdf81ef1540af3c4ebdda79e7debc",
+        "textTransit": "523d7456c3f9f89a253680f75ae195ccb5d73794949b4a6b5eeb9a95b5b95a26",
         "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
         "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
         "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
