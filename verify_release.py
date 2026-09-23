@@ -45,7 +45,7 @@ ck('S2 Transit special', 'S.callMode==="transit") return transitCxOk' in s)
 ck('S4 whitelist', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk' in s)
 ck('S3 arrival exception', 'wflight:()=>isFlt(v("wFlight"))' in s)
 ck('Connecting exception', 'dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))' in s)
-ck('Protect exception', 'isCarrier(v("altA"))&&isFlt(v("altN"))' in s)
+ck('Protect CX whitelist + same-flight guard', 'isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))' in s and 'sameProtectedCxFlight' in s and 'CX flight must depart TPE' in s and 'Same as Flight from TPE — not allowed' in s)
 ck('Alphanumeric airline designator', 'const isCarrier=s=>/^[A-Z0-9]{2}$/.test(s);' in s and 'replace(/[^A-Za-z0-9]/g,"")' in s)
 
 # SEC origin UI/rules. Scenario 1 keeps SEC; Scenario 2 Final Call intentionally has no SEC page.
@@ -54,6 +54,7 @@ ck('Scenario 2 SEC removed', 'id="s-callsec"' not in s and 'callSec' not in s an
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
 ck('Destination IATA preserved', all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
+ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}' in s)
 ck('SEC prefix TPE/Transit mapping', all(x in s for x in ['"450":{join:"TPE",transit:"HKG"}','"451":{join:"TPE",transit:"NRT"}','"531":{join:"TPE",transit:"NGO"}','"565":{join:"TPE",transit:"KIX"}']))
 
 # Phone validation hardening.
@@ -117,8 +118,16 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r29";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r33";' in sw)
+_app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
+_rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
+_display_version=f'{_app_m.group(1)} · {_rev_m.group(1)}' if _app_m and _rev_m else ''
+ck('homepage version label matches service worker', bool(_display_version) and f'<div class="appVersion" aria-label="App version">{_display_version}</div>' in s)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
+ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
+ck('service worker cache write failure isolated', 'await cache.put(key,r.clone()).catch(()=>{});' in sw)
+ck('service worker navigation redirect not cached', '!(req.mode==="navigate"&&r.redirected)' in sw)
+ck('service worker no forced startup update/reload', 'reg.update()' not in s and 'controllerchange' not in s and 'location.reload()' not in s)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
     './phone-bottom-icon.png','./scenario-icon-1.png',

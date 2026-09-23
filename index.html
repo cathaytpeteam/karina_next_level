@@ -128,6 +128,7 @@ h1 + .chip{margin-top:-8px}
 #s-phone[hidden]{display:none!important}
 #s-phone h1{text-align:center}
 .phoneHeroIcon{display:block;width:116px;height:116px;object-fit:contain;margin:auto auto 0}
+.appVersion{margin:3px 0 0;text-align:center;font-size:9px;line-height:1.2;font-weight:600;letter-spacing:.05em;color:#98A7A8;user-select:none;-webkit-user-select:none}
 /* Footer hint always reserves one line so the CTA never jumps when a hint appears. */
 /* Message focus mode: when the preview is open, reclaim the upper screen space. */
 #s-preview.preview-focus>h1,#s-preview.preview-focus>#sum,#s-preview.preview-focus>.previewLangTitle,#s-preview.preview-focus>.seg{display:none}
@@ -280,6 +281,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       </div>
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
+      <div class="appVersion" aria-label="App version">v1.1 · r33</div>
     </section>
 
     <section class="screen" id="s-scenario" hidden>
@@ -685,6 +687,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;
   const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has(String(Number(digits(raw))));
   const transitCxOk=raw=>TRANSIT_FLIGHTS.has(String(Number(digits(raw))));
+  // r32 · Scenario 4 "Will protect to": CX alternatives must be TPE departures
+  // and must not be the same CX flight the passenger is already booked on.
+  const sameProtectedCxFlight=(airline,raw,originalRaw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&isFlt(originalRaw)&&normalizeFlight(raw)===normalizeFlight(originalRaw);
+  const protectFlightOk=(airline,raw,originalRaw)=>String(airline||"").toUpperCase()!=="CX"||(generalCxOk(raw)&&!sameProtectedCxFlight(airline,raw,originalRaw));
   // r19 · Disrupted Pax 3/6 Connecting flight = onward flight after arriving HKG,
   // so any whitelisted CX flight departing TPE is not allowed here.
   const tpeDepartureBlocked=(airline,raw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&generalCxOk(raw);
@@ -743,7 +749,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     // Scenario 4 · Disrupted Pax
     bad("dFlight",listBad("dFlight",v("dFlight"),TPE_DEPARTURE_FLIGHTS));
     bad("tN",codeBad("tA")||(filled("tN")&&!isFlt(v("tN")))||tpeDepartureBlocked(v("tA"),v("tN")));
-    bad("altN",codeBad("altA")||(filled("altN")&&!isFlt(v("altN"))));
+    const altIsCx=String(v("altA")||"").toUpperCase()==="CX";
+    bad("altN",codeBad("altA")||(filled("altN")&&!isFlt(v("altN")))||(altIsCx&&listBad("altN",v("altN"),TPE_DEPARTURE_FLIGHTS))||sameProtectedCxFlight(v("altA"),v("altN"),v("dFlight")));
     ["delayTime","altTime","arriveTime"].forEach(id=>bad(id,timeState(id)==="bad"));
     // Scenario 2 · Final Call flight number (unchanged rule, kept here for consistency)
     const cn=callFlightNumber();
@@ -760,7 +767,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime")),
     dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))&&!tpeDepartureBlocked(v("tA"),v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown",
-    darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&timeOk("altTime")),
+    darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
     callflight:()=>{
       const n=callFlightNumber();
@@ -786,7 +793,14 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":(S.status==="delayed"&&timeState("delayTime")==="bad"?"Invalid time (00:00–23:59)":"")),
     dtransfer:()=>!isCarrier(v("tA"))?"Airline code: 2 letters/digits":(!isFlt(v("tN"))?"1–3 digits":(tpeDepartureBlocked(v("tA"),v("tN"))?"Departs TPE — not allowed":"")),
     dstatus:()=>"",
-    darrange:()=>S.arrange!=="known"?"":!isCarrier(v("altA"))?"Airline code: 2 letters/digits":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
+    darrange:()=>{
+      if(S.arrange!=="known") return "";
+      if(!isCarrier(v("altA"))) return "Airline code: 2 letters/digits";
+      if(!isFlt(v("altN"))) return "1–3 digits";
+      if(sameProtectedCxFlight(v("altA"),v("altN"),v("dFlight"))) return "Same as Flight from TPE — not allowed";
+      if(String(v("altA")||"").toUpperCase()==="CX"&&!generalCxOk(v("altN"))) return "CX flight must depart TPE";
+      return timeHint("altTime");
+    },
     darrive:()=>timeHint("arriveTime"),
     callflight:()=>{
       const n=callFlightNumber();
@@ -1016,6 +1030,7 @@ Thank you for your understanding and cooperation.`;
         rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]);
       }else{
         rows.push(["Flight",callFlightFull()]);
+        if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}
         {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Go to Gate",callGateFull()]);
       }
@@ -1352,7 +1367,7 @@ Thank you for your understanding and cooperation.`;
     const text=HINT[cur]?HINT[cur]():"";
     hint.textContent=text;
     hint.style.display=cur==="preview"?"none":"";
-    hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用|Departs TPE/.test(text));
+    hint.classList.toggle("bad",/Invalid time|Max 580|罐頭號碼 無用|Departs TPE|CX flight must depart TPE|Same as Flight from TPE/.test(text));
     const cta=$("cta");
     const callOnly=cur==="preview"&&flow==="call"&&S.callNoMessage;
     $("main").classList.toggle("preview-open",cur==="preview"&&!$("msgPanel").hidden);
@@ -1544,21 +1559,8 @@ Thank you for your understanding and cooperation.`;
 })();
 
 if("serviceWorker" in navigator){
-  let reloadingForUpdate=false;
-  const hadController=!!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener("controllerchange",()=>{
-    if(reloadingForUpdate||!hadController) return;
-    // Only swap to the new version while idle on an empty Phone screen; otherwise it applies on next launch.
-    const idle=!document.getElementById("s-phone").hidden&&!document.getElementById("phoneInput").value;
-    if(!idle) return;
-    reloadingForUpdate=true;
-    location.reload();
-  });
-  window.addEventListener("load",async()=>{
-    try{
-      const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});
-      await reg.update();
-    }catch(e){}
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{});
   });
 }
 </script>

@@ -345,3 +345,32 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Gate named in the first sentence ("…便はC5番搭乗口にて最終搭乗案内中です").
 - Wrong-way guidance: many Japanese transit passengers head to Taiwan immigration by mistake, so the SMS says not to enter immigration and to go back the way they came to the Taoyuan Airport transfer security checkpoint. No "Transfer" sign wording, no staff line (passengers already in Taiwan cannot make the flight).
 - Max 128 chars (2 SMS). Message master 1.10; locks updated; behaviour tests check the exact text for all six transit flights. SW cache r29.
+
+
+## r30 — Android startup cache-first optimization
+- Changed the Service Worker runtime strategy from network-first to cache-first with background refresh for same-origin GET requests. Cached launches no longer wait for a slow or half-connected network before rendering.
+- Navigation requests use the cached `index.html` immediately; the network refresh updates the r30 cache in the background. Static assets are also served from cache first and refreshed in the background.
+- Removed the explicit startup `reg.update()` call and the `controllerchange` → `location.reload()` path, so an update no longer forces a second page load during an active launch. Normal Service Worker registration/update checks remain enabled with `updateViaCache: "none"`.
+- UI, phone validation, message copy, navigation, and scenario behavior are unchanged. SW cache r30.
+
+
+## r31 — Service Worker robustness hardening
+- Preserves the r30 cache-first + background-refresh startup behavior.
+- Cache write failures (for example, storage quota exhaustion) are now isolated with `cache.put(...).catch(()=>{})`, so a successful network response is still returned even if it cannot be cached.
+- Navigation responses that were redirected are not written into the `index.html` runtime cache key, avoiding Chrome navigation failures caused by replaying a redirected response from Cache Storage.
+- UI, phone validation, message copy, navigation, and scenario behavior are unchanged. SW cache r31.
+
+
+## r32 — Disrupted Pax protect-flight validation
+- Scenario 4 `Flight arrangement` → `Will protect to`: when the alternative carrier is CX, the flight number must be in the existing TPE-departure CX whitelist.
+- The protected CX flight cannot be the same as `Flight from TPE`; flight numbers are compared after normalization, so leading zeroes cannot bypass the rule.
+- Invalid entries use the existing red field-border + red footer-warning behavior and keep `Next` disabled. Partial CX flight prefixes remain neutral while they can still become a whitelisted flight.
+- Non-CX alternative carriers keep the existing 2-character carrier + 1–3 digit flight rule. Message copy, layout, navigation, phone validation, and Service Worker runtime strategy are unchanged. SW cache r32.
+
+
+## r33 — Final Call Transit confirm origin
+
+- Final Call → 4/4 → Transit Pax → Confirm details now shows `Dep from` using the same transit-origin mapping already used by 漏查 → 3/3 → Transit Pax.
+- The row is shown only for Transit Pax and is placed after `Flight` and before `Destination`.
+- The phone-number home screen now shows a tiny muted `v1.1 · r33` label directly below the bottom icon so staff can confirm which release has reached the device. Release verification requires this label to match the Service Worker version/revision.
+- Existing message copy, navigation, validation, and r31/r32 Service Worker cache-first behavior are unchanged. SW cache r33.

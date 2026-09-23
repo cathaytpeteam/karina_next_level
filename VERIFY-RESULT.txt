@@ -1,87 +1,49 @@
-PASS release
-PASS Language heading
-PASS Scenario 1 Join Japanese
-PASS Scenario 1 Transit Japanese
-PASS Scenario 3 no Japanese
-PASS general whitelist
-PASS S1 Join whitelist
-PASS S1 Transit special
-PASS S2 Join whitelist
-PASS S2 Transit special
-PASS S4 whitelist
-PASS S3 arrival exception
-PASS Connecting exception
-PASS Protect exception
-PASS Alphanumeric airline designator
-PASS Scenario 1 SEC origin UI
-PASS Scenario 2 SEC removed
-PASS No obsolete callTransitIataValue requirement
-PASS Origin IATA mapping
-PASS Destination IATA preserved
-PASS SEC prefix TPE/Transit mapping
-PASS +81 mobile-only validation
-PASS Strict phone validity
-PASS Canonical E.164 output
-PASS SMS routing
-PASS WhatsApp routing
-PASS Scenario 3 language reset
-PASS Scenario 4 language reset
-PASS Scenario 1 clean re-entry
-PASS Scenario 2 clean re-entry
-PASS Scenario 1 type switch guard
-PASS Scenario 2 type switch guard
-PASS Scenario 2 gate clears on type change
-PASS Call progress stable four-step
-PASS Call Directly progress 1/1
-PASS Read-only preview does not create draft
-PASS Blocked warning before phone validity
-PASS Taipei dateCode timezone
-PASS copy textMiss
-PASS copy textJoin
-PASS copy textTransit
-PASS copy textCall
-PASS copy textWpp
-PASS copy textDp
-PASS copy textMissTransit
-PASS constant TRANSIT_DESTINATIONS
-PASS constant TRANSIT_SMS_ROUTE_JA
-PASS master hash
-PASS protected validatePhone
-PASS protected normalizePhone
-PASS protected send
-PASS protected sendSMS
-PASS protected callFlightNumber
-PASS protected callFlightFull
-PASS protected callFlightOk
-PASS protected taipeiTime
-PASS protected dateCode
-PASS progress labels approved
-PASS direct phone in confirm details
-PASS direct phone hidden from header
-PASS preview readonly
-PASS preview edit/copy controls removed
-PASS language order labels 18px/700
-PASS Scenario 3 step 2/4 restored and 4/4 unclaimed bag label aligned
-PASS Scenario 1 Join suffix compact
-PASS history Back/Forward state aware
-PASS Arrangement no arbitrary break
-PASS Final Call flight alignment selectors
-PASS Scenario 1 confirm SEC includes IATA
-PASS listed CX helper removed
-PASS service worker version
-PASS service worker cache revision
-PASS service worker ASSETS declared
-PASS service worker asset list exact
-PASS manifest separates any and maskable icons
-PASS maskable icons distinct
-PASS service worker assets exist
-PASS phone library local
-PASS phone CDN removed
-PASS Scenario 4 Flight Type first
-PASS Scenario 4 Flight Type copy
-PASS Scenario 4 Flight Type behaves like Passenger Type
-PASS Scenario 4 Delayed time lives on step 2 only
-PASS layout lock
-PASS navigation lock
-PASS flow behaviour (all branches, Back/Forward, guards, state rules)
-FAIL SHA256SUMS integrity
+Find Pax r33 verification summary
+
+PASS index.html inline JavaScript syntax (Node --check)
+PASS sw.js JavaScript syntax (Node --check)
+PASS Python verifier syntax (py_compile)
+PASS verify_layout.py
+PASS verify_navigation.py
+PASS verify_messages.py
+PASS verify_behavior.py static checks:
+  - every screen is represented in the behaviour spec
+  - every button has a spec branch or toggle
+  - NEXT map found
+  - code routes match the behaviour spec
+  - progress numbers match FLOWS step order
+
+PASS r33 focused Chromium UI/runtime validation:
+  - Home page shows the visible release label: v1.1 · r33
+  - Release label is 9px, below the bottom icon, and stays above the footer at 390x844, 360x740 and 320x568
+  - Final Call -> Transit Pax -> CX451 -> Confirm details shows:
+      Flight CX451
+      Dep from NRT
+      Destination HKG
+      Go to Gate C5
+    in that order
+  - Progress remains "Final Call - 4/4 - Transit Pax"
+  - No JavaScript page errors in the focused r33 runtime validation
+
+PASS release static checks through layout/navigation locks, including:
+  - Final Call Transit Dep from row present
+  - homepage release label matches sw.js APP_VERSION + CACHE_REV
+  - Service Worker cache revision r33
+  - r31 cache-first + background-refresh behavior retained
+  - cache.put rejection isolation retained
+  - redirected-navigation cache protection retained
+  - startup reg.update() remains removed
+  - controllerchange/location.reload() forced update reload remains removed
+  - message-copy locks unchanged
+  - phone validation locks unchanged
+
+The full browser regression suite was started with system Chromium and reached 266 PASS checks
+with no FAIL before the execution environment's single-command limit stopped the run. It had
+already completed Scenario 1, all Scenario 2 Join/Transit language cases (including Final Call
+Transit), both Call Directly cases, Scenario 3, and multiple Scenario 4 branches. The focused r33
+checks above were then run separately to completion.
+
+r33 scope:
+  1. Final Call -> 4/4 -> Transit Pax -> Confirm details adds Dep from using the existing transit-origin map.
+  2. Home phone-number screen adds a small visible v1.1 · r33 release label below the bottom icon.
+  3. SW cache revision bumped to r33. Existing r31/r32 startup/cache behavior is retained.

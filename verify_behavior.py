@@ -175,7 +175,11 @@ class Run:
         cdp = await self.ctx.new_cdp_session(self.pg)
         cdp.on("Page.frameRequestedNavigation", lambda ev: self.nav.append(ev["url"]))
         await cdp.send("Page.enable")
-        await self.pg.goto((R / "index.html").as_uri())
+        # Load the exact app document without relying on file://, which is blocked by some
+        # managed Chromium policies. The bundled phone library is inlined only in the test page.
+        lib = (R / "libphonenumber-max.js").read_text(encoding="utf-8")
+        doc = HTML.replace('<script src="./libphonenumber-max.js"></script>', '<script>' + lib + '</script>')
+        await self.pg.set_content(doc, wait_until="domcontentloaded")
         await self.pg.wait_for_selector("#s-phone:not([hidden])")
         return self
 
@@ -562,6 +566,20 @@ async def g(r, name):
         await r.act("arKnown"); await r.expect("Will protect to without details disabled", False)
         await r.fill("altN", "401"); await r.fill("altTime", "1530"); await r.expect("CX401 15:30 accepted", True)
         await r.fill("altTime", "2599"); await r.expect("protect time 25:99 rejected", False, ["altTime"])
+    elif name == "s4_protect_cx_requires_tpe_whitelist":
+        await to_s4(r, "stPossible", "407"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
+        await r.act("arKnown"); await r.fill("altN", "888"); await r.fill("altTime", "1530")
+        await r.expect("protect CX888 (not TPE whitelist) rejected", False, ["altN"])
+        ck("[guard] CX non-whitelist protect hint is red", (await r.pg.locator("#hint").inner_text()) == "CX flight must depart TPE" and await r.pg.locator("#hint").evaluate("e=>e.classList.contains('bad')"))
+    elif name == "s4_protect_rejects_same_tpe_flight":
+        await to_s4(r, "stPossible", "407"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
+        await r.act("arKnown"); await r.fill("altN", "407"); await r.fill("altTime", "1530")
+        await r.expect("protect same CX407 rejected", False, ["altN"])
+        ck("[guard] same-flight protect hint is red", (await r.pg.locator("#hint").inner_text()) == "Same as Flight from TPE — not allowed" and await r.pg.locator("#hint").evaluate("e=>e.classList.contains('bad')"))
+    elif name == "s4_protect_allows_non_cx":
+        await to_s4(r, "stPossible", "407"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
+        await r.act("arKnown"); await r.fill("altA", "KA"); await r.fill("altN", "888"); await r.fill("altTime", "1530")
+        await r.expect("protect KA888 remains allowed", True, not_bad=["altN"])
     elif name == "s4_arrive_rejects_invalid_time":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
         await r.act("arUnknown"); await r.act("cta", "darrive")
@@ -612,9 +630,12 @@ async def runtime():
     async with async_playwright() as p:
         try:
             browser = await p.chromium.launch()
-        except Exception as ex:
-            ck("runtime: Chromium available (python -m playwright install chromium)", False, str(ex)[:120])
-            return
+        except Exception:
+            try:
+                browser = await p.chromium.launch(executable_path="/usr/bin/chromium", args=["--no-sandbox","--disable-dev-shm-usage"])
+            except Exception as ex:
+                ck("runtime: Chromium available (Playwright-managed or /usr/bin/chromium)", False, str(ex)[:120])
+                return
         for name, fn in CASES:
             r = await Run(browser, name).open(); await fn(r); await r.close()
         for name in SPEC["guards"]:

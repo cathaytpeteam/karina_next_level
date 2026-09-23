@@ -27,7 +27,7 @@
     "s-preview"
   ],
   "screen_sha256": {
-    "s-phone": "66bb4dfa11596d353a8414a8182cf4162d0ce08a945c6c71c523265eb1305e01",
+    "s-phone": "dcd4f31163dbdb615ed0699e3c2bbb26250d9340261e72bd80bb439611f89483",
     "s-scenario": "792622b2927ae59863a4eaf0ad28fc84c334fdb18d5452dd7d6414795eda88f1",
     "s-misstype": "0b0f438551d1b63bc7d51a2873ac1fc2558d9eb222ee32da7d49411819c1e624",
     "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
@@ -162,5 +162,11 @@
     "step2_layout": "s-dflight: existing dFlight field remains first; delayWrap/delayTime follows it and is conditionally shown only for Delayed.",
     "footer_behavior": "Flight Type is an immediate-choice screen, so the shared footer/Next is hidden while s-dstatus is active.",
     "header_behavior": "Flight Type follows Passenger Type header presentation: no phone-number pill on the choice page."
+  },
+  "authorized_r33_home_version": {
+    "scope": "s-phone only",
+    "change": "Tiny visible release label below the phone-page bottom icon",
+    "approved_text": "v1.1 · r33",
+    "effect": "display only; no field/control/navigation change"
   }
 }
