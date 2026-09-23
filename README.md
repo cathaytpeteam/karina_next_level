@@ -390,3 +390,12 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Removed the redundant load-time second `clearFields() + render()` pass; startup now clears once and `showScreen("phone")` performs the single initial render.
 - Service Worker cache-first/background-refresh strategy is unchanged; only the cache revision advances to r34.
 - Home layout restores the r32 icon-to-Next geometry, removes the home-only footer divider, and shows only `r34` beside the icon's right foot without consuming layout height.
+
+## r35 — Scenario 1 Join Japanese SMS copy
+
+- User-approved change: Scenario 1 → Join Pax → Japanese SMS copy updated exactly to the approved wording.
+- Chinese/English and Scenario 1 Transit copy are unchanged.
+- All Scenario 2/3/4 behavior and copy are unchanged.
+- Golden visual/layout/transition baseline remains unchanged; only the visible revision label changes from `r34` to `r35` without changing its geometry.
+- Service Worker strategy is unchanged; cache revision bumped to `r35` only.
+- Message master bumped to v1.11 and the explicitly affected copy locks were regenerated.

@@ -283,7 +283,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">r34</span>
+        <span class="appVersion" aria-label="App version">r35</span>
       </div>
     </section>
 
@@ -886,7 +886,7 @@ Please return to Check-in Counter 4 and contact our staff.
 If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
 Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
-    const ja=`【キャセイパシフィック航空】お預け手荷物のX線再検査に、お客様の立ち会いが必要です。出国審査前は至急4番カウンターへ、出国審査後は搭乗ゲートのスタッフまでお申し出ください。お越しいただけない場合、お預け手荷物を搭載できない可能性があります。ご協力をお願いいたします。`;
+    const ja=`【キャセイパシフィック航空】預け手荷物のX線再検査に立会いが必要です。出国審査前は至急4番カウンターへ。保安検査後・出国審査前は係員に申し出て4番へお戻りください。出国審査後はゲート係員にお申し出ください。お越しいただけない場合、荷物が搭載できない可能性があります。`;
     if(S.order==="ja") return ja;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }

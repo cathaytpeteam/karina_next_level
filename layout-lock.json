@@ -27,7 +27,7 @@
     "s-preview"
   ],
   "screen_sha256": {
-    "s-phone": "9a3e05fff509188805e59eae80c7cef697277d5e20bae1b3b3310e04ac3dd833",
+    "s-phone": "bba9b3e37de9b30a7157e79610e3e7f63e08d314775ff36066cfcafddaa307e8",
     "s-scenario": "792622b2927ae59863a4eaf0ad28fc84c334fdb18d5452dd7d6414795eda88f1",
     "s-misstype": "0b0f438551d1b63bc7d51a2873ac1fc2558d9eb222ee32da7d49411819c1e624",
     "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
@@ -165,8 +165,8 @@
   },
   "authorized_r34_home_version": {
     "scope": "s-phone + home-only footer styling",
-    "change": "Restore r32 icon-to-Next geometry, remove the home divider, and position the revision label beside the icon right foot without taking layout space.",
-    "approved_text": "r34",
+    "change": "Preserve r34/r32 home geometry and styling; release identity text only advances to r35 beside the icon right foot.",
+    "approved_text": "r35",
     "effect": "display only; no field/control/navigation change"
   }
 }
