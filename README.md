@@ -340,3 +340,8 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - All open with 【キャセイパシフィック航空】. 1-SMS limit set to 67 chars as a safety margin.
 - Locks updated: `message-master.json` 1.9, `message-copy-lock.json`, `baseline-lock.json`.
 - Behaviour tests send each Japanese SMS and require the body to match the locked copy exactly and fit its limit — all six transit flights and the Join message with the longest gate form (C1R). SW cache r28.
+
+## r29 — Final Call Transit Japanese v1.10 (locked)
+- Gate named in the first sentence ("…便はC5番搭乗口にて最終搭乗案内中です").
+- Wrong-way guidance: many Japanese transit passengers head to Taiwan immigration by mistake, so the SMS says not to enter immigration and to go back the way they came to the Taoyuan Airport transfer security checkpoint. No "Transfer" sign wording, no staff line (passengers already in Taiwan cannot make the flight).
+- Max 128 chars (2 SMS). Message master 1.10; locks updated; behaviour tests check the exact text for all six transit flights. SW cache r29.
