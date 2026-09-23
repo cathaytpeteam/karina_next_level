@@ -1175,10 +1175,16 @@ Thank you for your understanding and cooperation.`;
     $("bar").hidden=idx<0||directPreview;
     if(idx>=0&&!directPreview){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
-      let progressName=f.name;
-      if(flow==="miss" && (S.missMode==="join"||S.missMode==="transit")) progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax");
-      if(flow==="call" && (S.callMode==="join"||S.callMode==="transit")) progressName+=" - "+(S.callMode==="join"?"Join Pax":"Transit Pax");
-      $("step").replaceChildren(document.createTextNode(progressName+" "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:(idx+1)+"/"+f.steps.length}));
+      const progressText=(idx+1)+"/"+f.steps.length;
+      const passengerType=flow==="miss" && (S.missMode==="join"||S.missMode==="transit")
+        ? (S.missMode==="join"?"Join Pax":"Transit Pax")
+        : flow==="call" && (S.callMode==="join"||S.callMode==="transit")
+          ? (S.callMode==="join"?"Join Pax":"Transit Pax") : "";
+      if((flow==="miss"||flow==="call")&&passengerType){
+        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
+      }else{
+        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}));
+      }
     }else $("step").textContent="";
 
     // status / arrange option state

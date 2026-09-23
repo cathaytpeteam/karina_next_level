@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.1",
   "status": "LOCKED",
-  "policy": "Scenario step counts, progress display, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3.",
+  "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress.",
   "flows": {
     "miss": {
       "name": "漏查",
@@ -54,11 +54,11 @@
     "transit": "missTransit -> mflight",
     "direct": "missDirect -> preview",
     "progress_labels": [
-      "漏查",
-      "漏查 - Join Pax",
-      "漏查 - Transit Pax"
+      "漏查 - 1/3",
+      "漏查 - 1/3 - Join Pax",
+      "漏查 - 1/3 - Transit Pax"
     ],
-    "message_progress": "Passenger Type 1/3 -> Flight 2/3 -> SEC 3/3; preview remains completed at 3/3"
+    "message_progress": "Passenger Type 漏查 - 1/3; after selection: 漏查 - 2/3 - Join/Transit Pax -> 漏查 - 3/3 - Join/Transit Pax; preview remains completed at 3/3"
   },
   "scenario2": {
     "entry": "goCall -> calltype",
@@ -66,9 +66,10 @@
     "transit": "callTransit -> callflight",
     "direct": "callDirect -> preview",
     "progress_labels": [
-      "Final Call - Join Pax",
-      "Final Call - Transit Pax"
+      "Final Call - 1/5",
+      "Final Call - 1/5 - Join Pax",
+      "Final Call - 1/5 - Transit Pax"
     ],
-    "message_progress": "1/5 -> 2/5 -> 3/5 -> 4/5 -> 5/5"
+    "message_progress": "Final Call - 1/5; after selection: numeric progress remains in the middle and Passenger Type is the trailing annotation through 5/5"
   }
 }

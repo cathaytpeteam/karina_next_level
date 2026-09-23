@@ -1,4 +1,5 @@
-Find Pax v1.1 Final Call locked PWA verification
-Authorized change: Scenario 2 Call Passenger -> Final Call; progress labels include Join Pax / Transit Pax.
-Regression guard: Scenario 1 3-step and Scenario 2 5-step navigation mappings are locked. SW v1.1-r3.
+Find Pax v1.1 progress-order locked PWA verification
+Authorized change: Scenario 1 and Scenario 2 progress display order is Flow - N/N - Passenger Type; Passenger Type remains a trailing annotation.
+Scenario 1 remains 3 steps (Passenger Type 1/3, Flight 2/3, SEC/Preview 3/3). Scenario 2 remains 5 steps.
+Regression guards: message copy, layout, navigation/routes, phone validation, offline assets, and checksums remain protected. SW v1.1-r5.
 Run verify_release.py for executable checks.

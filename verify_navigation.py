@@ -20,7 +20,7 @@ for x in [
  '$('+'"missTransit"'+').onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
  '$('+'"missDirect"'+').onclick=()=>{clearMissForModeChange("direct");flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
 ]: ck('Scenario 1 route '+x.split('"')[1], x in s)
-ck('Scenario 1 progress labels', 'progressName+=" - "+(S.missMode==="join"?"Join Pax":"Transit Pax")' in s)
+ck('Scenario 1 progress label order', 'flow==="miss" && (S.missMode==="join"||S.missMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
 # Scenario 2 routes + approved Final Call labels.
 for x in [
  '$('+'"goCall"'+').onclick=()=>{clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};',
@@ -28,9 +28,9 @@ for x in [
  '$('+'"callTransit"'+').onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
  '$('+'"callDirect"'+').onclick=()=>{clearCallForModeChange("direct");S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
 ]: ck('Scenario 2 route '+x.split('"')[1], x in s)
-ck('Scenario 2 progress labels', 'progressName+=" - "+(S.callMode==="join"?"Join Pax":"Transit Pax")' in s)
+ck('Scenario 2 progress label order', 'flow==="call" && (S.callMode==="join"||S.callMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
 ck('Scenario 1 Passenger Type is progress step 1/3', 'miss:{name:"漏查",steps:["misstype","mflight","msec"]}' in s)
 ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
-ck('Progress calculation uses locked flow denominator', 'textContent:(idx+1)+"/"+f.steps.length' in s)
+ck('Progress calculation uses locked flow denominator', 'const progressText=(idx+1)+"/"+f.steps.length;' in s)
 if not all(v for _,v in checks): sys.exit(1)
-print('PASS navigation lock: Scenario 1 Passenger Type = 1/3, Flight = 2/3, SEC/Preview = 3/3; Scenario 2 = 5 steps; routes and labels locked')
+print('PASS navigation lock: Scenario 1 = 3 steps; Scenario 2 = 5 steps; progress order is Flow - N/N - Passenger Type; routes and labels locked')
