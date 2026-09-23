@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.1",
   "status": "LOCKED",
-  "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 2 Final Call has no SEC page and is locked to 4 steps. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress. When Back returns to Passenger Type, the selected Passenger Type annotation is hidden on that page. Call Directly is a separate one-page branch and displays 1/1 on its Confirm details page. Browser history navigation is state-position aware: Back and Forward restore the corresponding screen rather than treating every popstate as Back. Authorized Scenario 4 behavior: Flight Type is step 1/6 and behaves like Passenger Type — no footer/Next; tapping Tight Connection, Delayed, or To be updated immediately opens step 2/6. Delayed time is not part of Flight Type; it is displayed and validated only on Disrupted flight step 2/6 when Delayed is selected. To be updated and Tight Connection never depend on delayed time. Flight Type title uses the same default heading placement as Passenger Type. Flight Type header follows Passenger Type as well: the phone-number pill is hidden on this choice screen. The remaining Scenario 4 steps retain their order through 6/6.",
+  "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 2 Final Call has no SEC page and is locked to 4 steps. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress. When Back returns to Passenger Type, the selected Passenger Type annotation is hidden on that page. Call Directly is a separate one-page branch and displays 1/1 on its Confirm details page. Browser history navigation is state-position aware: Back and Forward restore the corresponding screen rather than treating every popstate as Back. Authorized Scenario 4 behavior: Flight Type is step 1/6 and behaves like Passenger Type — no footer/Next; tapping Tight Connection, Delayed, or To be updated immediately opens step 2/6. Delayed time is not part of Flight Type; it is displayed and validated only on Disrupted flight step 2/6 when Delayed is selected. To be updated and Tight Connection never depend on delayed time. Flight Type title uses the same default heading placement as Passenger Type. Flight Type header follows Passenger Type as well: the phone-number pill is hidden on this choice screen. The remaining Scenario 4 steps retain their order through 6/6. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type option “To be updated” is renamed “Suspended”; routing to status “unknown” is unchanged.",
   "flows": {
     "miss": {
       "name": "漏查",
@@ -83,12 +83,12 @@
     "options": [
       "Tight Connection",
       "Delayed",
-      "To be updated"
+      "Suspended"
     ],
     "option_mapping": {
       "Tight Connection": "possible",
       "Delayed": "delayed",
-      "To be updated": "unknown"
+      "Suspended": "unknown"
     },
     "steps": [
       "dstatus",
@@ -101,7 +101,7 @@
     "progress": "Disrupted Pax - 1/6 on Flight Type; each choice immediately opens Disrupted Pax - 2/6; remaining steps continue through 6/6.",
     "selection_navigation": "Each Flight Type choice immediately routes to dflight; step 1/6 has no footer/Next.",
     "delayed_time_placement": "delayTime is inside dflight (step 2/6) and is visible/required only when status=delayed.",
-    "non_delayed_validation": "Tight Connection (possible) and To be updated (unknown) do not require delayTime.",
+    "non_delayed_validation": "Tight Connection (possible) and Suspended (unknown) do not require delayTime.",
     "title_layout": "Flight Type uses the same default h1 placement as Passenger Type; no Scenario-4-specific centered heading override. The phone-number pill is hidden on Flight Type, matching Passenger Type choice pages.",
     "back_forward": "Back from dflight returns to Flight Type; browser Forward restores dflight using history state."
   }

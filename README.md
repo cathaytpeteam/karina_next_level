@@ -220,3 +220,17 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 - Delayed to accepts HHMM and formats it as HH:MM.
 - Disrupted flight uses the locked TPE-departure CX whitelist; a non-whitelist flight is visibly invalid and cannot continue.
 - Regression guards added to verify_navigation.py.
+
+## r15 — Disrupted flight 2/6 · Delayed to
+- Bug fix: the Delayed to time field had only one child inside the shared `[prefix | value]` grid, so it was squeezed into the 72px prefix column; `18:00` overflowed and scrolled its first digit out of view (displayed as `8:00`). The stored value and message were already `18:00`; this was display-only.
+- Layout (CSS only, protected `s-dflight` markup unchanged): clock prefix chip aligns `18:00` with `CX 407`; centered divider label `DELAYED TO`; `HH:MM` placeholder; red border for invalid times (e.g. 25:75).
+- SW cache r15.
+
+## r16 — Disrupted Pax 4/6 · Flight arrangement
+- Visual alignment with the rest of the app (CSS only; protected `s-darrange` markup and control order unchanged): option labels now use brand teal, left-aligned 20px/800 like the other choice cards, with a radio indicator on the right.
+- When "Will protect to" is selected, its CX flight / DEP time fields appear directly beneath that option (visual order via CSS), with "Arrange in airport" below.
+- Validation, message copy and navigation unchanged. SW cache r16.
+
+## r17 — Flight Type label locked as "Suspended"
+- User-approved: Scenario 4 Flight Type third option is "Suspended" (formerly "To be updated"). It still maps to status `unknown`; routing, copy and validation unchanged.
+- `layout-lock.json` (s-dstatus hash), `navigation-lock.json`, `verify_navigation.py` and `verify_release.py` updated to the approved label. `verify_release.py` now passes all checks.
