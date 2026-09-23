@@ -66,7 +66,7 @@ ck('WhatsApp routing', 'whatsapp://send?phone=' in s and 'https://wa.me/' in s)
 
 # Cross-scenario consistency + UI/state navigation fixes.
 ck('Scenario 3 language reset', '$("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};' in s)
-ck('Scenario 4 language reset', '$("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dflight");};' in s)
+ck('Scenario 4 language reset', '$("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
 ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{clearMissCase();' in s)
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s)
 ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s and 'clearMissForModeChange("direct")' in s)
@@ -107,23 +107,36 @@ ck('language order labels 18px/700', '.msgToggle small{font-size:18px;font-weigh
 ck('Scenario 3 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
 ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0");' in s and 'const tag="cx"' not in s)
 
+# Explicitly authorized consistency fixes (r9).
+ck('history Back/Forward state aware', 'history.replaceState({findPax:true,pos:0,id:"phone"}' in s and 'history.pushState({findPax:true,pos:navPos,id}' in s and 'navPos=st.pos;' in s and 'showScreen(st.id);' in s)
+ck('Arrangement no arbitrary break', '.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:normal;word-break:normal}' in s)
+ck('Final Call flight alignment selectors', '#s-callflight .field .code, #s-callgate .field .code{width:72px' in s and '#s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto' in s and '#s-callflight .field .code .code' not in s and '#s-callflight .field input:not(.code) input:not(.code)' not in s)
+ck('Scenario 1 confirm SEC includes IATA', '["Sec",(secPrefix(v("mFlight"),S.missMode)||"")+" "+String(Number(v("mSec"))).padStart(3,"0")]' in s)
+ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
+
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r8";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r10";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
-    './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',
+    './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
     './phone-bottom-icon.png','./scenario-icon-1.png',
     './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-max.js'
 }
 m=re.search(r'const ASSETS=\[(.*?)\];',sw,re.S)
 assets=set(re.findall(r'"([^"]+)"',m.group(1))) if m else set()
 ck('service worker asset list exact', assets==required)
-ck('manifest reuses icons for any/maskable', all(x in (r/'manifest.webmanifest').read_text(encoding='utf-8') for x in ['./icon-192.png','./icon-512.png','any maskable']) and 'icon-maskable-' not in (r/'manifest.webmanifest').read_text(encoding='utf-8'))
+manifest=(r/'manifest.webmanifest').read_text(encoding='utf-8')
+ck('manifest separates any and maskable icons', all(x in manifest for x in ['./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png','\"purpose\": \"any\"','\"purpose\": \"maskable\"']) and 'any maskable' not in manifest)
+ck('maskable icons distinct', hashlib.sha256((r/'icon-192.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-192.png').read_bytes()).hexdigest() and hashlib.sha256((r/'icon-512.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-512.png').read_bytes()).hexdigest())
 ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in assets))
 ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
+
+# Authorized Scenario 4 Flight Type change.
+ck('Scenario 4 Flight Type first', 'dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}' in s and 'go("dstatus")' in s)
+ck('Scenario 4 Flight Type copy', '<h1>Flight Type</h1>' in s and '>Tight Connection<' in s and '>Delayed<' in s and '>To be updated<' in s)
 
 # Layout lock: approved screen structure/field placement may change only with explicit user approval.
 layout_run=subprocess.run([sys.executable, str(r/'verify_layout.py')], cwd=r, capture_output=True, text=True)

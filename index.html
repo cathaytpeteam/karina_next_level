@@ -111,15 +111,15 @@ h1 + .chip{margin-top:-8px}
 .ico svg{width:32px;height:32px;fill:none;stroke:var(--brand-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .ctext{flex:1;font-size:20px;font-weight:800}
 .chev{font-size:30px;color:var(--brand-strong)}
-#s-calltype .ctext,#s-misstype .ctext{color:var(--brand-strong)}
+#s-calltype .ctext,#s-misstype .ctext,#s-dstatus .ctext{color:var(--brand-strong)}
 /* Passenger Type hierarchy: Join is the primary, high-frequency action. */
-#s-calltype .choices,#s-misstype .choices{grid-template-columns:1fr 1fr;gap:12px}
-#s-calltype .choice,#s-misstype .choice{min-height:76px;padding:12px 14px;gap:10px}
-#s-calltype .choice.passengerPrimary,#s-misstype .choice.passengerPrimary{grid-column:1/-1;min-height:118px;padding:18px 20px;background:var(--brand-soft)}
-#s-calltype .choice.passengerPrimary .ctext,#s-misstype .choice.passengerPrimary .ctext{font-size:23px}
-#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext{font-size:17px;line-height:1.2}
-#s-calltype .choice.passengerSecondary .chev,#s-misstype .choice.passengerSecondary .chev{font-size:26px}
-@media(max-width:360px){#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{padding:10px}#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext{font-size:15px}}
+#s-calltype .choices,#s-misstype .choices,#s-dstatus .choices{grid-template-columns:1fr 1fr;gap:12px}
+#s-calltype .choice,#s-misstype .choice,#s-dstatus .choice{min-height:76px;padding:12px 14px;gap:10px}
+#s-calltype .choice.passengerPrimary,#s-misstype .choice.passengerPrimary,#s-dstatus .choice.passengerPrimary{grid-column:1/-1;min-height:118px;padding:18px 20px;background:var(--brand-soft)}
+#s-calltype .choice.passengerPrimary .ctext,#s-misstype .choice.passengerPrimary .ctext,#s-dstatus .choice.passengerPrimary .ctext{font-size:23px}
+#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:17px;line-height:1.2}
+#s-calltype .choice.passengerSecondary .chev,#s-misstype .choice.passengerSecondary .chev,#s-dstatus .choice.passengerSecondary .chev{font-size:26px}
+@media(max-width:360px){#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary,#s-dstatus .choice.passengerSecondary{padding:10px}#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:15px}}
 
 .opts{display:grid;gap:12px}
 .opt{width:100%;min-height:68px;padding:12px 18px;border:1px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
@@ -147,7 +147,7 @@ h1 + .chip{margin-top:-8px}
 .sum{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 16px}
 .sum div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:17px}
 .sum div + div{border-top:1px solid var(--line)}
-.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:anywhere}
+.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:normal;word-break:normal}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{min-width:0;overflow-wrap:anywhere;margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .sum dd .flightAccent{color:var(--brand);font-weight:900}
@@ -176,8 +176,8 @@ h1 + .chip{margin-top:-8px}
 
 /* Prefix + value fields share one centered two-column geometry across the app. */
 #s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
-#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-msec .field .code, #s-callflight .field .code .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code) input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-msec .field .code, #s-callflight .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
 #s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
 main.preview-open{display:flex;flex-direction:column;overflow:hidden}
@@ -315,11 +315,11 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="field"><input autocomplete="off" class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
     </section>
     <section class="screen" id="s-dstatus" hidden>
-      <h1>Flight status</h1>
-      <div class="opts">
-        <button class="opt" id="stPossible" type="button" aria-pressed="false" lang="zh-Hant">今天可能會延遲</button>
-        <button class="opt" id="stDelayed" type="button" aria-pressed="false" lang="zh-Hant">目前已經延遲至</button>
-        <button class="opt" id="stUnknown" type="button" aria-pressed="false" lang="zh-Hant">目前航班及起飛動態尚未確定</button>
+      <h1>Flight Type</h1>
+      <div class="choices">
+        <button class="choice passengerPrimary" id="stPossible" type="button" aria-pressed="false"><span class="ctext"><span>Tight Connection</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="stDelayed" type="button" aria-pressed="false"><span class="ctext"><span>Delayed</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="stUnknown" type="button" aria-pressed="false"><span class="ctext"><span>To be updated</span></span><span class="chev">›</span></button>
       </div>
       <div class="optExtra" id="delayWrap" hidden>
         <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
@@ -550,10 +550,12 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     miss:{name:"漏查",steps:["misstype","mflight","msec"]},
     call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
-    dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
+    dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}
   };
   let flow="", cur="phone", resetting=false;
   const stack=["phone"];
+  let navPos=0;
+  try{history.replaceState({findPax:true,pos:0,id:"phone"},"");}catch(e){}
 
   // ---- validation --------------------------------------------------------
   const isAir=s=>/^[A-Z]{2}$/.test(s);
@@ -696,12 +698,12 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
   const HINT={
     phone:()=>{const n=digits(v("phoneInput")),p=normalizePhone(n);if(p&&p.blocked)return "罐頭號碼 無用";return n&&!p?"Invalid or incomplete phone number":"";},
-    mflight:()=>!isFlt(v("mFlight"))?"1–3 digits":(S.missMode==="transit"&&!transitCxOk(v("mFlight"))?"Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565":(S.missMode==="join"&&!generalCxOk(v("mFlight"))?"Please select a listed CX flight":"")),
+    mflight:()=>!isFlt(v("mFlight"))?"1–3 digits":(S.missMode==="transit"&&!transitCxOk(v("mFlight"))?"Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565":(S.missMode==="join"&&!generalCxOk(v("mFlight"))?"":"")),
     msec:()=>{const x=v("mSec");return !x?"0–580":(+x>580?"Max 580":"");},
     wflight:()=>isFlt(v("wFlight"))?"":"1–3 digits",
     bag1:()=>bagHint("b1a","b1n"),
     bag2:()=>bagHint("b2a","b2n"),
-    dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(generalCxOk(v("dFlight"))?"":"Please select a listed CX flight"),
+    dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(generalCxOk(v("dFlight"))?"":""),
     dtransfer:()=>!isCarrier(v("tA"))?"Airline code: 2 letters/digits":(isFlt(v("tN"))?"":"1–3 digits"),
     dstatus:()=>S.status==="delayed"?timeHint("delayTime"):"",
     darrange:()=>S.arrange!=="known"?"":!isCarrier(v("altA"))?"Airline code: 2 letters/digits":(!isFlt(v("altN"))?"1–3 digits":timeHint("altTime")),
@@ -710,7 +712,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       const n=callFlightNumber();
       if(!n) return "Flight number: 1–3 digits";
       if(S.callMode==="transit"&&!transitCxOk(n)) return "Transit: CX450 / CX451 / CX530 / CX531 / CX564 / CX565";
-      if(S.callMode==="join"&&!generalCxOk(n)) return "Please select a listed CX flight";
+      if(S.callMode==="join"&&!generalCxOk(n)) return "";
       return "";
     },
     callgate:()=>"",
@@ -720,8 +722,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
     mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>go("preview"),
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
-    dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("dstatus");},
-    dstatus:()=>go("darrange"), darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
+    dstatus:()=>go("dflight"), dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
+    darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
     callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callgate");},
     callgate:()=>go("preview"),
     preview:()=>send()
@@ -938,7 +940,7 @@ Thank you for your understanding and cooperation.`;
         rows.push(["Go to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
-      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[normalizeFlight(v("mFlight"))];if(code)rows.push(["Destination",code]);}
+      rows.push(["Flight","CX"+String(Number(v("mFlight")))],["Sec",(secPrefix(v("mFlight"),S.missMode)||"")+" "+String(Number(v("mSec"))).padStart(3,"0")]);if(S.missMode==="transit"){const origin=transitOriginIata(v("mFlight"));if(origin)rows.push(["Dep from",origin]);const code=TRANSIT_DESTINATION_CODES[normalizeFlight(v("mFlight"))];if(code)rows.push(["Destination",code]);}
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),null,"unclaimed"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"){
@@ -1052,25 +1054,31 @@ Thank you for your understanding and cooperation.`;
     if(inp&&inp.offsetParent!==null){try{inp.focus({preventScroll:true});}catch(e){inp.focus();}}
   }
   function go(id){
+    if(navPos<stack.length-1) stack.splice(navPos+1);
     stack.push(id);
-    try{history.pushState({},"");}catch(e){}
+    navPos=stack.length-1;
+    try{history.pushState({findPax:true,pos:navPos,id},"");}catch(e){}
     showScreen(id);
     focusFirst(id);
   }
   let backPending=false;
-  window.addEventListener("popstate",()=>{
+  window.addEventListener("popstate",e=>{
     backPending=false;
     if(resetting){resetting=false;return;}
-    if(stack.length>1){stack.pop();showScreen(stack[stack.length-1]);}
+    const st=e.state;
+    if(st&&st.findPax&&Number.isInteger(st.pos)&&st.pos>=0&&st.pos<stack.length&&stack[st.pos]===st.id){
+      navPos=st.pos;
+      showScreen(st.id);
+    }
   });
   $("back").onclick=()=>{
-    if(stack.length<=1||backPending) return;
+    if(navPos<=0||backPending) return;
     backPending=true;
     try{history.back();}
     catch(e){
       backPending=false;
-      stack.pop();
-      showScreen(stack[stack.length-1]);
+      navPos--;
+      showScreen(stack[navPos]);
     }
   };
 
@@ -1134,8 +1142,8 @@ Thank you for your understanding and cooperation.`;
   }
   function resetAll(){
     clearFields();
-    const depth=stack.length-1;
-    stack.length=0;stack.push("phone");
+    const depth=navPos;
+    stack.length=0;stack.push("phone");navPos=0;
     if(depth>0){resetting=true;setTimeout(()=>{resetting=false;},1200);try{history.go(-depth);}catch(e){resetting=false;}}
     showScreen("phone");
   }
@@ -1302,7 +1310,7 @@ Thank you for your understanding and cooperation.`;
   $("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
   $("callDirect").onclick=()=>{clearCallForModeChange("direct");S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
   $("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
-  $("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dflight");};
+  $("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
 
   $("stPossible").onclick=()=>{S.status="possible";render();};
   $("stUnknown").onclick=()=>{S.status="unknown";render();};

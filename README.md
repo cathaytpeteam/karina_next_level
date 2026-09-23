@@ -192,3 +192,20 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 - Back-state lock: returning from Scenario 1/2 message flow to Passenger Type hides the prior Join/Transit annotation; the type page shows only `漏查 - 1/3` or `Final Call - 1/4`.
 
 - Call Directly progress lock: Scenario 1 displays `漏查 - 1/1 - Call Directly`; Scenario 2 displays `Final Call - 1/1 - Call Directly`. Join/Transit step counts are unchanged.
+
+
+## v1.1 consistency fixes (r9)
+- Manifest now provides separate `any` and padded `maskable` icons.
+- Browser history state distinguishes Back and Forward; Safari Forward restores the forward screen instead of popping backward.
+- Disrupted Pax Confirm details no longer breaks the word “Arrangement” at arbitrary characters.
+- Final Call Flight Number field CSS selectors now match the aligned 72px CX layout used elsewhere.
+- Scenario 1 Confirm details SEC now includes its IATA prefix (for example `TPE 008`).
+- Removed the “Please select a listed CX flight” helper text while keeping whitelist validation unchanged.
+
+
+## v1.1 Scenario 4 Flight Type lock
+- Disrupted Pax now starts at **Flight Type** (1/6).
+- Options: **Tight Connection** (large primary), **Delayed**, **To be updated**.
+- Existing remaining steps keep their order and shift to 2/6–6/6.
+- Message copy and existing validation rules are unchanged.
+- Service worker cache revision: **v1.1-r10**.

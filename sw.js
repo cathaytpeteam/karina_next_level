@@ -1,6 +1,6 @@
 const CACHE_PREFIX="find-pax-";
 const APP_VERSION="v1.1";
-const CACHE_REV="r8";
+const CACHE_REV="r10";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
   "./",
@@ -9,6 +9,8 @@ const ASSETS=[
   "./apple-touch-icon.png",
   "./icon-192.png",
   "./icon-512.png",
+  "./icon-maskable-192.png",
+  "./icon-maskable-512.png",
   "./phone-bottom-icon.png",
   "./scenario-icon-1.png",
   "./scenario-icon-2.png",

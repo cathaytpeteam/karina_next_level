@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.1",
   "status": "LOCKED",
-  "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 2 Final Call has no SEC page and is locked to 4 steps. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress. When Back returns to Passenger Type, the selected Passenger Type annotation is hidden on that page. Call Directly is a separate one-page branch and displays 1/1 on its Confirm details page.",
+  "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 2 Final Call has no SEC page and is locked to 4 steps. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress. When Back returns to Passenger Type, the selected Passenger Type annotation is hidden on that page. Call Directly is a separate one-page branch and displays 1/1 on its Confirm details page. Browser history navigation is state-position aware: Back and Forward restore the corresponding screen rather than treating every popstate as Back. Authorized Scenario 4 change: Flight Type is step 1/6, with Tight Connection / Delayed / To be updated; the remaining five steps retain their order and shift to 2/6–6/6.",
   "flows": {
     "miss": {
       "name": "漏查",
@@ -37,9 +37,9 @@
     "dp": {
       "name": "Disrupted Pax",
       "steps": [
+        "dstatus",
         "dflight",
         "dtransfer",
-        "dstatus",
         "darrange",
         "darrive",
         "preview"
@@ -75,5 +75,29 @@
     "authorized_change": "SEC page removed for both Join Pax and Transit Pax; Final Call is now a four-step flow.",
     "back_behavior": "Returning to calltype always displays Final Call - 1/4 with no Join/Transit annotation.",
     "direct_progress": "Final Call - 1/1 - Call Directly"
+  },
+  "browser_history": "popstate restores the screen identified by its Find Pax history state position; Safari/browser Forward must move forward, not pop backward.",
+  "scenario4": {
+    "entry": "goDp -> dstatus",
+    "step1": "Flight Type",
+    "options": [
+      "Tight Connection",
+      "Delayed",
+      "To be updated"
+    ],
+    "option_mapping": {
+      "Tight Connection": "possible",
+      "Delayed": "delayed",
+      "To be updated": "unknown"
+    },
+    "steps": [
+      "dstatus",
+      "dflight",
+      "dtransfer",
+      "darrange",
+      "darrive",
+      "preview"
+    ],
+    "progress": "Disrupted Pax 1/6 -> 6/6"
   }
 }
