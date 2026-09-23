@@ -1,9 +1,5 @@
-Find Pax R1
-Authorized changes:
-- Release identity renamed from r41 to R1.
-- Scenario 1 → Join Pax → Chinese uses three `• ` bullet lines matching English formatting.
-- Dynamic validated CX flight remains in the third Chinese bullet.
-- Previously approved Scenario 1 Join English update retained.
-PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX451 Chinese dynamic-text check.
-Not claimed: broad browser regression.
-No structure reorganization.
+Find Pax R1 — copy update
+ONLY Scenario 1 Join Chinese/English three bullet paragraphs changed.
+Dynamic CX retained. Release identity R1 and Service Worker unchanged.
+PASS: layout, navigation, messages, inline JS, SW JS, CX450 dynamic checks.
+Full browser regression not rerun for this copy-only artifact.
