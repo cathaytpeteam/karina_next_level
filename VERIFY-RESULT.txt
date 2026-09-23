@@ -1,6 +1,6 @@
-Find Pax r41 final
-Authorized Scenario 1 Join Chinese copy: restores both 麻煩您 phrases; retains the space before the dynamic CX flight number.
+Find Pax r41 — English updated
+Authorized change: Scenario 1 → Join Pax → English only: dynamic validated CX flight number in boarding-gate instruction and revised disposal note.
 Release identity intentionally remains r41.
-PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX450 dynamic text check.
+PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX450 English dynamic text check; Chinese text unchanged.
 Not claimed: broad browser regression.
 All other Golden Baseline behavior locked unchanged.

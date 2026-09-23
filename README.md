@@ -453,3 +453,9 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Restores both user-approved `麻煩您` phrases.
 - Retains one space before the dynamic CX flight number.
 - Release identity remains r41; all other Golden Baseline behavior unchanged.
+
+## r41 — Scenario 1 Join English update
+
+- Adds the validated dynamic CX flight number to the post-immigration boarding-gate instruction.
+- Replaces the English disposal note with the user-approved wording.
+- Existing message suffix remains unchanged. Release identity remains r41; all other Golden Baseline behavior and copy remain unchanged.
