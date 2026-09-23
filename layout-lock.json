@@ -3,7 +3,7 @@
   "version": "1.0",
   "release": "v1.1",
   "status": "LOCKED",
-  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC unification: Scenario 1 and Scenario 2 Join/Transit SEC fields use the same inline IATA-prefix + SEC-number field layout. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/5). These authorized regions are locked again.",
+  "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC layout: Scenario 1 Join/Transit keeps the inline IATA-prefix + SEC-number field. Scenario 2 Final Call SEC page is intentionally removed for both Join and Transit. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/4). These authorized regions are locked again.",
   "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
   "source": "index.html",
   "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
@@ -23,7 +23,6 @@
     "s-darrive",
     "s-calltype",
     "s-callflight",
-    "s-callsec",
     "s-callgate",
     "s-preview"
   ],
@@ -43,7 +42,6 @@
     "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
     "s-calltype": "e1464af83b0b7cb39e384a08f5575c92b3bf12e732eb893d8134d565804d4b84",
     "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
-    "s-callsec": "7f1abb892172150481ec6c259eff18bc2e46b3eda9ae0576c72f5a5eaf5be7b1",
     "s-callgate": "ef1270198eee7fe6dfac946792491d3b03b88f685ee67a9faed41d353c4effc0",
     "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222"
   },
@@ -122,11 +120,6 @@
       "callFlightField",
       "callFlight"
     ],
-    "s-callsec": [
-      "callSecField",
-      "callSecPrefix",
-      "callSec"
-    ],
     "s-callgate": [
       "callGateField",
       "callGateZone",
@@ -160,10 +153,8 @@
     "Runtime data values inserted into existing locked elements"
   ],
   "authorized_progress_update": {
-    "font_size": "20px",
-    "font_weight": 700,
     "scenario1": "漏查 - N/3 - Join Pax / Transit Pax (Passenger Type page: 漏查 - 1/3)",
-    "scenario2": "Final Call - N/5 - Join Pax / Transit Pax (Passenger Type page: Final Call - 1/5)"
+    "scenario2": "Final Call - N/4 - Join Pax / Transit Pax (Passenger Type page: Final Call - 1/4)"
   },
-  "authorized_final_call_update": "Scenario 2 remains named Final Call. Authorized progress-order update for Scenario 1 and 2: Flow - N/N - Passenger Type, with Passenger Type as a trailing annotation. Step counts and navigation remain immutable."
+  "authorized_final_call_update": "Scenario 2 remains named Final Call. Authorized flow update: SEC page removed for both Join and Transit; Final Call is now 4 steps (Passenger Type, Flight, Gate, Preview). Progress order remains Flow - N/N - Passenger Type. Scenario 1 is unchanged."
 }

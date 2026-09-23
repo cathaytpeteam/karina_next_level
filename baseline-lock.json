@@ -61,7 +61,7 @@
         "sendSMS": "9cad656538eee6abc15b34f7e2bf92f09611fd8cacacb0a98e4c9d4ff859b87f",
         "callFlightNumber": "6ea102b4d3d127b72921fcbefaf01f2b7f74adc3cd7672430eb1a9e70e1509e7",
         "callFlightFull": "0d2210ae916e459db0fd59c93c9a0ded787275871ef1c6f55513f702b4e45d4e",
-        "callFlightOk": "5db6e748202000289f13839ef5cb7d54fa2fdaf9677320f90767823c6aef3563",
+        "callFlightOk": "50da4efa2f4b66ae9e89644c27e37ed56f70fb8160c9ea56847541169daa19eb",
         "taipeiTime": "7a8d7c063cf9c90e5409b3e9e0a24d778bf3a998a7d99f80df4c5f354f26e7e3"
       },
       "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad",
@@ -179,7 +179,7 @@
     "functional_fixes_v116": {
       "status": "LOCKED",
       "service_worker": "ASSETS is explicitly declared; APP_VERSION is v1.0.16; local libphonenumber-js 1.12.29 is precached; cache revision r3 forces the UI/state hotfix to refresh.",
-      "transit_sec_ui": "Scenario 2 Transit uses callSecPrefix for the centered SEC origin prefix; verifier must not require obsolete callTransitIataValue.",
+      "transit_sec_ui": "Scenario 2 Final Call SEC page was explicitly removed for Join and Transit; Scenario 1 retains SEC origin UI.",
       "scenario_entry_language_reset": "Scenario 3 resets to Chinese First; Scenario 4 resets to English First; scenario re-entry also clears stale case fields.",
       "scenario4_airline_designator": "Connecting flight and Protect to accept exactly two alphanumeric IATA designator characters.",
       "message_copy_changed": false
@@ -191,7 +191,7 @@
       "scenario2": "Re-entry clears Flight/SEC/Gate. Join↔Transit/Direct type changes clear Flight/SEC/Gate; reselecting the same type after Back preserves them.",
       "scenario3": "Re-entry clears Arrival Flight and both baggage tags.",
       "scenario4": "Re-entry clears disrupted/connecting/protect flight fields, status/arrangement choices, and times.",
-      "progress": "Scenario 2 Join/Transit use a stable five-step flow. Call Directly preview hides the progress bar instead of showing a misleading inherited step count.",
+      "progress": "Scenario 2 Join/Transit use a stable four-step Final Call flow after authorized SEC-page removal. Call Directly preview hides the progress bar.",
       "preview_draft": "Opening a read-only message preview and navigating Back does not create a custom draft. Actual typed edits are still preserved per language.",
       "blocked_warning": "Both canned-number blacklist entries surface 罐頭號碼 無用 even when libphonenumber regards the exact number as invalid.",
       "message_copy_changed": false

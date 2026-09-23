@@ -51,7 +51,7 @@ h1{font-size:28px;line-height:1.2;margin:20px 0 22px;color:var(--brand-strong);f
 .app.kb .bar{margin-top:5px}
 .app.kb .step{display:block!important;margin-top:5px;font-size:20px;line-height:1.15;min-height:23px}
 .app.kb main{padding-top:4px;padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
-.app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callsec:not([hidden]),.app.kb #s-callgate:not([hidden]){min-height:100%;display:flex;flex-direction:column;justify-content:center;padding-bottom:8px}
+.app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]){min-height:100%;display:flex;flex-direction:column;justify-content:center;padding-bottom:8px}
 .app.kb h1{margin:3px 0 10px;font-size:21px;line-height:1.12}
 .app.kb .chip{margin-top:2px;margin-bottom:6px;padding-top:7px;padding-bottom:7px}
 .app.kb .opts{gap:6px;margin-bottom:6px}
@@ -175,9 +175,9 @@ h1 + .chip{margin-top:-8px}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
 /* Prefix + value fields share one centered two-column geometry across the app. */
-#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callsec .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
-#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-msec .field .code, #s-callflight .field .code, #s-callsec .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callsec .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
+#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
+#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-msec .field .code, #s-callflight .field .code .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
+#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code) input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
 #s-darrange .field.time input{width:100%;text-align:left}
 /* Expanded message editor fills the remaining viewport instead of shrinking to content. */
 main.preview-open{display:flex;flex-direction:column;overflow:hidden}
@@ -209,7 +209,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .msg[readonly]{cursor:default}
 
 /* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
-#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callsec h1,#s-callgate h1{text-align:center}
+#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-dstatus h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{text-align:center}
 #callGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
 #callGateField input{text-transform:uppercase}
 .callNoMessageSeg{margin-top:18px}
@@ -360,13 +360,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       </div>
     </section>
 
-    <section class="screen" id="s-callsec" hidden>
-      <h1>Sec</h1>
-      <div class="field" id="callSecField">
-        <span class="code" id="callSecPrefix" aria-hidden="true">TPE</span>
-        <input autocomplete="off" id="callSec" inputmode="numeric" maxlength="3" aria-label="SEC number">
-      </div>
-    </section>
 
     <section class="screen" id="s-callgate" hidden>
       <h1>final call at Gate</h1>
@@ -555,7 +548,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 
   const FLOWS={
     miss:{name:"漏查",steps:["misstype","mflight","msec"]},
-    call:{name:"Final Call",steps:["calltype","callflight","callsec","callgate","preview"]},
+    call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]},
     wpp:{name:"Wrong Pick-up",steps:["wflight","bag1","bag2","preview"]},
     dp:{name:"Disrupted Pax",steps:["dflight","dtransfer","dstatus","darrange","darrive","preview"]}
   };
@@ -645,12 +638,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   function secPrefixOk(flight,prefix){
     return secPrefixesFor(flight).includes(String(prefix||"").toUpperCase());
   }
-  function callSecOrigin(){
-    return secPrefix(callFlightNumber(),S.callMode);
-  }
-  function callSecFull(){
-    return callSecOrigin()+" "+String(Number(v("callSec"))).padStart(3,"0");
-  }
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
   const TRANSIT_ORIGIN_IATA={"450":"HKG","530":"HKG","564":"HKG","451":"NRT","531":"NGO","565":"KIX"};
@@ -676,7 +663,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   function callFlightOk(){
     const n=callFlightNumber();
     if(!n) return false;
-    if(S.callMode==="transit") return transitCxOk(n)&&isFlt(v("callSec"))&&+v("callSec")<=580;
+    if(S.callMode==="transit") return transitCxOk(n);
     if(S.callMode==="join") return generalCxOk(n);
     return false;
   }
@@ -700,7 +687,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       if(S.callMode==="join") return generalCxOk(n);
       return false;
     },
-    callsec:()=>isFlt(v("callSec"))&&+v("callSec")<=580&&secPrefixOk(callFlightNumber(),callSecOrigin()),
     callgate:()=>!!callGateFull(),
     preview:()=>true
   };
@@ -727,7 +713,6 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       if(S.callMode==="join"&&!generalCxOk(n)) return "Please select a listed CX flight";
       return "";
     },
-    callsec:()=>{if(!secPrefixOk(callFlightNumber(),callSecOrigin()))return "SEC prefix not valid for this flight";const x=v("callSec");return !x?"0–580":(+x>580?"Max 580":"");},
     callgate:()=>"",
     preview:()=>"Check details before sending"
   };
@@ -737,8 +722,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("dstatus");},
     dstatus:()=>go("darrange"), darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
-    callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callsec");},
-    callsec:()=>go("callgate"),
+    callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callgate");},
     callgate:()=>go("preview"),
     preview:()=>send()
   };
@@ -950,7 +934,6 @@ Thank you for your understanding and cooperation.`;
         rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]);
       }else{
         rows.push(["Flight",callFlightFull()]);
-        rows.push(["Sec",callSecFull()]);
         {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
         rows.push(["Go to Gate",callGateFull()]);
       }
@@ -975,7 +958,7 @@ Thank you for your understanding and cooperation.`;
     return [flow,S.phone,S.status,S.arrange,
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
       v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
-      v("callFlight"),v("callSec"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode
+      v("callFlight"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode
     ].join("\u241F");
   }
   function clearDrafts(){ delete edits.zh; delete edits.en; delete edits.ja; msgSig=null; }
@@ -1097,7 +1080,7 @@ Thank you for your understanding and cooperation.`;
     clearDrafts();
   }
   function clearCallCase(){
-    ["callFlight","callSec","callGate"].forEach(id=>$(id).value="");
+    ["callFlight","callGate"].forEach(id=>$(id).value="");
     $("callGateZone").value="B";
     S.callMode="";S.callNoMessage=false;
     clearDrafts();
@@ -1121,7 +1104,7 @@ Thank you for your understanding and cooperation.`;
   }
   function clearCallForModeChange(nextMode){
     if(S.callMode && S.callMode!==nextMode){
-      ["callFlight","callSec","callGate"].forEach(id=>$(id).value="");
+      ["callFlight","callGate"].forEach(id=>$(id).value="");
       $("callGateZone").value="B";
       clearDrafts();
     }
@@ -1203,9 +1186,6 @@ Thank you for your understanding and cooperation.`;
     if(cur==="callflight"){
       const n=callFlightNumber();
       $("callFlightField").classList.toggle("bad",!!n&&((S.callMode==="transit"&&!transitCxOk(n))||(S.callMode==="join"&&!generalCxOk(n))));
-    }
-    if(cur==="callsec"){
-      $("callSecPrefix").textContent=callSecOrigin();
     }
     if(cur==="preview"){
       const sum=$("sum");sum.textContent="";
@@ -1296,7 +1276,7 @@ Thank you for your understanding and cooperation.`;
     $("phoneField").classList.toggle("bad",bl);
     render();
   });
-  const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,callSec:3};
+  const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3};
   Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){this.value=digits(this.value).slice(0,numInputs[id]);render();}));
   ["mFlight","wFlight","dFlight","tN","altN"].forEach(id=>$(id).addEventListener("blur",function(){normalizeFlightField(id);render();}));
   ["b1a","b2a"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));

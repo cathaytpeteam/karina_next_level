@@ -48,8 +48,9 @@ ck('Connecting exception', 'dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))' in
 ck('Protect exception', 'isCarrier(v("altA"))&&isFlt(v("altN"))' in s)
 ck('Alphanumeric airline designator', 'const isCarrier=s=>/^[A-Z0-9]{2}$/.test(s);' in s and 'replace(/[^A-Za-z0-9]/g,"")' in s)
 
-# Transit SEC origin UI/rules. Scenario 2 now intentionally uses callSecPrefix.
-ck('Unified SEC origin UI', all(x in s for x in ['mSecPrefix','mSec','callSecPrefix','callSec']) and 'missTransitIataValue' not in s)
+# SEC origin UI/rules. Scenario 1 keeps SEC; Scenario 2 Final Call intentionally has no SEC page.
+ck('Scenario 1 SEC origin UI', all(x in s for x in ['mSecPrefix','mSec']) and 'missTransitIataValue' not in s)
+ck('Scenario 2 SEC removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
 ck('Destination IATA preserved', all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
@@ -70,8 +71,8 @@ ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{clearMissCase();' in s
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s)
 ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s and 'clearMissForModeChange("direct")' in s)
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s and 'clearCallForModeChange("direct")' in s)
-ck('Scenario 2 gate clears on type change', '["callFlight","callSec","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
-ck('Call progress stable five-step', 'call:{name:"Final Call",steps:["calltype","callflight","callsec","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
+ck('Scenario 2 gate clears on type change', '["callFlight","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
+ck('Call progress stable four-step', 'call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
 ck('Call Directly progress hidden', 'const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;' in s and '$("bar").hidden=idx<0||directPreview;' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)
@@ -109,7 +110,7 @@ ck('Scenario 1 Join suffix compact', 'const tag=String(Number(v("mFlight")))+"/"
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r5";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r6";' in sw)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 required={
     './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png',

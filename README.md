@@ -131,7 +131,7 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Fixed Service Worker installation by declaring the exact runtime `ASSETS` list and bumping cache identity to v1.0.16. `libphonenumber-js` 1.12.29 `bundle/libphonenumber-max.js` is bundled locally and precached, removing the runtime CDN dependency.
 - Phone validation now requires `PhoneNumber.isValid()` when available and returns canonical E.164 digits, fixing country-code + domestic-trunk-zero inputs such as `886 0912...`, `86 0138...`, and `82 010...`.
 - Japan +81 validation is restricted to 90 / 80 / 70 / 60 mobile prefixes only.
-- Scenario 2 Transit release verification follows the current `callSecPrefix` SEC-origin UI.
+- Scenario 2 Final Call no longer has an SEC page; SEC-origin UI applies only to Scenario 1.
 - Scenario 3 and 4 reset message-language ordering on entry; Scenario 4 defaults to English first.
 - `dateCode()` now uses `Asia/Taipei`, matching `taipeiTime()`.
 - Scenario 4 Connecting flight / Protect to airline codes accept two alphanumeric IATA designators such as 5J, 3K and 7C.
@@ -154,7 +154,7 @@ Scenario 1 and Scenario 2 SEC screens are now visually unified as one inline fie
 
 ## Authorized progress update (r6)
 
-All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - N/3 - Join Pax / Transit Pax`; Scenario 2 uses `Final Call - N/5 - Join Pax / Transit Pax`. Before Passenger Type is selected, only `Flow - N/N` is shown.
+All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - N/3 - Join Pax / Transit Pax`; Scenario 2 uses `Final Call - N/4 - Join Pax / Transit Pax`. Before Passenger Type is selected, only `Flow - N/N` is shown.
 
 ## Authorized responsive keyboard / Safe Area adjustment
 - iOS/Android keyboard mode keeps the approved 20px/700 progress label visible.
@@ -174,7 +174,7 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 - These changes were explicitly authorized and are locked again in the release baseline.
 
 - Passenger Type hierarchy: Join is the large primary action; Transit and Call Directly are smaller secondary actions.
-- Progress counters are compact (`1/5`, `2/5`, etc.).
+- Progress counters are compact (`1/4`, `2/4`, etc. for Final Call).
 
 ## v1.1 — PWA icon deduplication
 - Removed duplicate `icon-maskable-192.png` and `icon-maskable-512.png` files.
@@ -183,4 +183,8 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 
 
 ## v1.1 Final Call naming lock
-Scenario 2 is named **Final Call**. Its message-path progress is locked to **Final Call - 1/5 - Join Pax/Transit Pax → Final Call - 5/5 - Join Pax/Transit Pax**. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 - 2/3 - Join Pax**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
+Scenario 2 is named **Final Call**. Its current message-path progress is locked to **Final Call - 1/4 - Join Pax/Transit Pax → Final Call - 4/4 - Join Pax/Transit Pax**, with the SEC page removed for Join and Transit. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 - 2/3 - Join Pax**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
+
+
+## Authorized Scenario 2 SEC removal (r6)
+Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit Pax. The locked message path is **Passenger Type → Flight Number → Gate → Message Preview**, with progress **1/4 → 4/4** and Passenger Type shown as the trailing annotation after selection. Scenario 1 SEC and its 1/3 → 3/3 flow are unchanged.
