@@ -6,19 +6,20 @@
   "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
   "protected": {
     "message_copy": {
-      "message_master_version": "1.7",
-      "message_master_sha256": "39afce18758a783f10de9997d84dd8c6782710b7bcc132509c17df91d9b150ad",
+      "message_master_version": "1.9",
+      "message_master_sha256": "74427578ff6d6beb0eda6ce3bb9447340c96b3c18a66de7d10d04424c7012478",
       "functions": {
-        "textMiss": "4ee7eeea0839e7179ec422ee31be8d37b3cab55ad02c111bba69e22a92fefc19",
-        "textJoin": "9b1f7dee1a436f3042574b1fcdd54b2408e578769831a28f949a53d23dee3e81",
-        "textTransit": "198a00d9510a901ee3736823051a9b29b448e1a3bf4f9c5e7ab81a370372a5e5",
+        "textMiss": "6bf0a0ccd535e6b9a9a43f3a936dea4faeb4db406989a9ab9b00867fc395a757",
+        "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
+        "textTransit": "c4ba6382b88b6f1b3a2273017fff56c66f6d2f0b3a558f8d4e049e2d71ade5bf",
         "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
         "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
         "textDp": "5f9c64066847dda0fa80ee0cf1bae891bd6bdf6014ad4b3de91c19714d9b8384",
-        "textMissTransit": "dcb99696b9afc2415f01f55d2ab067ccd9696efeb6b2a9d7a875ab7fdf9f31e5"
+        "textMissTransit": "1987c6e8c7b387205702e5ea302f73ad439a0eba6036213e384cac3910137a83"
       },
       "constants": {
-        "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f"
+        "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
+        "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
       }
     },
     "phone_validation": {
@@ -65,9 +66,9 @@
         "taipeiTime": "7a8d7c063cf9c90e5409b3e9e0a24d778bf3a998a7d99f80df4c5f354f26e7e3"
       },
       "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad",
-      "scenario1_approved_copy": "キャセイパシフィック航空ご利用のお客様へ\nお預けの荷物がX線検査を通過できず、再検査が必要です。出国審査前は至急カウンター4へ、出国審査後は搭乗ゲートスタッフへお申し出ください。対応されない場合、荷物を搭載できない可能性がございます。ご協力をお願いいたします。",
+      "scenario1_approved_copy": "【キャセイパシフィック航空】お預け手荷物のX線再検査に、お客様の立ち会いが必要です。出国審査前は至急4番カウンターへ、出国審査後は搭乗ゲートのスタッフまでお申し出ください。お越しいただけない場合、お預け手荷物を搭載できない可能性があります。ご協力をお願いいたします。",
       "routing": "Scenario 1 Japanese, Scenario 2 Join Japanese, and Scenario 2 Transit Japanese use native SMS; Chinese/English use WhatsApp.",
-      "suffix_policy": "No flight/SEC/date suffix for Japanese SMS.",
+      "suffix_policy": "No flight/SEC/date suffix for Japanese SMS. All Japanese SMS open with 【キャセイパシフィック航空】 (v1.8).",
       "transit_time_policy": "Only Scenario 2 Transit Japanese includes current Taipei time via Asia/Taipei in HH:mm."
     },
     "scenario2": {
@@ -123,7 +124,7 @@
       "status": "LOCKED",
       "zh": "您好：這裡是國泰航空桃園機場辦公室。\n\n由於您的寄艙行李未能通過桃園機場的轉機X 光安全檢查。因此，您的行李目前暫時留在\n轉機行李檢查處，未能安排裝載上機。\n\n為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回登機閘口聯繫國泰航空職員，我們會協助您跟進。\n\n多謝您的理解和配合",
       "en": "Hello, this is Cathay Pacific at Taoyuan Airport.\n\nYour checked baggage did not pass the transfer X-ray security screening and is currently being held at the screening area.\n\nPlease return to the boarding gate as soon as possible and contact our staff for assistance, so we can arrange for your baggage to be loaded before departure.\n\nThank you for your cooperation.",
-      "ja": "キャセイ航空桃園空港です。お預け手荷物が乗継X線検査を通過できませんでした。恐れ入りますが、至急搭乗ゲートへ戻り、スタッフへお申し出ください。"
+      "ja": "【キャセイパシフィック航空】お預け手荷物は桃園空港の乗り継ぎX線検査で確認が必要です。至急搭乗ゲートのスタッフまでお申し出ください。"
     },
     "flight_rules_v114": {
       "status": "LOCKED",

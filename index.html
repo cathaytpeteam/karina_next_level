@@ -697,6 +697,16 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     "565":{zh:"香港",en:"Hong Kong",ja:"香港"},
     "531":{zh:"香港",en:"Hong Kong",ja:"香港"}
   };
+  // Final Call Transit Japanese SMS (message master 1.8): origin and destination city names,
+  // kept short so every flight/gate fits in 2 SMS segments (<=134 chars).
+  const TRANSIT_SMS_ROUTE_JA={
+    "450":{from:"香港",to:"東京"},
+    "530":{from:"香港",to:"名古屋"},
+    "564":{from:"香港",to:"大阪"},
+    "451":{from:"東京",to:"香港"},
+    "531":{from:"名古屋",to:"香港"},
+    "565":{from:"大阪",to:"香港"}
+  };
   const TRANSIT_DESTINATION_CODES={
     "450":"NRT",
     "564":"KIX",
@@ -836,8 +846,7 @@ Please return to Check-in Counter 4 and contact our staff.
 If you have passed security but not immigration, please inform the airport staff and return to the counter. If you have passed immigration, please contact our staff at the boarding gate.
 
 Please contact us as soon as possible so we can arrange for your baggage to be loaded before departure. Thank you for your cooperation.`;
-    const ja=`キャセイパシフィック航空ご利用のお客様へ
-お預けの荷物がX線検査を通過できず、再検査が必要です。出国審査前は至急カウンター4へ、出国審査後は搭乗ゲートスタッフへお申し出ください。対応されない場合、荷物を搭載できない可能性がございます。ご協力をお願いいたします。`;
+    const ja=`【キャセイパシフィック航空】お預け手荷物のX線再検査に、お客様の立ち会いが必要です。出国審査前は至急4番カウンターへ、出国審査後は搭乗ゲートのスタッフまでお申し出ください。お越しいただけない場合、お預け手荷物を搭載できない可能性があります。ご協力をお願いいたします。`;
     if(S.order==="ja") return ja;
     return (zhFirst?zh+"\n\n"+en:en+"\n\n"+zh)+"\n\n"+tag;
   }
@@ -857,7 +866,7 @@ Your checked baggage did not pass the transfer X-ray security screening and is c
 Please return to the boarding gate as soon as possible and contact our staff for assistance, so we can arrange for your baggage to be loaded before departure.
 
 Thank you for your cooperation.`;
-    const ja=`キャセイ航空桃園空港です。お預け手荷物が乗継X線検査を通過できませんでした。恐れ入りますが、至急搭乗ゲートへ戻り、スタッフへお申し出ください。`;
+    const ja=`【キャセイパシフィック航空】お預け手荷物は桃園空港の乗り継ぎX線検査で確認が必要です。至急搭乗ゲートのスタッフまでお申し出ください。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
@@ -979,7 +988,7 @@ Thank you for your understanding and cooperation.`;
     const flight=callFlightFull(), gate=callGateFull();
     const zh=`您好：這裡是國泰航空，我們結束登機時間是起飛前 15 分鐘，您搭乘的${flight}航班，目前已經在最後召集中，請您儘速前往 ${gate}號登機門。`;
     const en=`Hello, this is Cathay Pacific. Boarding closes 15 minutes before departure. Your flight ${flight} is now on final call. Please proceed to Gate ${gate} as soon as possible.`;
-    const ja=`こんにちは。キャセイパシフィック航空です。搭乗手続きは出発15分前に締め切ります。ご搭乗の${flight}便は現在最終案内中です。至急${gate}番搭乗口へお越しください。`;
+    const ja=`【キャセイパシフィック航空】${flight}便は最終搭乗案内中です。搭乗口は出発15分前に締め切ります。至急${gate}番搭乗口へお越しください。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
@@ -988,7 +997,8 @@ Thank you for your understanding and cooperation.`;
     const dest=TRANSIT_DESTINATIONS[n]||{zh:"",en:"",ja:""};
     const zh=`您好：這裡是國泰航空，您搭乘的台北往${dest.zh}${flight}航班，已經在最後召集中，請您儘速前往 ${gate}號登機門。您需要先通過轉機區隨身行李檢查，如果尚未通過請立即請最近機場人員協助，謝謝`;
     const en=`Hello, this is Cathay Pacific. Your flight ${flight} from Taipei to ${dest.en} is now on final call. Please proceed to Gate ${gate} as soon as possible. You need to pass through the transfer security screening for carry-on baggage. If you have not yet done so, please ask the nearest airport staff for immediate assistance. Thank you.`;
-    const ja=`こんにちは。キャセイパシフィック航空です。台北発${dest.ja}行き${flight}便は現在最終案内中です。至急${gate}番搭乗口へお越しください。乗り継ぎエリアで手荷物の保安検査を受ける必要があります。まだお済みでない場合は、すぐにお近くの空港スタッフへお申し出ください。\n現在の台北時間は${taipeiTime()}です。`;
+    const route=TRANSIT_SMS_ROUTE_JA[n]||{from:"",to:dest.ja};
+    const ja=`【キャセイパシフィック航空】${route.from}発、台北経由${route.to}行き${flight}便は最終搭乗案内中です。桃園空港の乗り継ぎ保安検査場で手荷物検査をお済ませのうえ、至急、${gate}番搭乗口へお越しください。ご不明な点は、空港スタッフまでお尋ねください。現在の台北時間は${taipeiTime()}です。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }

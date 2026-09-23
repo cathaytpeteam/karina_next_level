@@ -224,7 +224,7 @@ class Run:
             want = SPEC["preview_languages"][s["title"]]
             lang_checked[s["title"]] = ck(f"preview '{s['title']}' language buttons", s["langs"] == want, f"got {s['langs']}")
 
-    async def act(self, trigger, expect_to=None, text_has=()):
+    async def act(self, trigger, expect_to=None, text_has=(), text_not=(), exact=None):
         """Click a control, record the transition and verify it against the spec."""
         before = await self.st()
         sel = "#cta" if trigger == "cta" else "#" + trigger
@@ -252,9 +252,16 @@ class Run:
             ok = PHONE in url
             text = urllib.parse.unquote(url)
             miss = [t for t in text_has if t not in text]
-            ck(f"[{self.name}] send URL has phone and typed values", ok and not miss, f"url={url[:90]} missing={miss}")
+            extra = [t for t in text_not if t in text]
+            ck(f"[{self.name}] send URL has phone and typed values", ok and not miss and not extra, f"url={url[:90]} missing={miss} unexpected={extra}")
             if expect_to:
                 ck(f"[{self.name}] send goes to {expect_to}", to == expect_to, f"got {to}")
+            if exact is not None:
+                key = "body=" if url.startswith("sms:") else "text="
+                body = urllib.parse.unquote(url.split(key, 1)[1]) if key in url else ""
+                rx, limit = exact
+                ck(f"[{self.name}] message text is exactly the locked copy", re.fullmatch(rx, body) is not None, body[:160])
+                ck(f"[{self.name}] message fits {limit} chars ({'1' if limit == 67 else '2'} SMS)", len(body) <= limit, f"{len(body)} chars")
             return None
         after = await self.wait(lambda s: s["screen"] != before["screen"] or trigger in SPEC["toggles"].get(before["screen"], []), 1500)
         self.check_screen(after, f"after {trigger}")
@@ -323,6 +330,21 @@ async def to_s4(r, status, flight="407", delay="1800"):
     if status == "stDelayed" and delay:
         await r.fill("delayTime", delay)
 
+# ---- locked Japanese SMS copy (message-master.json) ---------------------------
+MASTER = json.loads((R / "message-master.json").read_text(encoding="utf-8"))["scenarios"]
+def ja_expected(scen, mode, flight=None, gate=None):
+    if scen == "s1":
+        t = MASTER["scenario1_missing_baggage_xray"][mode]["ja"]
+        return re.escape(t), (134 if mode == "join" else 67)
+    t = MASTER["scenario2_call_passenger"][mode]["ja"]
+    rx = re.escape(t).replace(re.escape("{Flight}"), re.escape(flight)).replace(re.escape("{Gate}"), re.escape(gate))
+    if mode == "transit":
+        rt = MASTER["scenario2_call_passenger"]["transit"]["ja_route"][flight]
+        rx = rx.replace(re.escape("{OriginJa}"), re.escape(rt["from"])).replace(re.escape("{DestinationJaShort}"), re.escape(rt["to"]))
+        rx = rx.replace(re.escape("{TaipeiTime}"), r"(?:[01]\d|2[0-3]):[0-5]\d")
+        return rx, 134
+    return rx, 67
+
 # ---- forward branch cases ----------------------------------------------------
 async def case_s1(r, mode, flight, lang):
     await to_s1(r, mode, flight); await r.act("cta", "msec")
@@ -331,13 +353,16 @@ async def case_s1(r, mode, flight, lang):
     # Join copy carries the bag tag "flight/SEC"; approved Transit copy carries no typed values.
     # (the approved Japanese SMS copy has no tag either).
     has = (f"{flight}/123",) if mode == "missJoin" and lang != "ordJa" else ()
-    await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", has)
+    exact = ja_expected("s1", "join" if mode == "missJoin" else "transit") if lang == "ordJa" else None
+    await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", has, exact=exact)
 
 async def case_s2(r, mode, flight, lang):
     await to_s2(r, mode, flight); await r.act("cta", "callgate")
     await r.fill("callGateZone", "C"); await r.fill("callGate", "5"); await r.act("cta", "preview")
     if lang != "ordZh": await r.act(lang)
-    await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", ("CX" + flight, "C5"))
+    has = ["CX" + flight, "C5"]
+    exact = ja_expected("s2", "join" if mode == "callJoin" else "transit", "CX" + flight, "C5") if lang == "ordJa" else None
+    await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", tuple(has), exact=exact)
 
 async def case_direct(r, scen, typ, btn):
     await r.phone(); await r.act(scen, typ); await r.act(btn, "preview")
@@ -455,6 +480,22 @@ async def g(r, name):
             clip = await r.pg.evaluate("[...document.querySelectorAll('#altWrap input')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.id)")
             ck(f"[guard] {W}px: CX flight and DEP time side by side", abs(a["top"] - t["top"]) < 1 and t["left"] > a["right"], f"{a} {t}")
             ck(f"[guard] {W}px: CX401 / 15:30 not clipped", not clip, str(clip))
+    elif name == "s2_transit_ja_all_flights":
+        # Every transit flight gets the right origin/destination and stays within 2 SMS,
+        # using the longest gate form (C1R).
+        first = True
+        for f in ("450", "451", "530", "531", "564", "565"):
+            rr = r if first else await Run(r.browser, f"{name} CX{f}").open()
+            await to_s2(rr, "callTransit", f); await rr.act("cta", "callgate")
+            await rr.fill("callGateZone", "C"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
+            await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "transit", "CX" + f, "C1R"))
+            if not first: await rr.close()
+            first = False
+        # Join, longest gate form: still one SMS (<=67)
+        rr = await Run(r.browser, f"{name} Join C1R").open()
+        await to_s2(rr, "callJoin", "407"); await rr.act("cta", "callgate")
+        await rr.fill("callGateZone", "C"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
+        await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "join", "CX407", "C1R")); await rr.close()
     elif name == "layout_does_not_jump":
         # Keyboard open/close must not move or resize the title and fields, and the header
         # must keep the same height on every page (r26). Keyboard mode is forced via the

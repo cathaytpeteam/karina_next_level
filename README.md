@@ -310,3 +310,33 @@ Fix (CSS only, markup unchanged):
 - Removed the small notch where the option and panel borders met.
 - Narrow phones (≤360px) use tighter tag padding so "15:30" is never clipped (checked at 390 / 360 / 320px).
 - Behaviour spec +1 guard `s4_protect_fields_side_by_side`. SW cache r27.
+
+## r28 — Final Call Transit Japanese SMS (message master 1.8, user-approved)
+- New copy: `【キャセイパシフィック航空】{出発地}発台北経由{目的地}行き{Flight}便は現在最終案内中です。乗り継ぎエリアで手荷物の保安検査を受けてから、至急{Gate}番搭乗口へお越しください。未検査の方は、お近くの空港スタッフへお申し出ください。現在の台北時間は{HH:mm}です。`
+- Origin is derived from the flight number (`TRANSIT_SMS_ROUTE_JA`): CX451 東京, CX531 名古屋, CX565 大阪 (→香港); CX450/530/564 香港 (→東京/名古屋/大阪). City names only, so every flight is 125–126 characters = 2 SMS segments.
+- No terminal is named (Gate B and C passengers can both use the T1 transfer screening).
+- Chinese / English Transit copy and Join Pax copy unchanged. Locks updated: message-master 1.8, message-copy-lock and baseline-lock (`textTransit`, new constant `TRANSIT_SMS_ROUTE_JA`). Behaviour test checks the Japanese SMS for CX451. SW cache r28.
+
+## r28 — Japanese SMS copy v1.8 (locked)
+User-approved 2026-09-23. Chinese / English copy unchanged.
+
+| Message | Japanese SMS | Length |
+|---|---|---|
+| S1 漏查 Join | 【キャセイパシフィック航空】お預けの荷物のX線再検査に、お客様の立ち会いが必要です。出国審査前は至急4番カウンターへ、出国審査後は搭乗ゲートのスタッフへお申し出ください。お越しいただけない場合、荷物を搭載できない可能性がございます。ご協力をお願いいたします。 | 129 (2 SMS) |
+| S1 漏查 Transit | 【キャセイパシフィック航空】お預け手荷物が桃園空港の乗り継ぎX線検査を通過できませんでした。至急搭乗ゲートのスタッフへお申し出ください。 | 68 (1 SMS) |
+| S2 Final Call Join | 【キャセイパシフィック航空】ご搭乗予定の{Flight}便は現在最終案内中です。搭乗締切は出発15分前です。至急{Gate}番搭乗口へお越しください。 | 68 (1 SMS) |
+| S2 Final Call Transit | 【キャセイパシフィック航空】{Origin}発台北経由{Destination}行き{Flight}便は現在最終案内中です。桃園空港の乗り継ぎ保安検査場で手荷物検査を受けてから、至急{Gate}番搭乗口へお越しください。ご不明な場合は、お近くの空港スタッフへお申し出ください。現在の台北時間は{HH:mm}です。 | ≤131 (2 SMS) |
+
+- Final Call Transit origin/destination come from the flight number (`TRANSIT_SMS_ROUTE_JA`): CX450 香港→東京, CX530 香港→名古屋, CX564 香港→大阪, CX451 東京→香港, CX531 名古屋→香港, CX565 大阪→香港. No terminal is named (Gate B and C both use the Taoyuan transfer security checkpoint).
+- Locked in `message-master.json` v1.8, `message-copy-lock.json`, `baseline-lock.json` (textMiss, textMissTransit, textJoin, textTransit, TRANSIT_SMS_ROUTE_JA).
+- `verify_behavior.py` now checks each Japanese SMS is **exactly** the locked copy and within its SMS length (1 or 2 segments); all six transit flights are checked with the longest gate (C1R). SW cache r28.
+
+## r28 — Japanese SMS copy v1.9 (message master 1.9, locked)
+User-approved final wording for all four Japanese SMS (Chinese/English unchanged):
+1. S1 漏查 Join — 2 SMS (≤134)
+2. S1 漏查 Transit — 1 SMS (≤67)
+3. S2 Final Call Join — 1 SMS (≤67)
+4. S2 Final Call Transit — 2 SMS (≤134); origin/destination city derived from the flight (`TRANSIT_SMS_ROUTE_JA`), screening at the Taoyuan Airport transfer security checkpoint, no terminal named.
+- All open with 【キャセイパシフィック航空】. 1-SMS limit set to 67 chars as a safety margin.
+- Locks updated: `message-master.json` 1.9, `message-copy-lock.json`, `baseline-lock.json`.
+- Behaviour tests send each Japanese SMS and require the body to match the locked copy exactly and fit its limit — all six transit flights and the Join message with the longest gate form (C1R). SW cache r28.

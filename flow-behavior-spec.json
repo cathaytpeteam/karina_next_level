@@ -631,7 +631,8 @@
   "s4_protect_panel_attached_to_option",
   "s4_delayed_time_display",
   "layout_does_not_jump",
-  "s4_protect_fields_side_by_side"
+  "s4_protect_fields_side_by_side",
+  "s2_transit_ja_all_flights"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",

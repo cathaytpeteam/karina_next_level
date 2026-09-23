@@ -44,6 +44,7 @@ PASS copy textWpp
 PASS copy textDp
 PASS copy textMissTransit
 PASS constant TRANSIT_DESTINATIONS
+PASS constant TRANSIT_SMS_ROUTE_JA
 PASS master hash
 PASS protected validatePhone
 PASS protected normalizePhone
