@@ -27,7 +27,7 @@
     "s-preview"
   ],
   "screen_sha256": {
-    "s-phone": "145fa09602a720ea3d02d56ca4ddc6fd49e0080732efb4a8b6fd45a88377510f",
+    "s-phone": "39df4542a201fb9769c3b95707df41acd3a59868e16347896459feff7003f8b9",
     "s-scenario": "792622b2927ae59863a4eaf0ad28fc84c334fdb18d5452dd7d6414795eda88f1",
     "s-misstype": "0b0f438551d1b63bc7d51a2873ac1fc2558d9eb222ee32da7d49411819c1e624",
     "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
@@ -165,8 +165,8 @@
   },
   "authorized_r34_home_version": {
     "scope": "s-phone + home-only footer styling",
-    "change": "Preserve Golden Baseline home geometry and styling; release identity text only advances to r40 beside the icon right foot.",
-    "approved_text": "r40",
+    "change": "Preserve Golden Baseline home geometry and styling; release identity text only advances to r41 beside the icon right foot.",
+    "approved_text": "r41",
     "effect": "display only; no field/control/navigation change"
   }
 }

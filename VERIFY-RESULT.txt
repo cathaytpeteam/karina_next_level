@@ -1,5 +1,6 @@
-Find Pax r40
-Authorized change: Scenario 1 → Join Pax → Chinese message only, plus r40 release identity.
-PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; exact approved Chinese copy.
+Find Pax r41 final
+Authorized Scenario 1 Join Chinese copy: restores both 麻煩您 phrases; retains the space before the dynamic CX flight number.
+Release identity intentionally remains r41.
+PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX450 dynamic text check.
 Not claimed: broad browser regression.
-Locked unchanged: r38 English, Japanese, Transit, Scenario 2/3/4, PWA lifecycle, validation, navigation, visual geometry, transitions.
+All other Golden Baseline behavior locked unchanged.

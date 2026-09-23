@@ -1,10 +1,10 @@
 {
   "name": "Find Pax executable message-copy lock",
-  "message_master_version": "1.15",
+  "message_master_version": "1.16",
   "app_base": "Find-Pax-v1.0.16-Functional-Fix",
   "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated.",
   "functions": {
-    "textMiss": "5f6918f24b8f8e49c125fccdb92125961881d8fc1bad1877e9e4ffcac2a7fd1a",
+    "textMiss": "3c04dd068badad5bb229b97853df00498fa5fa4efd8448f49119749952354c86",
     "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
     "textTransit": "523d7456c3f9f89a253680f75ae195ccb5d73794949b4a6b5eeb9a95b5b95a26",
     "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
@@ -16,5 +16,5 @@
     "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
     "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
   },
-  "message_master_sha256": "37a779e217b5e8b2d39538ffe2b9c7278da2ea854b60834b8b284005d10c4ae8"
+  "message_master_sha256": "90b6d0a20a64633ddff02129925baae9d218c5fee8083bc4c3a43e3c82445c5f"
 }

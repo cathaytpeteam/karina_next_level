@@ -431,3 +431,25 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 
 - Scenario 1 → Join Pax → Chinese message replaced exactly with the latest user-approved wording.
 - r38 English and all other Golden Baseline behavior remain unchanged.
+
+## r41 — Scenario 1 Join Chinese dynamic flight
+
+- User-approved Chinese copy updated; boarding-gate instruction now embeds the validated Scenario 1 Join CX flight number (e.g. CX450).
+- r38 English and all other Golden Baseline behavior remain unchanged.
+
+## r41 revised — Scenario 1 Join Chinese wording
+
+- User-approved one-phrase correction: final sentence changes `麻煩您盡快返回` to `請您盡快返回`.
+- Release identity intentionally remains r41. Dynamic CX flight insertion and all other Golden Baseline behavior remain unchanged.
+
+## r41 revised-2 — Scenario 1 Join Chinese wording
+
+- `麻煩您盡快返回 4 號` → `請您盡快返回 4 號`.
+- Insert one space before the dynamic CX flight number in the post-immigration instruction.
+- Release identity remains r41; all other Golden Baseline behavior unchanged.
+
+## r41 final — Scenario 1 Join Chinese copy
+
+- Restores both user-approved `麻煩您` phrases.
+- Retains one space before the dynamic CX flight number.
+- Release identity remains r41; all other Golden Baseline behavior unchanged.
