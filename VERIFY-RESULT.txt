@@ -1,6 +1,9 @@
-Find Pax r41 — English updated
-Authorized change: Scenario 1 → Join Pax → English only: dynamic validated CX flight number in boarding-gate instruction and revised disposal note.
-Release identity intentionally remains r41.
-PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX450 English dynamic text check; Chinese text unchanged.
+Find Pax R1
+Authorized changes:
+- Release identity renamed from r41 to R1.
+- Scenario 1 → Join Pax → Chinese uses three `• ` bullet lines matching English formatting.
+- Dynamic validated CX flight remains in the third Chinese bullet.
+- Previously approved Scenario 1 Join English update retained.
+PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; representative CX451 Chinese dynamic-text check.
 Not claimed: broad browser regression.
-All other Golden Baseline behavior locked unchanged.
+No structure reorganization.

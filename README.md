@@ -459,3 +459,11 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 - Adds the validated dynamic CX flight number to the post-immigration boarding-gate instruction.
 - Replaces the English disposal note with the user-approved wording.
 - Existing message suffix remains unchanged. Release identity remains r41; all other Golden Baseline behavior and copy remain unchanged.
+
+## R1 — release identity reset
+
+- Release identity renamed from r41 to R1 as explicitly requested.
+- Scenario 1 Join Chinese now uses three `• ` bullet lines matching the English format.
+- Dynamic CX flight number remains in the post-immigration instruction.
+- The previously approved English update is retained.
+- No structure reorganization.
