@@ -324,7 +324,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="choices">
         <button class="choice passengerPrimary" id="stPossible" type="button" aria-pressed="false"><span class="ctext"><span>Tight Connection</span></span><span class="chev">›</span></button>
         <button class="choice passengerSecondary" id="stDelayed" type="button" aria-pressed="false"><span class="ctext"><span>Delayed</span></span><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="stUnknown" type="button" aria-pressed="false"><span class="ctext"><span>To be updated</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="stUnknown" type="button" aria-pressed="false"><span class="ctext"><span>Suspended</span></span><span class="chev">›</span></button>
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
@@ -1179,8 +1179,12 @@ Thank you for your understanding and cooperation.`;
         ? (S.missMode==="join"?"Join Pax":"Transit Pax")
         : flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")
           ? (S.callMode==="join"?"Join Pax":"Transit Pax") : "";
+      const disruptedType=flow==="dp" && cur!=="dstatus"
+        ? (S.status==="possible"?"Tight connection":S.status==="delayed"?"Flight delayed":S.status==="unknown"?"Flight Suspended":"") : "";
       if((flow==="miss"||flow==="call")&&passengerType){
         $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
+      }else if(flow==="dp"&&disruptedType){
+        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+disruptedType));
       }else{
         $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}));
       }
