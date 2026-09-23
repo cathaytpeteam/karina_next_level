@@ -202,6 +202,10 @@ class Run:
             await loc.fill(val)
         await self.pg.wait_for_timeout(30)
 
+    async def blur(self, id_):
+        await self.pg.locator("#" + id_).evaluate("e => e.blur()")
+        await self.pg.wait_for_timeout(60)
+
     async def val(self, id_):
         return await self.pg.locator("#" + id_).input_value()
 
@@ -423,6 +427,20 @@ async def g(r, name):
         await r.expect("Delayed without time keeps Next disabled", False)
         await r.fill("delayTime", "1800"); await r.expect("Delayed 18:00 accepted", True)
         ck("[guard] Delayed-to shows full 18:00", await r.val("delayTime") == "18:00", await r.val("delayTime"))
+    elif name == "s4_delayed_time_display":
+        await to_s4(r, "stDelayed", delay=None)
+        info = await r.pg.locator("#delayTime").evaluate("""e => ({ph: e.placeholder, icon: getComputedStyle(e.parentElement, '::before').content,
+            color: getComputedStyle(e).color, align: getComputedStyle(e).textAlign})""")
+        ck("[guard] Delayed-to has no icon and no placeholder", info["ph"] == "" and info["icon"] in ("none", "normal", ""), str(info))
+        await r.fill("delayTime", "1800"); await r.blur("delayTime")
+        fit = await r.pg.locator("#delayTime").evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+        info = await r.pg.locator("#delayTime").evaluate("e => getComputedStyle(e).color")
+        ck("[guard] 18:00 fully visible (not clipped to 8:00)", fit and await r.val("delayTime") == "18:00")
+        want = await r.pg.evaluate("""() => { const d = document.createElement('i'); d.style.color = 'var(--delay-ink)';
+            document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; }""")
+        ck("[guard] Delayed-to time uses the delay colour (--delay-ink), not the error red", info == want and info != "rgb(198, 40, 40)", f"{info} vs {want}")
+        hint = await r.pg.locator("#hint").text_content()
+        ck("[guard] no HHMM hint on Delayed-to", "HHMM" not in (hint or ""), hint)
     elif name == "s4_delayed_rejects_invalid_time":
         await to_s4(r, "stDelayed", delay="2575"); await r.expect("Delayed 25:75 rejected", False, ["delayTime"])
     elif name == "s4_non_delayed_hides_time":
@@ -440,7 +458,26 @@ async def g(r, name):
         await r.fill("tA", "KA"); await r.fill("tN", "401"); await r.expect("connecting KA401 accepted", True, not_bad=["tN"])
     elif name == "s4_connecting_rejects_bad_airline":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer")
-        await r.fill("tN", "888"); await r.fill("tA", "K"); await r.expect("connecting airline 'K' rejected", False, ["tN"])
+        await r.fill("tN", "888"); await r.fill("tA", "K")
+        await r.expect("airline 'K' neutral while still typing", False, not_bad=["tN"])
+        await r.blur("tA"); await r.expect("airline 'K' red after leaving the field", False, ["tN"])
+    elif name == "partial_flight_not_red_while_typing":
+        await to_s4(r, "stPossible", "4"); await r.expect("CX4 (could become 407) neutral", False, not_bad=["dFlight"])
+        await r.fill("dFlight", "40"); await r.expect("CX40 (could become 407) neutral", False, not_bad=["dFlight"])
+        await r.blur("dFlight"); await r.expect("CX40 red after leaving the field", False, ["dFlight"])
+    elif name == "impossible_prefix_red_immediately":
+        await to_s4(r, "stPossible", "8"); await r.expect("CX8 (no allowed flight starts with 8) red at once", False, ["dFlight"])
+        rr = await Run(r.browser, name + " S1 transit").open()
+        await to_s1(rr, "missTransit", "45"); await rr.expect("S1 Transit CX45 neutral while typing", False, not_bad=["mFlight"])
+        await rr.fill("mFlight", "47"); await rr.expect("S1 Transit CX47 red at once", False, ["mFlight"]); await rr.close()
+    elif name == "s4_protect_panel_attached_to_option":
+        await to_s4(r, "stDelayed"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
+        await r.act("arKnown"); await r.pg.wait_for_timeout(350)
+        box = {i: await r.pg.locator("#" + i).bounding_box() for i in ("arKnown", "altWrap", "arUnknown")}
+        k, w, u = box["arKnown"], box["altWrap"], box["arUnknown"]
+        ck("[guard] protect fields sit directly under 'Will protect to' and above 'Arrange in airport'",
+           abs(w["y"] - (k["y"] + k["height"])) < 2 and u["y"] >= w["y"] + w["height"] and abs(w["x"] - k["x"]) < 1 and abs(w["width"] - k["width"]) < 1,
+           str(box))
     elif name == "s4_arrange_requires_choice":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
         await r.expect("no arrangement chosen keeps Next disabled", False)

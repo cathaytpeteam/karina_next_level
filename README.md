@@ -277,3 +277,18 @@ Bug found and fixed by the new suite: after Scenario 1 → Call Directly, pressi
 - `.github/workflows/verify.yml` runs `verify_release.py` (including the browser flow suite) on every push / pull request, or manually via Actions → "Find Pax verify" → Run workflow. It finds the folder containing `verify_release.py` automatically.
 - Result: Actions tab shows ✓ / ✗; the run's Summary page lists every FAIL line (phone-readable); the full log is kept as the `verify-output` artifact.
 - `verify_release.py` SHA completeness now ignores repository/hosting plumbing: `.git*` (incl. `.github`), `.nojekyll`, `CNAME`.
+
+## r23 — 4/6 expand + red-border timing
+- 4/6 "Will protect to": the option and its CX / DEP fields now form one teal-outlined card that slides open (≈0.24 s); "Arrange in airport" glides down beneath it. Fields are white inside the card. With the keyboard open, 4/6 stays top-aligned so the page no longer re-centres and jumps.
+- Red border timing (all scenarios): while typing, a field stays neutral as long as the digits can still become a valid flight (e.g. "4", "40" → 407). It turns red immediately if no allowed flight starts with the digits (e.g. "8"), when the value is complete and invalid (3 digits / 4-digit time), or when the field is left with an invalid value. Airline codes stay neutral at 1 letter until the field is left. Next-button rules unchanged.
+- Old per-screen red toggles consolidated into `markInvalidFields()`; `verify_navigation.py` check updated accordingly (user-approved). Behaviour spec: +3 guards (partial typing neutral, impossible prefix red, protect panel attached to its option). SW cache r23.
+
+## r24 — 2/6 Delayed to restyle
+- "Delayed to" label enlarged (22px, brand teal, normal case) between divider lines.
+- Time field: clock icon and "HH:MM" placeholder removed; the time is centred, 34px, in red (`--danger`). The field uses flex instead of the shared two-column grid, so "18:00" can never be clipped to "8:00" again.
+- Footer no longer shows "HHMM" hints for Delayed to; only "Invalid time (00:00–23:59)" remains. Next rule unchanged.
+- Behaviour spec +1 guard `s4_delayed_time_display` (no icon/placeholder, full 18:00 visible, red text, no HHMM hint). SW cache r24.
+
+## r25 — Softer Delayed-to colour
+- Delayed-to time colour changed from the error red (#C62828) to a muted brick red `--delay-ink: #B0574A`, weight 700, to sit with the teal palette. The error red stays reserved for red borders / invalid hints.
+- Behaviour guard now checks the time uses `--delay-ink` and not the error red. SW cache r25.
