@@ -118,7 +118,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="r39";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="r40";' in sw)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''

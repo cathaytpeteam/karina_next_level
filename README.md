@@ -426,3 +426,8 @@ User-approved final wording for all four Japanese SMS (Chinese/English unchanged
 ## r39 — Scenario 1 Join Chinese message
 
 - Scenario 1 → Join Pax → Chinese message replaced exactly with the user-approved wording. r38 English and all other Golden Baseline behavior remain unchanged.
+
+## r40 — Scenario 1 Join Chinese message
+
+- Scenario 1 → Join Pax → Chinese message replaced exactly with the latest user-approved wording.
+- r38 English and all other Golden Baseline behavior remain unchanged.

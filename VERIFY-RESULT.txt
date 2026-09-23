@@ -1,4 +1,5 @@
-Find Pax r39
-PASS: layout, navigation, messages, inline JS syntax, SW JS syntax, exact Scenario 1 Join Chinese copy.
+Find Pax r40
+Authorized change: Scenario 1 → Join Pax → Chinese message only, plus r40 release identity.
+PASS: verify_layout.py; verify_navigation.py; verify_messages.py; inline JS syntax; Service Worker JS syntax; exact approved Chinese copy.
 Not claimed: broad browser regression.
 Locked unchanged: r38 English, Japanese, Transit, Scenario 2/3/4, PWA lifecycle, validation, navigation, visual geometry, transitions.
