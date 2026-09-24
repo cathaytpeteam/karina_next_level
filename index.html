@@ -864,17 +864,17 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const tag=String(Number(v("mFlight")))+"/"+String(Number(v("mSec"))).padStart(3,"0");
     const zh=`您好，這裡是國泰航空桃園機場辦事處。
 
-桃園機場安檢人員在 X 光檢查期間，發現您的寄艙行李內可能載有不可寄艙的物品。因此，需要請您在場一同進行開箱檢查，並視乎結果將有關物品改為手提或棄置。您的行李目前暫時留於辦理登機手續櫃位旁安檢處，尚未能安排裝載上機。
+由於桃園機場安檢人員發現您的寄艙行李內可能含有不可寄艙的物品，須請您在場一同進行開箱檢查，並視乎結果將有關物品改為手提或棄置。因此，您的行李目前暫時留於辦理登機手續櫃位旁安檢處，尚未能安排裝載上機。如您：
 
 • 尚未進入離境禁區：請即返回 4 號辦理登機手續櫃位，與我們的職員聯絡。
 
-• 已進入離境禁區：如尚未通過離境護照檢查，請在護照檢查手續或是通過自動通關閘門之前向桃園機場職員說明情況，再返回確認您的寄艙行李。
+• 已進入離境禁區：如尚未通過離境檢查，請在辦理離境手續或通過 e-Gate 之前，向桃園機場職員說明情況，再返回確認您的行李。
 
-• 已通過離境護照檢查：請前往 CX${String(Number(v("mFlight")))} 航班登機閘口與我們的職員聯絡，我們會協助您跟進。
+• 已通過離境檢查：請前往 CX${String(Number(v("mFlight")))} 航班登機閘口等候國泰航空職員，我們會協助您跟進。
 
-請注意：如您未能返回辦理登機手續櫃位旁安檢處，而上述物品經確認不符合寄艙規定，有關物品將需要棄置。
+請注意：如您未能返回辦理登機手續櫃位旁安檢處，而上述物品經確認不符合桃園機場寄艙行李保安規定，有關物品將需要棄置，國泰航空無法代為轉交、存放或保管。
 
-為確保您的行李能在航班起飛前完成檢查並安排裝載，麻煩您盡快返回或聯絡國泰航空職員，多謝您的理解及配合。`;
+為確保您的行李能在航班起飛前完成檢查並安排裝載，請您盡快返回或聯絡國泰航空職員，多謝您的理解及配合。`;
     const en=`Hello, this is Cathay Pacific at Taoyuan Airport.
 
 Airport Security found an item in your baggage that cannot be checked in. Your baggage is currently being held at Check-in Counter 4 and cannot be sent for loading until the item is checked, removed for carry-on, or disposed of.
@@ -1040,7 +1040,7 @@ Thank you for your understanding and cooperation.`;
     const zh=`您好：這裡是國泰航空，您搭乘的台北往${dest.zh}${flight}航班，已經在最後召集中，請您儘速前往 ${gate}號登機門。您需要先通過轉機區隨身行李檢查，如果尚未通過請立即請最近機場人員協助，謝謝`;
     const en=`Hello, this is Cathay Pacific. Your flight ${flight} from Taipei to ${dest.en} is now on final call. Please proceed to Gate ${gate} as soon as possible. You need to pass through the transfer security screening for carry-on baggage. If you have not yet done so, please ask the nearest airport staff for immediate assistance. Thank you.`;
     const route=TRANSIT_SMS_ROUTE_JA[n]||{from:"",to:dest.ja};
-    const ja=`【キャセイパシフィック航空】${flight}便（${route.from}発・台北経由${route.to}行き）は${gate}番搭乗口で最終案内中です。台湾の入国審査へは進まず、到着された方向へお戻りいただき、桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急搭乗口へお越しください。現在の台北時間は${taipeiTime()}です。`;
+    const ja=`【キャセイパシフィック航空】${flight}便（${route.from}発・台北経由${route.to}行き）は${gate}番搭乗口で最終案内中です。台湾の入国審査へは進まず、到着された方向へお戻りいただき、桃園空港の乗り継ぎ保安検査場で手荷物検査を受け、至急搭乗口へお越しください。台北時間${taipeiTime()}現在。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
   }
@@ -1586,15 +1586,56 @@ Thank you for your understanding and cooperation.`;
   const startPhoneLibrary=()=>requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary));
   startPhoneLibrary();
   window.addEventListener("pageshow",e=>{if(e.persisted) resetAll();});
-})();
 
-if("serviceWorker" in navigator){
-  // Register as soon as the document has rendered enough to execute this script.
-  // This starts the update check earlier without delaying the cached app launch.
-  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"})
-    .then(reg=>reg.update().catch(()=>{}))
-    .catch(()=>{});
-}
+  // ---- phone-input idle window -------------------------------------------
+  // Typing the phone number takes ~3 s. Work that must not compete with the
+  // first paint or the keyboard opening runs here, one small task per idle
+  // slot, so keystrokes are never blocked. Every task is optional: failures are
+  // ignored and nothing here changes validation, state or what is displayed.
+  const idle=window.requestIdleCallback
+    ? fn=>requestIdleCallback(fn,{timeout:1000})
+    : fn=>setTimeout(fn,50);
+  const PHONE_WINDOW_DELAY_MS=600;
+  let libWarmTries=0;
+  const phoneWindowTasks=[
+    // First real parse inside libphonenumber builds its metadata lazily; do it
+    // now so the first keystroke's validation is not the slow one.
+    function warmPhoneLibrary(){
+      if(!phoneLibReady){ if(++libWarmTries<20) phoneWindowTasks.push(warmPhoneLibrary); return false; }
+      ["85291234567","886912345678","819012345678","85289648964"].forEach(n=>{normalizePhone(n);detectCountryEarly(n);});
+    },
+    // Intl/ICU data (Asia/Taipei time zone, region names) loads on first use.
+    function warmIntl(){
+      try{new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Taipei",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date());}catch(e){}
+      try{new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Taipei",day:"2-digit",month:"short"}).formatToParts(new Date());}catch(e){}
+      try{new Intl.DisplayNames(["en"],{type:"region"}).of("HK");}catch(e){}
+    },
+    // Decode the next screen's icons so Scenario appears without a decode hitch.
+    function decodeNextScreen(){
+      document.querySelectorAll("#s-scenario img").forEach(img=>{try{if(img.decode) img.decode().catch(()=>{});}catch(e){}});
+    },
+    // Service Worker registration and cache refresh last: network + disk I/O.
+    function startServiceWorker(){
+      if(!("serviceWorker" in navigator)) return;
+      navigator.serviceWorker.register("sw.js",{updateViaCache:"none"})
+        .then(reg=>{const w=reg.active;if(w) w.postMessage({type:"refresh"});})
+        .catch(()=>{});
+    }
+  ];
+  const runPhoneWindow=()=>idle(deadline=>{
+    let deferred=false;
+    while(phoneWindowTasks.length){
+      const task=phoneWindowTasks.shift();
+      try{deferred=task()===false;}catch(e){}
+      if(deferred||!deadline||typeof deadline.timeRemaining!=="function"||deadline.timeRemaining()<8) break;
+    }
+    // A deferred task (phone library still loading) is retried a little later.
+    if(phoneWindowTasks.length) setTimeout(runPhoneWindow,deferred?150:0);
+  });
+  const openPhoneWindow=()=>setTimeout(runPhoneWindow,PHONE_WINDOW_DELAY_MS);
+  if(document.readyState==="complete") openPhoneWindow();
+  else window.addEventListener("load",openPhoneWindow,{once:true});
+})();
 </script>
 </body>
 </html>

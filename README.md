@@ -81,6 +81,25 @@ python3 verify_release.py
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
 
+## Scenario 1 Join Chinese copy (message master 1.18)
+
+User-approved: the Scenario 1 Join Chinese message was replaced exactly with the supplied text. The flight number in the "已通過離境檢查" bullet stays dynamic (`CX{flight_number}`), and the existing `{flight}/{SEC}` suffix is retained. English, Japanese and all other copy unchanged. Locks updated: message-master 1.18, `message-copy-lock.json`, `baseline-lock.json` (`textMiss`).
+
+## Final Call Transit Japanese — Taipei time wording (message master 1.17)
+
+User-approved: the closing sentence changed only from `現在の台北時間は{HH:mm}です。` to `台北時間{HH:mm}現在。` (4 characters shorter). With the longest gate (C1R) CX530 / CX531 are now 131 characters, so every Transit flight fits 2 SMS (≤134). All other copy unchanged. Locks updated: message-master 1.17, `message-copy-lock.json`, `baseline-lock.json` (`textTransit`).
+
+## Android cold-start optimisation (phone-input idle window)
+
+Approved change: speed up the Android launch and use the ~3 s the user spends typing the phone number for background work. No layout, copy, validation, navigation or state behaviour changed.
+
+- **Static Routing (Chrome/Android):** during install the Service Worker registers `addRoutes()` rules so the exact `ASSETS` URLs (no query string) are served straight from Cache Storage **without booting the worker**. A cache miss falls back to the network. Browsers without the API (iOS Safari, older Chrome) keep the unchanged cache-first fetch handler.
+- **Background refresh moved off the launch path:** routed launches no longer hit the network during startup. The page asks the worker to refresh (`postMessage({type:"refresh"})`) from the phone-input idle window; the worker revalidates each asset with `cache:"no-cache"`, skips the disk write when the ETag is unchanged, and then runs `registration.update()`. A newly activated worker also revalidates once, so an upgrade never keeps a stale HTTP-cached copy. Without Static Routing this refresh is a no-op because the fetch handler already refreshes.
+- **Phone-input idle window:** 600 ms after `load`, one small task per `requestIdleCallback` slot: warm libphonenumber's first parse (using the existing pure `normalizePhone` / `detectCountryEarly`), warm Intl (Asia/Taipei, region names), decode the Scenario screen icons, then register the Service Worker and request the refresh.
+- The startup `reg.update()` was removed (restores the checklist rule "do not reintroduce startup `reg.update()`").
+
+Measured in headless Chromium, 6× CPU throttle, worker stopped before each launch: navigation `responseStart` ~48 ms → ~5 ms, first contentful paint ~258 ms → ~174 ms (median of 8); total validation work for typing an 11-digit number ~45 ms → ~24 ms. Real Android devices spend more time booting a worker, so the saving there is usually larger. Browser process start-up itself is outside the page's control.
+
 ## PWA / Offline
 
 Service-worker cache identity is **v1.1-r4**. The runtime asset list is explicitly declared and includes the locally bundled `libphonenumber-max.js`, so phone validation is available offline without a CDN dependency.

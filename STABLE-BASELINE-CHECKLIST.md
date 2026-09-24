@@ -17,6 +17,8 @@ A future release is not considered safe merely because the requested feature wor
 - A failed `cache.put()` must not turn a successful network response into a failed request.
 - Redirected navigation responses must not be written to the navigation cache key.
 - Do not reintroduce startup `reg.update()` or forced `controllerchange -> location.reload()`.
+- Service Worker registration and the asset refresh run only in the phone-input idle window (after `load`), never during first paint.
+- Launch assets are served through Static Routing where supported; do not remove the `addRoutes()` rules or the refresh message/activate revalidation that keeps routed assets current.
 - Home icon-to-Next geometry stays identical to r32/r34 (verified r34 gap: 67 px in the reference viewport).
 - Home divider is visually hidden.
 - Release label is only `rNN`, positioned beside the icon's right foot, and must not consume layout height.

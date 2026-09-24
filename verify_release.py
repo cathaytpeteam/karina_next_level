@@ -146,6 +146,12 @@ ck('startup has no second clear/render pass', 'window.addEventListener("load",()
 ck('service worker strategy retained while cache revision advances', 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
 
+# Android cold-start optimisation (static routes + phone-input idle window).
+ck('SW static routes for launch assets', 'e.addRoutes(staticRoutes())' in sw and 'source:"cache"' in sw and 'search:""' in sw)
+ck('SW routed assets refreshed off the launch path', 'e.data.type!=="refresh"' in sw and '{cache:"no-cache"}' in sw and 'if(HAS_STATIC_ROUTES) startRefresh();' in sw)
+ck('SW registers in phone-input idle window only', s.count('navigator.serviceWorker.register(')==1 and 'function startServiceWorker(){' in s and 'postMessage({type:"refresh"})' in s)
+ck('phone-input idle window runs after load', 'window.addEventListener("load",openPhoneWindow,{once:true});' in s and 'requestIdleCallback(fn,{timeout:1000})' in s)
+
 # Authorized Scenario 4 Flight Type change.
 ck('Scenario 4 Flight Type first', 'dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}' in s and 'go("dstatus")' in s)
 ck('Scenario 4 Flight Type copy', '<h1>Flight Type</h1>' in s and '>Tight Connection<' in s and '>Delayed<' in s and '>Suspended<' in s)
