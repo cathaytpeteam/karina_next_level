@@ -1,7 +1,0 @@
-Find Pax R1 — Android cold-start optimisation + Transit Japanese time wording
-Changed: sw.js (Static Routing + deferred refresh), index.html startup tail (phone-input idle window), verify_release.py (new startup checks), README, checklist.
-Copy (user-approved, message master 1.17): Final Call Transit Japanese closing sentence 「現在の台北時間は{HH:mm}です。」 -> 「台北時間{HH:mm}現在。」.
-Copy (user-approved, message master 1.18): Scenario 1 Join Chinese message replaced; dynamic CX flight + flight/SEC suffix retained.
-Copy (user-approved, message master 1.19): Scenario 1 Join English message replaced; dynamic CX flight retained. 1.20: English layout aligned with Chinese ("If you:" ends intro paragraph, "• " bullets). 1.21: S1 Join zh+en bullet changed to U+2981 "⦁".
-Unchanged: layout, navigation, all other message copy (incl. S1 Join Japanese), phone validation, state rules. Release label R1 unchanged.
-PASS: full verify_release.py including flow behaviour (all branches, Back/Forward, guards, state rules).
