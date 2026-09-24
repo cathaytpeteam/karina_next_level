@@ -1,10 +1,10 @@
 {
   "name": "Find Pax executable message-copy lock",
-  "message_master_version": "1.18",
+  "message_master_version": "1.21",
   "app_base": "Find-Pax-v1.0.16-Functional-Fix",
-  "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced.",
+  "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced. | v1.19 (2026-09-24, user-approved): Scenario 1 Join English message replaced. | v1.20 (2026-09-25, user-approved): Scenario 1 Join English layout aligned with Chinese. | v1.21 (2026-09-25, user-approved): Scenario 1 Join Chinese/English bullet U+2022 -> U+2981.",
   "functions": {
-    "textMiss": "88538441f11d5d1d3a241c879509abe165a3ad9212aaa91c7c2f55f8bf0472f7",
+    "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
     "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
     "textTransit": "382d10beac742752bb8486147ce66a28e1f84adace282486b8eef4ba4fa8faea",
     "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
@@ -16,5 +16,5 @@
     "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
     "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
   },
-  "message_master_sha256": "0bb8e547b0e5f6e26431d4de153069c40065c9c4a7dabca24d310c96b07e5239"
+  "message_master_sha256": "eaf4e08a3419d79d4fa5a06ec3e0ee4f95badc891eeb7cd989827cc47dd3527e"
 }

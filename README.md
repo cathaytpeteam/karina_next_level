@@ -81,6 +81,18 @@ python3 verify_release.py
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
 
+## Scenario 1 Join bullet mark (message master 1.21)
+
+User-approved: the three situation bullets in both the Chinese and English Scenario 1 Join messages changed from `•` (U+2022) to `⦁` (U+2981, slightly heavier). Wording and layout unchanged. U+2981 is a less common symbol; confirm it renders (not as a box) on the phones you support.
+
+## Scenario 1 Join English layout (message master 1.20)
+
+User-approved: the English message now uses the same layout as the Chinese one: "If you:" ends the intro paragraph (like 「如您：」), and the three situations start with "• " with one blank line between them. Wording unchanged.
+
+## Scenario 1 Join English copy (message master 1.19)
+
+User-approved: the Scenario 1 Join English message was replaced with the supplied text. The three situations have no bullet marks and are separated by one blank line, like every other block. The flight number stays dynamic (`CX{flight_number} gate`). Chinese, Japanese and all other copy unchanged. Locks updated: message-master 1.19, `message-copy-lock.json`, `baseline-lock.json` (`textMiss`).
+
 ## Scenario 1 Join Chinese copy (message master 1.18)
 
 User-approved: the Scenario 1 Join Chinese message was replaced exactly with the supplied text. The flight number in the "已通過離境檢查" bullet stays dynamic (`CX{flight_number}`), and the existing `{flight}/{SEC}` suffix is retained. English, Japanese and all other copy unchanged. Locks updated: message-master 1.18, `message-copy-lock.json`, `baseline-lock.json` (`textMiss`).
