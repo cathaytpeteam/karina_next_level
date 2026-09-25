@@ -15,11 +15,11 @@
     "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
     "protected": {
       "message_copy": {
-        "message_master_version": "1.21",
-        "message_master_sha256": "eaf4e08a3419d79d4fa5a06ec3e0ee4f95badc891eeb7cd989827cc47dd3527e",
+        "message_master_version": "1.22",
+        "message_master_sha256": "b8e17b930c0bb7d3aec3a2ede9319f18457c3c2d5e188a0131597c89d772d149",
         "functions": {
           "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
-          "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
+          "textJoin": "0c39b0ae68f5107c78e46da7acfe6f70cf734cbc92dda16c11b618ac78dd74db",
           "textTransit": "382d10beac742752bb8486147ce66a28e1f84adace282486b8eef4ba4fa8faea",
           "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
           "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
@@ -217,7 +217,7 @@
     "status": "LOCKED",
     "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC layout: Scenario 1 Join/Transit keeps the inline IATA-prefix + SEC-number field. Scenario 2 Final Call SEC page is intentionally removed for both Join and Transit. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/4). These authorized regions are locked again. Authorized Scenario 4 layout change: Flight Type is step 1/6 and uses the Passenger Type visual hierarchy; Tight Connection is the large primary choice, with Delayed and To be updated as the two smaller choices below. Authorized Scenario 4 follow-up: Flight Type remains step 1/6 but now behaves exactly like a Passenger Type choice page: its heading uses the default Passenger Type placement and it has no footer/Next. The delayed-time control is moved from Flight Type to Disrupted flight step 2/6, where it appears only for Delayed. Tight Connection and To be updated do not show that control. These authorized regions are locked again. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type third option is renamed from “To be updated” to “Suspended”; s-dstatus is locked again with this label. Authorized layout change (user-approved 2026-09-23): Scenario 4 step 2/6 title is the single line “Flight from TPE” and the TPE chip is removed; s-dflight is locked again with this structure. Authorized release-label rename: visible release identity changed from r41 to R1; no other protected s-phone structure changed.",
     "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
-    "source": "index.html",
+    "source": "index.html | v1.22 (2026-09-25, user-approved): Scenario 2 Final Call Join Chinese/English copy replaced.",
     "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
     "screen_order": [
       "s-phone",
@@ -492,12 +492,12 @@
   },
   "message_copy": {
     "name": "Find Pax executable message-copy lock",
-    "message_master_version": "1.21",
+    "message_master_version": "1.22",
     "app_base": "Find-Pax-v1.0.16-Functional-Fix",
     "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced. | v1.19 (2026-09-24, user-approved): Scenario 1 Join English message replaced. | v1.20 (2026-09-25, user-approved): Scenario 1 Join English layout aligned with Chinese. | v1.21 (2026-09-25, user-approved): Scenario 1 Join Chinese/English bullet U+2022 -> U+2981.",
     "functions": {
       "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
-      "textJoin": "ca2f4466b37901211e2b650aedf3a2adf8928d8af08b5c157d0db34107450fbd",
+      "textJoin": "0c39b0ae68f5107c78e46da7acfe6f70cf734cbc92dda16c11b618ac78dd74db",
       "textTransit": "382d10beac742752bb8486147ce66a28e1f84adace282486b8eef4ba4fa8faea",
       "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
       "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
@@ -508,6 +508,6 @@
       "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
       "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
     },
-    "message_master_sha256": "eaf4e08a3419d79d4fa5a06ec3e0ee4f95badc891eeb7cd989827cc47dd3527e"
+    "message_master_sha256": "b8e17b930c0bb7d3aec3a2ede9319f18457c3c2d5e188a0131597c89d772d149"
   }
 }

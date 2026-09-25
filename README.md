@@ -272,6 +272,10 @@ python3 verify_release.py
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
 
+### Scenario 2 Final Call Join Chinese/English copy (message master 1.22)
+
+User-approved: the Scenario 2 Final Call **Join** Chinese and English messages were replaced with the supplied text. Flight and gate stay dynamic (`{Flight}`, `{Gate}`); the English copy uses `{Gate}` twice. Japanese, Transit and all other copy unchanged. Locks updated: message-master 1.22, `locks.json` (`message_copy` and `baseline` → `textJoin`, master hash/version).
+
 ### Scenario 1 Join bullet mark (message master 1.21)
 
 User-approved: the three situation bullets in both the Chinese and English Scenario 1 Join messages changed from `•` (U+2022) to `⦁` (U+2981, slightly heavier). Wording and layout unchanged. U+2981 is a less common symbol; confirm it renders (not as a box) on the phones you support.

@@ -1028,8 +1028,8 @@ Thank you for your understanding and cooperation.`;
   }
   function textJoin(zhFirst){
     const flight=callFlightFull(), gate=callGateFull();
-    const zh=`您好：這裡是國泰航空，我們結束登機時間是起飛前 15 分鐘，您搭乘的${flight}航班，目前已經在最後召集中，請您儘速前往 ${gate}號登機門。`;
-    const en=`Hello, this is Cathay Pacific. Boarding closes 15 minutes before departure. Your flight ${flight} is now on final call. Please proceed to Gate ${gate} as soon as possible.`;
+    const zh=`最後召集：${flight} 航班，${gate} 號登機閘口。登機將於起飛前 15 分鐘截止，請您立即前往登機閘口。國泰航空敬上`;
+    const en=`FINAL CALL: Flight ${flight}, Gate ${gate}. Boarding closes 15 minutes before departure. Please proceed to Gate ${gate} immediately. Cathay Pacific`;
     const ja=`【キャセイパシフィック航空】${flight}便は最終搭乗案内中です。搭乗口は出発15分前に締め切ります。至急${gate}番搭乗口へお越しください。`;
     if(S.order==="ja") return ja;
     return zhFirst?zh+"\n\n"+en:en+"\n\n"+zh;
