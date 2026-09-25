@@ -26,7 +26,7 @@ python3 verify_release.py --previous OLD_DIR   # also test upgrading from the bu
 
 ## Latest verification result
 
-- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 793 checks; Service Worker scenarios 53 checks incl. upgrade from the originally uploaded R1 build).
+- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 793 checks; Service Worker scenarios 55 checks incl. upgrade from the originally uploaded R1 build).
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -278,6 +278,17 @@ python3 verify_release.py
 ```
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
+
+### Faster start on a slow network (R1.1, Service Worker)
+
+User-approved 2026-09-25. Staff need about 3–5 s to type the phone number; all network work now happens inside that window and finishes within it.
+
+- **Launch is cache-only in every browser.** Before, iOS Safari / older Chrome (no Static Routing) sent 7 background requests during the first 0.5 s of every launch once the 10-minute HTTP cache had expired. Now a cached file is returned with no network request at all; only a cache miss goes to the network.
+- **Revalidation runs in parallel, in the phone-input window, for all browsers.** Before, the 14 files were checked one after another plus a second `sw.js` check: with 0.5 s per round trip this ran until about 8 s. Now all 14 are checked at once and the browser's own navigation update checks `sw.js`: finished by about 2.2 s. Unchanged files still cost only a 304 and no disk write.
+- Measured (0.5 s per request, installed app): phone field ready ~0.05–0.1 s and phone library ready ~0.1 s, as before; requests during launch 7 → 0 (iOS / older Chrome) and 0 → 0 (Android Chrome); background work ends ~8 s → ~2.2 s.
+- A new version still takes effect on the next launch, as before. Screens, flows and message copy are unchanged.
+- Considered and dropped: lowering the Scenario icons' download priority on first install; the four icons are only 11 KB, and it made no measurable difference.
+- Checks updated: `verify_release.py` (cache-only launch, parallel refresh for all browsers); `verify_behavior.py --sw` now requires zero launch requests in both modes and every cached file revalidated in the phone-input window.
 
 ### Already at Gate branch, Passenger Type page, Scenario order, Final Call copy (message master 1.23)
 

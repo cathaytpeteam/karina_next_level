@@ -869,10 +869,15 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     ck(T + "1 first visit: no JavaScript errors", not errs, "; ".join(errs[:3])); await pg.close()
     # 2 controlled launch
     if noroutes: await _expire_http_cache(ctx)
+    n0 = len(srv.hits)
     pg, early, errs = await _sw_launch(ctx, srv)
     ck(T + "2 launch: page controlled by the SW", await pg.evaluate("!!navigator.serviceWorker.controller"))
-    if noroutes: ck(T + "2 launch: fetch handler still refreshes in the background", early > 0, f"{early} requests")
-    else: ck(T + "2 launch: zero network requests during launch (Static Routing)", early == 0, f"{early} requests")
+    # User-approved 2026-09-25 (slow company network): no network request during launch in either mode;
+    # every cached file is revalidated afterwards, in parallel, inside the phone-input window.
+    ck(T + "2 launch: zero network requests during launch", early == 0, f"{early} requests")
+    assets = {"/" + a[2:] for a in re.findall(r'"(\./[^"]*)"', open(os.path.join(root, "sw.js"), encoding="utf-8").read().split("const ASSETS=[")[1].split("];")[0])}
+    seen = set(srv.hits[n0:])
+    ck(T + "2 launch: every cached file revalidated in the phone-input window", assets <= seen, str(sorted(assets - seen)))
     msg = await _sw_flow(pg)
     ck(T + "2 launch: S1 Join flow reaches preview with current copy", "CX451" in msg and "451/123" in msg and "\u2981 Have passed immigration" in msg, msg[:80])
     ck(T + "2 launch: no JavaScript errors", not errs, "; ".join(errs[:3])); await pg.close()

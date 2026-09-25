@@ -285,8 +285,9 @@ _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''
 ck('homepage version label matches service worker', bool(_display_version) and f'<span class="appVersion" aria-label="App version">{_display_version}</span>' in s)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
-ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
-ck('service worker cache write failure isolated', 'await cache.put(key,r.clone()).catch(()=>{});' in sw)
+# User-approved 2026-09-25 (slow company network): launch is cache-only, no network request for a cached file.
+ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'const r=await fetch(req);' in sw and 'e.waitUntil(network' not in sw)
+ck('service worker cache write failure isolated', 'if(canCache) e.waitUntil(cache.put(key,r.clone()).catch(()=>{}));' in sw and 'await cache.put(url,r).catch(()=>{});' in sw)
 ck('service worker navigation redirect not cached', '!(req.mode==="navigate"&&r.redirected)' in sw)
 ck('service worker no forced startup update/reload', 'reg.update()' not in s and 'controllerchange' not in s and 'location.reload()' not in s)
 required={
@@ -304,12 +305,12 @@ ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in as
 ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
 ck('phone library does not block first paint', '<script src="./libphonenumber-max.js"></script>' not in s and 'requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary))' in s and 'script.async=true;' in s)
 ck('startup has no second clear/render pass', 'window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});' not in s)
-ck('service worker strategy retained while cache revision advances', 'if(cached) return cached;' in sw and 'e.waitUntil(network.then(()=>{}).catch(()=>{}));' in sw)
+ck('service worker strategy retained while cache revision advances', 'if(cached) return cached;' in sw and 'e.waitUntil(network' not in sw)
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)
 
 # Android cold-start optimisation (static routes + phone-input idle window).
 ck('SW static routes for launch assets', 'e.addRoutes(staticRoutes())' in sw and 'source:"cache"' in sw and 'search:""' in sw)
-ck('SW routed assets refreshed off the launch path', 'e.data.type!=="refresh"' in sw and '{cache:"no-cache"}' in sw and 'if(HAS_STATIC_ROUTES) startRefresh();' in sw)
+ck('SW assets refreshed off the launch path, in parallel, for all browsers', 'if(!e.data||e.data.type!=="refresh") return;' in sw and '{cache:"no-cache"}' in sw and '.then(()=>{ startRefresh(); })' in sw and 'await Promise.all(ASSETS.map(a=>refreshOne(cache,a)));' in sw and 'for(const a of ASSETS)' not in sw)
 ck('SW registers in phone-input idle window only', s.count('navigator.serviceWorker.register(')==1 and 'function startServiceWorker(){' in s and 'postMessage({type:"refresh"})' in s)
 ck('phone-input idle window runs after load', 'window.addEventListener("load",openPhoneWindow,{once:true});' in s and 'requestIdleCallback(fn,{timeout:1000})' in s)
 

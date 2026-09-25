@@ -1738,6 +1738,7 @@ Thank you for your understanding and cooperation.`;
       document.querySelectorAll("#s-scenario img").forEach(img=>{try{if(img.decode) img.decode().catch(()=>{});}catch(e){}});
     },
     // Service Worker registration and cache refresh last: network + disk I/O.
+    // The worker revalidates every cached file here (in parallel), never at launch.
     function startServiceWorker(){
       if(!("serviceWorker" in navigator)) return;
       navigator.serviceWorker.register("sw.js",{updateViaCache:"none"})
