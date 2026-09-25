@@ -242,7 +242,7 @@
     "screen_sha256": {
       "s-phone": "e6282a2c6ad381ca67e3951aba0c983ba299b36ca7c90e65a5e2f64b87be8649",
       "s-scenario": "b7f52cdf590388d27e300f5ef434cfa627a16064bba70b86a433519bf1ff0c5a",
-      "s-misstype": "0b0f438551d1b63bc7d51a2873ac1fc2558d9eb222ee32da7d49411819c1e624",
+      "s-misstype": "a7fba23b0af96c5bc6a934207063ca6768cbd672ca4c0a826c3635d3990c12ed",
       "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
       "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
       "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
@@ -253,11 +253,11 @@
       "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
       "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
       "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
-      "s-calltype": "e1464af83b0b7cb39e384a08f5575c92b3bf12e732eb893d8134d565804d4b84",
+      "s-calltype": "554d70d89b582bff251922610a0d6862fbee966113985a8f426b7b099f5c7db1",
       "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
       "s-callgate": "ef1270198eee7fe6dfac946792491d3b03b88f685ee67a9faed41d353c4effc0",
       "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
-      "s-dnew": "3e5765972438e75ae856a8f608a11e58e24f6334d33fed1d7de4b9a7e167c98b"
+      "s-dnew": "39b10b21c6f09d4cd47d3028e9f72f7720691a996a4f8b80ccce86fd822cfcf9"
     },
     "chrome_sha256": {
       "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
@@ -398,7 +398,8 @@
       "approved_text": "r41",
       "effect": "display only; no field/control/navigation change"
     },
-    "authorized_scenario4_gate_branch": "User-approved 2026-09-25. Scenario page: 3 Disrupted Passenger (goDp), 4 Wrong Pick-Up (goWpp); progress titles unchanged (Disrupted Pax / Wrong Pick-up). Disrupted Pax 1/6 'Passenger Type': left-aligned group labels 'At Gate' (Already at Gate, tinted full row) and 'Not at the Airport' (Tight Connection full row, same size, neutral colour; Delayed | Suspended). Already at Gate branch: 2/4 Flight from TPE + Flight status Delayed/Cancelled (Delayed shows Delayed to), 3/4 Protect to: CX flight | gate, Dep, Proceed to Gate ASAP | Wait for Staff, 4/4 Confirm details."
+    "authorized_scenario4_gate_branch": "User-approved 2026-09-25. Scenario page: 3 Disrupted Passenger (goDp), 4 Wrong Pick-Up (goWpp); progress titles unchanged (Disrupted Pax / Wrong Pick-up). Disrupted Pax 1/6 'Passenger Type': left-aligned group labels 'At Gate' (Already at Gate, tinted full row) and 'Not at the Airport' (Tight Connection full row, same size, neutral colour; Delayed | Suspended). Already at Gate branch: 2/4 Flight from TPE + Flight status Delayed/Cancelled (Delayed shows Delayed to), 3/4 Protect to: CX flight | gate, Dep, Proceed to Gate ASAP | Wait for Staff, 4/4 Confirm details.",
+    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Join Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row."
   },
   "navigation": {
     "schema": "find-pax-navigation-lock",

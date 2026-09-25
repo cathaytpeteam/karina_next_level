@@ -439,7 +439,7 @@ async def case_s4_gate(r, status, go, lang, new="531"):
     ck(f"[{r.name}] message is exactly the approved Already-at-Gate copy", got == want, got[:200])
     rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent)")
     want_rows = ["Send to=\U0001F1F9\U0001F1FC +" + PHONE, "Disrupted flight=CX451", "Flight status=" + ("Delayed to 21:00" if st == "delayed" else "Cancelled"),
-                 "Protect to=CX" + new + " / dep 19:55", "Go to Gate=B9", "Proceed to Gate=" + ("ASAP" if g == "asap" else "Wait for Staff")]
+                 "Protect to=CX" + new + " / dep 19:55", "Go to Gate=B9", "Proceed to Gate &=" + ("ASAP" if g == "asap" else "Wait for Staff")]
     ck(f"[{r.name}] confirm details rows", rows == want_rows, str(rows))
     await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "B9", "19:55") + (("21:00",) if st == "delayed" else ()))
 

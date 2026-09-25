@@ -110,6 +110,13 @@ h1 + .chip{margin-top:-8px}
 #s-calltype .choice.passengerPrimary .ctext,#s-misstype .choice.passengerPrimary .ctext,#s-dstatus .choice.passengerPrimary .ctext{font-size:23px}
 #s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:17px;line-height:1.2}
 #s-calltype .choice.passengerSecondary .chev,#s-misstype .choice.passengerSecondary .chev,#s-dstatus .choice.passengerSecondary .chev{font-size:26px}
+/* Final Call 1/4 and 漏查 1/3: Transit and Call Directly each on their own full-width row (same 76px height). */
+#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}
+/* Final Call 1/4 and 漏查 1/3: single-colour action icon beside the arrow (message / phone), one column across rows. */
+#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}
+#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:14px}
+#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;text-align:center;flex:none}
+@media(max-width:360px){#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:10px}}
 @media(max-width:360px){#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary,#s-dstatus .choice.passengerSecondary{padding:10px}#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:15px}}
 
 .opts{display:grid;gap:12px}
@@ -339,9 +346,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-misstype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice passengerPrimary" id="missJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="missTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="missDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="missJoin" type="button" aria-label="Join Passenger &amp; Message"><span class="ctext"><span>Join Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missTransit" type="button" aria-label="Transit Passenger &amp; Message"><span class="ctext"><span>Transit Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missDirect" type="button"><span class="ctext"><span>Call Directly</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/></svg><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -435,7 +442,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         </div>
       </div>
       <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
-      <div class="delayLabel">Proceed to Gate</div>
+      <div class="delayLabel">Proceed to Gate &amp;</div>
       <div class="opts">
         <button class="opt" id="gpAsap" type="button" aria-pressed="false">ASAP</button>
         <button class="opt" id="gpWait" type="button" aria-pressed="false">Wait for Staff</button>
@@ -446,9 +453,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-calltype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice passengerPrimary" id="callJoin" type="button"><span class="ctext"><span>Join Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="callTransit" type="button"><span class="ctext"><span>Transit Pax &amp; Message</span></span><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="callJoin" type="button" aria-label="Join Passenger &amp; Message"><span class="ctext"><span>Join Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callTransit" type="button" aria-label="Transit Passenger &amp; Message"><span class="ctext"><span>Transit Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callDirect" type="button"><span class="ctext"><span>Call Directly</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/></svg><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -1164,7 +1171,7 @@ Thank you for your understanding and cooperation.`;
     }else if(flow==="dp"&&S.status==="gate"){
       rows.push(["Disrupted flight","CX"+v("dFlight")]);
       rows.push(["Flight status",S.gateStatus==="delayed"?"Delayed to "+v("delayTime"):"Cancelled"]);
-      rows.push(["Protect to","CX"+v("gNewN")+" / dep "+v("gDepTime")],["Go to Gate",dnGateFull()],["Proceed to Gate",S.gateGo==="wait"?"Wait for Staff":"ASAP"]);
+      rows.push(["Protect to","CX"+v("gNewN")+" / dep "+v("gDepTime")],["Go to Gate",dnGateFull()],["Proceed to Gate &",S.gateGo==="wait"?"Wait for Staff":"ASAP"]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
       rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);

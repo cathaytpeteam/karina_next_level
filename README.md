@@ -79,7 +79,7 @@ A future release is not considered safe merely because the requested feature wor
 
 Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Transit.
 
-- Passenger types remain Join Pax & Message / Transit Pax & Message / Call Directly.
+- Passenger types: **Join Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Transit origin mapping remains:
@@ -96,7 +96,7 @@ Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Tr
 
 Locked flow: Passenger Type -> Flight -> Gate -> Confirm details, 4/4 for Join/Transit. **No SEC page.**
 
-- Passenger types remain Join Pax & Message / Transit Pax & Message / Call Directly.
+- Passenger types: **Join Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Gate validation remains required.
@@ -128,7 +128,7 @@ Locked flow: Flight Type -> Disrupted flight -> Connecting flight -> Flight arra
 - Step 1 is titled **Passenger Type** (user-approved 2026-09-25). Left-aligned group label **At Gate**: **Already at Gate** (tinted, full row). Group label **Not at the Airport**: **Tight Connection** (full row, same size, neutral colour like the others), then **Delayed | Suspended**.
 - Already at Gate is its own 4-step branch: Passenger Type -> Flight from TPE + Flight status (2/4) -> Protect to (3/4) -> Confirm details (4/4), progress suffix ` - Already at Gate`. Passenger Type itself shows 1/6 before a choice and when returning to it.
 - 2/4: Flight status **Delayed / Cancelled** is required; Delayed shows the same **Delayed to** time (required, HHMM); Cancelled hides and clears it.
-- 3/4 Protect to: CX (fixed) + flight number | gate (B/C + 1–9 or 1R), then **Dep** time, then **Proceed to Gate: ASAP / Wait for Staff** — all required. The CX flight must be on the TPE departure whitelist and must not equal `Flight from TPE`.
+- 3/4 Protect to: CX (fixed) + flight number | gate (B/C + 1–9 or 1R), then **Dep** time, then **Proceed to Gate &: ASAP / Wait for Staff** — all required; Confirm details shows the row as "Proceed to Gate &". The CX flight must be on the TPE departure whitelist and must not equal `Flight from TPE`.
 - Messages: eight approved zh/en copies (Delayed/Cancelled × ASAP/Wait for Staff); the new flight is offered as an option, with destination and scheduled departure.
 - Leaving the Already at Gate branch for another type clears its fields; reselecting it after Back keeps them.
 - Selecting a Flight Type immediately opens step 2/6; step 1 has no footer/Next.
@@ -278,6 +278,14 @@ python3 verify_release.py
 ```
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
+
+### Passenger Type icons and icon policy (R1.1)
+
+User-approved 2026-09-25 after trying the HTML preview.
+
+- **Scenario 1 (漏查) and Scenario 2 (Final Call) Passenger Type:** Join Passenger (big card, unchanged), Transit Passenger (76px, full width), Call Directly (same size, own row). "& Message" is replaced by a message icon, and Call Directly gets a smartphone-with-waves icon, both beside the arrow. Icons are single colour (text colour), same line weight, and line up in one column at every width.
+- **ICON POLICY (checked by `verify_release.py`):** action icons appear **only** on the Scenario 1 and 2 Passenger Type pages, because only there staff choose between calling and messaging. Scenario 4 Disrupted Passenger always sends a message, so its page and every other screen stay icon-free.
+- Scenario 4 Protect to: label "Proceed to Gate &" on the page and in Confirm details.
 
 ### Faster start on a slow network (R1.1, Service Worker)
 

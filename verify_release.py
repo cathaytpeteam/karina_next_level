@@ -174,10 +174,29 @@ def navigation_lock():
     ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("preview");}' in next_block)
     ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
     ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),' in ok_block)
-    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate<','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
+    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate &amp;<','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
     ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
+    # User-approved 2026-09-25 · Passenger Type pages of Scenario 1 (漏查) and Scenario 2 (Final Call):
+    # Join Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
+    # shown as a message icon and Call Directly as a phone icon, both beside the arrow.
+    ICON_MSG='<path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/>'
+    ICON_PHONE='<rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/>'
+    def btn(sec,bid):
+        m=re.search(r'<button[^>]*\bid="'+bid+r'".*?</button>',sec,re.S); return m.group(0) if m else ''
+    for sid,pre in (('s-misstype','miss'),('s-calltype','call')):
+        sec=section(sid)
+        j,t,d=btn(sec,pre+'Join'),btn(sec,pre+'Transit'),btn(sec,pre+'Direct')
+        ck(f'{sid} labels and order', '<span>Join Passenger</span>' in j and '<span>Transit Passenger</span>' in t and '<span>Call Directly</span>' in d and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit')<sec.index(pre+'Direct'))
+        ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Join Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
+        ck(f'{sid} action icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and ICON_PHONE in d and d.index('class="actIco"')<d.index('class="chev"') and sec.count('class="actIco"')==3)
+    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}' in s and '#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:14px}' in s)
+    # ICON POLICY (user rule 2026-09-25): action icons (message / phone) appear ONLY on the Scenario 1 and
+    # Scenario 2 Passenger Type pages, because only there staff choose between calling and messaging.
+    # Scenario 4 Disrupted Passenger always sends a message, so its Passenger Type page (and every other
+    # screen) must stay icon-free. Do not add actIco / inline SVG icons anywhere else.
+    ck('ICON POLICY: action icons only on Scenario 1/2 Passenger Type', s.count('class="actIco"')==6 and all('<svg' not in section(x) for x in ('s-dstatus','s-scenario','s-dflight','s-dnew','s-dtransfer','s-darrange','s-darrive')))
     # User-approved 2026-09-25: Scenario page order 3 Disrupted Passenger, 4 Wrong Pick-Up (progress titles unchanged).
     ck('Scenario page order and labels', s.index('id="goDp"') < s.index('id="goWpp"') and '<span class="num">3</span><span>Disrupted Passenger</span>' in s and '<span class="num">4</span><span>Wrong Pick-Up</span>' in s and 'dp:{name:"Disrupted Pax"' in s and 'wpp:{name:"Wrong Pick-up"' in s)
     return checks
