@@ -19,6 +19,7 @@
   "dtransfer",
   "darrange",
   "darrive",
+  "dnew",
   "preview"
  ],
  "state_controls": {
@@ -30,6 +31,14 @@
    "ordZh",
    "ordEn",
    "ordJa"
+  ],
+  "dnew": [
+   "gpAsap",
+   "gpWait"
+  ],
+  "dflight": [
+   "gsDelayed",
+   "gsCancelled"
   ]
  },
  "toggles": {
@@ -42,6 +51,14 @@
    "ordEn",
    "ordJa",
    "msgToggle"
+  ],
+  "dnew": [
+   "gpAsap",
+   "gpWait"
+  ],
+  "dflight": [
+   "gsDelayed",
+   "gsCancelled"
   ]
  },
  "preview_languages": {
@@ -78,6 +95,10 @@
    "ordEn"
   ],
   "Disrupted Pax - 6/6 - Flight Suspended": [
+   "ordZh",
+   "ordEn"
+  ],
+  "Disrupted Pax - 4/4 - Already at Gate": [
    "ordZh",
    "ordEn"
   ]
@@ -585,6 +606,53 @@
    "to_title": "Disrupted Pax - 6/6 - Flight Suspended"
   },
   {
+   "from": "dstatus",
+   "from_title": "Disrupted Pax - 1/6",
+   "trigger": "stGate",
+   "to": "dflight",
+   "to_title": "Disrupted Pax - 2/4 - Already at Gate"
+  },
+  {
+   "from": "dflight",
+   "from_title": "Disrupted Pax - 2/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "dnew",
+   "to_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_state": [
+    "gsDelayed"
+   ]
+  },
+  {
+   "from": "dflight",
+   "from_title": "Disrupted Pax - 2/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "dnew",
+   "to_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_state": [
+    "gsCancelled"
+   ]
+  },
+  {
+   "from": "dnew",
+   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "preview",
+   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_state": [
+    "gpAsap"
+   ]
+  },
+  {
+   "from": "dnew",
+   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "preview",
+   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_state": [
+    "gpWait"
+   ]
+  },
+  {
    "from": "preview",
    "from_title": "Disrupted Pax - 6/6 - Flight Suspended",
    "trigger": "cta",
@@ -597,6 +665,26 @@
   {
    "from": "preview",
    "from_title": "Disrupted Pax - 6/6 - Flight Suspended",
+   "trigger": "cta",
+   "to": "external:whatsapp",
+   "to_title": "",
+   "from_state": [
+    "ordEn"
+   ]
+  },
+  {
+   "from": "preview",
+   "from_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "external:whatsapp",
+   "to_title": "",
+   "from_state": [
+    "ordZh"
+   ]
+  },
+  {
+   "from": "preview",
+   "from_title": "Disrupted Pax - 4/4 - Already at Gate",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -635,7 +723,13 @@
   "s4_delayed_time_display",
   "layout_does_not_jump",
   "s4_protect_fields_side_by_side",
-  "s2_transit_ja_all_flights"
+  "s2_transit_ja_all_flights",
+  "s4_gate_status_required",
+  "s4_gate_delayed_requires_time",
+  "s4_gate_protect_rules",
+  "s4_gate_requires_valid_gate",
+  "s4_gate_dep_and_proceed_required",
+  "s4_gate_fields_side_by_side"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",
@@ -645,6 +739,8 @@
   "s4_same_flight_type_keeps_delay_time",
   "enter_key_advances",
   "back_preserves_inputs",
-  "scenario_reentry_starts_clean"
+  "scenario_reentry_starts_clean",
+  "s4_leaving_gate_branch_clears_fields",
+  "s4_same_gate_branch_keeps_fields"
  ]
 }

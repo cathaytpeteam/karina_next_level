@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1
+# Find Pax v1.1 R1.1
 
 ## Files
 
@@ -26,7 +26,7 @@ python3 verify_release.py --previous OLD_DIR   # also test upgrading from the bu
 
 ## Latest verification result
 
-- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 656 checks; Service Worker scenarios 53 checks incl. upgrade from the originally uploaded R1 build).
+- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 793 checks; Service Worker scenarios 53 checks incl. upgrade from the originally uploaded R1 build).
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -106,9 +106,11 @@ Locked flow: Passenger Type -> Flight -> Gate -> Confirm details, 4/4 for Join/T
   - CX564 -> KIX
   - CX530 -> NGO
   - CX451 / CX565 / CX531 -> HKG
-- Chinese/English/Japanese behavior remains locked.
+- Join and Transit Chinese/English copy (message master 1.23): 「最後召集：乘搭 {Flight}航班前往 {目的地} 的旅客…」; Transit adds the transfer security sentence. The destination comes from the flight (Japan flights by table, every other TPE departure Hong Kong). Japanese copy unchanged.
 - Japanese uses native SMS; only Transit Japanese includes Taipei time.
 - Call Directly remains WhatsApp call-only/no message.
+
+The Scenario page lists **1 漏查, 2 Final Call, 3 Disrupted Passenger, 4 Wrong Pick-Up** (user-approved 2026-09-25). Only the button order and button names changed; the progress titles stay `Disrupted Pax - …` and `Wrong Pick-up - …`. The "Scenario 3 / 4" numbering below refers to the internal scenario ids, not the button order.
 
 ### 6. Scenario 3 — Wrong Pick-up
 
@@ -123,7 +125,12 @@ Locked flow: Arrival Flight -> Bag 1 -> Bag 2 -> Confirm details, 4/4.
 
 Locked flow: Flight Type -> Disrupted flight -> Connecting flight -> Flight arrangement -> Arrival time -> Confirm details, 6/6.
 
-- Flight Type options remain Tight Connection / Delayed / Suspended.
+- Step 1 is titled **Passenger Type** (user-approved 2026-09-25). Left-aligned group label **At Gate**: **Already at Gate** (tinted, full row). Group label **Not at the Airport**: **Tight Connection** (full row, same size, neutral colour like the others), then **Delayed | Suspended**.
+- Already at Gate is its own 4-step branch: Passenger Type -> Flight from TPE + Flight status (2/4) -> Protect to (3/4) -> Confirm details (4/4), progress suffix ` - Already at Gate`. Passenger Type itself shows 1/6 before a choice and when returning to it.
+- 2/4: Flight status **Delayed / Cancelled** is required; Delayed shows the same **Delayed to** time (required, HHMM); Cancelled hides and clears it.
+- 3/4 Protect to: CX (fixed) + flight number | gate (B/C + 1–9 or 1R), then **Dep** time, then **Proceed to Gate: ASAP / Wait for Staff** — all required. The CX flight must be on the TPE departure whitelist and must not equal `Flight from TPE`.
+- Messages: eight approved zh/en copies (Delayed/Cancelled × ASAP/Wait for Staff); the new flight is offered as an option, with destination and scheduled departure.
+- Leaving the Already at Gate branch for another type clears its fields; reselecting it after Back keeps them.
 - Selecting a Flight Type immediately opens step 2/6; step 1 has no footer/Next.
 - Delayed time exists only on step 2 and is required/validated only for Delayed.
 - Tight Connection and Suspended do not depend on delayed time.
@@ -271,6 +278,16 @@ python3 verify_release.py
 ```
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
+
+### Already at Gate branch, Passenger Type page, Scenario order, Final Call copy (message master 1.23)
+
+All user-approved on 2026-09-25 after trying an HTML preview. App release **R1 → R1.1** (homepage label and Service Worker `CACHE_REV`), so installed copies refresh their cache.
+
+- **Scenario page:** buttons reordered and renamed to 3 Disrupted Passenger / 4 Wrong Pick-Up. Progress titles unchanged.
+- **Disrupted Pax 1/6:** title Passenger Type; group labels At Gate / Not at the Airport; new **Already at Gate** choice first; Tight Connection full row in the neutral colour.
+- **Already at Gate branch (4 steps):** Flight from TPE + Flight status (Delayed with Delayed to / Cancelled) -> Protect to (CX flight | gate, Dep, Proceed to Gate ASAP / Wait for Staff) -> Confirm details. Eight zh/en copies `{zh,en}.gate.{delayed,cancelled}.{asap,wait}`.
+- **Final Call Join and Transit:** Chinese replaced with the user-supplied text, English rewritten to match (no "instead"), destination now also shown for Join. Japanese unchanged.
+- Locks updated: message-master 1.23; `locks.json` (`textJoin`, `textTransit`, `textDp`, master hash/version; layout `s-scenario`, `s-dstatus`, `s-dflight`, new `s-dnew`; navigation flow `dpgate`); `flow-behavior-spec.json` (new screen, 9 edges, 6 guards, 2 state rules); `verify_release.py` / `verify_behavior.py` (new checks; flows sharing a name are matched by step count).
 
 ### Scenario 2 Final Call Join Chinese/English copy (message master 1.22)
 

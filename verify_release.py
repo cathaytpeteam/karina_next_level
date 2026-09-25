@@ -125,8 +125,12 @@ def navigation_lock():
     dflight=section('s-dflight')
     ck('Scenario 4 Flight Type is step 1/6', 'dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}' in s)
     ck('Scenario 4 entry routes to Flight Type', '$("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
-    ck('Scenario 4 Flight Type labels', '<h1>Flight Type</h1>' in dstatus and '>Tight Connection<' in dstatus and '>Delayed<' in dstatus and '>Suspended<' in dstatus)
-    ck('Scenario 4 Flight Type hierarchy', 'choice passengerPrimary' in dstatus and 'id="stPossible"' in dstatus and dstatus.count('choice passengerSecondary')==2 and 'id="stDelayed"' in dstatus and 'id="stUnknown"' in dstatus)
+    ck('Scenario 4 Flight Type labels', '<h1>Passenger Type</h1>' in dstatus and '>Already at Gate<' in dstatus and '>Tight Connection<' in dstatus and '>Delayed<' in dstatus and '>Suspended<' in dstatus)
+    # User-approved 2026-09-25: Passenger Type page. "At Gate" group: Already at Gate (tinted, full row);
+    # "Not at the Airport" group: Tight Connection (full row, same size, neutral colour), then Delayed | Suspended.
+    ck('Scenario 4 Flight Type hierarchy', dstatus.count('choice passengerPrimary')==2 and dstatus.count('choice passengerSecondary')==2 and all(f'id="{i}"' in dstatus for i in ('stGate','stPossible','stDelayed','stUnknown')) and [dstatus.index(f'id="{i}"') for i in ('stGate','stPossible','stDelayed','stUnknown')]==sorted(dstatus.index(f'id="{i}"') for i in ('stGate','stPossible','stDelayed','stUnknown')))
+    # User-approved 2026-09-25: 4th choice "Pax already at Gate" on its own full-width row, last.
+    ck('Scenario 4 Already at Gate choice', '<div class="choiceGroup">At Gate</div>' in dstatus and '<div class="choiceGroup">Not at the Airport</div>' in dstatus and dstatus.index('>At Gate<') < dstatus.index('id="stGate"') < dstatus.index('>Not at the Airport<') < dstatus.index('id="stPossible"') and '#s-dstatus #stPossible.passengerPrimary{background:var(--surface)}' in s and '#s-dstatus .choiceGroup::after' in s and '#s-dstatus .choiceGroup::before' not in s)
     ck('Scenario 4 Flight Type has no delayed-time field', 'delayWrap' not in dstatus and 'delayTime' not in dstatus and '<input' not in dstatus)
     ck('Scenario 4 delayed time merged into step 2/6', all(x in dflight for x in ['id="dFlight"','id="delayWrap"','Delayed to','id="delayTime"']) and dflight.index('id="dFlight"') < dflight.index('id="delayWrap"') < dflight.index('id="delayTime"'))
 
@@ -146,7 +150,7 @@ def navigation_lock():
     sel_body=func_body('selectDpFlightType')
     ck('Scenario 4 selection helper clears stale delay on branch change', 'S.status&&S.status!==nextStatus' in sel_body and '$("delayTime").value="";' in sel_body)
     ck('Scenario 4 selection helper immediately opens step 2/6', 'S.status=nextStatus;' in sel_body and 'go("dflight");' in sel_body)
-    for bid,status in [('stPossible','possible'),('stDelayed','delayed'),('stUnknown','unknown')]:
+    for bid,status in [('stPossible','possible'),('stDelayed','delayed'),('stUnknown','unknown'),('stGate','gate')]:
         ck(f'Scenario 4 {bid} direct navigation', f'$("{bid}").onclick=()=>selectDpFlightType("{status}");' in s)
 
     # Validation ownership: only Delayed requires delayed time, and only on step 2/6.
@@ -155,14 +159,27 @@ def navigation_lock():
     ck('Scenario 4 Flight Type selection itself is always continuable', 'dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown"' in ok_block and 'delayTime' not in re.search(r'dstatus:\(\)=>[^,\n]*',ok_block).group(0))
     ck('Scenario 4 Delayed time validates on step 2/6 only', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in ok_block)
     ck('Scenario 4 Suspended has no delay-time dependency', 'S.status!=="delayed"||timeOk("delayTime")' in ok_block)
-    ck('Scenario 4 delayed hint belongs to step 2/6', 'dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":(S.status==="delayed"&&timeState("delayTime")==="bad"?"Invalid time (00:00–23:59)":""))' in hint_block and 'dstatus:()=>""' in hint_block)
-    ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
+    ck('Scenario 4 delayed hint belongs to step 2/6', 'dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":((S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"))&&timeState("delayTime")==="bad"?"Invalid time (00:00–23:59)":""))' in hint_block and 'dstatus:()=>""' in hint_block)
+    ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!(S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"));' in s and 'if(cur==="dstatus")' in s)
 
 
     ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;' in s and 'const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
     ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and 'bad("dFlight",listBad("dFlight",v("dFlight"),TPE_DEPARTURE_FLIGHTS));' in s)  # r23: red once the value can no longer match or the field is left (runtime-tested in verify_behavior.py)
     ck('Scenario 4 Delayed valid 3-digit flight auto-focuses Delayed to', 'id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)' in s and '$("delayTime").focus()' in s)
-    ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime"].forEach' in s and 'fmtTime(this);render();' in s)
+    ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime","gDepTime"].forEach' in s and 'fmtTime(this);render();' in s)
+
+    # Scenario 4 "Pax already at Gate" branch (user-approved 2026-09-25).
+    dnew=section('s-dnew')
+    ck('Scenario 4 gate branch flow', 'dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","preview"]}' in s and 'flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]' in s)
+    ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("preview");}' in next_block)
+    ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
+    ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),' in ok_block)
+    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate<','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
+    ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
+    ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
+    ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
+    # User-approved 2026-09-25: Scenario page order 3 Disrupted Passenger, 4 Wrong Pick-Up (progress titles unchanged).
+    ck('Scenario page order and labels', s.index('id="goDp"') < s.index('id="goWpp"') and '<span class="num">3</span><span>Disrupted Passenger</span>' in s and '<span class="num">4</span><span>Wrong Pick-Up</span>' in s and 'dp:{name:"Disrupted Pax"' in s and 'wpp:{name:"Wrong Pick-up"' in s)
     return checks
 
 bad=False
@@ -262,7 +279,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.1";' in sw)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''
@@ -298,9 +315,9 @@ ck('phone-input idle window runs after load', 'window.addEventListener("load",op
 
 # Authorized Scenario 4 Flight Type change.
 ck('Scenario 4 Flight Type first', 'dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}' in s and 'go("dstatus")' in s)
-ck('Scenario 4 Flight Type copy', '<h1>Flight Type</h1>' in s and '>Tight Connection<' in s and '>Delayed<' in s and '>Suspended<' in s)
+ck('Scenario 4 Flight Type copy', '<h1>Passenger Type</h1>' in s and '>Already at Gate<' in s and '>Tight Connection<' in s and '>Delayed<' in s and '>Suspended<' in s)
 ck('Scenario 4 Flight Type behaves like Passenger Type', 'cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s and 'cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s)
-ck('Scenario 4 Delayed time lives on step 2 only', 'id="s-dflight"' in s and 'id="delayWrap"' in s and 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=S.status!=="delayed";' in s and 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in s)
+ck('Scenario 4 Delayed time lives on step 2 only', 'id="s-dflight"' in s and 'id="delayWrap"' in s and 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!(S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"));' in s and 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in s)
 
 # Layout lock: approved screen structure/field placement may change only with explicit user approval.
 _lay_ok,_lay_msgs=layout_lock()
