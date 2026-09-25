@@ -86,15 +86,22 @@ h1 + .chip{margin-top:-8px}
 /* Scenario — original ChatGPT mixed Chinese/English labels, icons and colours */
 #s-scenario{padding-top:72px}
 #s-scenario .choices{gap:12px;margin-top:0}
-#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 16px;display:grid;grid-template-columns:56px 40px minmax(0,1fr) 24px;gap:0;color:#005D63;background:#EEF3F7}
+#s-scenario .choice{min-height:86px;border-radius:16px;padding:0 16px;display:grid;grid-template-columns:56px 42px minmax(0,1fr) 24px;column-gap:4px;color:#005D63;background:#EEF3F7}
 #s-scenario .choice:first-child{background:#DDF2F2}
 #s-scenario .ico{width:52px;height:52px;border-radius:0;background:transparent;color:#005D63}
 #s-scenario .ico svg{width:44px;height:44px;fill:currentColor;stroke:none}
 #s-scenario .ico img{width:52px;height:52px;object-fit:contain}
-#s-scenario .ctext{display:contents;font-family:var(--font);font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.01em;color:#005D63}
-#s-scenario .ctext .num{font-size:30px;align-self:center;justify-self:center}
+#s-scenario .ctext{display:contents;font-family:var(--font);font-size:22px;line-height:1.12;font-weight:700;letter-spacing:0;color:#005D63}
+#s-scenario .ctext .num{font-size:32px;line-height:1;align-self:center;justify-self:end;font-weight:800}
 #s-scenario .ctext .num + span{align-self:center;justify-self:start;white-space:normal;overflow-wrap:anywhere}
 #s-scenario .chev{font-family:var(--font);font-size:44px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
+@media(max-width:480px){
+  #s-scenario .choice{grid-template-columns:42px 34px minmax(0,1fr) 18px;column-gap:4px;padding:0 14px}
+  #s-scenario .ico,#s-scenario .ico img{width:40px;height:40px}
+  #s-scenario .ctext{font-size:clamp(18px,4.9vw,21px)}
+  #s-scenario .ctext .num{font-size:32px}
+  #s-scenario .ctext .num + span{white-space:nowrap;overflow-wrap:normal}
+}
 
 .choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:16px;background:var(--surface);text-align:left;cursor:pointer}
 .choice:active{background:var(--brand-soft)}
@@ -165,13 +172,13 @@ h1 + .chip{margin-top:-8px}
 /* Narrow phones (~360px): shrink the scenario row so long labels stay on one line. */
 @media(max-width:380px){
   main{padding-left:14px;padding-right:14px}
-  #s-scenario .choice{padding:0 14px;grid-template-columns:46px 36px minmax(0,1fr) 24px}
+  #s-scenario .choice{padding:0 12px;grid-template-columns:40px 32px minmax(0,1fr) 18px}
   #s-scenario .ico{width:38px;height:38px}
   #s-scenario .ico svg{width:40px;height:40px}
   #s-scenario .ico img{width:38px;height:38px}
   #s-scenario .ctext{font-size:19px}
-  #s-scenario .ctext .num{font-size:26px}
-  #s-scenario .chev{font-size:38px}
+  #s-scenario .ctext .num{font-size:30px}
+  #s-scenario .chev{font-size:36px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
@@ -229,6 +236,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dstatus #stPossible.passengerPrimary{background:var(--surface)}
 #s-dstatus #stPossible.passengerPrimary:active{background:var(--brand-soft)}
 #s-dflight #gStatusWrap[hidden]{display:none}
+#s-dflight #delayWrap.gateDelay{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-7px);margin-top:0;transition:grid-template-rows .23s ease,opacity .23s ease,transform .23s ease,margin-top .23s ease}
+#s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr;opacity:1;transform:translateY(0);margin-top:10px}
+#s-dflight #delayWrap.gateDelay .delayInner{min-height:0;overflow:hidden}
+#s-dflight #delayWrap[hidden]{display:none}
 #s-dflight #gStatusWrap .opts{grid-template-columns:1fr 1fr;gap:10px}
 #s-dflight #gStatusWrap .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
 #s-dnew h1{text-align:center;font-size:24px;line-height:1.15;margin:10px 0 16px}
@@ -243,6 +254,13 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dnew #gDepField{margin-top:10px;min-height:64px;gap:6px;padding:0 6px}
 #s-dnew #gDepField .code{width:auto;min-width:56px;height:48px;margin:0;padding:0 12px;font-size:22px;text-transform:none}
 #s-dnew #gDepField input{flex:1;height:60px;min-width:0;padding:0 4px;font-size:26px;text-align:left}
+#s-dnew .gateDestinations{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+#s-dnew .gateDestination{min-width:0;min-height:60px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);font-size:24px;font-weight:800;color:var(--brand-strong);cursor:pointer}
+#s-dnew .gateDestination.original{color:var(--delay-ink)}
+#s-dnew .gateDestination[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+#s-dnew .gateAmp{text-align:center;font-size:24px;font-weight:800;color:var(--brand-strong);margin:6px 0}
+#s-dnew .gateActions{grid-template-columns:1fr 1fr;gap:10px}
+#s-dnew .gateActions .opt{min-height:60px;padding:8px;font-size:19px}
 #gGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:24px;font-weight:800;text-align:center;text-align-last:center;padding:0 6px;cursor:pointer}
 #gGateField input{text-transform:uppercase}
 /* Scenario 4 Disrupted flight 2/6 — Delayed to (r15 fixed the clipped "8:00"; r24 restyle). */
@@ -393,8 +411,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         </div>
       </div>
       <div class="optExtra" id="delayWrap" hidden>
-        <div class="delayLabel">Delayed to</div>
-        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div>
+        <div class="delayInner"><div class="delayLabel">Delayed to</div>
+        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div></div>
       </div>
     </section>
     <section class="screen" id="s-dtransfer" hidden>
@@ -442,11 +460,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
         </div>
       </div>
       <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
-      <div class="delayLabel">Proceed to Gate &amp;</div>
-      <div class="opts">
-        <button class="opt" id="gpAsap" type="button" aria-pressed="false">ASAP</button>
-        <button class="opt" id="gpWait" type="button" aria-pressed="false">Wait for Staff</button>
-      </div>
+      <div class="delayLabel">Proceed to Gate</div>
+      <div class="gateDestinations" role="group" aria-label="Gate destinations"><button type="button" class="gateDestination original" id="gOriginalFlight" aria-pressed="false">CX</button><button type="button" class="gateDestination" id="gProtectedFlight" aria-pressed="false">CX</button></div>
+      <div class="gateAmp">&amp;</div>
+      <div class="opts gateActions"><button class="opt" id="gpAsap" type="button" aria-pressed="false">ASAP</button><button class="opt" id="gpWait" type="button" aria-pressed="false">Wait for Staff</button></div>
     </section>
 
     <!-- Call Passenger type -->
@@ -673,7 +690,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
 
   // ---- state -------------------------------------------------------------
-  const S={phone:"",country:"",status:"",arrange:"",gateStatus:"",gateGo:"",order:"zh",orderSet:false,callNoMessage:false,callMode:"",missMode:""};
+  const S={phone:"",country:"",status:"",arrange:"",gateStatus:"",gateGo:"",gateTarget:"",order:"zh",orderSet:false,callNoMessage:false,callMode:"",missMode:""};
   // Nothing is persisted between launches; drop the old saved language choice if it exists.
   try{localStorage.removeItem("fp-order");}catch(e){}
 
@@ -870,7 +887,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),
     dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))&&!tpeDepartureBlocked(v("tA"),v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown"||S.status==="gate",
-    dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateGo==="asap"||S.gateGo==="wait"),
+    dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))&&timeOk("altTime")),
     darrive:()=>timeOk("arriveTime"),
     callflight:()=>{
@@ -1046,8 +1063,20 @@ Thank you for your cooperation.`;
       const dest=tpeDestination(n);
       const zhWhy=S.gateStatus==="delayed"?`由於您乘搭的 ${f} 航班現已延誤至 ${gd}`:`由於您乘搭的 ${f} 航班已取消`;
       const enWhy=S.gateStatus==="delayed"?`Your flight ${f} is now delayed to ${gd}.`:`Your flight ${f} has been cancelled.`;
-      const zhGo=S.gateGo==="wait"?`如欲乘搭此航班，請前往 ${gate} 號登機閘口等候國泰航空職員，我們會協助您辦理。`:`如欲乘搭此航班，請盡快前往 ${gate} 號登機閘口與國泰航空職員聯絡。`;
-      const enGo=S.gateGo==="wait"?`If you would like to take this flight, please go to Gate ${gate} and wait for our staff, who will assist you.`:`If you would like to take this flight, please proceed to Gate ${gate} as soon as possible and contact our staff.`;
+      const zhGo=S.gateTarget==="original"
+        ?(S.gateGo==="wait"
+          ?`請前往 ${f} 航班登機閘口等候國泰航空職員，我們會協助您辦理。`
+          :`請盡快前往 ${f} 航班登機閘口與國泰航空職員聯絡。`)
+        :(S.gateGo==="wait"
+          ?`如欲乘搭此航班，請前往 ${nf} 航班 ${gate} 號登機閘口等候國泰航空職員，我們會協助您辦理。`
+          :`如欲乘搭此航班，請盡快前往 ${nf} 航班 ${gate} 號登機閘口與國泰航空職員聯絡。`);
+      const enGo=S.gateTarget==="original"
+        ?(S.gateGo==="wait"
+          ?`Please go to the gate for flight ${f} and wait for our staff, who will assist you.`
+          :`Please proceed to the gate for flight ${f} as soon as possible and contact our staff.`)
+        :(S.gateGo==="wait"
+          ?`If you would like to take this flight, please go to Gate ${gate} for flight ${nf} and wait for our staff, who will assist you.`
+          :`If you would like to take this flight, please proceed to Gate ${gate} for flight ${nf} as soon as possible and contact our staff.`);
       const zh=`您好：這裡是國泰航空桃園機場辦事處。
 ${zhWhy}，我們可為您安排改搭 ${nf} 航班前往${dest.zh}（預定起飛時間為 ${dep}）。${zhGo}
 多謝您的理解及配合。`;
@@ -1170,8 +1199,7 @@ Thank you for your understanding and cooperation.`;
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),null,"unclaimed"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"&&S.status==="gate"){
       rows.push(["Disrupted flight","CX"+v("dFlight")]);
-      rows.push(["Flight status",S.gateStatus==="delayed"?"Delayed to "+v("delayTime"):"Cancelled"]);
-      rows.push(["Protect to","CX"+v("gNewN")+" / dep "+v("gDepTime")],["Go to Gate",dnGateFull()],["Proceed to Gate &",S.gateGo==="wait"?"Wait for Staff":"ASAP"]);
+      rows.push(["Protect to","CX"+v("gNewN")+" / dep "+v("gDepTime")],["Proceed to Gate",S.gateTarget==="original"?"CX"+v("dFlight"):"CX"+v("gNewN")+" / "+dnGateFull()]);
     }else if(flow==="dp"){
       rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
       rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);
@@ -1190,7 +1218,7 @@ Thank you for your understanding and cooperation.`;
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
       v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
       v("callFlight"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode,
-      S.gateStatus,S.gateGo,v("gNewN"),v("gGateZone"),v("gGate"),v("gDepTime")
+      S.gateStatus,S.gateGo,S.gateTarget,v("gNewN"),v("gGateZone"),v("gGate"),v("gDepTime")
     ].join("\u241F");
   }
   function clearDrafts(){ delete edits.zh; delete edits.en; delete edits.ja; msgSig=null; }
@@ -1336,7 +1364,7 @@ Thank you for your understanding and cooperation.`;
   function clearDpGateFields(){
     ["gNewN","gGate","gDepTime"].forEach(id=>$(id).value="");
     $("gGateZone").value="B";
-    S.gateStatus="";S.gateGo="";
+    S.gateStatus="";S.gateGo="";S.gateTarget="";
   }
   function clearDpCase(){
     ["dFlight","tN","delayTime","altN","altTime","arriveTime"].forEach(id=>$(id).value="");
@@ -1441,9 +1469,16 @@ Thank you for your understanding and cooperation.`;
       $("gStatusWrap").hidden=S.status!=="gate";
       $("gsDelayed").setAttribute("aria-pressed",S.status==="gate"&&S.gateStatus==="delayed");
       $("gsCancelled").setAttribute("aria-pressed",S.status==="gate"&&S.gateStatus==="cancelled");
-      $("delayWrap").hidden=!(S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"));
+      const gateDelay=S.status==="gate", delayOpen=gateDelay&&S.gateStatus==="delayed";
+      $("delayWrap").classList.toggle("gateDelay",gateDelay);
+      $("delayWrap").hidden=!gateDelay&&S.status!=="delayed";
+      $("delayWrap").classList.toggle("gateDelayOpen",delayOpen);
     }
     if(cur==="dnew"){
+      $("gOriginalFlight").textContent="CX"+(normalizeFlight(v("dFlight"))||"—");
+      $("gProtectedFlight").textContent="CX"+(normalizeFlight(v("gNewN"))||"—");
+      $("gOriginalFlight").setAttribute("aria-pressed",S.gateTarget==="original");
+      $("gProtectedFlight").setAttribute("aria-pressed",S.gateTarget==="new");
       $("gpAsap").setAttribute("aria-pressed",S.gateGo==="asap");
       $("gpWait").setAttribute("aria-pressed",S.gateGo==="wait");
     }
@@ -1589,6 +1624,8 @@ Thank you for your understanding and cooperation.`;
   $("stDelayed").onclick=()=>selectDpFlightType("delayed");
   $("stGate").onclick=()=>selectDpFlightType("gate");
   $("gsDelayed").onclick=()=>{S.gateStatus="delayed";render();try{$("delayTime").focus();}catch(e){}};
+  $("gOriginalFlight").onclick=()=>{S.gateTarget="original";render();};
+  $("gProtectedFlight").onclick=()=>{S.gateTarget="new";render();};
   $("gpAsap").onclick=()=>{S.gateGo="asap";render();};
   $("gpWait").onclick=()=>{S.gateGo="wait";render();};
   $("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};
