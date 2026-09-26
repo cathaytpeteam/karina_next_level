@@ -162,7 +162,7 @@ def navigation_lock():
     ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!gateDelay&&S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
 
 
-    ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;' in s and 'const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
+    ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=new Set([...GENERAL_CX_FLIGHTS].filter(n=>!TRANSIT_FLIGHTS.has(n)));' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
     ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and 'bad("dFlight",listBad("dFlight",v("dFlight"),S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS));' in s)
     ck('Scenario 4 Delayed valid 3-digit flight auto-focuses Delayed to', 'id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)' in s and '$("delayTime").focus()' in s)
     ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime","gDepTime"].forEach' in s and 'fmtTime(this);render();' in s)
@@ -235,6 +235,8 @@ ck('Scenario 1 SEC origin UI', all(x in s for x in ['mSecPrefix','mSec']) and 'm
 ck('Scenario 2 SEC removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
+ck('Scenario 4 Protect-to rejects transit CX flights such as CX450', 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s and 'tpeDepartureCxOk(raw)&&!sameProtectedCxFlight' in s)
+ck('Scenario home uses flex layout for legacy Android compatibility', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:14px;align-items:center' in s)
 ck('Destination IATA preserved', all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
 ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}' in s)
 ck('SEC prefix TPE/Transit mapping', all(x in s for x in ['"450":{join:"TPE",transit:"HKG"}','"451":{join:"TPE",transit:"NRT"}','"531":{join:"TPE",transit:"NGO"}','"565":{join:"TPE",transit:"KIX"}']))

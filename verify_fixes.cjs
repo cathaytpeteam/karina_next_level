@@ -53,8 +53,8 @@ for(const status of ['possible','delayed','unknown']){
 }
 S.status='gate'; S.gateStatus='cancelled';
 for(const flight of ['450','530','564']){
- fields.dFlight=flight; assert.equal(OK.dflight(),true);
+ fields.dFlight=flight; assert.equal(OK.dflight(),false);
  fields.callFlight=flight; assert.equal(OK.callflight(),true);
 }
 `,context);
-console.log('PASS R1.2.1: stale recipient, invalid Forward, send guard, HKG route validation, and unaffected Gate/Final Call flights');
+console.log('PASS R1.2.1: stale recipient, invalid Forward, send guard, HKG route validation, and Gate rejects non-TPE transit flights while Final Call remains unaffected');

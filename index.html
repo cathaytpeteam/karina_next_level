@@ -87,14 +87,14 @@ h1 + .chip{margin-top:-8px}
 /* Scenario — original ChatGPT mixed Chinese/English labels, icons and colours */
 #s-scenario{padding-top:clamp(12px,4vh,40px)}
 #s-scenario .choices{gap:10px;margin-top:0}
-#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:grid;grid-template-columns:42px minmax(0,1fr) 20px;column-gap:14px;align-items:center;color:#005D63;background:#EEF3F7}
+#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:14px;align-items:center;color:#005D63;background:#EEF3F7}
 #s-scenario .choice:first-child{background:#DDF2F2}
 #s-scenario .ico{width:42px;height:30px;display:grid;place-items:center;border-radius:0;background:transparent;color:#005D63}
 #s-scenario .ico img,#s-scenario .ico .scIco{width:42px;height:30px;object-fit:contain;display:block}
 #s-scenario .ico .scIco{fill:none;stroke:none}
-#s-scenario .ctext{align-self:center;justify-self:start;min-width:0;font-family:var(--font);font-size:21px;line-height:1.15;font-weight:700;letter-spacing:0;color:#005D63}
+#s-scenario .ctext{flex:1 1 auto;align-self:center;min-width:0;font-family:var(--font);font-size:21px;line-height:1.15;font-weight:700;letter-spacing:0;color:#005D63}
 #s-scenario .ctext span{white-space:normal;overflow-wrap:normal;text-wrap:balance}
-#s-scenario .chev{font-family:var(--font);font-size:34px;line-height:1;font-weight:400;color:#005D63;justify-self:end;transform:translateY(-2px)}
+#s-scenario .chev{flex:0 0 20px;margin-left:auto;text-align:right;font-family:var(--font);font-size:34px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
 
 .choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:16px;background:var(--surface);text-align:left;cursor:pointer}
 .choice:active{background:var(--brand-soft)}
@@ -165,7 +165,8 @@ h1 + .chip{margin-top:-8px}
 /* Narrow phones (<=380px): slightly smaller scenario rows; long labels wrap onto two lines instead of hitting the arrow. */
 @media(max-width:380px){
   main{padding-left:14px;padding-right:14px}
-  #s-scenario .choice{min-height:74px;padding:6px 10px;grid-template-columns:38px minmax(0,1fr) 16px;column-gap:12px}
+  #s-scenario .choice{min-height:74px;padding:6px 10px;gap:12px}
+  #s-scenario .chev{flex-basis:16px}
   #s-scenario .ico,#s-scenario .ico img,#s-scenario .ico .scIco{width:38px;height:27px}
   #s-scenario .ctext{font-size:19px}
   #s-scenario .chev{font-size:30px}
@@ -834,16 +835,17 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   const GENERAL_CX_FLIGHTS=new Set(["407","489","477","499","461","450","564","530","495","443","421","473","565","451","531","479","469","463","465","401","403"]);
   const TRANSIT_FLIGHTS=new Set(["450","451","530","531","564","565"]);
   const TRANSIT_ORIGIN_IATA={"450":"HKG","530":"HKG","564":"HKG","451":"NRT","531":"NGO","565":"KIX"};
-  const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;
-  const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has(String(Number(digits(raw))));
+  const TPE_DEPARTURE_FLIGHTS=new Set([...GENERAL_CX_FLIGHTS].filter(n=>!TRANSIT_FLIGHTS.has(n)));
+  const generalCxOk=raw=>GENERAL_CX_FLIGHTS.has(String(Number(digits(raw))));
+  const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has(String(Number(digits(raw))));
   const transitCxOk=raw=>TRANSIT_FLIGHTS.has(String(Number(digits(raw))));
   // r32 · Scenario 4 "Will protect to": CX alternatives must be TPE departures
   // and must not be the same CX flight the passenger is already booked on.
   const sameProtectedCxFlight=(airline,raw,originalRaw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&isFlt(originalRaw)&&normalizeFlight(raw)===normalizeFlight(originalRaw);
-  const protectFlightOk=(airline,raw,originalRaw)=>String(airline||"").toUpperCase()!=="CX"||(generalCxOk(raw)&&!sameProtectedCxFlight(airline,raw,originalRaw));
+  const protectFlightOk=(airline,raw,originalRaw)=>String(airline||"").toUpperCase()!=="CX"||(tpeDepartureCxOk(raw)&&!sameProtectedCxFlight(airline,raw,originalRaw));
   // r19 · Disrupted Pax 3/6 Connecting flight = onward flight after arriving HKG,
   // so any whitelisted CX flight departing TPE is not allowed here.
-  const tpeDepartureBlocked=(airline,raw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&generalCxOk(raw);
+  const tpeDepartureBlocked=(airline,raw)=>String(airline||"").toUpperCase()==="CX"&&isFlt(raw)&&tpeDepartureCxOk(raw);
   const transitOriginIata=raw=>TRANSIT_ORIGIN_IATA[String(Number(digits(raw)))]||"";
   const TRANSIT_DESTINATIONS={
     "450":{zh:"東京成田",en:"Tokyo Narita",ja:"東京（成田）"},
@@ -898,7 +900,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const listBad=(id,raw,set)=>filled(id)&&!set.has(String(Number(digits(raw))))&&(!typing(id)||!canStillMatch(raw,set));
     const codeBad=id=>filled(id)&&!isCarrier(v(id))&&!(typing(id)&&v(id).length<2);
     // Scenario 1 · 漏查 flight number (Join = TPE whitelist, Transit = transit list)
-    bad("mFlight",filled("mFlight")&&(!isFlt(v("mFlight"))||(S.missMode==="transit"&&listBad("mFlight",v("mFlight"),TRANSIT_FLIGHTS))||(S.missMode==="join"&&listBad("mFlight",v("mFlight"),TPE_DEPARTURE_FLIGHTS))));
+    bad("mFlight",filled("mFlight")&&(!isFlt(v("mFlight"))||(S.missMode==="transit"&&listBad("mFlight",v("mFlight"),TRANSIT_FLIGHTS))||(S.missMode==="join"&&listBad("mFlight",v("mFlight"),GENERAL_CX_FLIGHTS))));
     bad("mSec",filled("mSec")&&(!isFlt(v("mSec"))||+v("mSec")>580));
     // Scenario 3 · Wrong Pick-up flight number
     bad("wFlight",filled("wFlight")&&!isFlt(v("wFlight")));
@@ -911,7 +913,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     bad("gNewN",listBad("gNewN",v("gNewN"),TPE_DEPARTURE_FLIGHTS)||sameProtectedCxFlight("CX",v("gNewN"),v("dFlight")));
     // Scenario 2 · Final Call flight number (unchanged rule, kept here for consistency)
     const cn=callFlightNumber();
-    bad("callFlight",!!cn&&((S.callMode==="transit"&&listBad("callFlight",cn,TRANSIT_FLIGHTS))||(S.callMode==="join"&&listBad("callFlight",cn,TPE_DEPARTURE_FLIGHTS))));
+    bad("callFlight",!!cn&&((S.callMode==="transit"&&listBad("callFlight",cn,TRANSIT_FLIGHTS))||(S.callMode==="join"&&listBad("callFlight",cn,GENERAL_CX_FLIGHTS))));
   }
 
   const OK={
@@ -964,7 +966,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     dnew:()=>{
       if(timeState("gDepTime")==="bad") return "Invalid time (00:00–23:59)";
       if(sameProtectedCxFlight("CX",v("gNewN"),v("dFlight"))) return "Same as Flight from TPE — not allowed";
-      if(isFlt(v("gNewN"))&&!generalCxOk(v("gNewN"))) return "CX flight must depart TPE";
+      if(isFlt(v("gNewN"))&&!tpeDepartureCxOk(v("gNewN"))) return "CX flight must depart TPE";
       return "";
     },
     darrange:()=>{
@@ -972,7 +974,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       if(!isCarrier(v("altA"))) return "Airline code: 2 letters/digits";
       if(!isFlt(v("altN"))) return "1–3 digits";
       if(sameProtectedCxFlight(v("altA"),v("altN"),v("dFlight"))) return "Same as Flight from TPE — not allowed";
-      if(String(v("altA")||"").toUpperCase()==="CX"&&!generalCxOk(v("altN"))) return "CX flight must depart TPE";
+      if(String(v("altA")||"").toUpperCase()==="CX"&&!tpeDepartureCxOk(v("altN"))) return "CX flight must depart TPE";
       return timeHint("altTime");
     },
     darrive:()=>timeHint("arriveTime"),

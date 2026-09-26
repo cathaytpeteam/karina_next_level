@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.2.3 Android hotfix
+# Find Pax v1.1 R1.2.3 Android hotfix 2
 
 ## Files
 
@@ -184,6 +184,12 @@ For every future request:
 This checklist is intentionally conservative because prior revisions suffered regressions when unrelated UI or behavior changed during otherwise small fixes.
 
 ## Change log
+
+### R1.2.3 Android hotfix 2 — Legacy Android compatibility + Scenario 4 TPE flight guard
+
+- Scenario home cards use a flex-based layout so icon / label / chevron stay aligned on legacy Android.
+- Scenario 4 Flight from TPE / Protect to now excludes the six transit flights whose mapped origin is not TPE (CX450/451/530/531/564/565). Scenario 1/2 Transit and Join rules remain unchanged.
+- Service-worker cache revision advanced to `R1.2.3-hotfix2`.
 
 ### R1.2.3 Android hotfix — Legacy Android Phone-screen compatibility
 - Removed optional-chaining syntax from startup/input code so older Android Chrome can parse and run the Phone screen JavaScript.
