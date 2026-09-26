@@ -38,6 +38,13 @@ SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
 PHONE = "886983952902"
 
 failed = False
+
+async def launch_chromium(p):
+    try:
+        return await p.chromium.launch(headless=True)
+    except Exception:
+        return await p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox","--disable-dev-shm-usage"])
+
 def ck(name, ok, detail=""):
     global failed
     print(("PASS " if ok else "FAIL ") + name + ("" if ok or not detail else "  -> " + detail))
@@ -353,6 +360,127 @@ async def fill_protect(r, n="401", zone="B", gate="5", dep="1945", go=None, targ
     if go:
         await r.act(target); await r.act(go)
 
+# ---- priority release gate -----------------------------------------------------
+async def _simple_click(r, id_, screen=None):
+    await r.pg.locator("#" + id_).click()
+    if screen:
+        st = await r.wait(lambda x: x["screen"] == screen, 2000)
+        ck(f"[priority] {id_} opens {screen}", st["screen"] == screen, st["screen"])
+        return st
+    await r.pg.wait_for_timeout(60)
+    return await r.st()
+
+async def _priority_phone_to_scenario(r):
+    st = await r.st()
+    ck("[priority] Phone starts with Next disabled", st["screen"] == "phone" and st["cta_disabled"])
+    ck("[priority] Phone starts without a stale red border", "phoneInput" not in st["bad"])
+    ck("[priority] Phone country badge starts hidden", await r.pg.locator("#badge").is_hidden())
+    await r.fill("phoneInput", PHONE)
+    await r.pg.wait_for_timeout(100)
+    st = await r.st()
+    badge_visible = await r.pg.locator("#badge").is_visible()
+    badge_text = (await r.pg.locator("#badge").inner_text()).strip() if badge_visible else ""
+    ck("[priority] valid Taiwan phone shows country badge", badge_visible and "TW" in badge_text, badge_text)
+    ck("[priority] valid Taiwan phone enables Next", not st["cta_disabled"], str(st))
+    await _simple_click(r, "cta", "scenario")
+
+async def priority_suite():
+    from playwright.async_api import async_playwright
+    global failed
+    async with async_playwright() as p:
+        browser = await launch_chromium(p)
+
+        # Phone + Home visual geometry on the three locked phone widths.
+        r = await Run(browser, "priority-home").open()
+        await _priority_phone_to_scenario(r)
+        for width, want_gap in ((390, 14), (360, 12), (320, 12)):
+            await r.pg.set_viewport_size({"width": width, "height": 844})
+            await r.pg.wait_for_timeout(80)
+            g = await r.pg.evaluate("""() => [...document.querySelectorAll('#s-scenario .choice')].map(b => {
+              const i=b.querySelector('.ico').getBoundingClientRect(), t=b.querySelector('.ctext').getBoundingClientRect(), c=b.querySelector('.chev').getBoundingClientRect(), r=b.getBoundingClientRect();
+              return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,iconL:i.left,iconR:i.right,textL:t.left,textR:t.right,chevL:c.left,chevR:c.right};
+            })""")
+            ck(f"[priority] Home {width}px has five Scenario cards", len(g) == 5, str(len(g)))
+            if len(g) == 5:
+                gaps=[round(x['textL']-x['iconR'],1) for x in g]
+                arrows=[round(x['chevR'],1) for x in g]
+                overlap=all(x['textR'] <= x['chevL'] + 0.5 for x in g)
+                widths=[round(x['right']-x['left'],1) for x in g]
+                ck(f"[priority] Home {width}px icon/text spacing is locked", all(abs(x-want_gap)<=1.5 for x in gaps), str(gaps))
+                ck(f"[priority] Home {width}px arrows align in one column", max(arrows)-min(arrows)<=1.5, str(arrows))
+                ck(f"[priority] Home {width}px text never overlaps arrow", overlap)
+                ck(f"[priority] Home {width}px card widths align", max(widths)-min(widths)<=1.5, str(widths))
+        await r.close()
+
+        # Scenario 1 happy path + Joining Passenger label + unchanged progress wording.
+        r = await Run(browser, "priority-s1").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goMiss", "misstype")
+        ck("[priority] S1 Passenger Type says Joining Passenger", (await r.pg.locator("#missJoin .ctext").inner_text()).strip() == "Joining Passenger")
+        await _simple_click(r, "missJoin", "mflight")
+        ck("[priority] S1 progress wording stays Join Pax", (await r.pg.locator("#step").inner_text()).strip() == "漏查 - 2/3 - Join Pax", (await r.pg.locator("#step").inner_text()).strip())
+        await r.fill("mFlight", "407"); await r.expect("S1 valid CX407 enables Next", True, not_bad=["mFlight"])
+        await _simple_click(r, "cta", "msec"); await r.fill("mSec", "123"); await r.expect("S1 valid SEC enables Next", True, not_bad=["mSec"])
+        await _simple_click(r, "cta", "preview")
+        ck("[priority] S1 reaches Confirm details", (await r.st())["screen"] == "preview")
+        await r.close()
+
+        # Scenario 2 happy path.
+        r = await Run(browser, "priority-s2").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goCall", "calltype")
+        ck("[priority] S2 Passenger Type says Joining Passenger", (await r.pg.locator("#callJoin .ctext").inner_text()).strip() == "Joining Passenger")
+        await _simple_click(r, "callJoin", "callflight")
+        ck("[priority] S2 progress wording stays Join Pax", "Join Pax" in (await r.pg.locator("#step").inner_text()))
+        await r.fill("callFlight", "407"); await r.expect("S2 valid CX407 enables Next", True, not_bad=["callFlight"])
+        await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
+        await _simple_click(r, "cta", "preview"); ck("[priority] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
+        await r.close()
+
+        # Scenario 3 happy path + Confirm details completeness.
+        r = await Run(browser, "priority-s3").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goWpp", "wflight"); await r.fill("wFlight", "123"); await r.expect("S3 arrival flight enables Next", True, not_bad=["wFlight"])
+        await _simple_click(r, "cta", "bag1"); await r.fill("b1n", "123456"); await r.expect("S3 Bag Tag 1 enables Next", True)
+        await _simple_click(r, "cta", "bag2"); await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.expect("S3 Bag Tag 2 enables Next", True)
+        await _simple_click(r, "cta", "preview")
+        rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent.trim())")
+        ck("[priority] S3 Confirm details has all three summary rows", rows == ["Arrival Flight", "Bag Tag 1", "Bag Tag 2"], str(rows))
+        a = await r.pg.locator("#msgToggle>span:first-child").bounding_box(); b = await r.pg.locator("#previewOrderLabel").bounding_box()
+        ck("[priority] Message Preview order label has visual separation", bool(a and b) and b["x"] > a["x"] + 110)
+        await r.close()
+
+        # Scenario 4: blank is neutral; inbound transit flights rejected; TPE departures accepted.
+        r = await Run(browser, "priority-s4").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDp", "dstatus"); await _simple_click(r, "stGate", "dflight")
+        st = await r.st(); ck("[priority] S4 Flight from TPE blank stays neutral", "dFlight" not in st["bad"] and st["cta_disabled"], str(st))
+        for n in ("450", "530", "564"):
+            await r.fill("dFlight", n); await r.expect(f"S4 CX{n} is not a TPE departure", False, ["dFlight"])
+        for n in ("451", "531", "565", "407"):
+            await r.fill("dFlight", n); await r.expect(f"S4 CX{n} is accepted as TPE departure", False, not_bad=["dFlight"])
+        await r.fill("dFlight", "451"); await _simple_click(r, "gsCancelled")
+        await r.expect("S4 CX451 + Cancelled enables Next", True, not_bad=["dFlight"])
+        await _simple_click(r, "cta", "dnew")
+        st=await r.st(); ck("[priority] S4 Protect to starts neutral", "gNewN" not in st["bad"] and st["cta_disabled"], str(st))
+        for n in ("450", "530", "564"):
+            await r.fill("gNewN", n); await r.expect(f"S4 Protect to rejects CX{n}", False, ["gNewN"])
+        await r.fill("gNewN", "407"); await r.expect("S4 Protect to accepts CX407", False, not_bad=["gNewN"])
+        await r.fill("gGate", "9"); await r.fill("gDepTime", "1955"); await r.blur("gDepTime"); await _simple_click(r, "gProtectedFlight"); await _simple_click(r, "gpAsap")
+        await r.expect("S4 valid Protect to fields enable Next", True, not_bad=["gNewN","gDepTime"])
+        await _simple_click(r, "cta", "preview"); ck("[priority] S4 reaches Confirm details", (await r.st())["screen"] == "preview")
+        await r.close()
+
+        # Scenario 4 non-gate happy path: every page with valid input must enable Next.
+        r = await Run(browser, "priority-s4-flow").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDp", "dstatus"); await _simple_click(r, "stPossible", "dflight")
+        await r.fill("dFlight", "451"); await r.expect("S4 Tight Connection flight enables Next", True, not_bad=["dFlight"])
+        await _simple_click(r, "cta", "dtransfer")
+        await r.fill("tA", "BR"); await r.fill("tN", "123"); await r.expect("S4 Connecting flight enables Next", True, not_bad=["tN"])
+        await _simple_click(r, "cta", "darrange"); await _simple_click(r, "arUnknown")
+        await r.expect("S4 arrangement choice enables Next", True)
+        await _simple_click(r, "cta", "darrive"); await r.fill("arriveTime", "1400"); await r.expect("S4 arrival time enables Next", True, not_bad=["arriveTime"])
+        await _simple_click(r, "cta", "preview"); ck("[priority] S4 non-gate flow reaches Confirm details", (await r.st())["screen"] == "preview")
+        await r.close()
+
+        await browser.close()
+
 # ---- locked Japanese SMS copy (message-master.json) ---------------------------
 MASTER = json.loads((R / "message-master.json").read_text(encoding="utf-8"))["scenarios"]
 def ja_expected(scen, mode, flight=None, gate=None):
@@ -420,7 +548,7 @@ S4_BRANCHES = json.loads((R / "message-master.json").read_text(encoding="utf-8")
 S4_DEST = {"450": ("東京成田", "Tokyo Narita"), "564": ("大阪關西", "Osaka Kansai"), "530": ("名古屋中部", "Nagoya Chubu")}
 
 async def case_s4_gate(r, status, target, go, lang, new="531"):
-    await r.phone(); await r.act("goDp", "dstatus"); await r.act("stGate", "dflight"); await r.fill("dFlight", "407")
+    await r.phone(); await r.act("goDp", "dstatus"); await r.act("stGate", "dflight"); await r.fill("dFlight", "451")
     other = "gsCancelled" if status == "gsDelayed" else "gsDelayed"
     await r.act(other); await r.act(status)
     st = "delayed" if status == "gsDelayed" else "cancelled"
@@ -430,23 +558,23 @@ async def case_s4_gate(r, status, target, go, lang, new="531"):
     other_t = "gOriginalFlight" if target == "gProtectedFlight" else "gProtectedFlight"
     other_go = "gpWait" if go == "gpAsap" else "gpAsap"
     await fill_protect(r, new, "B", "9", "1955", other_go, other_t); await r.act(target); await r.act(go)
-    ck(f"[{r.name}] gate target buttons show both flights", [await r.pg.locator(f"#{b}").inner_text() for b in ("gOriginalFlight", "gProtectedFlight")] == ["CX407", "CX" + new])
+    ck(f"[{r.name}] gate target buttons show both flights", [await r.pg.locator(f"#{b}").inner_text() for b in ("gOriginalFlight", "gProtectedFlight")] == ["CX451", "CX" + new])
     await r.act("cta", "preview"); await r.act(lang)
     g = "asap" if go == "gpAsap" else "wait"; tg = "original" if target == "gOriginalFlight" else "new"
     dz, de = S4_DEST.get(new, ("香港", "Hong Kong"))
-    fill = lambda t: (t.replace("{Disrupted Flight}", "CX407").replace("{Delay Time}", "21:00").replace("{New Flight}", "CX" + new)
+    fill = lambda t: (t.replace("{Disrupted Flight}", "CX451").replace("{Delay Time}", "21:00").replace("{New Flight}", "CX" + new)
                       .replace("{Gate}", "B9").replace("{Dep Time}", "19:55").replace("{DestinationZh}", dz).replace("{DestinationEn}", de))
     zh, en = fill(S4_BRANCHES[f"zh.gate.{st}.{tg}.{g}"]), fill(S4_BRANCHES[f"en.gate.{st}.{tg}.{g}"])
     want = zh + "\n\n" + en if lang == "ordZh" else en + "\n\n" + zh
     got = await r.pg.locator("#msg").input_value()
     ck(f"[{r.name}] message is exactly the approved Already-at-Gate copy", got == want, got[:200])
     rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent)")
-    want_rows = ["Disrupted flight=CX407", "Protect to=CX" + new + " / dep 19:55",
-                 "Proceed to Gate=" + ("CX407" if tg == "original" else "CX" + new + " / B9")]
+    want_rows = ["Disrupted flight=CX451", "Protect to=CX" + new + " / dep 19:55",
+                 "Proceed to Gate=" + ("CX451" if tg == "original" else "CX" + new + " / B9")]
     ck(f"[{r.name}] confirm details rows", rows == want_rows, str(rows))
     who = await r.pg.locator("#whoNum").inner_text()
     ck(f"[{r.name}] Confirm details shows the grouped number top-right", await r.pg.locator("#who").is_visible() and " " in who and who.replace(" ", "") == "+" + PHONE, who)
-    await r.act("cta", "external:whatsapp", ("CX407", "CX" + new, "19:55") + (("21:00",) if st == "delayed" else ()) + (("B9",) if tg == "new" else ()))
+    await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "19:55") + (("21:00",) if st == "delayed" else ()) + (("B9",) if tg == "new" else ()))
 
 async def case_b1r(r, gate_path):
     iid, bid, zid = ("gGate", "gGateR", "gGateZone") if gate_path else ("callGate", "callGateR", "callGateZone")
@@ -500,8 +628,8 @@ for i, s in enumerate(("stPossible", "stDelayed", "stUnknown")):
         l = ("ordEn", "ordZh")[(i + j) % 2]
         CASES.append((f"S4 {s} {a} {l}", lambda r, s=s, a=a, l=l: case_s4(r, s, a, l)))
 
-for s_, t_, g_, l_, n_ in (("gsDelayed", "gProtectedFlight", "gpAsap", "ordZh", "401"), ("gsDelayed", "gOriginalFlight", "gpWait", "ordEn", "403"),
-                            ("gsCancelled", "gOriginalFlight", "gpAsap", "ordEn", "465"), ("gsCancelled", "gProtectedFlight", "gpWait", "ordZh", "479")):
+for s_, t_, g_, l_, n_ in (("gsDelayed", "gProtectedFlight", "gpAsap", "ordZh", "531"), ("gsDelayed", "gOriginalFlight", "gpWait", "ordEn", "403"),
+                            ("gsCancelled", "gOriginalFlight", "gpAsap", "ordEn", "565"), ("gsCancelled", "gProtectedFlight", "gpWait", "ordZh", "479")):
     CASES.append((f"S4 Already at Gate {s_} {t_} {g_} {l_} CX{n_}", lambda r, s_=s_, t_=t_, g_=g_, l_=l_, n_=n_: case_s4_gate(r, s_, t_, g_, l_, n_)))
 
 # ---- guards -------------------------------------------------------------------
@@ -697,10 +825,10 @@ async def g(r, name):
         ck("[guard] gate same-flight hint is red", (await r.pg.locator("#hint").inner_text()) == "Same as Flight from TPE — not allowed" and await r.pg.locator("#hint").evaluate("e=>e.classList.contains('bad')"))
         await r.fill("gNewN", "888"); await r.expect("gate protect CX888 (not TPE whitelist) rejected", False, ["gNewN"])
         ck("[guard] gate non-whitelist hint is red", (await r.pg.locator("#hint").inner_text()) == "CX flight must depart TPE" and await r.pg.locator("#hint").evaluate("e=>e.classList.contains('bad')"))
-        for n in ("401", "403", "465"):
-            await r.fill("gNewN", n); await r.expect(f"gate protect CX{n} (TPE whitelist) accepted", True, not_bad=["gNewN"])
-        for n in ("450", "451", "530", "531", "564", "565"):
-            await r.fill("gNewN", n); await r.expect(f"gate protect CX{n} (transit, not TPE-origin) rejected", False, ["gNewN"])
+        for n in ("401", "451", "531", "565"):
+            await r.fill("gNewN", n); await r.expect(f"gate protect CX{n} (TPE departure) accepted", True, not_bad=["gNewN"])
+        for n in ("450", "530", "564"):
+            await r.fill("gNewN", n); await r.expect(f"gate protect CX{n} (not TPE departure) rejected", False, ["gNewN"])
     elif name == "s4_gate_requires_valid_gate":
         await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r, "401", "B", "", "1945", "gpAsap")
         await r.expect("gate empty keeps Next disabled", False)
@@ -790,13 +918,10 @@ async def runtime():
         return
     async with async_playwright() as p:
         try:
-            browser = await p.chromium.launch()
-        except Exception:
-            try:
-                browser = await p.chromium.launch(executable_path="/usr/bin/chromium", args=["--no-sandbox","--disable-dev-shm-usage"])
-            except Exception as ex:
-                ck("runtime: Chromium available (Playwright-managed or /usr/bin/chromium)", False, str(ex)[:120])
-                return
+            browser = await launch_chromium(p)
+        except Exception as ex:
+            ck("runtime: Chromium available (Playwright-managed or /usr/bin/chromium)", False, str(ex)[:120])
+            return
         for name, fn in CASES:
             r = await Run(browser, name).open(); await fn(r); await r.close()
         for name in SPEC["guards"]:
@@ -904,7 +1029,7 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     exp = " after HTTP cache expiry" if noroutes else ""
     root = os.path.join(tmp, tag.replace(" ", "_")); _copy_build(R, root)
     srv = _SwServer(port, root, noroutes); srv.start()
-    b = await p.chromium.launch()
+    b = await launch_chromium(p)
     ctx = await b.new_context(viewport={"width": 390, "height": 800}, is_mobile=True, has_touch=True)
     # 1 first visit
     pg = await ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -1005,6 +1130,12 @@ async def sw_suite(previous):
             await _sw_mode(p, "no-static-routing", True, 8932, previous, tmp)
     if not previous:
         print("SKIP [SW] 8 upgrade from a previous build (run with --previous DIR to include)")
+
+if __name__ == "__main__" and "--priority" in sys.argv:
+    static_checks()
+    asyncio.run(priority_suite())
+    print("PASS: priority release gate" if not failed else "FAIL: priority release gate")
+    sys.exit(1 if failed else 0)
 
 if __name__ == "__main__" and "--sw" in sys.argv:
     prev = sys.argv[sys.argv.index("--previous") + 1] if "--previous" in sys.argv else None

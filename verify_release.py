@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Find Pax — release gate (single entry point).
 
-  python3 verify_release.py           full gate: files, locks, copy, layout, navigation,
-                                      browser flow behaviour and Service Worker scenarios
-  python3 verify_release.py --quick   static checks only (no browser), a few seconds
+  python3 verify_release.py --fast    FAST CHECK: static + focused user-facing priority gate
+  python3 verify_release.py --full    FULL CHECK: priority gate + exhaustive browser + SW scenarios
+  python3 verify_release.py --quick   developer diagnostic: static checks only, no browser
+  python3 verify_release.py --gate    legacy alias for --fast
   python3 verify_release.py -v        also print every layout / navigation / copy sub-check
+
+No check mode is assumed. Running without --fast/--full/--quick/--gate exits
+without testing so an AI/maintainer cannot accidentally launch the long full suite.
 
 All protected values live in locks.json (sections: baseline, layout, navigation,
 message_copy). Change a section only for an explicitly user-approved change.
@@ -14,7 +18,23 @@ import json, hashlib, re, sys, subprocess
 
 r=Path(__file__).resolve().parent
 QUICK='--quick' in sys.argv
+FAST='--fast' in sys.argv
+FULL='--full' in sys.argv
+GATE='--gate' in sys.argv  # backwards-compatible alias for --fast
 VERBOSE='-v' in sys.argv or '--verbose' in sys.argv
+
+_mode_count=sum((QUICK, FAST or GATE, FULL))
+if _mode_count==0:
+    print('CHECK MODE REQUIRED')
+    print('Ask the user before verification: 快速檢查 or 完整檢查?')
+    print('  快速檢查 / FAST: python3 verify_release.py --fast')
+    print('  完整檢查 / FULL: python3 verify_release.py --full')
+    print('No verification was run.')
+    raise SystemExit(2)
+if _mode_count>1:
+    print('ERROR: choose exactly one check mode: --fast, --full, --quick (or legacy --gate).')
+    raise SystemExit(2)
+FOCUSED=FAST or GATE
 s=(r/'index.html').read_text(encoding='utf-8')
 LOCKS=json.loads((r/'locks.json').read_text(encoding='utf-8'))
 b=LOCKS['baseline']
@@ -162,7 +182,7 @@ def navigation_lock():
     ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!gateDelay&&S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
 
 
-    ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=new Set([...GENERAL_CX_FLIGHTS].filter(n=>!TRANSIT_FLIGHTS.has(n)));' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
+    ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_NON_ORIGIN_TRANSIT_FLIGHTS=new Set(["450","530","564"]);' in s and 'const TPE_DEPARTURE_FLIGHTS=new Set([...GENERAL_CX_FLIGHTS].filter' in s and 'const generalCxOk=raw=>GENERAL_CX_FLIGHTS.has' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
     ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and 'bad("dFlight",listBad("dFlight",v("dFlight"),S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS));' in s)
     ck('Scenario 4 Delayed valid 3-digit flight auto-focuses Delayed to', 'id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)' in s and '$("delayTime").focus()' in s)
     ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime","gDepTime"].forEach' in s and 'fmtTime(this);render();' in s)
@@ -179,7 +199,7 @@ def navigation_lock():
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
     # User-approved 2026-09-25 · Passenger Type pages of Scenario 1 (漏查) and Scenario 2 (Final Call):
-    # Joining Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
+    # Join Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
     # shown as a message icon and Call Directly as a phone icon, both beside the arrow.
     ICON_MSG='<path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/>'
     ICON_PHONE='<rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/>'
@@ -191,7 +211,7 @@ def navigation_lock():
         ck(f'{sid} labels and order', '<span>Joining Passenger</span>' in j and '<span>Transit Passenger</span>' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
         ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Joining Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
         ck(f'{sid} message icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and sec.count('class="actIco"')==2)
-    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}' in s)
+    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px;color:var(--brand-strong)}' in s)
     # ICON POLICY (user rule 2026-09-25): small action icons (message) appear ONLY on the Scenario 1 and 2
     # Passenger Type pages. Scenario 4 Disrupted Passenger always sends a message, so its pages stay icon-free.
     # The Scenario page uses the illustrated scenario icons (not action icons).
@@ -235,8 +255,6 @@ ck('Scenario 1 SEC origin UI', all(x in s for x in ['mSecPrefix','mSec']) and 'm
 ck('Scenario 2 SEC removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', all(x in s for x in ['"450":"HKG"','"530":"HKG"','"564":"HKG"','"451":"NRT"','"531":"NGO"','"565":"KIX"']))
-ck('Scenario 4 Protect-to rejects transit CX flights such as CX450', 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s and 'tpeDepartureCxOk(raw)&&!sameProtectedCxFlight' in s)
-ck('Scenario home uses flex layout for legacy Android compatibility', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:14px;align-items:center' in s)
 ck('Destination IATA preserved', all(x in s for x in ['"450":"NRT"','"564":"KIX"','"530":"NGO"','"451":"HKG"','"565":"HKG"','"531":"HKG"']))
 ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}' in s)
 ck('SEC prefix TPE/Transit mapping', all(x in s for x in ['"450":{join:"TPE",transit:"HKG"}','"451":{join:"TPE",transit:"NRT"}','"531":{join:"TPE",transit:"NGO"}','"565":{join:"TPE",transit:"KIX"}']))
@@ -310,7 +328,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2.3-hotfix3";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.4";' in sw)
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-max.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
@@ -323,11 +341,8 @@ ck('C1R rejected by message gate helpers', '!(z==="C"&&n==="1R")' in ef('callGat
 ck('B1R row reserves height', 'min-height:36px' in s and '@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}' in s)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
-_display_version=_rev_m.group(1).split('-hotfix',1)[0] if _rev_m else ''
+_display_version=_rev_m.group(1) if _rev_m else ''
 ck('homepage version label matches service worker', bool(_display_version) and f'<span class="appVersion" aria-label="App version">{_display_version}</span>' in s)
-ck('legacy Android startup syntax', '?.' not in s)
-ck('legacy Android preview runtime API', '.replaceChildren(' not in s and 'replaceChildrenCompat($("step")' in s)
-ck('legacy Android preview label spacing', '.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap;margin-left:8px}' in s)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 # User-approved 2026-09-25 (slow company network): launch is cache-only, no network request for a cached file.
 ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'const r=await fetch(req);' in sw and 'e.waitUntil(network' not in sw)
@@ -364,6 +379,16 @@ ck('Scenario 4 Flight Type copy', '<h1>Passenger Type</h1>' in s and '>Already a
 ck('Scenario 4 Flight Type behaves like Passenger Type', 'cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s and 'cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s)
 ck('Scenario 4 Delayed time lives on step 2 only', 'id="s-dflight"' in s and 'id="delayWrap"' in s and 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!gateDelay&&S.status!=="delayed";' in s and 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in s)
 
+# R1.2.4 priority regression locks: these target the real-device failures that hash-only checks missed.
+ck('legacy Android JS: no optional chaining', '?.' not in s)
+ck('legacy Android JS: no native replaceChildren dependency', '.replaceChildren(' not in s and 'replaceChildrenCompat' in s)
+ck('legacy Android Home: critical row geometry uses explicit flex margins', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;' in s and '#s-scenario .ctext{flex:1 1 auto;' in s and 'margin-left:14px' in s and '#s-scenario .chev{flex:0 0 20px;margin-left:14px;' in s)
+ck('legacy Android Passenger Type: action-icon spacing is explicit', '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px' in s and '#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px' in s)
+ck('Scenario 1/2 label is Joining Passenger only', s.count('>Joining Passenger</span>')==2 and 'aria-label="Joining Passenger &amp; Message"' in s)
+ck('progress wording remains Join Pax', 'S.missMode==="join"?"Join Pax":"Transit Pax"' in s and 'S.callMode==="join"?"Join Pax":"Transit Pax"' in s)
+ck('Scenario 4 TPE departure split is explicit', 'const TPE_NON_ORIGIN_TRANSIT_FLIGHTS=new Set(["450","530","564"]);' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
+ck('fresh case clears stale invalid borders', 'function clearInvalidMarks(ids)' in s and 'clearInvalidMarks(["dFlight","tA","tN","delayTime","altA","altN","altTime","arriveTime"]);' in s)
+
 # Layout lock: approved screen structure/field placement may change only with explicit user approval.
 _lay_ok,_lay_msgs=layout_lock()
 ck('layout lock', _lay_ok)
@@ -377,26 +402,34 @@ for _n,_v in _nav:
     if not _v: print('FAIL',_n)
     elif VERBOSE: print('  PASS',_n)
 
-# Flow behaviour: drives the real UI in headless Chromium and executes every outgoing
-# branch in flow-behavior-spec.json (plus Back/Forward, guards, state rules, send URLs).
-fix_run=subprocess.run(['node',str(r/'verify_fixes.cjs')],cwd=r,capture_output=True,text=True)
-ck('R1.2.1 history and route regression checks',fix_run.returncode==0)
-if fix_run.returncode!=0: print(fix_run.stdout+fix_run.stderr)
+# Browser verification is deliberately layered. The priority gate checks the
+# user-visible regressions first and prints every check live. The exhaustive suite
+# and Service Worker matrix run only after the focused gate passes.
 if QUICK:
-    print('SKIP flow behaviour and Service Worker scenarios (--quick: browser tests not run)')
+    print('SKIP browser gates and Service Worker scenarios (--quick: browser tests not run)')
 else:
-    beh_run=subprocess.run([sys.executable, str(r/'verify_behavior.py')], cwd=r, capture_output=True, text=True)
-    ck('flow behaviour (all branches, Back/Forward, guards, state rules)', beh_run.returncode==0)
-    if beh_run.returncode!=0:
-        print('\n'.join(x for x in (beh_run.stdout+beh_run.stderr).splitlines() if not x.startswith('PASS'))[-4000:])
-    # Service Worker: install, launch, offline, update, broken deploy, cache miss, both with and
-    # without Static Routing (and upgrade from a previous build when --previous DIR is given).
-    sw_cmd=[sys.executable, str(r/'verify_behavior.py'), '--sw']
-    if '--previous' in sys.argv: sw_cmd+=['--previous', sys.argv[sys.argv.index('--previous')+1]]
-    sw_run=subprocess.run(sw_cmd, cwd=r, capture_output=True, text=True)
-    ck('service worker scenarios (install, launch, offline, update, broken deploy, cache miss)', sw_run.returncode==0)
-    if sw_run.returncode!=0 or VERBOSE:
-        print('\n'.join(x for x in (sw_run.stdout+sw_run.stderr).splitlines() if VERBOSE or not x.startswith('PASS'))[-4000:])
+    print('--- PRIORITY GATE: phone, Home geometry, S1/S2 Next, S3 confirm, S4 validation ---', flush=True)
+    pri_run=subprocess.run([sys.executable, str(r/'verify_behavior.py'), '--priority'], cwd=r)
+    ck('priority release gate (focused user-facing regressions)', pri_run.returncode==0)
+    if FOCUSED:
+        print('SKIP exhaustive flow behaviour and Service Worker scenarios (--fast)')
+    elif FULL and pri_run.returncode==0:
+        print('--- EXHAUSTIVE FLOW SUITE (live progress) ---', flush=True)
+        beh_run=subprocess.run([sys.executable, str(r/'verify_behavior.py')], cwd=r)
+        ck('flow behaviour (all branches, Back/Forward, guards, state rules)', beh_run.returncode==0)
+        # Service Worker: install, launch, offline, update, broken deploy, cache miss, both with and
+        # without Static Routing (and upgrade from a previous build when --previous DIR is given).
+        print('--- SERVICE WORKER SUITE (live progress) ---', flush=True)
+        sw_cmd=[sys.executable, str(r/'verify_behavior.py'), '--sw']
+        if '--previous' in sys.argv: sw_cmd+=['--previous', sys.argv[sys.argv.index('--previous')+1]]
+        sw_run=subprocess.run(sw_cmd, cwd=r)
+        ck('service worker scenarios (install, launch, offline, update, broken deploy, cache miss)', sw_run.returncode==0)
+    else:
+        ck('flow behaviour (skipped because priority gate failed)', False)
+
+# Packaging hygiene: temporary Python files are never valid release content.
+_junk=[p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and ('__pycache__' in p.parts or p.suffix in ('.pyc','.pyo'))]
+ck('release tree contains no Python temp files', not _junk)
 
 # SHA256SUMS integrity and completeness (SHA file itself is intentionally excluded).
 sha_path=r/'SHA256SUMS.txt'
@@ -422,4 +455,4 @@ if sha_ok:
 ck('SHA256SUMS integrity',sha_ok)
 
 if bad: sys.exit(1)
-print('PASS: v1.1 Golden Baseline + layout lock'+(' (quick: browser tests skipped)' if QUICK else ''))
+print('PASS: v1.1 Golden Baseline + layout lock'+(' (quick: browser tests skipped)' if QUICK else (' (priority gate)' if GATE else '')))

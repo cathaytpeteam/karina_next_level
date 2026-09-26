@@ -1,38 +1,45 @@
-# Find Pax v1.1 R1.2.3 Android hotfix 3
-
-### R1.2.3 Android hotfix 3 — Legacy Android Scenario 3 Confirm compatibility
-- Replaced `Element.replaceChildren()` in the progress renderer with an older-Chrome compatible DOM helper. On legacy Android Chrome, the unsupported API previously stopped `render()` before Scenario 3 Confirm details were populated, leaving the summary/progress incomplete.
-- Added an explicit margin fallback between “Message Preview” and the language-order label because older Chrome does not support flexbox `gap`.
-- No Scenario 1/2/3/4 business flow, message copy, validation, or progress wording changed.
-
+# Find Pax v1.1 R1.2.4
 
 ## Files
 
 App (deployed, 14): `index.html`, `sw.js`, `manifest.webmanifest`, `libphonenumber-max.js`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `phone-bottom-icon.png`, `scenario-icon-1.png` … `scenario-icon-4.png`.
 
-Release control (8):
+Release control (7):
 
 - `locks.json` — every protected value, in four sections: `baseline`, `layout`, `navigation`, `message_copy` (formerly four separate lock files).
 - `message-master.json` — approved message copy (source of truth for all SMS/WhatsApp text).
 - `flow-behavior-spec.json` — every screen, button and branch the browser test must execute.
 - `verify_release.py` — the single release gate (static checks, layout, navigation, message copy; runs the browser suites).
-- `verify_behavior.py` — browser suites: flow behaviour, and Service Worker scenarios with `--sw`.
+- `verify_behavior.py` — browser suites: focused priority gate (`--priority`), exhaustive flow behaviour, and Service Worker scenarios (`--sw`).
 - `SHA256SUMS.txt` — checksum of every release file.
-- `.github/workflows/verify.yml` — runs `verify_release.py` on every push / pull request.
 - `README.md` — this file: files, how to verify, latest result, checklist, change log.
+
+## Check mode — mandatory choice before every verification
+
+**AI / maintainer rule:** after modifying Find Pax, **ask the user before starting verification:**
+
+> **快速檢查 or 完整檢查？**
+
+Do not infer the choice and do not automatically start the exhaustive suite. The verifier also enforces this: running it with no check-mode flag exits without testing.
+
+- **快速檢查 / FAST** — normal development loop. Runs static/lock/integrity checks plus the focused Priority Gate for Phone, Home geometry, Scenario 1/2 Next, Scenario 3 Confirm, and Scenario 4 validation. It does **not** run the exhaustive branch matrix or Service Worker matrix.
+- **完整檢查 / FULL** — release/finalization only. Runs the Priority Gate first, then the exhaustive browser regression and Service Worker/offline/update scenarios. A release is not Final/Stable unless the required full check actually completes and passes.
+- `--quick` remains a developer-only static diagnostic and is **not** a substitute for the user-selected FAST or FULL release check.
 
 ## How to verify
 
 ```
-python3 verify_release.py                      # full gate (needs: pip install playwright; python -m playwright install chromium)
-python3 verify_release.py --quick              # static checks only, no browser, a few seconds
-python3 verify_release.py -v                   # also list every layout / navigation / SW sub-check
-python3 verify_release.py --previous OLD_DIR   # also test upgrading from the build unpacked in OLD_DIR
+python3 verify_release.py --fast               # 快速檢查: focused priority gate
+python3 verify_release.py --full               # 完整檢查: exhaustive browser + SW (needs Playwright/Chromium)
+python3 verify_release.py --quick              # developer diagnostic: static only, no browser
+python3 verify_release.py --gate               # legacy alias for --fast
+python3 verify_release.py --fast -v            # also list every layout / navigation sub-check
+python3 verify_release.py --full --previous OLD_DIR  # FULL + upgrade from previous build
 ```
 
 ## Latest verification result
 
-- Full gate `verify_release.py`: static, lock, checksum, and focused B1R checks are required before release. Browser execution requires a working Chromium installation.
+- R1.2.4 adds a fast priority gate before the exhaustive suite: Phone badge/Next, Home card geometry at 390/360/320px, Scenario 1/2 Next, Scenario 3 Confirm details, and Scenario 4 blank/flight validation.
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -85,7 +92,7 @@ A future release is not considered safe merely because the requested feature wor
 
 Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Transit.
 
-- Passenger types: **Joining Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
+- Passenger types: **Joining Passenger** (big card) / **Transit Passenger**. "& Message" is shown as a single-colour message icon beside the arrow; screen readers still hear "& Message". **Call Directly is a separate Scenario entry.**
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Transit origin mapping remains:
@@ -102,7 +109,7 @@ Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Tr
 
 Locked flow: Passenger Type -> Flight -> Gate -> Confirm details, 4/4 for Join/Transit. **No SEC page.**
 
-- Passenger types: **Joining Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
+- Passenger types: **Joining Passenger** (big card) / **Transit Passenger**. "& Message" is shown as a single-colour message icon beside the arrow; screen readers still hear "& Message". **Call Directly is a separate Scenario entry.**
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Gate validation remains required.
@@ -191,16 +198,16 @@ This checklist is intentionally conservative because prior revisions suffered re
 
 ## Change log
 
-### R1.2.3 Android hotfix 2 — Legacy Android compatibility + Scenario 4 TPE flight guard
+### R1.2.4 — clean Android compatibility + focused release gate
 
-- Scenario home cards use a flex-based layout so icon / label / chevron stay aligned on legacy Android.
-- Scenario 4 Flight from TPE / Protect to now excludes the six transit flights whose mapped origin is not TPE (CX450/451/530/531/564/565). Scenario 1/2 Transit and Join rules remain unchanged.
-- Service-worker cache revision advanced to `R1.2.3-hotfix2`.
-
-### R1.2.3 Android hotfix — Legacy Android Phone-screen compatibility
-- Removed optional-chaining syntax from startup/input code so older Android Chrome can parse and run the Phone screen JavaScript.
-- Fixes the real-device symptom where the static Phone page appeared but the country badge and Next footer never initialized.
-- No Scenario 1–4 flow, message-copy, validation-rule, layout, or Service Worker strategy changes; cache revision only bumped so the fix is delivered.
+- Rebuilt from the clean R1.2.3 source instead of stacking another hotfix on top of a candidate.
+- Scenario 1 and 2 Passenger Type label: **Join Passenger → Joining Passenger**. Progress wording remains **Join Pax**.
+- Legacy Android JS compatibility: no optional chaining and no native `replaceChildren()` dependency.
+- Home Scenario cards no longer rely on CSS Grid / flex-gap for the critical icon → text → arrow spacing; 390/360/320px geometry is measured by the priority browser gate.
+- Fresh cases explicitly clear stale red field borders. Blank Scenario 4 Flight from TPE / Protect to fields must remain neutral.
+- Scenario 4 TPE-origin rule is separated from the general CX whitelist: **CX450/CX530/CX564 are not TPE departures; CX451/CX531/CX565 remain valid TPE departures.** Scenario 1/2 general/transit rules are unchanged.
+- `verify_fixes.cjs` is removed; its purpose is folded into the central verifier. `verify_release.py --gate` runs the focused browser checks first and full runs stream progress live so a timeout shows where execution stopped.
+- Release packaging rejects `__pycache__` / `.pyc` files.
 
 ### R1.2.3 — Phone library loading recovery
 
@@ -323,7 +330,7 @@ Built from the user's own test build (`karina_next_level_scenario_test.zip`) plu
 
 User-approved 2026-09-25 after trying the HTML preview.
 
-- **Scenario 1 (漏查) and Scenario 2 (Final Call) Passenger Type:** Joining Passenger (big card), Transit Passenger (76px, full width), Call Directly (same size, own row). "& Message" is replaced by a message icon, and Call Directly gets a smartphone-with-waves icon, both beside the arrow. Icons are single colour (text colour), same line weight, and line up in one column at every width.
+- **Scenario 1 (漏查) and Scenario 2 (Final Call) Passenger Type:** Join Passenger (big card, unchanged), Transit Passenger (76px, full width), Call Directly (same size, own row). "& Message" is replaced by a message icon, and Call Directly gets a smartphone-with-waves icon, both beside the arrow. Icons are single colour (text colour), same line weight, and line up in one column at every width.
 - **ICON POLICY (checked by `verify_release.py`):** action icons appear **only** on the Scenario 1 and 2 Passenger Type pages, because only there staff choose between calling and messaging. Scenario 4 Disrupted Passenger always sends a message, so its page and every other screen stay icon-free.
 - Scenario 4 Protect to: label "Proceed to Gate &" on the page and in Confirm details.
 
