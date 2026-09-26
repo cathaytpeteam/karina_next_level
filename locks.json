@@ -412,7 +412,8 @@
         "s-misstype",
         "s-calltype"
       ]
-    }
+    },
+    "authorized_k1_0": "K1.0 (2026-09-26): release identity renamed from R1.2.4 to K1.0 only; no intentional UI, Scenario, message-copy, or flow behavior changes."
   },
   "navigation": {
     "schema": "find-pax-navigation-lock",

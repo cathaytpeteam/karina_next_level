@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.2.4
+# Find Pax K1.0
 
 ## Files
 
@@ -15,7 +15,7 @@ Release control (7):
 - `README.md` — this file: files, how to verify, latest result, checklist, change log.
 
 
-## Minimal modular structure (R1.2.4)
+## Minimal modular structure (K1.0)
 
 - `index.html` — HTML structure and existing application logic.
 - `app.css` — all UI styling, extracted without intentional visual changes.
@@ -48,7 +48,7 @@ python3 verify_release.py --full --previous OLD_DIR  # FULL + upgrade from previ
 
 ## Latest verification result
 
-- R1.2.4 adds a fast priority gate before the exhaustive suite: Phone badge/Next, Home card geometry at 390/360/320px, Scenario 1/2 Next, Scenario 3 Confirm details, and Scenario 4 blank/flight validation.
+- K1.0 retains the R1.2.4 fast priority gate before the exhaustive suite: Phone badge/Next, Home card geometry at 390/360/320px, Scenario 1/2 Next, Scenario 3 Confirm details, and Scenario 4 blank/flight validation.
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -206,6 +206,12 @@ For every future request:
 This checklist is intentionally conservative because prior revisions suffered regressions when unrelated UI or behavior changed during otherwise small fixes.
 
 ## Change log
+
+### K1.0 — release identity rename (2026-09-26)
+
+- Release identity renamed from R1.2.4 to **K1.0**.
+- No intentional UI, Scenario, message-copy, or flow behavior changes.
+- Service Worker cache revision and release verification expectation updated to K1.0.
 
 ### R1.2.4 — clean Android compatibility + focused release gate
 
