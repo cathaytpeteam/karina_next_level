@@ -35,7 +35,7 @@ import asyncio, json, re, sys, urllib.parse
 R = Path(__file__).resolve().parent
 HTML = (R / "index.html").read_text(encoding="utf-8")
 SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
-PHONE = "886983952602"
+PHONE = "886983952902"
 
 failed = False
 def ck(name, ok, detail=""):
@@ -441,9 +441,11 @@ async def case_s4_gate(r, status, target, go, lang, new="531"):
     got = await r.pg.locator("#msg").input_value()
     ck(f"[{r.name}] message is exactly the approved Already-at-Gate copy", got == want, got[:200])
     rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent)")
-    want_rows = ["Send to=\U0001F1F9\U0001F1FC +" + PHONE, "Disrupted flight=CX451", "Protect to=CX" + new + " / dep 19:55",
+    want_rows = ["Disrupted flight=CX451", "Protect to=CX" + new + " / dep 19:55",
                  "Proceed to Gate=" + ("CX451" if tg == "original" else "CX" + new + " / B9")]
     ck(f"[{r.name}] confirm details rows", rows == want_rows, str(rows))
+    who = await r.pg.locator("#whoNum").inner_text()
+    ck(f"[{r.name}] Confirm details shows the grouped number top-right", await r.pg.locator("#who").is_visible() and " " in who and who.replace(" ", "") == "+" + PHONE, who)
     await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "19:55") + (("21:00",) if st == "delayed" else ()) + (("B9",) if tg == "new" else ()))
 
 CASES = []

@@ -163,7 +163,7 @@ def navigation_lock():
 
 
     ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;' in s and 'const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
-    ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and 'bad("dFlight",listBad("dFlight",v("dFlight"),TPE_DEPARTURE_FLIGHTS));' in s)  # r23: red once the value can no longer match or the field is left (runtime-tested in verify_behavior.py)
+    ck('Scenario 4 disrupted flight visibly marks non-whitelist flight', 'id="dFlight"' in dflight and 'bad("dFlight",listBad("dFlight",v("dFlight"),S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS));' in s)
     ck('Scenario 4 Delayed valid 3-digit flight auto-focuses Delayed to', 'id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)' in s and '$("delayTime").focus()' in s)
     ck('Scenario 4 Delayed to remains editable HHMM input', 'id="delayTime" inputmode="numeric" maxlength="5"' in dflight and '["delayTime","altTime","arriveTime","gDepTime"].forEach' in s and 'fmtTime(this);render();' in s)
 
@@ -172,7 +172,7 @@ def navigation_lock():
     ck('Scenario 4 gate branch flow', 'dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","preview"]}' in s and 'flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]' in s)
     ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("preview");}' in next_block)
     ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
-    ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),' in ok_block)
+    ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime")))&&disruptedFlightOk(v("dFlight")),' in ok_block)
     ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate<','id="gOriginalFlight"','id="gProtectedFlight"','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
     ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
     ck('Scenario 4 Delayed to opens smoothly on step 2 (gate branch)', '$("delayWrap").classList.toggle("gateDelayOpen",delayOpen);' in s and '#s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr' in s)
@@ -281,8 +281,13 @@ for section in ('phone_validation','japanese_sms','datetime'):
 
 # UI regression checks: passenger type in progress and Direct phone placement.
 ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
-ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone])' in s)
-ck('direct phone hidden from header', '!directPreview&&(cur!=="preview"||flow==="call")&&S.phone' in s)
+ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+groupedPhone(S.phone)])' in s)
+ck('direct phone hidden from header', 'const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;' in s)
+# R1.2 header number (user-approved 2026-09-26): no background, muted grey, regular weight, grouped by country
+# (+886 983 952 902); shown on Confirm details too, so there is no "Send to" row. Links keep the plain digits.
+ck('header number style', '.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;' in s)
+ck('header number grouped for display only', '$("whoNum").textContent=groupedPhone(S.phone);' in s and 'ph.formatInternational()' in s and '"whatsapp://send?phone="+encodeURIComponent(S.phone)' in s and '"https://wa.me/"+S.phone' in s)
+ck('no Send to row on Confirm details', '"Send to"' not in s and 'const rows=[];' in s)
 
 # Message Preview is intentionally read-only. Editing/copying is delegated to WhatsApp/SMS.
 ck('preview readonly', '<textarea class="msg" id="msg" autocomplete="off" readonly' in s)
@@ -303,7 +308,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.1";' in sw)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''
@@ -359,6 +364,9 @@ for _n,_v in _nav:
 
 # Flow behaviour: drives the real UI in headless Chromium and executes every outgoing
 # branch in flow-behavior-spec.json (plus Back/Forward, guards, state rules, send URLs).
+fix_run=subprocess.run(['node',str(r/'verify_fixes.cjs')],cwd=r,capture_output=True,text=True)
+ck('R1.2.1 history and route regression checks',fix_run.returncode==0)
+if fix_run.returncode!=0: print(fix_run.stdout+fix_run.stderr)
 if QUICK:
     print('SKIP flow behaviour and Service Worker scenarios (--quick: browser tests not run)')
 else:

@@ -33,7 +33,7 @@ button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 .headrow{display:flex;align-items:center;gap:10px;min-height:44px}
 .back{border:0;background:transparent;color:var(--brand-strong);font-size:17px;font-weight:700;padding:8px 8px 8px 0;min-width:64px;text-align:left;cursor:pointer}
 .back[hidden]{visibility:hidden;display:block}
-.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
 .who[hidden]{display:none}
 .bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
 .bar[hidden]{display:block;visibility:hidden}
@@ -324,7 +324,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">R1.2</span>
+        <span class="appVersion" aria-label="App version">R1.2.1</span>
       </div>
     </section>
 
@@ -742,6 +742,15 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     const z=v("gGateZone"), x=normalizeCallGate(v("gGate"));
     return /^[BC]$/.test(z)&&/^(?:[1-9]|1R)$/.test(x)?z+x:"";
   }
+  // Header number, grouped the way the destination country writes it (+886 983 952 902).
+  // Falls back to the plain +digits if the phone library is not ready or cannot parse it.
+  function groupedPhone(d){
+    try{
+      const lp=window.libphonenumber, ph=lp&&lp.parsePhoneNumberFromString("+"+d);
+      if(ph) return ph.formatInternational();
+    }catch(e){}
+    return "+"+d;
+  }
   function callFlightNumber(){
     const d=digits(v("callFlight")).slice(0,3);
     return /^\d{1,3}$/.test(d)?String(Number(d)):"";
@@ -831,6 +840,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   function tpeDestination(n){
     return TRANSIT_DESTINATIONS[n]||{zh:"香港",en:"Hong Kong",ja:"香港"};
   }
+  const DP_HKG_FLIGHTS=new Set([...TPE_DEPARTURE_FLIGHTS].filter(n=>tpeDestination(n).en==="Hong Kong"));
+  const disruptedFlightOk=raw=>(S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS).has(normalizeFlight(raw));
   function callFlightOk(){
     const n=callFlightNumber();
     if(!n) return false;
@@ -857,10 +868,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     // Scenario 3 · Wrong Pick-up flight number
     bad("wFlight",filled("wFlight")&&!isFlt(v("wFlight")));
     // Scenario 4 · Disrupted Pax
-    bad("dFlight",listBad("dFlight",v("dFlight"),TPE_DEPARTURE_FLIGHTS));
+    bad("dFlight",listBad("dFlight",v("dFlight"),S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS));
     bad("tN",codeBad("tA")||(filled("tN")&&!isFlt(v("tN")))||tpeDepartureBlocked(v("tA"),v("tN")));
     const altIsCx=String(v("altA")||"").toUpperCase()==="CX";
-    bad("altN",codeBad("altA")||(filled("altN")&&!isFlt(v("altN")))||(altIsCx&&listBad("altN",v("altN"),TPE_DEPARTURE_FLIGHTS))||sameProtectedCxFlight(v("altA"),v("altN"),v("dFlight")));
+    bad("altN",codeBad("altA")||(filled("altN")&&!isFlt(v("altN")))||(altIsCx&&listBad("altN",v("altN"),DP_HKG_FLIGHTS))||sameProtectedCxFlight(v("altA"),v("altN"),v("dFlight")));
     ["delayTime","altTime","arriveTime","gDepTime"].forEach(id=>bad(id,timeState(id)==="bad"));
     bad("gNewN",listBad("gNewN",v("gNewN"),TPE_DEPARTURE_FLIGHTS)||sameProtectedCxFlight("CX",v("gNewN"),v("dFlight")));
     // Scenario 2 · Final Call flight number (unchanged rule, kept here for consistency)
@@ -875,11 +886,11 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     wflight:()=>isFlt(v("wFlight")),
     bag1:()=>isAir(v("b1a"))&&/^\d{6}$/.test(v("b1n")),
     bag2:()=>isAir(v("b2a"))&&/^\d{6}$/.test(v("b2n")),
-    dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),
+    dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime")))&&disruptedFlightOk(v("dFlight")),
     dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))&&!tpeDepartureBlocked(v("tA"),v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown"||S.status==="gate",
     dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),
-    darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))&&timeOk("altTime")),
+    darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))&&timeOk("altTime")&&(v("altA")!=="CX"||disruptedFlightOk(v("altN")))),
     darrive:()=>timeOk("arriveTime"),
     callflight:()=>{
       const n=callFlightNumber();
@@ -889,8 +900,18 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       return false;
     },
     callgate:()=>!!callGateFull(),
-    preview:()=>true
+    preview:()=>firstInvalidStep(navPos)===-1
   };
+  // Recheck the visited prerequisites after edits made through browser history.
+  function firstInvalidStep(targetPos){
+    const p=normalizePhone(v("phoneInput"));
+    if(!p||p.blocked||p.digits!==S.phone) return 0;
+    for(let i=1;i<targetPos;i++){
+      const id=stack[i];
+      if(id!=="preview"&&OK[id]&&!OK[id]()) return i;
+    }
+    return -1;
+  }
   function bagHint(a,n){
     if(!isAir(v(a))) return "Airline code: 2 letters";
     const l=v(n).length; return l<6?(l?(6-l)+" more digits":"6 digits"):"";
@@ -1174,10 +1195,11 @@ Thank you for your understanding and cooperation.`;
     return flow==="miss"?(S.missMode==="transit"?textMissTransit(zf):textMiss(zf)):flow==="call"?textCall(zf):flow==="wpp"?textWpp(zf):textDp(zf);
   }
   function buildRows(){
-    const rows=flow==="call"?[]:[["Send to",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]];
+    // The passenger number is shown top-right on every page, Confirm details included, so it is not repeated as a row here.
+    const rows=[];
     if(flow==="call"){
       if(S.callNoMessage){
-        rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+"+"+S.phone]);
+        rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+groupedPhone(S.phone)]);
       }else{
         rows.push(["Flight",callFlightFull()]);
         if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}
@@ -1321,6 +1343,15 @@ Thank you for your understanding and cooperation.`;
     if(resetting){resetting=false;return;}
     const st=e.state;
     if(st&&st.findPax&&Number.isInteger(st.pos)&&st.pos>=0&&st.pos<stack.length&&stack[st.pos]===st.id){
+      if(st.pos>navPos){
+        const invalid=firstInvalidStep(st.pos);
+        if(invalid!==-1){
+          navPos=invalid;
+          showScreen(stack[invalid]);
+          history.go(invalid-st.pos);
+          return;
+        }
+      }
       navPos=st.pos;
       showScreen(st.id);
     }
@@ -1412,12 +1443,12 @@ Thank you for your understanding and cooperation.`;
   function render(){
     $("app").classList.toggle("phoneHome",cur==="phone");
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&(cur!=="preview"||flow==="call")&&S.phone;
+    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
       $("whoFlag").textContent=S.country?flagFor(S.country):"";
-      $("whoNum").textContent="+"+S.phone;
+      $("whoNum").textContent=groupedPhone(S.phone);
     }
     const f=flow&&(flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]), rawIdx=f?f.steps.indexOf(cur):-1;
     // Scenario 1 counts Passenger Type as step 1/3. Its read-only preview is the
