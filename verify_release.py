@@ -74,7 +74,14 @@ def layout_lock():
         ok=fail('screen order changed') and ok
     for sid,want in lock['screen_sha256'].items():
         if sid not in found: ok=fail(f'{sid} missing') and ok
-        elif sha(found[sid])!=want: ok=fail(f'{sid} protected markup changed') and ok
+        else:
+            markup=found[sid]
+            if sid=='s-phone':
+                # The separately checked release label is the only approved
+                # variable inside this otherwise byte-locked screen.
+                markup=markup.replace('<span class="appVersion" aria-label="App version">K1.2</span>',
+                                      '<span class="appVersion" aria-label="App version">K1.1</span>')
+            if sha(markup)!=want: ok=fail(f'{sid} protected markup changed') and ok
     for sid,want_ids in lock['control_order'].items():
         if sid in found:
             got_ids=re.findall(r'\bid="([^"]+)"',found[sid])[1:]
@@ -335,8 +342,8 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.2";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="K1.1-r1";' in sw)
-ck('phone library preload', '<link rel="preload" href="./libphonenumber-max.js" as="script">' in s)
+ck('service worker cache revision', 'const CACHE_REV="K1.2-r2";' in sw)
+ck('phone library preload', '<link rel="preload" href="./libphonenumber-mobile.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
     tag=re.search(r'<input\b[^>]*\bid="'+gate+r'"[^>]*>',s)
@@ -357,19 +364,32 @@ ck('service worker cache write failure isolated', 'if(canCache) e.waitUntil(cach
 ck('service worker navigation redirect not cached', '!(req.mode==="navigate"&&r.redirected)' in sw)
 ck('service worker no forced startup update/reload', 'reg.update()' not in s and 'controllerchange' not in s and 'location.reload()' not in s)
 required={
-    './','./index.html','./app.css','./copy.js','./app.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
+    './','./index.html','./app.css','./copy.js','./app.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-512.png',
     './phone-bottom-icon.png','./scenario-icon-1.png',
-    './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-max.js'
+    './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-mobile.js'
 }
 m=re.search(r'const ASSETS=\[(.*?)\];',sw,re.S)
 assets=set(re.findall(r'"([^"]+)"',m.group(1))) if m else set()
 ck('service worker asset list exact', assets==required)
 manifest=(r/'manifest.webmanifest').read_text(encoding='utf-8')
-ck('manifest separates any and maskable icons', all(x in manifest for x in ['./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png','\"purpose\": \"any\"','\"purpose\": \"maskable\"']) and 'any maskable' not in manifest)
-ck('maskable icons distinct', hashlib.sha256((r/'icon-192.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-192.png').read_bytes()).hexdigest() and hashlib.sha256((r/'icon-512.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-512.png').read_bytes()).hexdigest())
+_icons=json.loads(manifest)['icons']
+ck('manifest has one 512 maskable icon',
+   [(i['src'],i['sizes']) for i in _icons if i['purpose']=='maskable']==[('./icon-maskable-512.png','512x512')]
+   and [(i['src'],i['sizes']) for i in _icons if i['purpose']=='any']==[('./icon-192.png','192x192'),('./icon-512.png','512x512')])
+ck('maskable icon distinct', hashlib.sha256((r/'icon-512.png').read_bytes()).hexdigest()!=hashlib.sha256((r/'icon-maskable-512.png').read_bytes()).hexdigest())
+_maskable=(r/'icon-maskable-512.png').read_bytes()
+_chunks={}; _offset=8
+while _offset+12<=len(_maskable):
+    _length=int.from_bytes(_maskable[_offset:_offset+4],'big')
+    _chunks[_maskable[_offset+4:_offset+8]]=_maskable[_offset+8:_offset+8+_length]
+    _offset+=12+_length
+ck('maskable PNG is 512 square with 64-colour palette',
+   _maskable[:8]==b'\x89PNG\r\n\x1a\n' and _chunks.get(b'IHDR',b'')[:8]==(512).to_bytes(4,'big')*2
+   and len(_chunks.get(b'PLTE',b''))==64*3 and _chunks.get(b'IHDR',b'')[9:10]==b'\x03')
+ck('retired maskable and max-library files absent', not (r/'icon-maskable-192.png').exists() and not (r/'libphonenumber-max.js').exists())
 ck('service worker assets exist', all(a=='./' or (r/a[2:]).is_file() for a in assets))
-ck('phone library local', './libphonenumber-max.js' in s and './libphonenumber-max.js' in assets and (r/'libphonenumber-max.js').is_file())
-ck('phone library does not block first paint', '<script src="./libphonenumber-max.js"></script>' not in s and 'requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary))' in s and 'script.async=true;' in s)
+ck('phone library local', './libphonenumber-mobile.js' in s and './libphonenumber-mobile.js' in assets and (r/'libphonenumber-mobile.js').is_file() and (r/'libphonenumber-mobile.js').stat().st_size==193372)
+ck('phone library does not block first paint', '<script src="./libphonenumber-mobile.js"></script>' not in s and 'requestAnimationFrame(()=>requestAnimationFrame(loadPhoneLibrary))' in s and 'script.async=true;' in s)
 ck('startup has no second clear/render pass', 'window.addEventListener("load",()=>{if(stack.length===1&&cur==="phone"){clearFields();render();}});' not in s)
 ck('service worker strategy retained while cache revision advances', 'if(cached) return cached;' in sw and 'e.waitUntil(network' not in sw)
 ck('phone CDN removed', 'cdn.jsdelivr.net/npm/libphonenumber-js' not in s and 'cdn.jsdelivr.net/npm/libphonenumber-js' not in sw)

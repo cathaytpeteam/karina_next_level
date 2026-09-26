@@ -58,7 +58,7 @@
     }
     if(old) old.remove();
     const script=document.createElement("script");
-    script.src="./libphonenumber-max.js";
+    script.src="./libphonenumber-mobile.js";
     script.async=true;
     script.dataset.phoneLib="1";
     phoneLibLoading=true;
@@ -176,6 +176,21 @@
     const p=validatePhone(n);
     if(!p) return null;
     return {...p,blocked:blocked.has(p.digits)};
+  }
+
+  function phoneInputIsBad(raw,p){
+    const n=digits(raw);
+    if(!n||!phoneLibReady) return false;
+    if(p) return !!p.blocked;
+    const code=callingCodeFor(n);
+    if(!code) return !PHONE_META.codes.some(c=>c.startsWith(n));
+    // Keep incomplete Japanese mobile prefixes neutral, including tolerated zeroes.
+    if(code==="81"){
+      const local=n.slice(2).replace(/^0{1,3}/,"");
+      return !/^(?:[6789](?:0\d{0,8})?)?$/.test(local);
+    }
+    // Other countries stay neutral while another digit could complete the length.
+    return window.libphonenumber.validatePhoneNumberLength("+"+n)!=="TOO_SHORT";
   }
 
   // ==== [state] ====
@@ -905,7 +920,7 @@
     if(cc) b.textContent=phoneLabel(cc);
     const bl=!!(p&&p.blocked);
     $("warn").classList.toggle("show",bl);
-    $("phoneField").classList.toggle("bad",bl);
+    $("phoneField").classList.toggle("bad",phoneInputIsBad(this.value,p));
     render();
   });
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,gNewN:3};

@@ -1,6 +1,6 @@
 const CACHE_PREFIX="find-pax-";
 const APP_VERSION="v1.2";
-const CACHE_REV="K1.1-r1";
+const CACHE_REV="K1.2-r2";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
   "./",
@@ -12,14 +12,13 @@ const ASSETS=[
   "./apple-touch-icon.png",
   "./icon-192.png",
   "./icon-512.png",
-  "./icon-maskable-192.png",
   "./icon-maskable-512.png",
   "./phone-bottom-icon.png",
   "./scenario-icon-1.png",
   "./scenario-icon-2.png",
   "./scenario-icon-3.png",
   "./scenario-icon-4.png",
-  "./libphonenumber-max.js"
+  "./libphonenumber-mobile.js"
 ];
 
 // Android cold start: Static Routing lets Chrome answer launch requests straight

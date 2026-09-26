@@ -29,8 +29,7 @@ CONTROL_FILES = {'README.md', 'AI-GUIDE.md', 'PLAN.md', 'locks.json',
 SIZE_LIMITS = {'AI-GUIDE.md': 4096, 'README.md': 20480, 'PLAN.md': 12288}
 MAX_CHANGELOG_ENTRIES = 2
 
-# Known debt, scheduled for PLAN.md phase 2. Only these exact items are tolerated;
-# anything new fails. Delete entries as they are cleaned up — never add to them.
+# No historical comments or unused selectors are allowed.
 KNOWN_HISTORY_COMMENTS = set()
 KNOWN_UNUSED_CSS = set()
 
@@ -119,6 +118,47 @@ for name in changed:
         ck(name + ' brace balance', t.count('{') == t.count('}'))
     elif name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
         ck(name + ' is non-empty', p.stat().st_size > 0)
+
+if 'libphonenumber-mobile.js' in changed or 'app.js' in changed:
+    ck('Node is required for phone regression checks', bool(node))
+if ('libphonenumber-mobile.js' in changed or 'app.js' in changed) and node:
+    probe = r'''const fs=require('fs'),lp=require(process.argv[1]);
+const source=fs.readFileSync(process.argv[2],'utf8');
+const start=source.indexOf('  function validatePhone(raw){');
+const end=source.indexOf('\n  }',start)+4;
+if(start<0||end<4) throw Error('validatePhone function missing');
+const markStart=source.indexOf('  function phoneInputIsBad(raw,p){');
+const markEnd=source.indexOf('\n  }',markStart)+4;
+if(markStart<0||markEnd<4) throw Error('phoneInputIsBad function missing');
+const byCode={};
+lp.getCountries().forEach(country=>{
+  const code=String(lp.getCountryCallingCode(country));
+  (byCode[code]||(byCode[code]=[])).push(country);
+});
+const meta={byCode,codes:Object.keys(byCode).sort((a,b)=>b.length-a.length)};
+const digits=raw=>String(raw).replace(/\D/g,'');
+const callingCodeFor=n=>meta.codes.find(code=>n.startsWith(code))||'';
+const {validatePhone,phoneInputIsBad}=new Function('PHONE_META','window','digits','callingCodeFor','phoneLibReady',
+  source.slice(start,end)+source.slice(markStart,markEnd)+'; return {validatePhone,phoneInputIsBad};')(
+  meta,{libphonenumber:lp},digits,callingCodeFor,true);
+const cases=[['+886 2 2345 6789',false],['+852 2123 4567',false],
+['+81 3 1234 5678',false],['+81 120 123 456',false],
+['+886 912 345 678',true],['+852 9123 4567',true],
+['+81 90 1234 5678',true],['+81 60 1234 5678',true],
+['+1 202 555 0123',true],['+44 7911 123456',true]];
+const bad=cases.filter(([number,expected])=>{
+  const p=validatePhone(number);
+  return !!p!==expected||phoneInputIsBad(number,p)===expected;
+});
+const partial=['','+8','+81','+81 0','+81 90 123','+886 912','+852 91'];
+const premature=partial.filter(number=>phoneInputIsBad(number,validatePhone(number)));
+if(lp.getCountries().length!==245||bad.length||premature.length){
+  console.error(JSON.stringify({countries:lp.getCountries().length,bad,premature}));process.exit(1);
+}'''
+    result = subprocess.run([node, '-e', probe, str(R / 'libphonenumber-mobile.js'),str(R / 'app.js')],
+                            capture_output=True, text=True)
+    ck('mobile library 245 regions and fixed phone matrix', result.returncode == 0,
+       result.stderr.strip()[:300])
 
 # ---- wiring -----------------------------------------------------------------------
 h, a, sw, cp = text('index.html'), text('app.js'), text('sw.js'), text('copy.js')

@@ -30,7 +30,7 @@ Service Worker scenarios run separately:  python3 verify_behavior.py --sw [--pre
 Requires:  pip install playwright  &&  python -m playwright install chromium
 """
 from pathlib import Path
-import asyncio, json, re, sys, urllib.parse
+import asyncio, json, os, re, sys, urllib.parse
 
 R = Path(__file__).resolve().parent
 N_ASSETS = len(re.findall(r'"\./[^"]*"', re.search(r'const ASSETS=\[(.*?)\];', (R / "sw.js").read_text(encoding="utf-8"), re.S).group(1)))
@@ -51,6 +51,10 @@ PHONE = "886983952902"
 failed = False
 
 async def launch_chromium(p):
+    local_browser = os.environ.get('FIND_PAX_CHROMIUM')
+    if local_browser:
+        return await p.chromium.launch(executable_path=local_browser, headless=True,
+                                       args=["--no-sandbox", "--disable-dev-shm-usage"])
     try:
         return await p.chromium.launch(headless=True)
     except Exception:
@@ -200,7 +204,7 @@ class Run:
         await cdp.send("Page.enable")
         # Load the exact app document without relying on file://, which is blocked by some
         # managed Chromium policies. The bundled phone library is inlined only in the test page.
-        lib = (R / "libphonenumber-max.js").read_text(encoding="utf-8")
+        lib = (R / "libphonenumber-mobile.js").read_text(encoding="utf-8")
         doc = HTML.replace('</head>', '<script>' + lib + '</script></head>')
         await self.pg.set_content(doc, wait_until="domcontentloaded")
         await self.pg.wait_for_selector("#s-phone:not([hidden])")
@@ -400,6 +404,27 @@ async def priority_suite():
     global failed
     async with async_playwright() as p:
         browser = await launch_chromium(p)
+
+        # Fixed mobile/landline matrix checks the real UI, including Japan's
+        # separate branch. A rejected number uses the normal invalid state.
+        r = await Run(browser, "priority-phone-matrix").open()
+        for number in ("", "+8", "+81", "+81 0", "+81 90 123", "+886 912", "+852 91"):
+            await r.fill("phoneInput", number)
+            state = await r.st()
+            ck(f"[priority] incomplete phone {number!r} stays neutral",
+               state["cta_disabled"] and "phoneInput" not in state["bad"], str(state))
+        for number, valid in (
+            ("+886 2 2345 6789", False), ("+852 2123 4567", False),
+            ("+81 3 1234 5678", False), ("+81 120 123 456", False),
+            ("+886 912 345 678", True), ("+852 9123 4567", True),
+            ("+81 90 1234 5678", True), ("+81 60 1234 5678", True),
+            ("+1 202 555 0123", True), ("+44 7911 123456", True),
+        ):
+            await r.fill("phoneInput", number)
+            state = await r.st()
+            ck(f"[priority] {number} {'mobile passes' if valid else 'landline rejects'}",
+               state["cta_disabled"] != valid and (("phoneInput" in state["bad"]) != valid), str(state))
+        await r.close()
 
         # Phone + Home visual geometry on the three locked phone widths.
         r = await Run(browser, "priority-home").open()
@@ -1114,12 +1139,12 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     srv.fail404 = set()
     # 7 cache miss
     pg, _, _ = await _sw_launch(ctx, srv, settle=300)
-    await pg.evaluate("async()=>{for(const k of await caches.keys()){const c=await caches.open(k);await c.delete(new URL('./libphonenumber-max.js',location).href);}}")
+    await pg.evaluate("async()=>{for(const k of await caches.keys()){const c=await caches.open(k);await c.delete(new URL('./libphonenumber-mobile.js',location).href);}}")
     await pg.close()
     pg, _, errs = await _sw_launch(ctx, srv)
     ck(T + "7 cache miss: asset fetched from network, app works", await pg.evaluate("!!window.libphonenumber") and not errs, "; ".join(errs[:3]))
     await pg.wait_for_timeout(1500)
-    ck(T + "7 cache miss: asset written back to cache", (await _cached_text(pg, "./libphonenumber-max.js")) is not None)
+    ck(T + "7 cache miss: asset written back to cache", (await _cached_text(pg, "./libphonenumber-mobile.js")) is not None)
     await pg.close(); await ctx.close()
     # 8 upgrade from a previous build
     if previous:

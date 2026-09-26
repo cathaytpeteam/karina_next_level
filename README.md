@@ -1,21 +1,23 @@
-# Find Pax K1.1
+# Find Pax K1.2
 
-Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`. Decisions already approved but not yet built are in `PLAN.md`.
+Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
 ## Files
 
-Deployed (listed in `sw.js` ASSETS, plus `sw.js` itself): `index.html` (screen shell, layout-locked), `app.css` (all styling and colour variables), `copy.js` (all user-facing copy plus approved rule data), `app.js` (state, validation and navigation), `manifest.webmanifest`, `libphonenumber-max.js`, and the PNG icons.
+Deployed (listed in `sw.js` ASSETS, plus `sw.js` itself): `index.html` (screen shell, layout-locked), `app.css` (all styling and colour variables), `copy.js` (all user-facing copy plus approved rule data), `app.js` (state, validation and navigation), `manifest.webmanifest`, `libphonenumber-mobile.js`, and the PNG icons.
 
-Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md`, `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py`, `SHA256SUMS.txt` (written by the verifier after a passing check).
+Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md` (pending release checklist), `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py`, `SHA256SUMS.txt` (written by the verifier after a passing check).
 
 ## Maintenance principles
 
-- **One rule, one place.** Product rules live here. Copy and approved rule data live in `copy.js`. Hashes live in `locks.json`. Flows live in `flow-behavior-spec.json`. Code comments describe current behaviour only. History lives in the change log below (two entries) and in git.
+- **One rule, one place.** Product rules live here. Copy and approved rule data live in `copy.js`. Hashes live in `locks.json`. Flows live in `flow-behavior-spec.json`. Code comments describe current behaviour only. History lives in the change log below and in git.
 - **Edit boundaries.** Copy-only request: do not touch CSS. Logic request: do not change colours, spacing, font sizes or unrelated markup. Visual change: `app.css` only when explicitly asked, reusing existing colour tokens. `index.html` is a stable shell; do not move fields or screens for text or logic work. Any deployed file change keeps `sw.js` ASSETS and `CACHE_REV` in sync.
 - **Older Android first.** No framework, build step, web font, optional chaining, native `replaceChildren()`, or unnecessary animation.
 - **Surgical changes.** Anything not explicitly requested is locked. A failing lock outside the requested change is a regression, not something to re-hash.
 
 ## Test environment limits
+
+- **K1.2 verification pending:** static checks pass. Both `--fast` and `--full` were attempted, but Chromium exited with SIGTRAP before the browser gate could start. The previous candidate also failed four landline red-border cases in the user's environment. This candidate fixes their missing red borders; browser flows and Service Worker scenarios still require verification. Run both gates successfully before deployment; only a passing gate may rewrite `SHA256SUMS.txt`.
 
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
 - Without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch.
@@ -24,7 +26,7 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md`, `locks.json` (has
 
 ### 1. Startup / PWA / home screen
 
-- Home UI renders before `libphonenumber-max.js` finishes loading; the library is local, precached, preloaded, and retried (bounded) if Android delays or drops the load.
+- Home UI renders before `libphonenumber-mobile.js` finishes loading; the library is local, precached, preloaded, and retried (bounded) if Android delays or drops the load.
 - Phone validation must not show a false Invalid state while the library is loading; once it loads, the current input, country badge and Next state are revalidated.
 - Startup performs one initial clear/render path only.
 - Service Worker: cache-first. Launch makes zero network requests in every browser; only a cache miss goes to the network.
@@ -33,13 +35,14 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md`, `locks.json` (has
 - A failed `cache.put()` must not fail a successful network response. Redirected navigation responses are never cached.
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K1.1`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K1.2`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
 ### 2. Phone validation
 
 - Invalid phone blocks Next. Canned/blocked numbers show `罐頭號碼 無用`.
+- **Landline numbers must be rejected (user-approved).** Only mobile numbers pass validation, in every country. The app uses the libphonenumber-js mobile metadata (`libphonenumber-mobile.js`); do not switch back to max/min metadata without explicit approval. Japan keeps its own rule (90/80/70/60 only), independent of the library.
 - Valid numbers normalize to canonical E.164 digits without `+` (`PhoneNumber.isValid()` required).
 - Japan +81 has its own rule, independent of the library: after 81 and up to three tolerated leading zeroes, a 10-digit mobile part starting 90 / 80 / 70 / 60. Japanese 020, 050, 0800, landlines and wrong lengths are rejected.
 - Header phone number: muted grey, grouped the way each country writes it (+886 983 952 902). Grouping is display-only; WhatsApp / SMS / call links use plain digits.
@@ -114,19 +117,21 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 1. Start from the latest user-approved ZIP.
 2. Write down the exact requested change before editing.
 3. Never edit `locks.json` to make a check pass. If a lock fails outside the requested change, stop and report it.
-4. A lock may be recomputed only after the user approves that specific change. (A temporary exception for the refactor is defined in `PLAN.md` and ends with it.)
+4. A lock may be recomputed only after the user explicitly approves that specific change.
 5. Never report an unexecuted test as PASS.
 
 ## Change log
 
-Only the latest two final releases. Trials are not recorded. Older history is in git.
+The K1.2 entry below is a verification-pending delivery. Older history is in git.
+
+### K1.2 (2026-09-27, verification pending)
+
+- Switched to the 245-region mobile phone metadata; landlines now fail the normal invalid-phone check while the Japan rule stays unchanged. The fixed ten-number UI matrix runs in `--fast`.
+- Compressed the 512 maskable icon to 64 colours and retired the 192 maskable icon. Updated the PWA asset list and cache revision to K1.2-r2.
+- Implemented the phase changes; release verification is pending. PLAN.md remains until the release gates pass. Explicit approval is required for any lock recomputation.
 
 ### K1.1 (2026-09-27)
 
-- Phase 2 maintenance refactor: centralized colours in `:root`, merged copy/rule data into `copy.js`, retired `scenario-config.js` and `message-master.json`, and added copy-ID verification.
-- UI, message output and flow behaviour remain unchanged; release label/cache revision updated to K1.1 / K1.1-r1.
-
-### K1.0 (2026-09-26)
-
-- Already at Gate split into five steps: Protect to 3/5, Proceed to Gate 4/5 (CSS scoped to `#s-dgateaction`), Confirm details 5/5.
-- Release identity renamed R1.2.4 → K1.0. No copy or language change.
+- Phase 1 + Phase 2 consolidated release: split Already at Gate into five steps (Protect 3/5, Proceed to Gate 4/5 with CSS scoped to `#s-dgateaction`, Confirm details 5/5), then completed the maintenance refactor.
+- Centralized colours in `:root`, merged copy/rule data into `copy.js`, retired `scenario-config.js` and `message-master.json`, and added copy-ID verification.
+- UI, copy/message output and flow behaviour remain unchanged from the approved Phase 1/2 result; release label/cache revision finalized as K1.1 / K1.1-r1.
