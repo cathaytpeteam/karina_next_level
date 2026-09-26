@@ -1208,10 +1208,17 @@ Thank you for your understanding and cooperation.`;
     const idx=missCompletedPreview?f.steps.length-1:rawIdx;
     const directProgress=directPreview;
     $("bar").hidden=idx<0&&!directProgress;
+    function renderProgressTitle(label,count){
+      replaceChildrenCompat($("step"),
+        Object.assign(document.createElement("span"),{className:"progressLabel",textContent:label}),
+        document.createTextNode(" "),
+        Object.assign(document.createElement("span"),{className:"progressCount",textContent:count})
+      );
+    }
     if(directProgress){
       $("barFill").style.width="100%";
       const directName=S.missMode==="direct"?"漏查":(S.callMode==="direct"?"Call Directly":"Final Call");
-      replaceChildrenCompat($("step"),document.createTextNode(directName+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:"1/1"}));
+      renderProgressTitle(directName,"1/1");
     }else if(idx>=0){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
@@ -1222,11 +1229,11 @@ Thank you for your understanding and cooperation.`;
       const disruptedType=flow==="dp" && cur!=="dstatus"
         ? (S.status==="possible"?"Tight connection":S.status==="delayed"?"Flight delayed":S.status==="unknown"?"Flight Suspended":S.status==="gate"?"Already at Gate":"") : "";
       if((flow==="miss"||flow==="call")&&passengerType){
-        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
+        renderProgressTitle(f.name+" - "+passengerType,progressText);
       }else if(flow==="dp"&&disruptedType){
-        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+disruptedType));
+        renderProgressTitle(f.name+" - "+disruptedType,progressText);
       }else{
-        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}));
+        renderProgressTitle(f.name,progressText);
       }
     }else $("step").textContent="";
 

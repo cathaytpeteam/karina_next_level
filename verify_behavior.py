@@ -423,7 +423,7 @@ async def priority_suite():
         await _simple_click(r, "goMiss", "misstype")
         ck("[priority] S1 Passenger Type says Joining Passenger", (await r.pg.locator("#missJoin .ctext").inner_text()).strip() == "Joining Passenger")
         await _simple_click(r, "missJoin", "mflight")
-        ck("[priority] S1 progress wording uses Joining Passenger", (await r.pg.locator("#step").inner_text()).strip() == "漏查 - 2/3 - Joining Passenger", (await r.pg.locator("#step").inner_text()).strip())
+        ck("[priority] S1 progress wording uses Joining Passenger", " ".join((await r.pg.locator("#step").inner_text()).split()) == "漏查 - Joining Passenger 2/3", (await r.pg.locator("#step").inner_text()).strip())
         await r.fill("mFlight", "407"); await r.expect("S1 valid CX407 enables Next", True, not_bad=["mFlight"])
         await _simple_click(r, "cta", "msec"); await r.fill("mSec", "123"); await r.expect("S1 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "preview")

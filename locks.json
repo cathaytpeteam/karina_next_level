@@ -215,7 +215,7 @@
     "version": "1.0",
     "release": "v1.1",
     "status": "LOCKED",
-    "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC layout: Scenario 1 Join/Transit keeps the inline IATA-prefix + SEC-number field. Scenario 2 Final Call SEC page is intentionally removed for both Join and Transit. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/4). These authorized regions are locked again. Authorized Scenario 4 layout change: Flight Type is step 1/6 and uses the Passenger Type visual hierarchy; Tight Connection is the large primary choice, with Delayed and To be updated as the two smaller choices below. Authorized Scenario 4 follow-up: Flight Type remains step 1/6 but now behaves exactly like a Passenger Type choice page: its heading uses the default Passenger Type placement and it has no footer/Next. The delayed-time control is moved from Flight Type to Disrupted flight step 2/6, where it appears only for Delayed. Tight Connection and To be updated do not show that control. These authorized regions are locked again. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type third option is renamed from “To be updated” to “Suspended”; s-dstatus is locked again with this label. Authorized layout change (user-approved 2026-09-23): Scenario 4 step 2/6 title is the single line “Flight from TPE” and the TPE chip is removed; s-dflight is locked again with this structure. Authorized release-label rename: visible release identity changed from r41 to R1; no other protected s-phone structure changed.",
+    "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC layout: Scenario 1 Join/Transit keeps the inline IATA-prefix + SEC-number field. Scenario 2 Final Call SEC page is intentionally removed for both Join and Transit. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/4). These authorized regions are locked again. Authorized Scenario 4 layout change: Flight Type is step 1/6 and uses the Passenger Type visual hierarchy; Tight Connection is the large primary choice, with Delayed and To be updated as the two smaller choices below. Authorized Scenario 4 follow-up: Flight Type remains step 1/6 but now behaves exactly like a Passenger Type choice page: its heading uses the default Passenger Type placement and it has no footer/Next. The delayed-time control is moved from Flight Type to Disrupted flight step 2/6, where it appears only for Delayed. Tight Connection and To be updated do not show that control. These authorized regions are locked again. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type third option is renamed from “To be updated” to “Suspended”; s-dstatus is locked again with this label. Authorized layout change (user-approved 2026-09-23): Scenario 4 step 2/6 title is the single line “Flight from TPE” and the TPE chip is removed; s-dflight is locked again with this structure. Authorized release-label rename: visible release identity changed from r41 to R1; no other protected s-phone structure changed. Authorized K1.0 progress layout: flow label stays left and numeric progress is aligned right across all scenarios; subtype annotations remain attached to the flow label.",
     "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
     "source": "index.html",
     "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
@@ -240,7 +240,7 @@
       "s-preview"
     ],
     "screen_sha256": {
-      "s-phone": "e52241dca9149bf4b89b7be21e2d280ad64ee10c3435aa9ac536941b3f9824a4",
+      "s-phone": "8b5646dc4d4cfd345c1ecd18e9617ba0678be8d9ba06f0ca34579f03fea4b4da",
       "s-scenario": "7523a82d86605eebfe342061062c014e3f14628f87c65f4f0c9aeb736e3efb49",
       "s-misstype": "be1d62dac0d6e5eebde6a4104ee38b2a554245e6681457c1f9d57271fb127304",
       "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
@@ -385,8 +385,8 @@
       "Runtime data values inserted into existing locked elements"
     ],
     "authorized_progress_update": {
-      "scenario1": "漏查 - N/3 - Joining Passenger / Transit Passenger (Passenger Type page: 漏查 - 1/3)",
-      "scenario2": "Final Call - N/4 - Joining Passenger / Transit Passenger (Passenger Type page: Final Call - 1/4)"
+      "scenario1": "漏查 - N/3 - Joining Passenger / Transit Passenger (Passenger Type page: 漏查 1/3)",
+      "scenario2": "Final Call - N/4 - Joining Passenger / Transit Passenger (Passenger Type page: Final Call 1/4)"
     },
     "authorized_final_call_update": "Scenario 2 remains named Final Call. Authorized flow update: SEC page removed for both Join and Transit; Final Call is now 4 steps (Passenger Type, Flight, Gate, Preview). Progress order remains Flow - N/N - Passenger Type. Scenario 1 is unchanged.",
     "authorized_scenario4_followup": {
@@ -480,13 +480,13 @@
       "transit": "missTransit -> mflight",
       "direct": "missDirect -> preview",
       "progress_labels": [
-        "漏查 - 1/3",
-        "漏查 - 2/3 - Joining Passenger",
-        "漏查 - 2/3 - Transit Passenger"
+        "漏查 1/3",
+        "漏查 - Joining Passenger 2/3",
+        "漏查 - Transit Passenger 2/3"
       ],
-      "message_progress": "Passenger Type 漏查 - 1/3; after selection: 漏查 - 2/3 - Join/Transit Passenger -> 漏查 - 3/3 - Join/Transit Passenger; preview remains completed at 3/3",
-      "back_behavior": "Returning to misstype always displays 漏查 - 1/3 with no Join/Transit annotation.",
-      "direct_progress": "漏查 - 1/1 - Call Directly"
+      "message_progress": "Passenger Type 漏查 1/3; after selection: 漏查 2/3 - Join/Transit Passenger -> 漏查 3/3 - Join/Transit Passenger; preview remains completed at 3/3",
+      "back_behavior": "Returning to misstype always displays 漏查 1/3 with no Join/Transit annotation.",
+      "direct_progress": "漏查 1/1 - Call Directly"
     },
     "scenario2": {
       "entry": "goCall -> calltype",
@@ -494,14 +494,14 @@
       "transit": "callTransit -> callflight",
       "direct": "callDirect -> preview",
       "progress_labels": [
-        "Final Call - 1/4",
-        "Final Call - 2/4 - Joining Passenger",
-        "Final Call - 2/4 - Transit Passenger"
+        "Final Call 1/4",
+        "Final Call - Joining Passenger 2/4",
+        "Final Call - Transit Passenger 2/4"
       ],
-      "message_progress": "Final Call - 1/4; after selection: Final Call - 2/4 - Join/Transit Passenger -> Final Call - 3/4 - Join/Transit Passenger -> Final Call - 4/4 - Join/Transit Passenger. SEC page removed for both Join and Transit.",
+      "message_progress": "Final Call 1/4; after selection: Final Call 2/4 - Join/Transit Passenger -> Final Call 3/4 - Join/Transit Passenger -> Final Call 4/4 - Join/Transit Passenger. SEC page removed for both Join and Transit.",
       "authorized_change": "SEC page removed for both Join Pax and Transit Pax; Final Call is now a four-step flow.",
-      "back_behavior": "Returning to calltype always displays Final Call - 1/4 with no Join/Transit annotation.",
-      "direct_progress": "Final Call - 1/1 - Call Directly"
+      "back_behavior": "Returning to calltype always displays Final Call 1/4 with no Join/Transit annotation.",
+      "direct_progress": "Final Call 1/1 - Call Directly"
     },
     "browser_history": "popstate restores the screen identified by its Find Pax history state position; Safari/browser Forward must move forward, not pop backward.",
     "scenario4": {
@@ -525,13 +525,13 @@
         "darrive",
         "preview"
       ],
-      "progress": "Disrupted Pax - 1/6 on Flight Type; each choice immediately opens Disrupted Pax - 2/6; remaining steps continue through 6/6.",
+      "progress": "Disrupted Pax 1/6 on Flight Type; each choice immediately opens Disrupted Pax 2/6; remaining steps continue through 6/6.",
       "selection_navigation": "Each Flight Type choice immediately routes to dflight; step 1/6 has no footer/Next.",
       "delayed_time_placement": "delayTime is inside dflight (step 2/6) and is visible/required only when status=delayed.",
       "non_delayed_validation": "Tight Connection (possible) and Suspended (unknown) do not require delayTime.",
       "title_layout": "Flight Type uses the same default h1 placement as Passenger Type; no Scenario-4-specific centered heading override. The phone-number pill is hidden on Flight Type, matching Passenger Type choice pages.",
       "back_forward": "Back from dflight returns to Flight Type; browser Forward restores dflight using history state.",
-      "gate_branch": "Already at Gate: Passenger Type (Disrupted Pax - 1/6) -> Flight from TPE + Flight status (2/4) -> Protect to (3/4) -> Confirm details (4/4); progress suffix ' - Already at Gate'. Returning to Passenger Type shows Disrupted Pax - 1/6. Leaving the branch clears its fields."
+      "gate_branch": "Already at Gate: Passenger Type (Disrupted Pax 1/6) -> Flight from TPE + Flight status (2/4) -> Protect to (3/4) -> Confirm details (4/4); progress suffix ' - Already at Gate'. Returning to Passenger Type shows Disrupted Pax 1/6. Leaving the branch clears its fields."
     }
   },
   "message_copy": {

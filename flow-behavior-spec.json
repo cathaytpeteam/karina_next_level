@@ -70,43 +70,43 @@
   ]
  },
  "preview_languages": {
-  "漏查 - 3/3 - Joining Passenger": [
+  "漏查 - Joining Passenger 3/3": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "漏查 - 3/3 - Transit Passenger": [
+  "漏查 - Transit Passenger 3/3": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "Final Call - 4/4 - Joining Passenger": [
+  "Final Call - Joining Passenger 4/4": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "Final Call - 4/4 - Transit Passenger": [
+  "Final Call - Transit Passenger 4/4": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "Wrong Pick-up - 4/4": [
+  "Wrong Pick-up 4/4": [
    "ordZh",
    "ordEn"
   ],
-  "Disrupted Pax - 6/6 - Tight connection": [
+  "Disrupted Pax - Tight connection 6/6": [
    "ordZh",
    "ordEn"
   ],
-  "Disrupted Pax - 6/6 - Flight delayed": [
+  "Disrupted Pax - Flight delayed 6/6": [
    "ordZh",
    "ordEn"
   ],
-  "Disrupted Pax - 6/6 - Flight Suspended": [
+  "Disrupted Pax - Flight Suspended 6/6": [
    "ordZh",
    "ordEn"
   ],
-  "Disrupted Pax - 4/4 - Already at Gate": [
+  "Disrupted Pax - Already at Gate 4/4": [
    "ordZh",
    "ordEn"
   ]
@@ -127,60 +127,60 @@
    "from_title": "",
    "trigger": "goMiss",
    "to": "misstype",
-   "to_title": "漏查 - 1/3"
+   "to_title": "漏查 1/3"
   },
   {
    "from": "scenario",
    "from_title": "",
    "trigger": "goCall",
    "to": "calltype",
-   "to_title": "Final Call - 1/4"
+   "to_title": "Final Call 1/4"
   },
   {
    "from": "scenario",
    "from_title": "",
    "trigger": "goWpp",
    "to": "wflight",
-   "to_title": "Wrong Pick-up - 1/4"
+   "to_title": "Wrong Pick-up 1/4"
   },
   {
    "from": "scenario",
    "from_title": "",
    "trigger": "goDp",
    "to": "dstatus",
-   "to_title": "Disrupted Pax - 1/6"
+   "to_title": "Disrupted Pax 1/6"
   },
   {
    "from": "scenario",
    "from_title": "",
    "trigger": "goDirect",
    "to": "preview",
-   "to_title": "Call Directly - 1/1"
+   "to_title": "Call Directly 1/1"
   },
   {
    "from": "misstype",
-   "from_title": "漏查 - 1/3",
+   "from_title": "漏查 1/3",
    "trigger": "missJoin",
    "to": "mflight",
-   "to_title": "漏查 - 2/3 - Joining Passenger"
+   "to_title": "漏查 - Joining Passenger 2/3"
   },
   {
    "from": "mflight",
-   "from_title": "漏查 - 2/3 - Joining Passenger",
+   "from_title": "漏查 - Joining Passenger 2/3",
    "trigger": "cta",
    "to": "msec",
-   "to_title": "漏查 - 3/3 - Joining Passenger"
+   "to_title": "漏查 - Joining Passenger 3/3"
   },
   {
    "from": "msec",
-   "from_title": "漏查 - 3/3 - Joining Passenger",
+   "from_title": "漏查 - Joining Passenger 3/3",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "漏查 - 3/3 - Joining Passenger"
+   "to_title": "漏查 - Joining Passenger 3/3"
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Joining Passenger",
+   "from_title": "漏查 - Joining Passenger 3/3",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -190,7 +190,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Joining Passenger",
+   "from_title": "漏查 - Joining Passenger 3/3",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -200,7 +200,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Joining Passenger",
+   "from_title": "漏查 - Joining Passenger 3/3",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -210,28 +210,28 @@
   },
   {
    "from": "misstype",
-   "from_title": "漏查 - 1/3",
+   "from_title": "漏查 1/3",
    "trigger": "missTransit",
    "to": "mflight",
-   "to_title": "漏查 - 2/3 - Transit Passenger"
+   "to_title": "漏查 - Transit Passenger 2/3"
   },
   {
    "from": "mflight",
-   "from_title": "漏查 - 2/3 - Transit Passenger",
+   "from_title": "漏查 - Transit Passenger 2/3",
    "trigger": "cta",
    "to": "msec",
-   "to_title": "漏查 - 3/3 - Transit Passenger"
+   "to_title": "漏查 - Transit Passenger 3/3"
   },
   {
    "from": "msec",
-   "from_title": "漏查 - 3/3 - Transit Passenger",
+   "from_title": "漏查 - Transit Passenger 3/3",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "漏查 - 3/3 - Transit Passenger"
+   "to_title": "漏查 - Transit Passenger 3/3"
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Passenger",
+   "from_title": "漏查 - Transit Passenger 3/3",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -241,7 +241,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Passenger",
+   "from_title": "漏查 - Transit Passenger 3/3",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -251,7 +251,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Passenger",
+   "from_title": "漏查 - Transit Passenger 3/3",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -261,28 +261,28 @@
   },
   {
    "from": "calltype",
-   "from_title": "Final Call - 1/4",
+   "from_title": "Final Call 1/4",
    "trigger": "callJoin",
    "to": "callflight",
-   "to_title": "Final Call - 2/4 - Joining Passenger"
+   "to_title": "Final Call - Joining Passenger 2/4"
   },
   {
    "from": "callflight",
-   "from_title": "Final Call - 2/4 - Joining Passenger",
+   "from_title": "Final Call - Joining Passenger 2/4",
    "trigger": "cta",
    "to": "callgate",
-   "to_title": "Final Call - 3/4 - Joining Passenger"
+   "to_title": "Final Call - Joining Passenger 3/4"
   },
   {
    "from": "callgate",
-   "from_title": "Final Call - 3/4 - Joining Passenger",
+   "from_title": "Final Call - Joining Passenger 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Final Call - 4/4 - Joining Passenger"
+   "to_title": "Final Call - Joining Passenger 4/4"
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Joining Passenger",
+   "from_title": "Final Call - Joining Passenger 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -292,7 +292,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Joining Passenger",
+   "from_title": "Final Call - Joining Passenger 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -302,7 +302,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Joining Passenger",
+   "from_title": "Final Call - Joining Passenger 4/4",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -312,28 +312,28 @@
   },
   {
    "from": "calltype",
-   "from_title": "Final Call - 1/4",
+   "from_title": "Final Call 1/4",
    "trigger": "callTransit",
    "to": "callflight",
-   "to_title": "Final Call - 2/4 - Transit Passenger"
+   "to_title": "Final Call - Transit Passenger 2/4"
   },
   {
    "from": "callflight",
-   "from_title": "Final Call - 2/4 - Transit Passenger",
+   "from_title": "Final Call - Transit Passenger 2/4",
    "trigger": "cta",
    "to": "callgate",
-   "to_title": "Final Call - 3/4 - Transit Passenger"
+   "to_title": "Final Call - Transit Passenger 3/4"
   },
   {
    "from": "callgate",
-   "from_title": "Final Call - 3/4 - Transit Passenger",
+   "from_title": "Final Call - Transit Passenger 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Final Call - 4/4 - Transit Passenger"
+   "to_title": "Final Call - Transit Passenger 4/4"
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Passenger",
+   "from_title": "Final Call - Transit Passenger 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -343,7 +343,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Passenger",
+   "from_title": "Final Call - Transit Passenger 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -353,7 +353,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Passenger",
+   "from_title": "Final Call - Transit Passenger 4/4",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -363,28 +363,28 @@
   },
   {
    "from": "wflight",
-   "from_title": "Wrong Pick-up - 1/4",
+   "from_title": "Wrong Pick-up 1/4",
    "trigger": "cta",
    "to": "bag1",
-   "to_title": "Wrong Pick-up - 2/4"
+   "to_title": "Wrong Pick-up 2/4"
   },
   {
    "from": "bag1",
-   "from_title": "Wrong Pick-up - 2/4",
+   "from_title": "Wrong Pick-up 2/4",
    "trigger": "cta",
    "to": "bag2",
-   "to_title": "Wrong Pick-up - 3/4"
+   "to_title": "Wrong Pick-up 3/4"
   },
   {
    "from": "bag2",
-   "from_title": "Wrong Pick-up - 3/4",
+   "from_title": "Wrong Pick-up 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Wrong Pick-up - 4/4"
+   "to_title": "Wrong Pick-up 4/4"
   },
   {
    "from": "preview",
-   "from_title": "Wrong Pick-up - 4/4",
+   "from_title": "Wrong Pick-up 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -394,7 +394,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Wrong Pick-up - 4/4",
+   "from_title": "Wrong Pick-up 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -404,55 +404,55 @@
   },
   {
    "from": "dstatus",
-   "from_title": "Disrupted Pax - 1/6",
+   "from_title": "Disrupted Pax 1/6",
    "trigger": "stPossible",
    "to": "dflight",
-   "to_title": "Disrupted Pax - 2/6 - Tight connection"
+   "to_title": "Disrupted Pax - Tight connection 2/6"
   },
   {
    "from": "dflight",
-   "from_title": "Disrupted Pax - 2/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 2/6",
    "trigger": "cta",
    "to": "dtransfer",
-   "to_title": "Disrupted Pax - 3/6 - Tight connection"
+   "to_title": "Disrupted Pax - Tight connection 3/6"
   },
   {
    "from": "dtransfer",
-   "from_title": "Disrupted Pax - 3/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 3/6",
    "trigger": "cta",
    "to": "darrange",
-   "to_title": "Disrupted Pax - 4/6 - Tight connection"
+   "to_title": "Disrupted Pax - Tight connection 4/6"
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Tight connection",
+   "to_title": "Disrupted Pax - Tight connection 5/6",
    "from_state": [
     "arKnown"
    ]
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Tight connection",
+   "to_title": "Disrupted Pax - Tight connection 5/6",
    "from_state": [
     "arUnknown"
    ]
   },
   {
    "from": "darrive",
-   "from_title": "Disrupted Pax - 5/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 5/6",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 6/6 - Tight connection"
+   "to_title": "Disrupted Pax - Tight connection 6/6"
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -462,7 +462,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Tight connection",
+   "from_title": "Disrupted Pax - Tight connection 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -472,55 +472,55 @@
   },
   {
    "from": "dstatus",
-   "from_title": "Disrupted Pax - 1/6",
+   "from_title": "Disrupted Pax 1/6",
    "trigger": "stDelayed",
    "to": "dflight",
-   "to_title": "Disrupted Pax - 2/6 - Flight delayed"
+   "to_title": "Disrupted Pax - Flight delayed 2/6"
   },
   {
    "from": "dflight",
-   "from_title": "Disrupted Pax - 2/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 2/6",
    "trigger": "cta",
    "to": "dtransfer",
-   "to_title": "Disrupted Pax - 3/6 - Flight delayed"
+   "to_title": "Disrupted Pax - Flight delayed 3/6"
   },
   {
    "from": "dtransfer",
-   "from_title": "Disrupted Pax - 3/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 3/6",
    "trigger": "cta",
    "to": "darrange",
-   "to_title": "Disrupted Pax - 4/6 - Flight delayed"
+   "to_title": "Disrupted Pax - Flight delayed 4/6"
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Flight delayed",
+   "to_title": "Disrupted Pax - Flight delayed 5/6",
    "from_state": [
     "arKnown"
    ]
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Flight delayed",
+   "to_title": "Disrupted Pax - Flight delayed 5/6",
    "from_state": [
     "arUnknown"
    ]
   },
   {
    "from": "darrive",
-   "from_title": "Disrupted Pax - 5/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 5/6",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 6/6 - Flight delayed"
+   "to_title": "Disrupted Pax - Flight delayed 6/6"
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -530,7 +530,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Flight delayed",
+   "from_title": "Disrupted Pax - Flight delayed 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -540,85 +540,85 @@
   },
   {
    "from": "dstatus",
-   "from_title": "Disrupted Pax - 1/6",
+   "from_title": "Disrupted Pax 1/6",
    "trigger": "stUnknown",
    "to": "dflight",
-   "to_title": "Disrupted Pax - 2/6 - Flight Suspended"
+   "to_title": "Disrupted Pax - Flight Suspended 2/6"
   },
   {
    "from": "dflight",
-   "from_title": "Disrupted Pax - 2/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 2/6",
    "trigger": "cta",
    "to": "dtransfer",
-   "to_title": "Disrupted Pax - 3/6 - Flight Suspended"
+   "to_title": "Disrupted Pax - Flight Suspended 3/6"
   },
   {
    "from": "dtransfer",
-   "from_title": "Disrupted Pax - 3/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 3/6",
    "trigger": "cta",
    "to": "darrange",
-   "to_title": "Disrupted Pax - 4/6 - Flight Suspended"
+   "to_title": "Disrupted Pax - Flight Suspended 4/6"
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Flight Suspended",
+   "to_title": "Disrupted Pax - Flight Suspended 5/6",
    "from_state": [
     "arKnown"
    ]
   },
   {
    "from": "darrange",
-   "from_title": "Disrupted Pax - 4/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 4/6",
    "trigger": "cta",
    "to": "darrive",
-   "to_title": "Disrupted Pax - 5/6 - Flight Suspended",
+   "to_title": "Disrupted Pax - Flight Suspended 5/6",
    "from_state": [
     "arUnknown"
    ]
   },
   {
    "from": "darrive",
-   "from_title": "Disrupted Pax - 5/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 5/6",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 6/6 - Flight Suspended"
+   "to_title": "Disrupted Pax - Flight Suspended 6/6"
   },
   {
    "from": "dstatus",
-   "from_title": "Disrupted Pax - 1/6",
+   "from_title": "Disrupted Pax 1/6",
    "trigger": "stGate",
    "to": "dflight",
-   "to_title": "Disrupted Pax - 2/4 - Already at Gate"
+   "to_title": "Disrupted Pax - Already at Gate 2/4"
   },
   {
    "from": "dflight",
-   "from_title": "Disrupted Pax - 2/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 2/4",
    "trigger": "cta",
    "to": "dnew",
-   "to_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 3/4",
    "from_state": [
     "gsDelayed"
    ]
   },
   {
    "from": "dflight",
-   "from_title": "Disrupted Pax - 2/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 2/4",
    "trigger": "cta",
    "to": "dnew",
-   "to_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 3/4",
    "from_state": [
     "gsCancelled"
    ]
   },
   {
    "from": "dnew",
-   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 4/4",
    "from_state": [
     "gOriginalFlight",
     "gpAsap"
@@ -626,10 +626,10 @@
   },
   {
    "from": "dnew",
-   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 4/4",
    "from_state": [
     "gOriginalFlight",
     "gpWait"
@@ -637,10 +637,10 @@
   },
   {
    "from": "dnew",
-   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 4/4",
    "from_state": [
     "gProtectedFlight",
     "gpAsap"
@@ -648,10 +648,10 @@
   },
   {
    "from": "dnew",
-   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 3/4",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "to_title": "Disrupted Pax - Already at Gate 4/4",
    "from_state": [
     "gProtectedFlight",
     "gpWait"
@@ -659,7 +659,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -669,7 +669,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 6/6 - Flight Suspended",
+   "from_title": "Disrupted Pax - Flight Suspended 6/6",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -679,7 +679,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -689,7 +689,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_title": "Disrupted Pax - Already at Gate 4/4",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -699,7 +699,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Call Directly - 1/1",
+   "from_title": "Call Directly 1/1",
    "trigger": "cta",
    "to": "external:whatsapp-call",
    "to_title": "",

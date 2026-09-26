@@ -336,7 +336,7 @@ A release is valid only when every check prints `PASS`. Do not alter lock hashes
 Built from the user's own test build (`karina_next_level_scenario_test.zip`) plus the approved icon/layout work.
 
 - **Scenario page:** 漏查, Final Call, **Call Directly**, Disrupted Passenger, Wrong Pick-Up — no numbers. Final Call uses a new carry-on runner illustration (two-tone, inline SVG); Call Directly uses the former Final Call picture (`scenario-icon-2.png`). Icons 42×30 (38×27 at ≤380px) in the images' own 1.4:1 ratio, so all five look the same size. Long labels wrap onto two lines instead of running into the arrow; top spacing follows screen height, so all five fit on a 320×568 phone.
-- **Call Directly** is now its own Scenario entry (progress "Call Directly - 1/1") and was removed from the Scenario 1 and 2 Passenger Type pages.
+- **Call Directly** is now its own Scenario entry (progress "Call Directly 1/1") and was removed from the Scenario 1 and 2 Passenger Type pages.
 - **Already at Gate:** Delayed to slides open on step 2; Protect to adds **Proceed to Gate**: original flight or new flight, then ASAP / Wait for Staff. Confirm details shows Disrupted flight, Protect to, Proceed to Gate. Message copy becomes 16 zh/en variants (message master 1.24).
 - **Header number:** no background, muted grey, regular weight, digits grouped the way each country writes them (+886 983 952 902, +81 90 1234 5678). Shown on Confirm details too, so the "Send to" row is gone; Call Directly keeps its "Phone Number" row (also grouped). Grouping is display-only: WhatsApp and call links still use the plain digits.
 - Release **R1.2** (`CACHE_REV` and homepage label). Checks, locks and the behaviour spec updated to this design; ICON POLICY now counts the four message icons on the Scenario 1/2 Passenger Type pages.
@@ -515,15 +515,15 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 
 
 ### v1.1 Final Call naming lock
-Scenario 2 is named **Final Call**. Its current message-path progress is locked to **Final Call - 1/4 → Final Call - 4/4 - Join Passenger/Transit Passenger**, with the SEC page removed for Join and Transit. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 - 2/3 - Join Passenger**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
+Scenario 2 is named **Final Call**. Its current message-path progress is locked to **Final Call 1/4 → Final Call 4/4 - Join Passenger/Transit Passenger**, with the SEC page removed for Join and Transit. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 2/3 - Join Passenger**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
 
 
 ### Authorized Scenario 2 SEC removal (r6)
 Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit Pax. The locked message path is **Passenger Type → Flight Number → Gate → Message Preview**, with progress **1/4 → 4/4** and Passenger Type shown as the trailing annotation after selection. Scenario 1 SEC and its 1/3 → 3/3 flow are unchanged.
 
-- Back-state lock: returning from Scenario 1/2 message flow to Passenger Type hides the prior Join/Transit annotation; the type page shows only `漏查 - 1/3` or `Final Call - 1/4`.
+- Back-state lock: returning from Scenario 1/2 message flow to Passenger Type hides the prior Join/Transit annotation; the type page shows only `漏查 1/3` or `Final Call 1/4`.
 
-- Call Directly progress lock: Scenario 1 displays `漏查 - 1/1 - Call Directly`; Scenario 2 displays `Final Call - 1/1 - Call Directly`. Join/Transit step counts are unchanged.
+- Call Directly progress lock: Scenario 1 displays `漏查 1/1 - Call Directly`; Scenario 2 displays `Final Call 1/1 - Call Directly`. Join/Transit step counts are unchanged.
 
 
 ### v1.1 consistency fixes (r9)
@@ -568,7 +568,7 @@ Scenario 2 **Final Call** no longer asks for SEC for either Join Pax or Transit 
 - `layout-lock.json` (s-dstatus hash), `navigation-lock.json`, `verify_navigation.py` and `verify_release.py` updated to the approved label. `verify_release.py` now passes all checks.
 
 ### r18 — Step title stays on one line (Android)
-- On narrower Android screens (e.g. 360px wide with Roboto), "Disrupted Pax - 2/6 - Tight connection" wrapped to two lines. The step title is now single-line and auto-shrinks from 20px (min 13px) to fit the width; ellipsis only as a last resort. Applies to every flow's step title; wording unchanged.
+- On narrower Android screens (e.g. 360px wide with Roboto), "Disrupted Pax - Tight connection 2/6" wrapped to two lines. The step title is now single-line and auto-shrinks from 20px (min 13px) to fit the width; ellipsis only as a last resort. Applies to every flow's step title; wording unchanged.
 - SW cache r18.
 
 ### r19 — Disrupted Pax 3/6 Connecting flight: block TPE departures
@@ -603,7 +603,7 @@ Changing a flow therefore requires updating `flow-behavior-spec.json` (explicit 
 
 Mutation check (run during development, all caught): skipping 3/6, adding an untested button on 4/6, removing the TPE-departure block, and the Back bug below.
 
-Bug found and fixed by the new suite: after Scenario 1 → Call Directly, pressing Back showed Passenger Type with an empty title instead of "漏查 - 1/3" (the direct preview borrows the Final Call flow). `showScreen` now restores the owning flow for misstype / calltype / direct preview. SW cache r21.
+Bug found and fixed by the new suite: after Scenario 1 → Call Directly, pressing Back showed Passenger Type with an empty title instead of "漏查 1/3" (the direct preview borrows the Final Call flow). `showScreen` now restores the owning flow for misstype / calltype / direct preview. SW cache r21.
 
 ### r22 — GitHub Actions (no computer needed)
 - `.github/workflows/verify.yml` runs `verify_release.py` (including the browser flow suite) on every push / pull request, or manually via Actions → "Find Pax verify" → Run workflow. It finds the folder containing `verify_release.py` automatically.

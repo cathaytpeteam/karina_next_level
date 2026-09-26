@@ -122,7 +122,7 @@ def navigation_lock():
      '$("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
      '$("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
     ]: ck('Scenario 1 route '+x.split('"')[1], x in s)
-    ck('Scenario 1 progress label order', 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
+    ck('Scenario 1 progress label order', 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s)
 
     # Scenario 2 routes + approved Final Call labels.
     for x in [
@@ -131,14 +131,14 @@ def navigation_lock():
      '$("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
      '$("goDirect").onclick=()=>{clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
     ]: ck('Scenario 2 route '+x.split('"')[1], x in s)
-    ck('Scenario 2 progress label order', 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
+    ck('Scenario 2 progress label order', 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s)
     ck('Scenario 1 Back hides Passenger Type annotation', 'cur!=="misstype"' in s)
     ck('Scenario 2 Back hides Passenger Type annotation', 'cur!=="calltype"' in s)
     ck('Scenario 1 Passenger Type is progress step 1/3', 'miss:{name:"漏查",steps:["misstype","mflight","msec"]}' in s)
     ck('Scenario 2 SEC page removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
     ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
     ck('Progress calculation uses locked flow denominator', 'const progressText=(idx+1)+"/"+f.steps.length;' in s)
-    ck('Call Directly progress 1/1', 'textContent:"1/1"' in s and 'const directName=S.missMode==="direct"?"漏查":(S.callMode==="direct"?"Call Directly":"Final Call");' in s)
+    ck('Call Directly progress 1/1', 'renderProgressTitle(directName,"1/1")' in s and 'const directName=S.missMode==="direct"?"漏查":(S.callMode==="direct"?"Call Directly":"Final Call");' in s)
     ck('Browser Back/Forward state direction', 'history.replaceState({findPax:true,pos:0,id:"phone"}' in s and 'history.pushState({findPax:true,pos:navPos,id}' in s and 'navPos=st.pos;' in s and 'showScreen(st.id);' in s)
 
     # Scenario 4 structural + behavior regression checks.
@@ -279,7 +279,7 @@ ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'cl
 ck('Scenario 2 gate clears on type change', '["callFlight","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
 ck('Call progress stable four-step', 'call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
 # R1.2: Call Directly is its own Scenario entry; progress reads "Call Directly - 1/1".
-ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'textContent:"1/1"' in s and '(S.callMode==="direct"?"Call Directly":"Final Call")' in s)
+ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'renderProgressTitle(directName,"1/1")' in s and '(S.callMode==="direct"?"Call Directly":"Final Call")' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)
 np=ef('normalizePhone') or ''
@@ -302,7 +302,7 @@ for section in ('phone_validation','japanese_sms','datetime'):
         ck('protected '+n, body is not None and sh(body)==h)
 
 # UI regression checks: passenger type in progress and Direct phone placement.
-ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:20px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{color:#718584' in s)
+ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'function renderProgressTitle(label,count)' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:19px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{margin-left:auto;color:#718584' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+groupedPhone(S.phone)])' in s)
 ck('direct phone hidden from header', 'const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;' in s)
 # R1.2 header number (user-approved 2026-09-26): no background, muted grey, regular weight, grouped by country
