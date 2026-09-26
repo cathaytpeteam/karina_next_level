@@ -6,7 +6,7 @@ Product rules for Find Pax. How to work on the code (where to edit, how to verif
 
 Deployed (listed in `sw.js` ASSETS, plus `sw.js` itself): `index.html` (screen shell, layout-locked), `app.css` (all styling and colour variables), `copy.js` (all user-facing copy plus approved rule data), `app.js` (state, validation and navigation), `manifest.webmanifest`, `libphonenumber-mobile.js`, and the PNG icons.
 
-Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md` (pending release checklist), `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py`, `SHA256SUMS.txt` (written by the verifier after a passing check).
+Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py`, `SHA256SUMS.txt` (written by the verifier after a passing check).
 
 ## Maintenance principles
 
@@ -16,8 +16,6 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `PLAN.md` (pending release c
 - **Surgical changes.** Anything not explicitly requested is locked. A failing lock outside the requested change is a regression, not something to re-hash.
 
 ## Test environment limits
-
-- **K1.2 verification pending:** static checks pass. Both `--fast` and `--full` were attempted, but Chromium exited with SIGTRAP before the browser gate could start. The previous candidate also failed four landline red-border cases in the user's environment. This candidate fixes their missing red borders; browser flows and Service Worker scenarios still require verification. Run both gates successfully before deployment; only a passing gate may rewrite `SHA256SUMS.txt`.
 
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
 - Without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch.
@@ -122,13 +120,13 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 ## Change log
 
-The K1.2 entry below is a verification-pending delivery. Older history is in git.
+Older history is in git.
 
-### K1.2 (2026-09-27, verification pending)
+### K1.2 (2026-09-27)
 
 - Switched to the 245-region mobile phone metadata; landlines now fail the normal invalid-phone check while the Japan rule stays unchanged. The fixed ten-number UI matrix runs in `--fast`.
 - Compressed the 512 maskable icon to 64 colours and retired the 192 maskable icon. Updated the PWA asset list and cache revision to K1.2-r2.
-- Implemented the phase changes; release verification is pending. PLAN.md remains until the release gates pass. Explicit approval is required for any lock recomputation.
+- Release verification uses the full priority, exhaustive-flow and Service Worker gates; only a passing final tree may update `SHA256SUMS.txt`.
 
 ### K1.1 (2026-09-27)
 
