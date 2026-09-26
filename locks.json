@@ -1,0 +1,409 @@
+{
+  "schema": "find-pax-locks-2",
+  "note": "Hashes and values here are checked by verify_release.py. Do not edit to make a failing check pass; update a section only for a user-approved change. AI: do not read this file; run verify_changed.py.",
+  "baseline": {
+    "schema": "find-pax-regression-baseline",
+    "status": "LOCKED",
+    "protected": {
+      "phone_validation": {
+        "functions": {
+          "validatePhone": "326e527ac76af2cca20c18b3c00502cdf610732a73693109d284a68689cfa890",
+          "normalizePhone": "a0075a08a044df944ddb56d2cbe68e36d4ea2d1d70c36becb70e0dc14f5a5af9"
+        }
+      },
+      "japanese_sms": {
+        "functions": {
+          "send": "b56964422e5e205bf456e0302521b7f05b7cba1ce1d97f5f1f38bea30242b788",
+          "sendSMS": "9cad656538eee6abc15b34f7e2bf92f09611fd8cacacb0a98e4c9d4ff859b87f",
+          "callFlightNumber": "6ea102b4d3d127b72921fcbefaf01f2b7f74adc3cd7672430eb1a9e70e1509e7",
+          "callFlightFull": "0d2210ae916e459db0fd59c93c9a0ded787275871ef1c6f55513f702b4e45d4e",
+          "callFlightOk": "50da4efa2f4b66ae9e89644c27e37ed56f70fb8160c9ea56847541169daa19eb",
+          "taipeiTime": "7a8d7c063cf9c90e5409b3e9e0a24d778bf3a998a7d99f80df4c5f354f26e7e3"
+        },
+        "scenario1_approved_copy": "【キャセイパシフィック航空】預け手荷物のX線再検査に立会いが必要です。出国審査前は至急4番カウンターへ。保安検査後・出国審査前は係員に申し出て4番へお戻りください。出国審査後はゲート係員にお申し出ください。お越しいただけない場合、荷物が搭載できない可能性があります。",
+        "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad"
+      },
+      "datetime": {
+        "functions": {
+          "dateCode": "1b16f9f8cc6351789a110c4d737147abf3112f6fcdc81b232d3e8fb911407bcc"
+        }
+      },
+      "scenario1_transit_copy": {
+        "ja": "【キャセイパシフィック航空】お預け手荷物は桃園空港の乗り継ぎX線検査で確認が必要です。至急搭乗ゲートのスタッフまでお申し出ください。"
+      },
+      "flight_rules": {
+        "general_cx": [
+          "CX407",
+          "CX489",
+          "CX477",
+          "CX499",
+          "CX461",
+          "CX450",
+          "CX564",
+          "CX530",
+          "CX495",
+          "CX443",
+          "CX421",
+          "CX473",
+          "CX565",
+          "CX451",
+          "CX531",
+          "CX479",
+          "CX469",
+          "CX463",
+          "CX465",
+          "CX401",
+          "CX403"
+        ]
+      }
+    }
+  },
+  "layout": {
+    "schema": "find-pax-layout-lock",
+    "status": "LOCKED",
+    "screen_order": [
+      "s-phone",
+      "s-scenario",
+      "s-misstype",
+      "s-mflight",
+      "s-msec",
+      "s-wflight",
+      "s-bag1",
+      "s-bag2",
+      "s-dflight",
+      "s-dtransfer",
+      "s-dstatus",
+      "s-darrange",
+      "s-darrive",
+      "s-dnew",
+      "s-dgateaction",
+      "s-calltype",
+      "s-callflight",
+      "s-callgate",
+      "s-preview"
+    ],
+    "screen_sha256": {
+      "s-phone": "9bb858c6bea58a57ce93ddacc7d5f07da5911c1af3f36b75f18651d6d11b579b",
+      "s-scenario": "2b08884d0b7dc4fc2740bb3c11bc0829e41a161cc9f65e3533b0e3fb5ee66023",
+      "s-misstype": "be1d62dac0d6e5eebde6a4104ee38b2a554245e6681457c1f9d57271fb127304",
+      "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
+      "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
+      "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
+      "s-bag1": "45ca0084918b40fadf764e4af4c07ced0c4da57f9096619fb53c589d21331289",
+      "s-bag2": "54f8a82ab9509fcabe6c14b0e8f932e8ca1cdee7ce7132c754caea12828c69f0",
+      "s-dflight": "c0e9c4fb10c9a1ee1758ab587fa7e88cc01f15a49083df6efbcc9226c1acc9d3",
+      "s-dtransfer": "7a43274f91983adffd80ecd83124fd7590d9ecdd7e6f559edede463ca3153e92",
+      "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
+      "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
+      "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
+      "s-dnew": "6ae67b565fd7d422a5b198d25c05e0cb14b0e73533d9869a7c9260a1b4f47c96",
+      "s-dgateaction": "5bb51912dc74d4b98d2f0b839b0e190c9f3f9b59edc50abe49f73c1a091bd1f8",
+      "s-calltype": "1e43ba35c82e1ca258340a16c8abcd3a722a9e27fc55920b09eae7925d62816e",
+      "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
+      "s-callgate": "a7e5d306fbbb9159a2b1c093f45590eb25a6981240c0e9fecfbd93a3a9b47abe",
+      "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222"
+    },
+    "chrome_sha256": {
+      "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
+      "footer": "cb0b6abd246293fe334285ff9a1af15cef4f337fdd214f0ec8d8728ad939e48a"
+    },
+    "control_order": {
+      "s-phone": [
+        "phoneField",
+        "phoneInput",
+        "badge",
+        "warn"
+      ],
+      "s-scenario": [
+        "goMiss",
+        "goCall",
+        "goDirect",
+        "goDp",
+        "goWpp"
+      ],
+      "s-misstype": [
+        "missJoin",
+        "missTransit"
+      ],
+      "s-mflight": [
+        "mFlight"
+      ],
+      "s-msec": [
+        "mSecField",
+        "mSecPrefix",
+        "mSec"
+      ],
+      "s-wflight": [
+        "wFlight"
+      ],
+      "s-bag1": [
+        "b1a",
+        "b1n"
+      ],
+      "s-bag2": [
+        "b2a",
+        "b2n"
+      ],
+      "s-dflight": [
+        "dFlight",
+        "gStatusWrap",
+        "gsDelayed",
+        "gsCancelled",
+        "delayWrap",
+        "delayTime"
+      ],
+      "s-dtransfer": [
+        "tA",
+        "tN"
+      ],
+      "s-dstatus": [
+        "stGate",
+        "stPossible",
+        "stDelayed",
+        "stUnknown"
+      ],
+      "s-darrange": [
+        "arKnown",
+        "arUnknown",
+        "altWrap",
+        "altA",
+        "altN",
+        "altTime"
+      ],
+      "s-darrive": [
+        "arriveTime"
+      ],
+      "s-dnew": [
+        "gNewField",
+        "gNewN",
+        "gGateField",
+        "gGateZone",
+        "gGate",
+        "gGateR",
+        "gDepField",
+        "gDepTime"
+      ],
+      "s-dgateaction": [
+        "gOriginalFlight",
+        "gProtectedFlight",
+        "gpAsap",
+        "gpWait"
+      ],
+      "s-calltype": [
+        "callJoin",
+        "callTransit"
+      ],
+      "s-callflight": [
+        "callFlightField",
+        "callFlight"
+      ],
+      "s-callgate": [
+        "callGateField",
+        "callGateZone",
+        "callGate",
+        "callGateR"
+      ],
+      "s-preview": [
+        "sum",
+        "previewLangTitle",
+        "previewLangSeg",
+        "ordZh",
+        "ordEn",
+        "ordJa",
+        "msgToggle",
+        "previewOrderLabel",
+        "viewLabel",
+        "msgPanel",
+        "msg"
+      ]
+    }
+  },
+  "navigation": {
+    "schema": "find-pax-navigation-lock",
+    "status": "LOCKED",
+    "flows": {
+      "miss": {
+        "name": "漏查",
+        "steps": [
+          "misstype",
+          "mflight",
+          "msec"
+        ],
+        "progress_denominator": 3
+      },
+      "call": {
+        "name": "Final Call",
+        "steps": [
+          "calltype",
+          "callflight",
+          "callgate",
+          "preview"
+        ],
+        "progress_denominator": 4
+      },
+      "wpp": {
+        "name": "Wrong Pick-up",
+        "steps": [
+          "wflight",
+          "bag1",
+          "bag2",
+          "preview"
+        ],
+        "progress_denominator": 4
+      },
+      "dp": {
+        "name": "Disrupted Pax",
+        "steps": [
+          "dstatus",
+          "dflight",
+          "dtransfer",
+          "darrange",
+          "darrive",
+          "preview"
+        ],
+        "progress_denominator": 6
+      },
+      "dpgate": {
+        "name": "Disrupted Pax",
+        "steps": [
+          "dstatus",
+          "dflight",
+          "dnew",
+          "dgateaction",
+          "preview"
+        ],
+        "progress_denominator": 5
+      }
+    }
+  },
+  "message_copy": {
+    "name": "Find Pax stable-ID copy lock",
+    "copy_ids": {
+      "s.passenger.joining": "66da92f68043faafaa864978d622a908aea84c9be9b11edf17bfc035a7d0aa11",
+      "s.passenger.transit": "d86fd89dd2bf6389deb2475b1f3623b55d9c06645b97cb18695d5444eb9c2ea6",
+      "progress.flow.miss": "bd750f195586933b1adf0c8bdee80e326bb846a6179d44e0d4f559a50b606519",
+      "progress.flow.call": "10f65c438c1df0ea513d2b1a31746600803add3187c84b4b1980b194f71f5e7f",
+      "progress.flow.wpp": "6b998c458629a20052c57be64ff1bf5eb40b15ac8649a589bdeab5daa80023ec",
+      "progress.flow.dp": "0282289005c38a955244df9aa98cad89a01702d4e2de7bc2c1ee66012aff65bb",
+      "progress.flow.direct": "f3195ec59709c270f921da7356adbf05c9443cad8b4b047b71af196721c1d30a",
+      "progress.dp.possible": "b1f7ee0cb335d4d2d2e617c2c934f4728380cfe5a8fd5aa823dc821ea10c3e9d",
+      "progress.dp.delayed": "d9899e856e12ff4d741b80245e0cec9d74a5e0f23d3ff1ee3b1e9732d7f0501a",
+      "progress.dp.unknown": "b277b3b1eb0a3c0005f1bb6594f0c8af99be76729c0a23153d68f780bee36f89",
+      "progress.dp.gate": "5cef98a4cff7df9ec1562412d003ff011028570da00b8ff49640923b9d96a980",
+      "label.bag.unclaimed": "fc488266d7403ab7bf5ed73c811ab79a62cb40f2a01eb2954480611ca258a194",
+      "label.preview.language": "1fa24b4905737a8d50bea61de9ec162133f53321a179217978509e68fea74309",
+      "label.preview.jaOnly": "038fa94f3235a12d36533eaeeec463a85712970cdc029dd7259e29c6d84001dc",
+      "label.preview.enFirst": "b2ad5a833511545a71aa3c62b38dabede8164285dc962e0bdd1b6b64675a88fa",
+      "label.preview.zhFirst": "521fe874c422a7e9f41046edf4ca2b9ac28f6df60c3ad4a2daa387cf5dc2436a",
+      "label.view.open": "dd3b4c21a27c65333901310675192c9bbbb12b8cc68c4b5d5bcf31241ef57c79",
+      "label.view.closed": "5e92f5c234fac1e7f91fb6c3d724febeec576217dd43b0157fa99451766a8f0f",
+      "cta.sms.ja": "9b38bbddaa73013799ddc98ea2ad0d329bb2cf462ddd1850c1dddfc27c31c8fa",
+      "cta.whatsapp.call": "dd95a99f83b2079f751f4a7cd968760c9534fde37819578a2953c8ac466ba224",
+      "cta.whatsapp.send": "a77a51e208ed5f17b70173b46672cf0901452cb4e4be80cb25c30a4c1c074e3c",
+      "cta.next": "9a8bb238dc855a1c76baa30a147707c5b5b7694f779cc96228b3da99468efec8",
+      "hint.time.empty": "223aa8eec43f4c75945ed8dd32cf418b924086f219e32f644457eb81f9121579",
+      "hint.time.partial": "d5916405dcfab6a3533a870c42f28eed36553f5f9d6a20071621f95ca94303db",
+      "error.time.invalid": "139e25d01dbad3fe6feed3c4c46ccbf5f99704e9379782423028ce3f4837f8d9",
+      "hint.airline.letters": "639c3af64cd967011c69c5155948c1022b41ae46a64f26cae37102c653f4effd",
+      "hint.airline.carrier": "b873bf526a054964e5747688b9a5dcf9af8462997ef03c15fe8c6d1b040a0dfb",
+      "hint.flight.digits": "7f4e5f9902cfa0c4f8a2d7494936862d60d33bbc300111445950c5ee4401b38d",
+      "hint.flight.number": "392c0fe7618cdd406e5b635c235e6b1e268223ff6b24ffd7c8ecba6c9135075b",
+      "hint.bag.six": "1beea8530641a20ea30916223915dea9d9d2cf22b5d4fe470ac81cc1ed54ba77",
+      "hint.phone.invalid": "9566156b4d67607bb11cbfb11cc1ae75cbc0da9b7b612c84a6ea397c81997db2",
+      "error.phone.blocked": "942ed8191ced317a481a1cf5b3dbee8af3119e69e55b38e6ffb6f8d1e015d31d",
+      "hint.sec.range": "d924187d9550541ddff3a764403145a31ba80e8cdc8388875c190459aa3ebc09",
+      "error.sec.max": "44fa8892ee29753acf13f9ad99393714b20dbf2879b19837887ed096aac30447",
+      "error.flight.tpe": "2c26db48848915bfaf3d68a2f4089d732fe2600a0644bbeac68694e7ba8eea11",
+      "error.protect.same": "334d63d5da51195c54738bde240fecbccdb5ad7d20331ef5fbba7e4920df61a9",
+      "error.protect.tpe": "b7704b5d3fc864b930be6f51d6a89562e619bfc42fc63db1bca7be59186af8f8",
+      "hint.preview.check": "14a3b180c384f20144b87b607e377b2fa3031ea33979c3b1c8ece29cf8a7dd21",
+      "hint.transit.cx": "972b7ecf35a390a6507eac532ecb9ec6ee9570bd5f3488d9615414b4aee0b585",
+      "rules.cx.general": "32a01a239f7c13ca64a991e7476d30c1aed7ce43547dfc2a886cd8234b1156d9",
+      "rules.cx.transit": "161486d672200424bb0a9384f5b7223f7420836a015b2b41355a0ffcf3af0b6a",
+      "rules.cx.nonTpeOriginTransit": "afbfa49fb2c4ce3dcafe2713ab3da2cd5cb1bb3c9627ddda978f65b949bfa84c",
+      "rules.sec.max": "de0023e398111d43424845aaeee2e119249cc0567e7b585eaba5f44080b458c6",
+      "rules.sec.homeIata": "c88157d7ce46f5086e74d269fb5416230a92e59c26020e0ca424626b3015f436",
+      "rules.sec.prefixes": "7cbf7e04934c04916756ddbd9011117da30bebdb5fb2b704b0e9a66955fd2644",
+      "rules.transit.origins": "b67a4a6a24ec58dda875a428be53c89b7d505093221928133618c40adc0e7aa2",
+      "rules.transit.destinations": "9e53c7052a0f8c2da466532764b9279e4ff0da9216d80056b9f0badb43806e55",
+      "rules.transit.destinationCodes": "00fe3b2de848c571acc3c54001dac9965bb061ae3b271403c201a3d097292917",
+      "rules.transit.smsRouteJa": "401ed55099421dc2e0385253454b8f553d20f355ca0d3b3f08abee5f742cea14",
+      "rules.gate.zones": "44c70f49b7908dee4c0e9613ecefc5e62e6ba27294f956186bd6f56fd6a7160a",
+      "rules.gate.b1rZone": "955cca1ceba45052d85984d3a2565f4ce25b7488602c60a165598bf80b26e472",
+      "rules.gate.b1rNumber": "24f4fbff56cb3bafeeec719f4919dd09223f84882d74fb164f3d23295f755aea",
+      "s1.join.zh": "a47159b55acb6bc8b170296f9ed999d155f5f8350d5fb9473e518fa4ab516a7b",
+      "s1.join.en": "5d0e0090469b6712921fdf47a6e333adabe22a232cad91feb70a60d3b4a4356f",
+      "s1.join.ja": "8684b4938d425bd6fae2b93649703fa85c535bc92fd5afbed8fe4cef56f65466",
+      "s1.transit.zh": "d3e6d7ceef9714a080eb52bfc8dc3c174442809d1bccf582857a15699d4629dd",
+      "s1.transit.en": "59274cb8c3e72b247b70f9bcd818fe3bc891ae24107cf1be72d9129d93b292e1",
+      "s1.transit.ja": "24d767bda77593222d36de55444ef0239c154d72b3c289a87e1dd7db2bf455e3",
+      "s2.join.zh": "4556d3fb0d42c783b74f6a980f665db489ed03c4c8e8e7980e07ae2c15d629d3",
+      "s2.join.en": "7a3553bb3be912c06f678bcdaa2104c2b9a4f1310e594ede2a17e7322ea9b995",
+      "s2.join.ja": "77a92101f1f10ba49f0ed463be2efb2d1373228444ebd1b7b6e945407ab7b11b",
+      "s2.transit.zh": "f94ed07a01daaa1f476c3778a78deb879ee572d3eb44b5a9608f398c57c95d85",
+      "s2.transit.en": "155e1fd152aca6888ca2a793359ad2f42013e2d63920b230240d17aa02e429d2",
+      "s2.transit.ja": "3b856ca8a46e1bba77f144faa30e1cf3eb3681a4b658e6878953caf942ae47a8",
+      "s3.zh": "af968feab2b727f9b80d900098fa56015afd7e0b7a645c5f176120754a9d56c9",
+      "s3.en": "1b4f123d706991ea4ed21242dea765c35f16091faf0a412a58efa6a844ae20e3",
+      "s4.zh.possible.known": "91ff140cadeae177fc9ec85fd627d0de3af9cdba53745b8318744c10a6ed3c85",
+      "s4.zh.possible.airport": "febab167eb3d9e8b67ea948974c18ec644ee623dfbb8e0f9681a4f5ffadb449c",
+      "s4.zh.delayed.known": "9171a71e9026440a07e81515304e25d3f4e8988c1f1723cdcba39b4d62319986",
+      "s4.zh.delayed.airport": "c3b05b58a23133990d421b14a7ad6707fda64ba477efe586510e37515bb737fe",
+      "s4.zh.unknown.known": "a36071f8f2b98c624cd554d9e12084b6a4be2941ace7e7c16e3b6f5930516d93",
+      "s4.zh.unknown.airport": "9847b60a4d34bec0913db8d676df97b2d2d27e89ce2cf2a38eafd6e06d30017a",
+      "s4.en.possible.known": "46b96dd295953de88f3fe5d183d6112e9df59a4cbf05055e6fc97128626683c3",
+      "s4.en.possible.airport": "1d9ac01554e02d908c9cf6f1756a851af91fac5b8cd83e0aba0e4bd76708d02e",
+      "s4.en.delayed.known": "6b4969388d7b0800a1869e5540b6f4079a492af591e07993ac4dda11f72739f8",
+      "s4.en.delayed.airport": "15dd551c71dae53f09d8e9ad583b9133d0ea4a6e87056de4492dc8fa9ef453a6",
+      "s4.en.unknown.known": "957beb2afed44e21171e811611a9f2c44d6c172a378087bab05d9f13ef7461fb",
+      "s4.en.unknown.airport": "15c2044a324ad2413e3e69023a63a16dbf10b6a6d4c28680f08253623c64df80",
+      "s4.zh.gate.delayed.original.asap": "237fd6b69ad7c0daec5697356e8bef6ca86bdb1860652fe668e219f8bb39a45f",
+      "s4.zh.gate.delayed.original.wait": "e1cb0a737a6db9fa99f5dd25edba3fc77b87574d606b630331adb4583c12f7fa",
+      "s4.zh.gate.delayed.new.asap": "d62c7c22920d55c2d4980d38665ba58c61509523505958dc2259973ab6033ee3",
+      "s4.zh.gate.delayed.new.wait": "bec497a664411164bbb462e3a7352a7285ef2149935a4fd2849439cb0ef5e099",
+      "s4.zh.gate.cancelled.original.asap": "b02d6df87bb699099d8b669f6549a7ea60d672ff36c55932d14404fd2f32cee7",
+      "s4.zh.gate.cancelled.original.wait": "b05248fbac7b9d86467f360453a68979b055a68ffb5be72ce273550a1d8ac9d7",
+      "s4.zh.gate.cancelled.new.asap": "a19fab967496093ba61c8f134704bf1ce96888366190cfe30eb243c09ba53ca4",
+      "s4.zh.gate.cancelled.new.wait": "ede4e5b22699c24e1a0971329af7dbcdbeb38d4d973160812cce0509f3f72f86",
+      "s4.en.gate.delayed.original.asap": "4a1a1a24133c42a8d7ea79ba42152b5b339bbeb52f6be48ccda5c0ef6a98fb59",
+      "s4.en.gate.delayed.original.wait": "72d5d2b5b988ece7621e57d02fc8c3edbeaf163cc6bd9135be9b6ac9eb9a19d9",
+      "s4.en.gate.delayed.new.asap": "480d6e509f429edf9070db93c9c6c8a28b0bca6f3cf35ee96fd61c7ba4c5a7f8",
+      "s4.en.gate.delayed.new.wait": "698c6b1cc7b70b4e9475d5d5e4037e9a84a0efae1fb1b7172ecb2e1a167529ea",
+      "s4.en.gate.cancelled.original.asap": "51a7a0f56cae37dac88d3d7d25633e3a38da553f676ab1adc915d4d2772823c9",
+      "s4.en.gate.cancelled.original.wait": "5bb1943e944301e9deb657e33495ef3b7d26da39c6abb4b5282bfc3e4a3dc5e9",
+      "s4.en.gate.cancelled.new.asap": "b090147bf2b165715ec54c195643c5ad3f8cc0c82385e2991f573b5852cc87f6",
+      "s4.en.gate.cancelled.new.wait": "fabbefe1ea9eeac3dd35d978b2d59460468bf38af5439d79770c644a81f5562c"
+    }
+  },
+  "colors": {
+    "status": "LOCKED",
+    "policy": "Every colour in app.css, index.html, app.js, scenario-config.js and manifest.webmanifest must be listed here. A new colour needs user approval.",
+    "approved": [
+      "#005D63",
+      "#00747A",
+      "#04515A",
+      "#0B3B3F",
+      "#14201F",
+      "#556A6C",
+      "#718584",
+      "#98A7A8",
+      "#9DBDBD",
+      "#AF9876",
+      "#B0574A",
+      "#B5D2D5",
+      "#BBD9D9",
+      "#BCDADD",
+      "#C62828",
+      "#D3DDDE",
+      "#DCEFEF",
+      "#DDF2F2",
+      "#EEF3F7",
+      "#EEF6F6",
+      "#F1F6F6",
+      "#F2F8F8",
+      "#FBE9E9",
+      "#FFFFFF",
+      "rgba(0,0,0,.14)"
+    ]
+  }
+}

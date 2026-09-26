@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<title>Find Pax</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="preload" href="./libphonenumber-max.js" as="script">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Find Pax">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="head">
+    <div class="headrow">
+      <button class="back" id="back" type="button" hidden>‹ Back</button>
+      <div class="who" id="who" hidden><span id="whoFlag"></span><span id="whoNum"></span></div>
+    </div>
+    <div class="bar" id="bar" hidden><i id="barFill"></i></div>
+    <p class="step" id="step"></p>
+  </header>
+
+  <main id="main">
+    <section class="screen" id="s-phone">
+      <h1>Input phone number<br>on CTCM</h1>
+      <div class="field" id="phoneField">
+        <span class="plus">+</span>
+        <input autocomplete="off" id="phoneInput" inputmode="numeric" aria-label="Phone number">
+        <span class="badge" id="badge" hidden></span>
+      </div>
+      <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
+      <div class="phoneHeroWrap">
+        <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
+        <span class="appVersion" aria-label="App version">K1.1</span>
+      </div>
+    </section>
+
+    <section class="screen" id="s-scenario" hidden>
+      <div class="choices">
+        <button class="choice" id="goMiss" type="button" lang="zh-Hant" aria-label="漏查">
+          <span class="ico" aria-hidden="true"><img src="scenario-icon-1.png" alt=""></span>
+          <span class="ctext"><span>漏查</span></span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goCall" type="button" aria-label="Final Call">
+          <span class="ico" aria-hidden="true"><svg class="scIco" viewBox="2 1 82 60" aria-hidden="true" focusable="false"><g fill="var(--scenario-bag)"><rect x="4" y="23" width="10" height="3.6" rx="1.8"/><rect x="7" y="32" width="8" height="3.6" rx="1.8"/><rect x="4" y="41" width="10" height="3.6" rx="1.8"/></g><g transform="rotate(22 28 55)"><path d="M25 30V17M32 30V17" fill="none" stroke="var(--scenario-bag)" stroke-width="2.6" stroke-linecap="round"/><rect x="22.5" y="14.5" width="12" height="4.2" rx="2.1" fill="var(--scenario-bag)"/><rect x="19" y="29" width="19" height="25" rx="4" fill="var(--scenario-bag)"/><rect x="23.4" y="33" width="2.6" height="17" rx="1.3" fill="var(--bg)" opacity=".6"/><rect x="31" y="33" width="2.6" height="17" rx="1.3" fill="var(--bg)" opacity=".6"/><circle cx="23" cy="56.5" r="2.6" fill="var(--scenario-person)"/><circle cx="34" cy="56.5" r="2.6" fill="var(--scenario-person)"/></g><circle cx="67" cy="10" r="6.8" fill="var(--scenario-person)"/><g fill="none" stroke="var(--scenario-person)" stroke-linecap="round" stroke-linejoin="round"><path d="M64 19 57 35" stroke-width="9"/><path d="M62.5 22 71 29l8-3.5" stroke-width="6.5"/><path d="m62.5 22.5-9.5 2-8-2.5" stroke-width="6.5"/><path d="m57 35 11 6 3 12.5" stroke-width="7"/><path d="m57 35-6 11-9 3" stroke-width="7"/></g></svg></span>
+          <span class="ctext"><span>Final Call</span></span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goDirect" type="button" aria-label="Call Directly">
+          <span class="ico" aria-hidden="true"><img src="scenario-icon-2.png" alt=""></span>
+          <span class="ctext"><span>Call Directly</span></span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goDp" type="button" aria-label="Disrupted Passenger">
+          <span class="ico" aria-hidden="true"><img src="scenario-icon-4.png" alt=""></span>
+          <span class="ctext"><span>Disrupted Passenger</span></span><span class="chev">›</span>
+        </button>
+        <button class="choice" id="goWpp" type="button" aria-label="Wrong Pick-Up">
+          <span class="ico" aria-hidden="true"><img src="scenario-icon-3.png" alt=""></span>
+          <span class="ctext"><span>Wrong Pick-Up</span></span><span class="chev">›</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Scenario 1 Passenger Type -->
+    <section class="screen" id="s-misstype" hidden>
+      <h1>Passenger Type</h1>
+      <div class="choices">
+        <button class="choice passengerPrimary" id="missJoin" type="button" aria-label=""><span class="ctext"><span data-scenario-label="joining"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missTransit" type="button" aria-label=""><span class="ctext"><span data-scenario-label="transit"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+      </div>
+    </section>
+
+    <!-- Missed check -->
+    <section class="screen" id="s-mflight" hidden>
+      <h1>Flight number</h1>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="mFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-msec" hidden>
+      <h1>Sec</h1>
+      <div class="field" id="mSecField">
+        <span class="code" id="mSecPrefix" aria-hidden="true">TPE</span>
+        <input autocomplete="off" id="mSec" inputmode="numeric" maxlength="3" aria-label="SEC number">
+      </div>
+    </section>
+
+    <!-- Wrongly Pick-up -->
+    <section class="screen" id="s-wflight" hidden>
+      <h1>Flight number</h1>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="wFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-bag1" hidden>
+      <h1>Bag Tag 1</h1>
+      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>
+      <div class="field"><input autocomplete="off" class="code" id="b1a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b1n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+    </section>
+    <section class="screen" id="s-bag2" hidden>
+      <h1>Bag Tag 2</h1>
+      <p class="bagHelp" lang="zh-Hant">疑似被客人Wrong P帶走的行李</p>
+      <div class="field"><input autocomplete="off" class="code" id="b2a" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="b2n" inputmode="numeric" maxlength="6" aria-label="6-digit bag tag number"></div>
+    </section>
+
+    <!-- Disrupted Pax -->
+    <section class="screen" id="s-dflight" hidden>
+      <h1>Flight from TPE</h1>
+      <div class="field"><span class="code">CX</span><input autocomplete="off" id="dFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+      <div id="gStatusWrap" hidden>
+        <div class="delayLabel">Flight status</div>
+        <div class="opts">
+          <button class="opt" id="gsDelayed" type="button" aria-pressed="false">Delayed</button>
+          <button class="opt" id="gsCancelled" type="button" aria-pressed="false">Cancelled</button>
+        </div>
+      </div>
+      <div class="optExtra" id="delayWrap" hidden>
+        <div class="delayInner"><div class="delayLabel">Delayed to</div>
+        <div class="field time"><input autocomplete="off" id="delayTime" inputmode="numeric" maxlength="5" aria-label="Delayed to, HHMM"></div></div>
+      </div>
+    </section>
+    <section class="screen" id="s-dtransfer" hidden>
+      <h1>Connecting flight</h1>
+      <div class="chip">HKG</div>
+      <div class="field"><input autocomplete="off" class="code" id="tA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="tN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+    </section>
+    <section class="screen" id="s-dstatus" hidden>
+      <h1>Passenger Type</h1>
+      <div class="choices">
+        <div class="choiceGroup">At Gate</div>
+        <button class="choice passengerPrimary" id="stGate" type="button" aria-pressed="false"><span class="ctext"><span>Already at Gate</span></span><span class="chev">›</span></button>
+        <div class="choiceGroup">Not at the Airport</div>
+        <button class="choice passengerPrimary" id="stPossible" type="button" aria-pressed="false"><span class="ctext"><span>Tight Connection</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="stDelayed" type="button" aria-pressed="false"><span class="ctext"><span>Delayed</span></span><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="stUnknown" type="button" aria-pressed="false"><span class="ctext"><span>Suspended</span></span><span class="chev">›</span></button>
+      </div>
+    </section>
+    <section class="screen" id="s-darrange" hidden>
+      <h1>Flight arrangement</h1>
+      <div class="opts">
+        <button class="opt" id="arKnown" type="button" aria-pressed="false">Will protect to</button>
+        <button class="opt" id="arUnknown" type="button" aria-pressed="false">Arrange in airport</button>
+      </div>
+      <div class="optExtra" id="altWrap" hidden>
+        <div class="field"><input autocomplete="off" class="code" id="altA" maxlength="2" value="CX" aria-label="Airline code"><input autocomplete="off" id="altN" inputmode="numeric" maxlength="3" aria-label="Flight number digits"></div>
+        <div class="field time"><span class="code">dep</span><input autocomplete="off" id="altTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
+      </div>
+    </section>
+    <section class="screen" id="s-darrive" hidden>
+      <h1>Ask pax arrive airport before ?</h1>
+      <div class="field time"><input autocomplete="off" id="arriveTime" inputmode="numeric" maxlength="5" aria-label="Arrive airport before, HHMM"></div>
+    </section>
+    <section class="screen" id="s-dnew" hidden>
+      <h1>Protect to</h1>
+      <div class="gateRow">
+        <div class="field" id="gNewField"><span class="code">CX</span><input autocomplete="off" id="gNewN" inputmode="numeric" maxlength="3" aria-label="Protect to flight number digits"></div>
+        <div class="field" id="gGateField">
+          <select class="code" id="gGateZone" aria-label="Gate area">
+            <option value="" hidden disabled></option>
+            <option value="B" selected>B</option>
+            <option value="C">C</option>
+          </select>
+          <input autocomplete="off" id="gGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
+        </div>
+      </div>
+      <div class="gateRRow gateRRowSplit"><span></span><button type="button" class="gateR" id="gGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
+      <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
+    </section>
+    <section class="screen" id="s-dgateaction" hidden>
+      <h1>Proceed to Gate</h1>
+      <div class="gateDestinations" role="group" aria-label="Gate destinations"><button type="button" class="gateDestination original" id="gOriginalFlight" aria-pressed="false">CX</button><button type="button" class="gateDestination" id="gProtectedFlight" aria-pressed="false">CX</button></div>
+      <div class="gateAmp">&amp;</div>
+      <div class="opts gateActions"><button class="opt" id="gpAsap" type="button" aria-pressed="false">ASAP</button><button class="opt" id="gpWait" type="button" aria-pressed="false">Wait for Staff</button></div>
+    </section>
+
+    <!-- Call Passenger type -->
+    <section class="screen" id="s-calltype" hidden>
+      <h1>Passenger Type</h1>
+      <div class="choices">
+        <button class="choice passengerPrimary" id="callJoin" type="button" aria-label=""><span class="ctext"><span data-scenario-label="joining"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callTransit" type="button" aria-label=""><span class="ctext"><span data-scenario-label="transit"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+      </div>
+    </section>
+
+    <!-- Call Passenger 1 / 2 -->
+    <section class="screen" id="s-callflight" hidden>
+      <h1>Flight Number</h1>
+      <div class="field" id="callFlightField">
+        <span class="code" aria-hidden="true">CX</span>
+        <input autocomplete="off" id="callFlight" inputmode="numeric" maxlength="3" aria-label="Flight number digits">
+      </div>
+    </section>
+
+
+    <section class="screen" id="s-callgate" hidden>
+      <h1>final call at Gate</h1>
+      <div class="field" id="callGateField">
+        <select class="code" id="callGateZone" aria-label="Gate area">
+          <option value="" hidden disabled></option>
+          <option value="B" selected>B</option>
+          <option value="C">C</option>
+        </select>
+        <input autocomplete="off" id="callGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
+      </div>
+      <div class="gateRRow"><button type="button" class="gateR" id="callGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
+    </section>
+
+    <!-- shared preview -->
+    <section class="screen" id="s-preview" hidden>
+      <h1>Confirm details</h1>
+      <dl class="sum" id="sum"></dl>
+      <h2 class="previewLangTitle" id="previewLangTitle">Language</h2>
+      <div class="seg" id="previewLangSeg" role="group" aria-label="Message order">
+        <button type="button" id="ordZh" aria-pressed="true" lang="zh-Hant">中文</button>
+        <button type="button" id="ordEn" aria-pressed="false">English</button>
+        <button type="button" id="ordJa" aria-pressed="false" lang="ja" hidden>日本語</button>
+      </div>
+      <button class="msgToggle" id="msgToggle" type="button" aria-expanded="false"><span>Message Preview <small id="previewOrderLabel">中文在前</small></span><span class="viewLabel" id="viewLabel">View ▾</span></button>
+      <div class="msgPanel" id="msgPanel" hidden>
+        <textarea class="msg" id="msg" autocomplete="off" readonly lang="zh-Hant" aria-label="Message preview"></textarea>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot" id="foot" hidden>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <button class="cta" id="cta" type="button" disabled>Next</button>
+  </footer>
+</div>
+
+<script src="./copy.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
