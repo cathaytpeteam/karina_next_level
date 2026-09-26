@@ -310,7 +310,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2.3-hotfix2";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.3-hotfix3";' in sw)
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-max.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
@@ -326,6 +326,8 @@ _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1).split('-hotfix',1)[0] if _rev_m else ''
 ck('homepage version label matches service worker', bool(_display_version) and f'<span class="appVersion" aria-label="App version">{_display_version}</span>' in s)
 ck('legacy Android startup syntax', '?.' not in s)
+ck('legacy Android preview runtime API', '.replaceChildren(' not in s and 'replaceChildrenCompat($("step")' in s)
+ck('legacy Android preview label spacing', '.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap;margin-left:8px}' in s)
 ck('service worker ASSETS declared', 'const ASSETS=[' in sw and 'cache.addAll(ASSETS)' in sw)
 # User-approved 2026-09-25 (slow company network): launch is cache-only, no network request for a cached file.
 ck('service worker cache-first runtime', 'const cached=await cache.match(key);' in sw and 'if(cached) return cached;' in sw and 'const r=await fetch(req);' in sw and 'e.waitUntil(network' not in sw)

@@ -198,7 +198,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 .disruptedTitle{display:flex;align-items:center;justify-content:center;gap:9px}
 .msgToggle{gap:8px;flex-wrap:wrap}
 .msgToggle>span:first-child{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:baseline;gap:4px 8px;min-width:0;overflow-wrap:anywhere}
-.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap}
+.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap;margin-left:8px}
 .msgToggle::after{content:none!important}
 .viewLabel{flex:none;margin-left:auto;font-size:15px;font-weight:700;white-space:nowrap}
 .msgPanel{position:relative;flex:1 1 auto;min-height:0;margin-top:8px;background:var(--surface);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
@@ -529,6 +529,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 (function(){
   "use strict";
   const $=id=>document.getElementById(id);
+  const replaceChildrenCompat=(el,...nodes)=>{while(el.firstChild)el.removeChild(el.firstChild);nodes.forEach(node=>el.appendChild(node));};
   const digits=s=>String(s||"").replace(/\D/g,"");
   const v=id=>$(id).value;
 
@@ -1497,7 +1498,7 @@ Thank you for your understanding and cooperation.`;
     if(directProgress){
       $("barFill").style.width="100%";
       const directName=S.missMode==="direct"?"漏查":(S.callMode==="direct"?"Call Directly":"Final Call");
-      $("step").replaceChildren(document.createTextNode(directName+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:"1/1"}));
+      replaceChildrenCompat($("step"),document.createTextNode(directName+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:"1/1"}));
     }else if(idx>=0){
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
@@ -1508,11 +1509,11 @@ Thank you for your understanding and cooperation.`;
       const disruptedType=flow==="dp" && cur!=="dstatus"
         ? (S.status==="possible"?"Tight connection":S.status==="delayed"?"Flight delayed":S.status==="unknown"?"Flight Suspended":S.status==="gate"?"Already at Gate":"") : "";
       if((flow==="miss"||flow==="call")&&passengerType){
-        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
+        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+passengerType));
       }else if(flow==="dp"&&disruptedType){
-        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+disruptedType));
+        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}),document.createTextNode(" - "+disruptedType));
       }else{
-        $("step").replaceChildren(document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}));
+        replaceChildrenCompat($("step"),document.createTextNode(f.name+" - "),Object.assign(document.createElement("span"),{className:"progressCount",textContent:progressText}));
       }
     }else $("step").textContent="";
 

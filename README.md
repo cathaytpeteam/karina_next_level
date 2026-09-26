@@ -1,4 +1,10 @@
-# Find Pax v1.1 R1.2.3 Android hotfix 2
+# Find Pax v1.1 R1.2.3 Android hotfix 3
+
+### R1.2.3 Android hotfix 3 — Legacy Android Scenario 3 Confirm compatibility
+- Replaced `Element.replaceChildren()` in the progress renderer with an older-Chrome compatible DOM helper. On legacy Android Chrome, the unsupported API previously stopped `render()` before Scenario 3 Confirm details were populated, leaving the summary/progress incomplete.
+- Added an explicit margin fallback between “Message Preview” and the language-order label because older Chrome does not support flexbox `gap`.
+- No Scenario 1/2/3/4 business flow, message copy, validation, or progress wording changed.
+
 
 ## Files
 
