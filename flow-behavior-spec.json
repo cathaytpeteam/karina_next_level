@@ -70,7 +70,7 @@
   ]
  },
  "preview_languages": {
-  "漏查 - 3/3 - Join Passenger": [
+  "漏查 - 3/3 - Joining Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
@@ -80,7 +80,7 @@
    "ordEn",
    "ordJa"
   ],
-  "Final Call - 4/4 - Join Passenger": [
+  "Final Call - 4/4 - Joining Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
@@ -162,25 +162,25 @@
    "from_title": "漏查 - 1/3",
    "trigger": "missJoin",
    "to": "mflight",
-   "to_title": "漏查 - 2/3 - Join Passenger"
+   "to_title": "漏查 - 2/3 - Joining Passenger"
   },
   {
    "from": "mflight",
-   "from_title": "漏查 - 2/3 - Join Passenger",
+   "from_title": "漏查 - 2/3 - Joining Passenger",
    "trigger": "cta",
    "to": "msec",
-   "to_title": "漏查 - 3/3 - Join Passenger"
+   "to_title": "漏查 - 3/3 - Joining Passenger"
   },
   {
    "from": "msec",
-   "from_title": "漏查 - 3/3 - Join Passenger",
+   "from_title": "漏查 - 3/3 - Joining Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "漏查 - 3/3 - Join Passenger"
+   "to_title": "漏查 - 3/3 - Joining Passenger"
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Passenger",
+   "from_title": "漏查 - 3/3 - Joining Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -190,7 +190,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Passenger",
+   "from_title": "漏查 - 3/3 - Joining Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -200,7 +200,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Passenger",
+   "from_title": "漏查 - 3/3 - Joining Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -264,25 +264,25 @@
    "from_title": "Final Call - 1/4",
    "trigger": "callJoin",
    "to": "callflight",
-   "to_title": "Final Call - 2/4 - Join Passenger"
+   "to_title": "Final Call - 2/4 - Joining Passenger"
   },
   {
    "from": "callflight",
-   "from_title": "Final Call - 2/4 - Join Passenger",
+   "from_title": "Final Call - 2/4 - Joining Passenger",
    "trigger": "cta",
    "to": "callgate",
-   "to_title": "Final Call - 3/4 - Join Passenger"
+   "to_title": "Final Call - 3/4 - Joining Passenger"
   },
   {
    "from": "callgate",
-   "from_title": "Final Call - 3/4 - Join Passenger",
+   "from_title": "Final Call - 3/4 - Joining Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Final Call - 4/4 - Join Passenger"
+   "to_title": "Final Call - 4/4 - Joining Passenger"
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Passenger",
+   "from_title": "Final Call - 4/4 - Joining Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -292,7 +292,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Passenger",
+   "from_title": "Final Call - 4/4 - Joining Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -302,7 +302,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Passenger",
+   "from_title": "Final Call - 4/4 - Joining Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",

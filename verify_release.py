@@ -199,7 +199,7 @@ def navigation_lock():
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
     # User-approved 2026-09-25 · Passenger Type pages of Scenario 1 (漏查) and Scenario 2 (Final Call):
-    # Join Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
+    # Joining Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
     # shown as a message icon and Call Directly as a phone icon, both beside the arrow.
     ICON_MSG='<path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/>'
     ICON_PHONE='<rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/>'
@@ -385,7 +385,7 @@ ck('legacy Android JS: no native replaceChildren dependency', '.replaceChildren(
 ck('legacy Android Home: critical row geometry uses explicit flex margins', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;' in s and '#s-scenario .ctext{flex:1 1 auto;' in s and 'margin-left:14px' in s and '#s-scenario .chev{flex:0 0 20px;margin-left:14px;' in s)
 ck('legacy Android Passenger Type: action-icon spacing is explicit', '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px' in s and '#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px' in s)
 ck('Scenario 1/2 label is Joining Passenger only', s.count('>Joining Passenger</span>')==2 and 'aria-label="Joining Passenger &amp; Message"' in s)
-ck('Scenario 1/2 progress wording uses Passenger', 'S.missMode==="join"?"Join Passenger":"Transit Passenger"' in s and 'S.callMode==="join"?"Join Passenger":"Transit Passenger"' in s)
+ck('Scenario 1/2 progress wording uses Passenger', 'S.missMode==="join"?"Joining Passenger":"Transit Passenger"' in s and 'S.callMode==="join"?"Joining Passenger":"Transit Passenger"' in s)
 ck('Scenario 4 TPE departure split is explicit', 'const TPE_NON_ORIGIN_TRANSIT_FLIGHTS=new Set(["450","530","564"]);' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
 ck('fresh case clears stale invalid borders', 'function clearInvalidMarks(ids)' in s and 'clearInvalidMarks(["dFlight","tA","tN","delayTime","altA","altN","altTime","arriveTime"]);' in s)
 
