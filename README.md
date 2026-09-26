@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.2.3
+# Find Pax v1.1 R1.2.3 Android hotfix
 
 ## Files
 
@@ -184,6 +184,11 @@ For every future request:
 This checklist is intentionally conservative because prior revisions suffered regressions when unrelated UI or behavior changed during otherwise small fixes.
 
 ## Change log
+
+### R1.2.3 Android hotfix — Legacy Android Phone-screen compatibility
+- Removed optional-chaining syntax from startup/input code so older Android Chrome can parse and run the Phone screen JavaScript.
+- Fixes the real-device symptom where the static Phone page appeared but the country badge and Next footer never initialized.
+- No Scenario 1–4 flow, message-copy, validation-rule, layout, or Service Worker strategy changes; cache revision only bumped so the fix is delivered.
 
 ### R1.2.3 — Phone library loading recovery
 

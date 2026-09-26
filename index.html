@@ -1655,7 +1655,7 @@ Thank you for your understanding and cooperation.`;
   ["delayTime","altTime","arriveTime","gDepTime"].forEach(id=>{
     const el=$(id);
     el.addEventListener("input",function(){fmtTime(this);render();});
-    el.addEventListener("focus",function(){this.select?.();});
+    el.addEventListener("focus",function(){if(this.select)this.select();});
   });
 
   $("callFlight").addEventListener("input",function(){this.value=digits(this.value).slice(0,3);render();});
@@ -1796,7 +1796,7 @@ Thank you for your understanding and cooperation.`;
       }
       // If the complete work area physically cannot fit, keep the active field
       // visible while leaving the content scrollable for the neighbouring fields.
-      const er=el.closest(".field")?.getBoundingClientRect() || el.getBoundingClientRect();
+      const er=(el.closest(".field") ? el.closest(".field").getBoundingClientRect() : el.getBoundingClientRect());
       if(er.bottom>bottom) main.scrollBy({top:er.bottom-bottom+8,behavior:"auto"});
       else if(er.top<top) main.scrollBy({top:er.top-top-8,behavior:"auto"});
     };
