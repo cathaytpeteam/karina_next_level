@@ -52,9 +52,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -u verify_release.py --full 2>&1 | tee k12-full-output.txt
+          python -u verify_release.py --full 2>&1 | tee "$RUNNER_TEMP/k12-full-output.txt"
           EXIT_CODE=${PIPESTATUS[0]}
-          echo "$EXIT_CODE" > k12-full-exit-code.txt
+          echo "$EXIT_CODE" > "$RUNNER_TEMP/k12-full-exit-code.txt"
           echo "verify_release.py --full exit code: $EXIT_CODE"
           exit "$EXIT_CODE"
 
@@ -64,7 +64,6 @@ jobs:
         with:
           name: k12-r2-full-verification
           path: |
-            k12-full-output.txt
-            k12-full-exit-code.txt
-            SHA256SUMS.txt
+            ${{ runner.temp }}/k12-full-output.txt
+            ${{ runner.temp }}/k12-full-exit-code.txt
           if-no-files-found: ignore
