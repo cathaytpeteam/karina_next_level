@@ -99,7 +99,6 @@ def navigation_lock():
      '$("goMiss").onclick=()=>{clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};',
      '$("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
      '$("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
-     '$("missDirect").onclick=()=>{clearMissForModeChange("direct");flow="call";S.missMode="direct";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
     ]: ck('Scenario 1 route '+x.split('"')[1], x in s)
     ck('Scenario 1 progress label order', 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
 
@@ -108,7 +107,7 @@ def navigation_lock():
      '$("goCall").onclick=()=>{clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};',
      '$("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
      '$("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
-     '$("callDirect").onclick=()=>{clearCallForModeChange("direct");S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
+     '$("goDirect").onclick=()=>{clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
     ]: ck('Scenario 2 route '+x.split('"')[1], x in s)
     ck('Scenario 2 progress label order', 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'document.createTextNode(f.name+" - ")' in s and 'document.createTextNode(" - "+passengerType)' in s)
     ck('Scenario 1 Back hides Passenger Type annotation', 'cur!=="misstype"' in s)
@@ -117,7 +116,7 @@ def navigation_lock():
     ck('Scenario 2 SEC page removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
     ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
     ck('Progress calculation uses locked flow denominator', 'const progressText=(idx+1)+"/"+f.steps.length;' in s)
-    ck('Call Directly progress 1/1', 'textContent:"1/1"' in s and 'document.createTextNode(" - Call Directly")' in s and 'const directName=S.missMode==="direct"?"漏查":"Final Call";' in s)
+    ck('Call Directly progress 1/1', 'textContent:"1/1"' in s and 'const directName=S.missMode==="direct"?"漏查":(S.callMode==="direct"?"Call Directly":"Final Call");' in s)
     ck('Browser Back/Forward state direction', 'history.replaceState({findPax:true,pos:0,id:"phone"}' in s and 'history.pushState({findPax:true,pos:navPos,id}' in s and 'navPos=st.pos;' in s and 'showScreen(st.id);' in s)
 
     # Scenario 4 structural + behavior regression checks.
@@ -160,7 +159,7 @@ def navigation_lock():
     ck('Scenario 4 Delayed time validates on step 2/6 only', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in ok_block)
     ck('Scenario 4 Suspended has no delay-time dependency', 'S.status!=="delayed"||timeOk("delayTime")' in ok_block)
     ck('Scenario 4 delayed hint belongs to step 2/6', 'dflight:()=>!isFlt(v("dFlight"))?"1–3 digits":(!generalCxOk(v("dFlight"))?"":((S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"))&&timeState("delayTime")==="bad"?"Invalid time (00:00–23:59)":""))' in hint_block and 'dstatus:()=>""' in hint_block)
-    ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!(S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"));' in s and 'if(cur==="dstatus")' in s)
+    ck('Scenario 4 delay field visibility belongs to dflight', 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!gateDelay&&S.status!=="delayed";' in s and 'if(cur==="dstatus")' in s)
 
 
     ck('Scenario 4 disrupted flight has explicit TPE departure whitelist', 'const TPE_DEPARTURE_FLIGHTS=GENERAL_CX_FLIGHTS;' in s and 'const generalCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
@@ -174,8 +173,9 @@ def navigation_lock():
     ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("preview");}' in next_block)
     ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
     ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime"))),' in ok_block)
-    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate &amp;<','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
-    ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
+    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate<','id="gOriginalFlight"','id="gProtectedFlight"','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
+    ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
+    ck('Scenario 4 Delayed to opens smoothly on step 2 (gate branch)', '$("delayWrap").classList.toggle("gateDelayOpen",delayOpen);' in s and '#s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr' in s)
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
     # User-approved 2026-09-25 · Passenger Type pages of Scenario 1 (漏查) and Scenario 2 (Final Call):
@@ -187,18 +187,22 @@ def navigation_lock():
         m=re.search(r'<button[^>]*\bid="'+bid+r'".*?</button>',sec,re.S); return m.group(0) if m else ''
     for sid,pre in (('s-misstype','miss'),('s-calltype','call')):
         sec=section(sid)
-        j,t,d=btn(sec,pre+'Join'),btn(sec,pre+'Transit'),btn(sec,pre+'Direct')
-        ck(f'{sid} labels and order', '<span>Join Passenger</span>' in j and '<span>Transit Passenger</span>' in t and '<span>Call Directly</span>' in d and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit')<sec.index(pre+'Direct'))
+        j,t=btn(sec,pre+'Join'),btn(sec,pre+'Transit')
+        ck(f'{sid} labels and order', '<span>Join Passenger</span>' in j and '<span>Transit Passenger</span>' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
         ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Join Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
-        ck(f'{sid} action icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and ICON_PHONE in d and d.index('class="actIco"')<d.index('class="chev"') and sec.count('class="actIco"')==3)
-    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}' in s and '#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:14px}' in s)
-    # ICON POLICY (user rule 2026-09-25): action icons (message / phone) appear ONLY on the Scenario 1 and
-    # Scenario 2 Passenger Type pages, because only there staff choose between calling and messaging.
-    # Scenario 4 Disrupted Passenger always sends a message, so its Passenger Type page (and every other
-    # screen) must stay icon-free. Do not add actIco / inline SVG icons anywhere else.
-    ck('ICON POLICY: action icons only on Scenario 1/2 Passenger Type', s.count('class="actIco"')==6 and all('<svg' not in section(x) for x in ('s-dstatus','s-scenario','s-dflight','s-dnew','s-dtransfer','s-darrange','s-darrive')))
-    # User-approved 2026-09-25: Scenario page order 3 Disrupted Passenger, 4 Wrong Pick-Up (progress titles unchanged).
-    ck('Scenario page order and labels', s.index('id="goDp"') < s.index('id="goWpp"') and '<span class="num">3</span><span>Disrupted Passenger</span>' in s and '<span class="num">4</span><span>Wrong Pick-Up</span>' in s and 'dp:{name:"Disrupted Pax"' in s and 'wpp:{name:"Wrong Pick-up"' in s)
+        ck(f'{sid} message icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and sec.count('class="actIco"')==2)
+    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}' in s)
+    # ICON POLICY (user rule 2026-09-25): small action icons (message) appear ONLY on the Scenario 1 and 2
+    # Passenger Type pages. Scenario 4 Disrupted Passenger always sends a message, so its pages stay icon-free.
+    # The Scenario page uses the illustrated scenario icons (not action icons).
+    ck('ICON POLICY: action icons only on Scenario 1/2 Passenger Type', s.count('class="actIco"')==4 and all('<svg' not in section(x) for x in ('s-dstatus','s-dflight','s-dnew','s-dtransfer','s-darrange','s-darrive')))
+    # R1.2 (user build 2026-09-26): Scenario page = 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up,
+    # no numbers; Final Call uses the carry-on runner illustration, Call Directly the former Final Call picture.
+    sc=section('s-scenario')
+    order=[sc.index(f'id="{i}"') for i in ('goMiss','goCall','goDirect','goDp','goWpp')]
+    ck('Scenario page order and labels', order==sorted(order) and all(f'<span>{t}</span>' in sc for t in ('漏查','Final Call','Call Directly','Disrupted Passenger','Wrong Pick-Up')) and 'class="num"' not in sc and 'dp:{name:"Disrupted Pax"' in s and 'wpp:{name:"Wrong Pick-up"' in s)
+    ck('Scenario page icons', 'class="scIco" viewBox="2 1 82 60"' in btn(sc,'goCall') and 'scenario-icon-2.png' in btn(sc,'goDirect') and 'scenario-icon-1.png' in btn(sc,'goMiss') and 'scenario-icon-4.png' in btn(sc,'goDp') and 'scenario-icon-3.png' in btn(sc,'goWpp') and '#s-scenario .ico .scIco{fill:none;stroke:none}' in s)
+    ck('Scenario page icon size', '#s-scenario .ico img,#s-scenario .ico .scIco{width:42px;height:30px;' in s and '#s-scenario .ctext span{white-space:normal;overflow-wrap:normal;text-wrap:balance}' in s)
     return checks
 
 bad=False
@@ -248,11 +252,12 @@ ck('Scenario 3 language reset', '$("goWpp").onclick=()=>{clearWppCase();flow="wp
 ck('Scenario 4 language reset', '$("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
 ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{clearMissCase();' in s)
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s)
-ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s and 'clearMissForModeChange("direct")' in s)
-ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s and 'clearCallForModeChange("direct")' in s)
+ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s)
+ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s)
 ck('Scenario 2 gate clears on type change', '["callFlight","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
 ck('Call progress stable four-step', 'call:{name:"Final Call",steps:["calltype","callflight","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
-ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'textContent:"1/1"' in s and 'document.createTextNode(" - Call Directly")' in s)
+# R1.2: Call Directly is its own Scenario entry; progress reads "Call Directly - 1/1".
+ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'textContent:"1/1"' in s and '(S.callMode==="direct"?"Call Directly":"Final Call")' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)
 np=ef('normalizePhone') or ''
@@ -298,7 +303,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.1";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2";' in sw)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''
@@ -337,7 +342,7 @@ ck('phone-input idle window runs after load', 'window.addEventListener("load",op
 ck('Scenario 4 Flight Type first', 'dp:{name:"Disrupted Pax",steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}' in s and 'go("dstatus")' in s)
 ck('Scenario 4 Flight Type copy', '<h1>Passenger Type</h1>' in s and '>Already at Gate<' in s and '>Tight Connection<' in s and '>Delayed<' in s and '>Suspended<' in s)
 ck('Scenario 4 Flight Type behaves like Passenger Type', 'cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s and 'cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s)
-ck('Scenario 4 Delayed time lives on step 2 only', 'id="s-dflight"' in s and 'id="delayWrap"' in s and 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!(S.status==="delayed"||(S.status==="gate"&&S.gateStatus==="delayed"));' in s and 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in s)
+ck('Scenario 4 Delayed time lives on step 2 only', 'id="s-dflight"' in s and 'id="delayWrap"' in s and 'if(cur==="dflight"){' in s and '$("delayWrap").hidden=!gateDelay&&S.status!=="delayed";' in s and 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))' in s)
 
 # Layout lock: approved screen structure/field placement may change only with explicit user approval.
 _lay_ok,_lay_msgs=layout_lock()

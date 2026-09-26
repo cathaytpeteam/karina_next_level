@@ -15,15 +15,15 @@
     "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
     "protected": {
       "message_copy": {
-        "message_master_version": "1.23",
-        "message_master_sha256": "ff9b0f5999cf8f891aada33dd0e89487dd9611cb678b7b4f0bb89354faded304",
+        "message_master_version": "1.24",
+        "message_master_sha256": "dd4060890551acce51990f28626cba1fdfb1abf194660574fa0fb95a53324f72",
         "functions": {
           "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
           "textJoin": "736eccf92c603b274a3e06ff45e9c29569f6d4475606ba7a180976687bd71706",
           "textTransit": "84f3c9ae79124ca4df6cf22c4c4bb04ed74fca21e5c9e6aa4ef18b61bc88076c",
           "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
           "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
-          "textDp": "1bc12f59e1b0be5c22d41c31406547a5eb80ba9a6218e4615e7cc8ad735a2a0b",
+          "textDp": "62c4a76a727cb33b598f420e01199cf59d2ab55739a649cb148845217bebcef7",
           "textMissTransit": "1987c6e8c7b387205702e5ea302f73ad439a0eba6036213e384cac3910137a83"
         },
         "constants": {
@@ -240,24 +240,24 @@
       "s-preview"
     ],
     "screen_sha256": {
-      "s-phone": "e6282a2c6ad381ca67e3951aba0c983ba299b36ca7c90e65a5e2f64b87be8649",
-      "s-scenario": "b7f52cdf590388d27e300f5ef434cfa627a16064bba70b86a433519bf1ff0c5a",
-      "s-misstype": "a7fba23b0af96c5bc6a934207063ca6768cbd672ca4c0a826c3635d3990c12ed",
+      "s-phone": "3b69b07d2148c8820cf862df028e27d46bbe92b031977bd5c9a39e7a0621755f",
+      "s-scenario": "7523a82d86605eebfe342061062c014e3f14628f87c65f4f0c9aeb736e3efb49",
+      "s-misstype": "c7958928f6b79a477dc7a15bb3b1d0092151800b3c2a8b7ee253d39fe85897ee",
       "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
       "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
       "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
       "s-bag1": "45ca0084918b40fadf764e4af4c07ced0c4da57f9096619fb53c589d21331289",
       "s-bag2": "54f8a82ab9509fcabe6c14b0e8f932e8ca1cdee7ce7132c754caea12828c69f0",
-      "s-dflight": "89f9929df3f045917b876b3d721741710acb096d4f2f1409e688b73f5e5a32eb",
+      "s-dflight": "c0e9c4fb10c9a1ee1758ab587fa7e88cc01f15a49083df6efbcc9226c1acc9d3",
       "s-dtransfer": "7a43274f91983adffd80ecd83124fd7590d9ecdd7e6f559edede463ca3153e92",
       "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
       "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
       "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
-      "s-calltype": "554d70d89b582bff251922610a0d6862fbee966113985a8f426b7b099f5c7db1",
+      "s-calltype": "6ce48cf35cb030deae82d2387fd33c822ce786c0b8b88ba67a84715e44444478",
       "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
       "s-callgate": "ef1270198eee7fe6dfac946792491d3b03b88f685ee67a9faed41d353c4effc0",
       "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
-      "s-dnew": "39b10b21c6f09d4cd47d3028e9f72f7720691a996a4f8b80ccce86fd822cfcf9"
+      "s-dnew": "54a894bb86d6a3d55a5cc872d949b85fb52aaa5d45d3e0b0614137bd8b3bee79"
     },
     "chrome_sha256": {
       "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
@@ -273,13 +273,13 @@
       "s-scenario": [
         "goMiss",
         "goCall",
+        "goDirect",
         "goDp",
         "goWpp"
       ],
       "s-misstype": [
         "missJoin",
-        "missTransit",
-        "missDirect"
+        "missTransit"
       ],
       "s-mflight": [
         "mFlight"
@@ -331,8 +331,7 @@
       ],
       "s-calltype": [
         "callJoin",
-        "callTransit",
-        "callDirect"
+        "callTransit"
       ],
       "s-callflight": [
         "callFlightField",
@@ -364,6 +363,8 @@
         "gGate",
         "gDepField",
         "gDepTime",
+        "gOriginalFlight",
+        "gProtectedFlight",
         "gpAsap",
         "gpWait"
       ]
@@ -399,7 +400,8 @@
       "effect": "display only; no field/control/navigation change"
     },
     "authorized_scenario4_gate_branch": "User-approved 2026-09-25. Scenario page: 3 Disrupted Passenger (goDp), 4 Wrong Pick-Up (goWpp); progress titles unchanged (Disrupted Pax / Wrong Pick-up). Disrupted Pax 1/6 'Passenger Type': left-aligned group labels 'At Gate' (Already at Gate, tinted full row) and 'Not at the Airport' (Tight Connection full row, same size, neutral colour; Delayed | Suspended). Already at Gate branch: 2/4 Flight from TPE + Flight status Delayed/Cancelled (Delayed shows Delayed to), 3/4 Protect to: CX flight | gate, Dep, Proceed to Gate ASAP | Wait for Staff, 4/4 Confirm details.",
-    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Join Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row."
+    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Join Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row.",
+    "authorized_r1_2": "R1.2 (2026-09-26), from the user's own build plus approved icon/layout work: Scenario page lists 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up without numbers; Final Call uses the carry-on runner illustration, Call Directly the former Final Call picture; icons 42x30 (38x27 on narrow phones); long labels wrap instead of hitting the arrow. Call Directly removed from the Scenario 1/2 Passenger Type pages. Already at Gate: Delayed-to opens smoothly on step 2; Protect to adds 'Proceed to Gate' target (original flight / new flight) followed by ASAP / Wait for Staff."
   },
   "navigation": {
     "schema": "find-pax-navigation-lock",
@@ -522,22 +524,22 @@
   },
   "message_copy": {
     "name": "Find Pax executable message-copy lock",
-    "message_master_version": "1.23",
+    "message_master_version": "1.24",
     "app_base": "Find-Pax-v1.0.16-Functional-Fix",
-    "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced. | v1.19 (2026-09-24, user-approved): Scenario 1 Join English message replaced. | v1.20 (2026-09-25, user-approved): Scenario 1 Join English layout aligned with Chinese. | v1.21 (2026-09-25, user-approved): Scenario 1 Join Chinese/English bullet U+2022 -> U+2981. | v1.22 (2026-09-25, user-approved): Scenario 2 Final Call Join Chinese/English copy replaced. | v1.23 (2026-09-25, user-approved): Scenario 4 Pax already at Gate branch copy (Delayed / Cancelled, zh/en).",
+    "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced. | v1.19 (2026-09-24, user-approved): Scenario 1 Join English message replaced. | v1.20 (2026-09-25, user-approved): Scenario 1 Join English layout aligned with Chinese. | v1.21 (2026-09-25, user-approved): Scenario 1 Join Chinese/English bullet U+2022 -> U+2981. | v1.22 (2026-09-25, user-approved): Scenario 2 Final Call Join Chinese/English copy replaced. | v1.23 (2026-09-25, user-approved): Scenario 4 Pax already at Gate branch copy (Delayed / Cancelled, zh/en). | v1.24 (2026-09-26, R1.2, user build): Already at Gate gate target (original / new flight), 16 zh/en copies.",
     "functions": {
       "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
       "textJoin": "736eccf92c603b274a3e06ff45e9c29569f6d4475606ba7a180976687bd71706",
       "textTransit": "84f3c9ae79124ca4df6cf22c4c4bb04ed74fca21e5c9e6aa4ef18b61bc88076c",
       "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
       "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
-      "textDp": "1bc12f59e1b0be5c22d41c31406547a5eb80ba9a6218e4615e7cc8ad735a2a0b",
+      "textDp": "62c4a76a727cb33b598f420e01199cf59d2ab55739a649cb148845217bebcef7",
       "textMissTransit": "1987c6e8c7b387205702e5ea302f73ad439a0eba6036213e384cac3910137a83"
     },
     "constants": {
       "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
       "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
     },
-    "message_master_sha256": "ff9b0f5999cf8f891aada33dd0e89487dd9611cb678b7b4f0bb89354faded304"
+    "message_master_sha256": "dd4060890551acce51990f28626cba1fdfb1abf194660574fa0fb95a53324f72"
   }
 }

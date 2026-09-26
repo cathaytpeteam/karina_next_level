@@ -348,10 +348,10 @@ async def to_s4_gate(r, flight="407", status=None, delay="1830"):
             await r.fill("delayTime", delay)
         await r.act("cta", "dnew")
 
-async def fill_protect(r, n="401", zone="B", gate="5", dep="1945", go=None):
+async def fill_protect(r, n="401", zone="B", gate="5", dep="1945", go=None, target="gProtectedFlight"):
     await r.fill("gNewN", n); await r.fill("gGateZone", zone); await r.fill("gGate", gate); await r.fill("gDepTime", dep); await r.blur("gDepTime")
     if go:
-        await r.act(go)
+        await r.act(target); await r.act(go)
 
 # ---- locked Japanese SMS copy (message-master.json) ---------------------------
 MASTER = json.loads((R / "message-master.json").read_text(encoding="utf-8"))["scenarios"]
@@ -387,8 +387,9 @@ async def case_s2(r, mode, flight, lang):
     exact = ja_expected("s2", "join" if mode == "callJoin" else "transit", "CX" + flight, "C5") if lang == "ordJa" else None
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", tuple(has), exact=exact)
 
-async def case_direct(r, scen, typ, btn):
-    await r.phone(); await r.act(scen, typ); await r.act(btn, "preview")
+async def case_direct(r):
+    # R1.2: Call Directly is its own entry on the Scenario page.
+    await r.phone(); await r.act("goDirect", "preview")
     ck(f"[{r.name}] call-only preview hides message preview", not await r.pg.locator("#msgToggle").is_visible())
     await r.act("cta", "external:whatsapp-call")
 
@@ -418,7 +419,7 @@ S4_BRANCHES = json.loads((R / "message-master.json").read_text(encoding="utf-8")
 
 S4_DEST = {"450": ("東京成田", "Tokyo Narita"), "564": ("大阪關西", "Osaka Kansai"), "530": ("名古屋中部", "Nagoya Chubu")}
 
-async def case_s4_gate(r, status, go, lang, new="531"):
+async def case_s4_gate(r, status, target, go, lang, new="531"):
     await r.phone(); await r.act("goDp", "dstatus"); await r.act("stGate", "dflight"); await r.fill("dFlight", "451")
     other = "gsCancelled" if status == "gsDelayed" else "gsDelayed"
     await r.act(other); await r.act(status)
@@ -426,22 +427,24 @@ async def case_s4_gate(r, status, go, lang, new="531"):
     if st == "delayed":
         await r.fill("delayTime", "2100")
     await r.act("cta", "dnew")
+    other_t = "gOriginalFlight" if target == "gProtectedFlight" else "gProtectedFlight"
     other_go = "gpWait" if go == "gpAsap" else "gpAsap"
-    await fill_protect(r, new, "B", "9", "1955", other_go); await r.act(go)
+    await fill_protect(r, new, "B", "9", "1955", other_go, other_t); await r.act(target); await r.act(go)
+    ck(f"[{r.name}] gate target buttons show both flights", [await r.pg.locator(f"#{b}").inner_text() for b in ("gOriginalFlight", "gProtectedFlight")] == ["CX451", "CX" + new])
     await r.act("cta", "preview"); await r.act(lang)
-    g = "asap" if go == "gpAsap" else "wait"
+    g = "asap" if go == "gpAsap" else "wait"; tg = "original" if target == "gOriginalFlight" else "new"
     dz, de = S4_DEST.get(new, ("香港", "Hong Kong"))
     fill = lambda t: (t.replace("{Disrupted Flight}", "CX451").replace("{Delay Time}", "21:00").replace("{New Flight}", "CX" + new)
                       .replace("{Gate}", "B9").replace("{Dep Time}", "19:55").replace("{DestinationZh}", dz).replace("{DestinationEn}", de))
-    zh, en = fill(S4_BRANCHES[f"zh.gate.{st}.{g}"]), fill(S4_BRANCHES[f"en.gate.{st}.{g}"])
+    zh, en = fill(S4_BRANCHES[f"zh.gate.{st}.{tg}.{g}"]), fill(S4_BRANCHES[f"en.gate.{st}.{tg}.{g}"])
     want = zh + "\n\n" + en if lang == "ordZh" else en + "\n\n" + zh
     got = await r.pg.locator("#msg").input_value()
     ck(f"[{r.name}] message is exactly the approved Already-at-Gate copy", got == want, got[:200])
     rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent)")
-    want_rows = ["Send to=\U0001F1F9\U0001F1FC +" + PHONE, "Disrupted flight=CX451", "Flight status=" + ("Delayed to 21:00" if st == "delayed" else "Cancelled"),
-                 "Protect to=CX" + new + " / dep 19:55", "Go to Gate=B9", "Proceed to Gate &=" + ("ASAP" if g == "asap" else "Wait for Staff")]
+    want_rows = ["Send to=\U0001F1F9\U0001F1FC +" + PHONE, "Disrupted flight=CX451", "Protect to=CX" + new + " / dep 19:55",
+                 "Proceed to Gate=" + ("CX451" if tg == "original" else "CX" + new + " / B9")]
     ck(f"[{r.name}] confirm details rows", rows == want_rows, str(rows))
-    await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "B9", "19:55") + (("21:00",) if st == "delayed" else ()))
+    await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "19:55") + (("21:00",) if st == "delayed" else ()) + (("B9",) if tg == "new" else ()))
 
 CASES = []
 for m, f in (("missJoin", "407"), ("missTransit", "450")):
@@ -450,8 +453,7 @@ for m, f in (("missJoin", "407"), ("missTransit", "450")):
 for m, f in (("callJoin", "407"), ("callTransit", "451")):
     for l in ("ordZh", "ordEn", "ordJa"):
         CASES.append((f"S2 {m} {l}", lambda r, m=m, f=f, l=l: case_s2(r, m, f, l)))
-CASES.append(("S1 Call Directly", lambda r: case_direct(r, "goMiss", "misstype", "missDirect")))
-CASES.append(("S2 Call Directly", lambda r: case_direct(r, "goCall", "calltype", "callDirect")))
+CASES.append(("Call Directly", lambda r: case_direct(r)))
 for l in ("ordZh", "ordEn"):
     CASES.append((f"S3 {l}", lambda r, l=l: case_s3(r, l)))
 for i, s in enumerate(("stPossible", "stDelayed", "stUnknown")):
@@ -459,8 +461,9 @@ for i, s in enumerate(("stPossible", "stDelayed", "stUnknown")):
         l = ("ordEn", "ordZh")[(i + j) % 2]
         CASES.append((f"S4 {s} {a} {l}", lambda r, s=s, a=a, l=l: case_s4(r, s, a, l)))
 
-for s_, g_, l_, n_ in (("gsDelayed", "gpAsap", "ordZh", "531"), ("gsDelayed", "gpWait", "ordEn", "450"), ("gsCancelled", "gpAsap", "ordEn", "565"), ("gsCancelled", "gpWait", "ordZh", "564")):
-    CASES.append((f"S4 Already at Gate {s_} {g_} {l_} CX{n_}", lambda r, s_=s_, g_=g_, l_=l_, n_=n_: case_s4_gate(r, s_, g_, l_, n_)))
+for s_, t_, g_, l_, n_ in (("gsDelayed", "gProtectedFlight", "gpAsap", "ordZh", "531"), ("gsDelayed", "gOriginalFlight", "gpWait", "ordEn", "450"),
+                            ("gsCancelled", "gOriginalFlight", "gpAsap", "ordEn", "565"), ("gsCancelled", "gProtectedFlight", "gpWait", "ordZh", "564")):
+    CASES.append((f"S4 Already at Gate {s_} {t_} {g_} {l_} CX{n_}", lambda r, s_=s_, t_=t_, g_=g_, l_=l_, n_=n_: case_s4_gate(r, s_, t_, g_, l_, n_)))
 
 # ---- guards -------------------------------------------------------------------
 async def g(r, name):
@@ -641,12 +644,14 @@ async def g(r, name):
         ck("[guard] Tight Connection step 2 has no Flight status", not await r.pg.locator("#gStatusWrap").is_visible())
     elif name == "s4_gate_delayed_requires_time":
         await to_s4_gate(r); await r.act("gsDelayed")
-        ck("[guard] gate Delayed shows Delayed to", await r.pg.locator("#delayWrap").is_visible())
+        await r.pg.wait_for_timeout(400)  # Delayed to slides open (0.23 s) in the Already at Gate branch
+        ck("[guard] gate Delayed shows Delayed to", (await r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height')) > 40 and await r.pg.locator("#delayWrap").evaluate("e => e.classList.contains('gateDelayOpen')"))
         await r.expect("gate Delayed without time keeps Next disabled", False)
         await r.fill("delayTime", "2575"); await r.expect("gate Delayed 25:75 rejected", False, ["delayTime"])
         await r.fill("delayTime", "2100"); await r.expect("gate Delayed 21:00 accepted", True, not_bad=["delayTime"])
         await r.act("gsCancelled")
-        ck("[guard] Cancelled hides and clears Delayed to", not await r.pg.locator("#delayWrap").is_visible() and await r.val("delayTime") == "")
+        await r.pg.wait_for_timeout(400)
+        ck("[guard] Cancelled hides and clears Delayed to", (await r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height')) < 2 and await r.val("delayTime") == "" and not await r.pg.locator("#delayWrap").evaluate("e => e.classList.contains('gateDelayOpen')"))
     elif name == "s4_gate_protect_rules":
         await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r, "407", go="gpAsap")
         await r.expect("gate protect same CX407 rejected", False, ["gNewN"])
@@ -665,7 +670,8 @@ async def g(r, name):
         await r.expect("no Dep and no Proceed choice keeps Next disabled", False)
         await r.fill("gDepTime", "2575"); await r.expect("Dep 25:75 rejected", False, ["gDepTime"])
         await r.fill("gDepTime", "1955"); await r.expect("Dep ok but no Proceed choice keeps Next disabled", False, not_bad=["gDepTime"])
-        await r.act("gpWait"); await r.expect("Wait for Staff enables Next", True)
+        await r.act("gpWait"); await r.expect("Wait for Staff without a gate target keeps Next disabled", False)
+        await r.act("gOriginalFlight"); await r.expect("original-flight target + Wait for Staff enables Next", True)
     elif name == "s4_gate_fields_side_by_side":
         for W in (390, 360, 320):
             await r.pg.set_viewport_size({"width": W, "height": 844})
@@ -718,7 +724,7 @@ async def rule(r, name):
         s_ = await r.st()
         ck("[rule] re-selecting Already at Gate keeps Flight status", s_["pressed"] == ["gsDelayed"] and await r.val("delayTime") == "18:30", str(s_["pressed"]))
         await r.act("cta", "dnew"); s_ = await r.st()
-        ck("[rule] ... and keeps Protect to", [await r.val(x) for x in ("gNewN", "gGate", "gDepTime")] == ["401", "5", "19:45"] and s_["pressed"] == ["gpWait"], str(s_["pressed"]))
+        ck("[rule] ... and keeps Protect to", [await r.val(x) for x in ("gNewN", "gGate", "gDepTime")] == ["401", "5", "19:45"] and s_["pressed"] == ["gProtectedFlight", "gpWait"], str(s_["pressed"]))
     elif name == "enter_key_advances":
         await to_s1(r, "missJoin", "407"); await r.pg.press("#mFlight", "Enter")
         s = await r.wait(lambda s: s["screen"] == "msec")

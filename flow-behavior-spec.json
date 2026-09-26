@@ -33,6 +33,8 @@
    "ordJa"
   ],
   "dnew": [
+   "gOriginalFlight",
+   "gProtectedFlight",
    "gpAsap",
    "gpWait"
   ],
@@ -53,6 +55,8 @@
    "msgToggle"
   ],
   "dnew": [
+   "gOriginalFlight",
+   "gProtectedFlight",
    "gpAsap",
    "gpWait"
   ],
@@ -141,6 +145,13 @@
    "trigger": "goDp",
    "to": "dstatus",
    "to_title": "Disrupted Pax - 1/6"
+  },
+  {
+   "from": "scenario",
+   "from_title": "",
+   "trigger": "goDirect",
+   "to": "preview",
+   "to_title": "Call Directly - 1/1"
   },
   {
    "from": "misstype",
@@ -245,23 +256,6 @@
    ]
   },
   {
-   "from": "misstype",
-   "from_title": "漏查 - 1/3",
-   "trigger": "missDirect",
-   "to": "preview",
-   "to_title": "漏查 - 1/1 - Call Directly"
-  },
-  {
-   "from": "preview",
-   "from_title": "漏查 - 1/1 - Call Directly",
-   "trigger": "cta",
-   "to": "external:whatsapp-call",
-   "to_title": "",
-   "from_state": [
-    "ordZh"
-   ]
-  },
-  {
    "from": "calltype",
    "from_title": "Final Call - 1/4",
    "trigger": "callJoin",
@@ -361,23 +355,6 @@
    "to_title": "",
    "from_state": [
     "ordJa"
-   ]
-  },
-  {
-   "from": "calltype",
-   "from_title": "Final Call - 1/4",
-   "trigger": "callDirect",
-   "to": "preview",
-   "to_title": "Final Call - 1/1 - Call Directly"
-  },
-  {
-   "from": "preview",
-   "from_title": "Final Call - 1/1 - Call Directly",
-   "trigger": "cta",
-   "to": "external:whatsapp-call",
-   "to_title": "",
-   "from_state": [
-    "ordZh"
    ]
   },
   {
@@ -639,6 +616,7 @@
    "to": "preview",
    "to_title": "Disrupted Pax - 4/4 - Already at Gate",
    "from_state": [
+    "gOriginalFlight",
     "gpAsap"
    ]
   },
@@ -649,6 +627,29 @@
    "to": "preview",
    "to_title": "Disrupted Pax - 4/4 - Already at Gate",
    "from_state": [
+    "gOriginalFlight",
+    "gpWait"
+   ]
+  },
+  {
+   "from": "dnew",
+   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "preview",
+   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_state": [
+    "gProtectedFlight",
+    "gpAsap"
+   ]
+  },
+  {
+   "from": "dnew",
+   "from_title": "Disrupted Pax - 3/4 - Already at Gate",
+   "trigger": "cta",
+   "to": "preview",
+   "to_title": "Disrupted Pax - 4/4 - Already at Gate",
+   "from_state": [
+    "gProtectedFlight",
     "gpWait"
    ]
   },
@@ -690,6 +691,16 @@
    "to_title": "",
    "from_state": [
     "ordEn"
+   ]
+  },
+  {
+   "from": "preview",
+   "from_title": "Call Directly - 1/1",
+   "trigger": "cta",
+   "to": "external:whatsapp-call",
+   "to_title": "",
+   "from_state": [
+    "ordZh"
    ]
   }
  ],

@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.1
+# Find Pax v1.1 R1.2
 
 ## Files
 
@@ -26,7 +26,7 @@ python3 verify_release.py --previous OLD_DIR   # also test upgrading from the bu
 
 ## Latest verification result
 
-- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 793 checks; Service Worker scenarios 55 checks incl. upgrade from the originally uploaded R1 build).
+- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 792 checks; Service Worker scenarios 55 checks incl. upgrade from the originally uploaded R1 build).
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -278,6 +278,15 @@ python3 verify_release.py
 ```
 
 A release is valid only when every check prints `PASS`. Do not alter lock hashes merely to silence an unexpected failure; only regenerate locks after explicitly approved protected changes.
+
+### R1.2 — Scenario page redesign, Call Directly entry, Already at Gate target (2026-09-26)
+
+Built from the user's own test build (`karina_next_level_scenario_test.zip`) plus the approved icon/layout work.
+
+- **Scenario page:** 漏查, Final Call, **Call Directly**, Disrupted Passenger, Wrong Pick-Up — no numbers. Final Call uses a new carry-on runner illustration (two-tone, inline SVG); Call Directly uses the former Final Call picture (`scenario-icon-2.png`). Icons 42×30 (38×27 at ≤380px) in the images' own 1.4:1 ratio, so all five look the same size. Long labels wrap onto two lines instead of running into the arrow; top spacing follows screen height, so all five fit on a 320×568 phone.
+- **Call Directly** is now its own Scenario entry (progress "Call Directly - 1/1") and was removed from the Scenario 1 and 2 Passenger Type pages.
+- **Already at Gate:** Delayed to slides open on step 2; Protect to adds **Proceed to Gate**: original flight or new flight, then ASAP / Wait for Staff. Confirm details shows Disrupted flight, Protect to, Proceed to Gate. Message copy becomes 16 zh/en variants (message master 1.24).
+- Release **R1.2** (`CACHE_REV` and homepage label). Checks, locks and the behaviour spec updated to this design; ICON POLICY now counts the four message icons on the Scenario 1/2 Passenger Type pages.
 
 ### Passenger Type icons and icon policy (R1.1)
 
