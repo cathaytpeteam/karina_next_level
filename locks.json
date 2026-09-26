@@ -242,7 +242,7 @@
     "screen_sha256": {
       "s-phone": "058837b489ab69ae78ede37f79c0d1d09d14bbe9a0315d397295ddb814be373a",
       "s-scenario": "7523a82d86605eebfe342061062c014e3f14628f87c65f4f0c9aeb736e3efb49",
-      "s-misstype": "c7958928f6b79a477dc7a15bb3b1d0092151800b3c2a8b7ee253d39fe85897ee",
+      "s-misstype": "95cc32e29f4e0d428b708f11dd7dea54f94032f61d327409b9109b5f36534dc9",
       "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
       "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
       "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
@@ -253,7 +253,7 @@
       "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
       "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
       "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
-      "s-calltype": "6ce48cf35cb030deae82d2387fd33c822ce786c0b8b88ba67a84715e44444478",
+      "s-calltype": "1317b3e125153ec1ec9af362831a79ba0a14ffaf875c8128f8fa325f18f94f09",
       "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
       "s-callgate": "a7e5d306fbbb9159a2b1c093f45590eb25a6981240c0e9fecfbd93a3a9b47abe",
       "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
@@ -402,7 +402,7 @@
       "effect": "display only; no field/control/navigation change"
     },
     "authorized_scenario4_gate_branch": "User-approved 2026-09-25. Scenario page: 3 Disrupted Passenger (goDp), 4 Wrong Pick-Up (goWpp); progress titles unchanged (Disrupted Pax / Wrong Pick-up). Disrupted Pax 1/6 'Passenger Type': left-aligned group labels 'At Gate' (Already at Gate, tinted full row) and 'Not at the Airport' (Tight Connection full row, same size, neutral colour; Delayed | Suspended). Already at Gate branch: 2/4 Flight from TPE + Flight status Delayed/Cancelled (Delayed shows Delayed to), 3/4 Protect to: CX flight | gate, Dep, Proceed to Gate ASAP | Wait for Staff, 4/4 Confirm details.",
-    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Join Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row.",
+    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Joining Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row.",
     "authorized_r1_2": "R1.2 (2026-09-26), from the user's own build plus approved icon/layout work: Scenario page lists 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up without numbers; Final Call uses the carry-on runner illustration, Call Directly the former Final Call picture; icons 42x30 (38x27 on narrow phones); long labels wrap instead of hitting the arrow. Call Directly removed from the Scenario 1/2 Passenger Type pages. Already at Gate: Delayed-to opens smoothly on step 2; Protect to adds 'Proceed to Gate' target (original flight / new flight) followed by ASAP / Wait for Staff."
   },
   "navigation": {

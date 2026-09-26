@@ -79,7 +79,7 @@ A future release is not considered safe merely because the requested feature wor
 
 Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Transit.
 
-- Passenger types: **Join Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
+- Passenger types: **Joining Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Transit origin mapping remains:
@@ -96,7 +96,7 @@ Locked flow: Passenger Type -> Flight -> SEC -> Confirm details, 3/3 for Join/Tr
 
 Locked flow: Passenger Type -> Flight -> Gate -> Confirm details, 4/4 for Join/Transit. **No SEC page.**
 
-- Passenger types: **Join Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
+- Passenger types: **Joining Passenger** (big card) / **Transit Passenger** / **Call Directly**, one full-width row each (user-approved 2026-09-25). "& Message" is shown as a single-colour message icon and Call Directly as a phone icon, both beside the arrow; screen readers still hear "& Message". See ICON POLICY in the change log.
 - Join uses the approved general CX whitelist.
 - Transit accepts only CX450 / CX451 / CX530 / CX531 / CX564 / CX565.
 - Gate validation remains required.
@@ -317,7 +317,7 @@ Built from the user's own test build (`karina_next_level_scenario_test.zip`) plu
 
 User-approved 2026-09-25 after trying the HTML preview.
 
-- **Scenario 1 (漏查) and Scenario 2 (Final Call) Passenger Type:** Join Passenger (big card, unchanged), Transit Passenger (76px, full width), Call Directly (same size, own row). "& Message" is replaced by a message icon, and Call Directly gets a smartphone-with-waves icon, both beside the arrow. Icons are single colour (text colour), same line weight, and line up in one column at every width.
+- **Scenario 1 (漏查) and Scenario 2 (Final Call) Passenger Type:** Joining Passenger (big card), Transit Passenger (76px, full width), Call Directly (same size, own row). "& Message" is replaced by a message icon, and Call Directly gets a smartphone-with-waves icon, both beside the arrow. Icons are single colour (text colour), same line weight, and line up in one column at every width.
 - **ICON POLICY (checked by `verify_release.py`):** action icons appear **only** on the Scenario 1 and 2 Passenger Type pages, because only there staff choose between calling and messaging. Scenario 4 Disrupted Passenger always sends a message, so its page and every other screen stay icon-free.
 - Scenario 4 Protect to: label "Proceed to Gate &" on the page and in Confirm details.
 

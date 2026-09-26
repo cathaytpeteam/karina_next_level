@@ -179,7 +179,7 @@ def navigation_lock():
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
     # User-approved 2026-09-25 · Passenger Type pages of Scenario 1 (漏查) and Scenario 2 (Final Call):
-    # Join Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
+    # Joining Passenger (big card) / Transit Passenger / Call Directly, one full-width row each; "& Message" is
     # shown as a message icon and Call Directly as a phone icon, both beside the arrow.
     ICON_MSG='<path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/>'
     ICON_PHONE='<rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/>'
@@ -188,8 +188,8 @@ def navigation_lock():
     for sid,pre in (('s-misstype','miss'),('s-calltype','call')):
         sec=section(sid)
         j,t=btn(sec,pre+'Join'),btn(sec,pre+'Transit')
-        ck(f'{sid} labels and order', '<span>Join Passenger</span>' in j and '<span>Transit Passenger</span>' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
-        ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Join Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
+        ck(f'{sid} labels and order', '<span>Joining Passenger</span>' in j and '<span>Transit Passenger</span>' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
+        ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Joining Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
         ck(f'{sid} message icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and sec.count('class="actIco"')==2)
     ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;color:var(--brand-strong)}' in s)
     # ICON POLICY (user rule 2026-09-25): small action icons (message) appear ONLY on the Scenario 1 and 2
@@ -310,7 +310,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2.3-hotfix1";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.3-hotfix2";' in sw)
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-max.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
