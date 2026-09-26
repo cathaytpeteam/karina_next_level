@@ -70,22 +70,22 @@
   ]
  },
  "preview_languages": {
-  "漏查 - 3/3 - Join Pax": [
+  "漏查 - 3/3 - Join Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "漏查 - 3/3 - Transit Pax": [
+  "漏查 - 3/3 - Transit Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "Final Call - 4/4 - Join Pax": [
+  "Final Call - 4/4 - Join Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
   ],
-  "Final Call - 4/4 - Transit Pax": [
+  "Final Call - 4/4 - Transit Passenger": [
    "ordZh",
    "ordEn",
    "ordJa"
@@ -162,25 +162,25 @@
    "from_title": "漏查 - 1/3",
    "trigger": "missJoin",
    "to": "mflight",
-   "to_title": "漏查 - 2/3 - Join Pax"
+   "to_title": "漏查 - 2/3 - Join Passenger"
   },
   {
    "from": "mflight",
-   "from_title": "漏查 - 2/3 - Join Pax",
+   "from_title": "漏查 - 2/3 - Join Passenger",
    "trigger": "cta",
    "to": "msec",
-   "to_title": "漏查 - 3/3 - Join Pax"
+   "to_title": "漏查 - 3/3 - Join Passenger"
   },
   {
    "from": "msec",
-   "from_title": "漏查 - 3/3 - Join Pax",
+   "from_title": "漏查 - 3/3 - Join Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "漏查 - 3/3 - Join Pax"
+   "to_title": "漏查 - 3/3 - Join Passenger"
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Pax",
+   "from_title": "漏查 - 3/3 - Join Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -190,7 +190,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Pax",
+   "from_title": "漏查 - 3/3 - Join Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -200,7 +200,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Join Pax",
+   "from_title": "漏查 - 3/3 - Join Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -213,25 +213,25 @@
    "from_title": "漏查 - 1/3",
    "trigger": "missTransit",
    "to": "mflight",
-   "to_title": "漏查 - 2/3 - Transit Pax"
+   "to_title": "漏查 - 2/3 - Transit Passenger"
   },
   {
    "from": "mflight",
-   "from_title": "漏查 - 2/3 - Transit Pax",
+   "from_title": "漏查 - 2/3 - Transit Passenger",
    "trigger": "cta",
    "to": "msec",
-   "to_title": "漏查 - 3/3 - Transit Pax"
+   "to_title": "漏查 - 3/3 - Transit Passenger"
   },
   {
    "from": "msec",
-   "from_title": "漏查 - 3/3 - Transit Pax",
+   "from_title": "漏查 - 3/3 - Transit Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "漏查 - 3/3 - Transit Pax"
+   "to_title": "漏查 - 3/3 - Transit Passenger"
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Pax",
+   "from_title": "漏查 - 3/3 - Transit Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -241,7 +241,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Pax",
+   "from_title": "漏查 - 3/3 - Transit Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -251,7 +251,7 @@
   },
   {
    "from": "preview",
-   "from_title": "漏查 - 3/3 - Transit Pax",
+   "from_title": "漏查 - 3/3 - Transit Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -264,25 +264,25 @@
    "from_title": "Final Call - 1/4",
    "trigger": "callJoin",
    "to": "callflight",
-   "to_title": "Final Call - 2/4 - Join Pax"
+   "to_title": "Final Call - 2/4 - Join Passenger"
   },
   {
    "from": "callflight",
-   "from_title": "Final Call - 2/4 - Join Pax",
+   "from_title": "Final Call - 2/4 - Join Passenger",
    "trigger": "cta",
    "to": "callgate",
-   "to_title": "Final Call - 3/4 - Join Pax"
+   "to_title": "Final Call - 3/4 - Join Passenger"
   },
   {
    "from": "callgate",
-   "from_title": "Final Call - 3/4 - Join Pax",
+   "from_title": "Final Call - 3/4 - Join Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Final Call - 4/4 - Join Pax"
+   "to_title": "Final Call - 4/4 - Join Passenger"
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Pax",
+   "from_title": "Final Call - 4/4 - Join Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -292,7 +292,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Pax",
+   "from_title": "Final Call - 4/4 - Join Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -302,7 +302,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Join Pax",
+   "from_title": "Final Call - 4/4 - Join Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",
@@ -315,25 +315,25 @@
    "from_title": "Final Call - 1/4",
    "trigger": "callTransit",
    "to": "callflight",
-   "to_title": "Final Call - 2/4 - Transit Pax"
+   "to_title": "Final Call - 2/4 - Transit Passenger"
   },
   {
    "from": "callflight",
-   "from_title": "Final Call - 2/4 - Transit Pax",
+   "from_title": "Final Call - 2/4 - Transit Passenger",
    "trigger": "cta",
    "to": "callgate",
-   "to_title": "Final Call - 3/4 - Transit Pax"
+   "to_title": "Final Call - 3/4 - Transit Passenger"
   },
   {
    "from": "callgate",
-   "from_title": "Final Call - 3/4 - Transit Pax",
+   "from_title": "Final Call - 3/4 - Transit Passenger",
    "trigger": "cta",
    "to": "preview",
-   "to_title": "Final Call - 4/4 - Transit Pax"
+   "to_title": "Final Call - 4/4 - Transit Passenger"
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Pax",
+   "from_title": "Final Call - 4/4 - Transit Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -343,7 +343,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Pax",
+   "from_title": "Final Call - 4/4 - Transit Passenger",
    "trigger": "cta",
    "to": "external:whatsapp",
    "to_title": "",
@@ -353,7 +353,7 @@
   },
   {
    "from": "preview",
-   "from_title": "Final Call - 4/4 - Transit Pax",
+   "from_title": "Final Call - 4/4 - Transit Passenger",
    "trigger": "cta",
    "to": "external:sms",
    "to_title": "",

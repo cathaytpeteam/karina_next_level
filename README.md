@@ -201,7 +201,7 @@ This checklist is intentionally conservative because prior revisions suffered re
 ### R1.2.4 — clean Android compatibility + focused release gate
 
 - Rebuilt from the clean R1.2.3 source instead of stacking another hotfix on top of a candidate.
-- Scenario 1 and 2 Passenger Type label: **Join Passenger → Joining Passenger**. Progress wording remains **Join Pax**.
+- Scenario 1 and 2 Passenger Type label: **Join Passenger → Joining Passenger**. Progress wording now uses **Join Passenger / Transit Passenger** for Scenario 1/2 only.
 - Legacy Android JS compatibility: no optional chaining and no native `replaceChildren()` dependency.
 - Home Scenario cards no longer rely on CSS Grid / flex-gap for the critical icon → text → arrow spacing; 390/360/320px geometry is measured by the priority browser gate.
 - Fresh cases explicitly clear stale red field borders. Blank Scenario 4 Flight from TPE / Protect to fields must remain neutral.
@@ -460,7 +460,7 @@ Japanese native SMS keeps the existing platform split: iOS uses `&body=` and And
 - Back / Next within the same flow continues to preserve entered values for easy correction.
 - Re-entering Scenario 1, 2, 3, or 4 from the Scenario screen now starts that scenario with clean case fields, preventing values from a previous case from enabling Next.
 - Changing Scenario 1 or Scenario 2 Passenger Type clears fields that belong to the previous type. Scenario 2 now also clears the old Gate value.
-- Scenario 1 and Scenario 2 progress labels place numeric progress before the selected passenger type: `Flow - N/N - Join Pax / Transit Pax`. Scenario 2 Join / Transit remains fixed at four steps. Call Directly is a separate one-page branch and shows `1/1 - Call Directly`; the phone number remains inside Confirm details instead of the top-right passenger badge.
+- Scenario 1 and Scenario 2 progress labels place numeric progress before the selected passenger type: `Flow - N/N - Join Passenger / Transit Passenger`. Scenario 2 Join / Transit remains fixed at four steps. Call Directly is a separate one-page branch and shows `1/1 - Call Directly`; the phone number remains inside Confirm details instead of the top-right passenger badge.
 - Opening Message Preview without editing no longer creates a saved custom draft when navigating Back; generated Japanese Transit time can therefore refresh normally. Actual typed edits remain preserved per language.
 - Both blocked canned/test phone numbers now show `罐頭號碼 無用`, including entries that libphonenumber itself considers invalid.
 - Approved message copy, Japan +81 rules, SEC/IATA rules, SMS/WhatsApp routing, and visual styling are unchanged.
@@ -471,7 +471,7 @@ Scenario 1 and Scenario 2 SEC screens are now visually unified as one inline fie
 
 ### Authorized progress update (r6)
 
-All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - N/3 - Join Pax / Transit Pax`; Scenario 2 uses `Final Call - N/4 - Join Pax / Transit Pax`. Before Passenger Type is selected, only `Flow - N/N` is shown.
+All progress labels are locked at **20px / 700**. Scenario 1 uses `漏查 - N/3 - Join Passenger / Transit Passenger`; Scenario 2 uses `Final Call - N/4 - Join Passenger / Transit Passenger`. Before Passenger Type is selected, only `Flow - N/N` is shown.
 
 ### Authorized responsive keyboard / Safe Area adjustment
 - iOS/Android keyboard mode keeps the approved 20px/700 progress label visible.
@@ -500,7 +500,7 @@ All Message Preview screens are now read-only. The in-app `Edit` and `Copy Text`
 
 
 ### v1.1 Final Call naming lock
-Scenario 2 is named **Final Call**. Its current message-path progress is locked to **Final Call - 1/4 - Join Pax/Transit Pax → Final Call - 4/4 - Join Pax/Transit Pax**, with the SEC page removed for Join and Transit. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 - 2/3 - Join Pax**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
+Scenario 2 is named **Final Call**. Its current message-path progress is locked to **Final Call - 1/4 → Final Call - 4/4 - Join Passenger/Transit Passenger**, with the SEC page removed for Join and Transit. Scenario 1 now counts **Passenger Type as 1/3**, then Flight as **2/3** and SEC as **3/3**; the read-only preview keeps the completed **3/3** state visible. After a Join/Transit choice, Passenger Type becomes a trailing annotation, e.g. **漏查 - 2/3 - Join Passenger**. `navigation-lock.json` + `verify_navigation.py` protect this mapping, step order, and entry/type routing from regression.
 
 
 ### Authorized Scenario 2 SEC removal (r6)

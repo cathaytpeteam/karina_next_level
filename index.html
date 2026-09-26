@@ -1512,9 +1512,9 @@ Thank you for your understanding and cooperation.`;
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
       const passengerType=flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")
-        ? (S.missMode==="join"?"Join Pax":"Transit Pax")
+        ? (S.missMode==="join"?"Join Passenger":"Transit Passenger")
         : flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")
-          ? (S.callMode==="join"?"Join Pax":"Transit Pax") : "";
+          ? (S.callMode==="join"?"Join Passenger":"Transit Passenger") : "";
       const disruptedType=flow==="dp" && cur!=="dstatus"
         ? (S.status==="possible"?"Tight connection":S.status==="delayed"?"Flight delayed":S.status==="unknown"?"Flight Suspended":S.status==="gate"?"Already at Gate":"") : "";
       if((flow==="miss"||flow==="call")&&passengerType){

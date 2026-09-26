@@ -385,8 +385,8 @@
       "Runtime data values inserted into existing locked elements"
     ],
     "authorized_progress_update": {
-      "scenario1": "漏查 - N/3 - Join Pax / Transit Pax (Passenger Type page: 漏查 - 1/3)",
-      "scenario2": "Final Call - N/4 - Join Pax / Transit Pax (Passenger Type page: Final Call - 1/4)"
+      "scenario1": "漏查 - N/3 - Join Passenger / Transit Passenger (Passenger Type page: 漏查 - 1/3)",
+      "scenario2": "Final Call - N/4 - Join Passenger / Transit Passenger (Passenger Type page: Final Call - 1/4)"
     },
     "authorized_final_call_update": "Scenario 2 remains named Final Call. Authorized flow update: SEC page removed for both Join and Transit; Final Call is now 4 steps (Passenger Type, Flight, Gate, Preview). Progress order remains Flow - N/N - Passenger Type. Scenario 1 is unchanged.",
     "authorized_scenario4_followup": {
@@ -472,10 +472,10 @@
       "direct": "missDirect -> preview",
       "progress_labels": [
         "漏查 - 1/3",
-        "漏查 - 2/3 - Join Pax",
-        "漏查 - 2/3 - Transit Pax"
+        "漏查 - 2/3 - Join Passenger",
+        "漏查 - 2/3 - Transit Passenger"
       ],
-      "message_progress": "Passenger Type 漏查 - 1/3; after selection: 漏查 - 2/3 - Join/Transit Pax -> 漏查 - 3/3 - Join/Transit Pax; preview remains completed at 3/3",
+      "message_progress": "Passenger Type 漏查 - 1/3; after selection: 漏查 - 2/3 - Join/Transit Passenger -> 漏查 - 3/3 - Join/Transit Passenger; preview remains completed at 3/3",
       "back_behavior": "Returning to misstype always displays 漏查 - 1/3 with no Join/Transit annotation.",
       "direct_progress": "漏查 - 1/1 - Call Directly"
     },
@@ -486,10 +486,10 @@
       "direct": "callDirect -> preview",
       "progress_labels": [
         "Final Call - 1/4",
-        "Final Call - 2/4 - Join Pax",
-        "Final Call - 2/4 - Transit Pax"
+        "Final Call - 2/4 - Join Passenger",
+        "Final Call - 2/4 - Transit Passenger"
       ],
-      "message_progress": "Final Call - 1/4; after selection: Final Call - 2/4 - Join/Transit Pax -> Final Call - 3/4 - Join/Transit Pax -> Final Call - 4/4 - Join/Transit Pax. SEC page removed for both Join and Transit.",
+      "message_progress": "Final Call - 1/4; after selection: Final Call - 2/4 - Join/Transit Passenger -> Final Call - 3/4 - Join/Transit Passenger -> Final Call - 4/4 - Join/Transit Passenger. SEC page removed for both Join and Transit.",
       "authorized_change": "SEC page removed for both Join Pax and Transit Pax; Final Call is now a four-step flow.",
       "back_behavior": "Returning to calltype always displays Final Call - 1/4 with no Join/Transit annotation.",
       "direct_progress": "Final Call - 1/1 - Call Directly"
@@ -544,5 +544,6 @@
       "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
     },
     "message_master_sha256": "dd4060890551acce51990f28626cba1fdfb1abf194660574fa0fb95a53324f72"
-  }
+  },
+  "authorized_progress_passenger_label_2026_09_26": "User-approved: Scenario 1/2 progress trailing labels change Join Pax -> Join Passenger and Transit Pax -> Transit Passenger only. Other scenarios unchanged."
 }

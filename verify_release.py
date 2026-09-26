@@ -385,7 +385,7 @@ ck('legacy Android JS: no native replaceChildren dependency', '.replaceChildren(
 ck('legacy Android Home: critical row geometry uses explicit flex margins', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;' in s and '#s-scenario .ctext{flex:1 1 auto;' in s and 'margin-left:14px' in s and '#s-scenario .chev{flex:0 0 20px;margin-left:14px;' in s)
 ck('legacy Android Passenger Type: action-icon spacing is explicit', '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px' in s and '#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px' in s)
 ck('Scenario 1/2 label is Joining Passenger only', s.count('>Joining Passenger</span>')==2 and 'aria-label="Joining Passenger &amp; Message"' in s)
-ck('progress wording remains Join Pax', 'S.missMode==="join"?"Join Pax":"Transit Pax"' in s and 'S.callMode==="join"?"Join Pax":"Transit Pax"' in s)
+ck('Scenario 1/2 progress wording uses Passenger', 'S.missMode==="join"?"Join Passenger":"Transit Passenger"' in s and 'S.callMode==="join"?"Join Passenger":"Transit Passenger"' in s)
 ck('Scenario 4 TPE departure split is explicit', 'const TPE_NON_ORIGIN_TRANSIT_FLIGHTS=new Set(["450","530","564"]);' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
 ck('fresh case clears stale invalid borders', 'function clearInvalidMarks(ids)' in s and 'clearInvalidMarks(["dFlight","tA","tN","delayTime","altA","altN","altTime","arriveTime"]);' in s)
 
