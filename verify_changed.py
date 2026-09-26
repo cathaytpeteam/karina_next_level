@@ -23,10 +23,10 @@ NO_STATIC = '--no-static' in sys.argv  # internal: verify_release.py already ran
 VERBOSE = '-v' in sys.argv
 
 # Files that are not deployed but belong to the release (everything else must be in sw.js ASSETS).
-CONTROL_FILES = {'README.md', 'AI-GUIDE.md', 'PLAN.md', 'locks.json',
+CONTROL_FILES = {'README.md', 'AI-GUIDE.md', 'locks.json',
                  'flow-behavior-spec.json', 'verify_release.py', 'verify_behavior.py',
                  'verify_changed.py', 'SHA256SUMS.txt'}
-SIZE_LIMITS = {'AI-GUIDE.md': 4096, 'README.md': 20480, 'PLAN.md': 12288}
+SIZE_LIMITS = {'AI-GUIDE.md': 4096, 'README.md': 20480}
 MAX_CHANGELOG_ENTRIES = 2
 
 # No historical comments or unused selectors are allowed.
