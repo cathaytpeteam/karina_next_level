@@ -1,0 +1,558 @@
+{
+  "schema": "find-pax-locks-1",
+  "note": "Single lock file. Each section is the unchanged content of the former file named in 'merged_from'. Update a section only for an explicitly user-approved change, then run verify_release.py.",
+  "merged_from": {
+    "baseline": "baseline-lock.json",
+    "layout": "layout-lock.json",
+    "navigation": "navigation-lock.json",
+    "message_copy": "message-copy-lock.json"
+  },
+  "baseline": {
+    "schema": "find-pax-regression-baseline",
+    "version": "1.1",
+    "release": "v1.0.16",
+    "status": "LOCKED",
+    "policy": "Do not update locked hashes or rules unless the user explicitly approves changing that protected behavior.",
+    "protected": {
+      "message_copy": {
+        "message_master_version": "1.24",
+        "message_master_sha256": "dd4060890551acce51990f28626cba1fdfb1abf194660574fa0fb95a53324f72",
+        "functions": {
+          "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
+          "textJoin": "736eccf92c603b274a3e06ff45e9c29569f6d4475606ba7a180976687bd71706",
+          "textTransit": "84f3c9ae79124ca4df6cf22c4c4bb04ed74fca21e5c9e6aa4ef18b61bc88076c",
+          "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
+          "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
+          "textDp": "62c4a76a727cb33b598f420e01199cf59d2ab55739a649cb148845217bebcef7",
+          "textMissTransit": "1987c6e8c7b387205702e5ea302f73ad439a0eba6036213e384cac3910137a83"
+        },
+        "constants": {
+          "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
+          "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
+        }
+      },
+      "phone_validation": {
+        "functions": {
+          "validatePhone": "2fad2ef8a86016ba81aff1ff1d58d1b53dd43eeb0c512e74b1b3da48e0e39f5d",
+          "normalizePhone": "a0075a08a044df944ddb56d2cbe68e36d4ea2d1d70c36becb70e0dc14f5a5af9"
+        },
+        "japan_rule": {
+          "input_model": "First page already displays +; user enters international digits. Japan numbers must start with 81.",
+          "normalized_format": "+81 plus 10 mobile digits",
+          "allowed_mobile_starts": [
+            "90",
+            "80",
+            "70",
+            "60"
+          ],
+          "mobile_digits_after_81": 10,
+          "allowed_zero_count_immediately_after_81": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "meaning_of_zero_tolerance": "0 is international mobile part; 1 is normal domestic trunk 0; 2-3 tolerate up to two extra leading zeroes.",
+          "explicitly_rejected": [
+            "020 data service",
+            "050 IP phone",
+            "Japanese landlines such as 03 and 06",
+            "wrong lengths",
+            "0800 toll-free"
+          ],
+          "validation_regex": "^[6789]0\\d{8}$"
+        },
+        "strict_valid_required": true,
+        "canonical_output": "Use libphonenumber PhoneNumber.isValid() when available and return PhoneNumber.number without +, so domestic trunk zeroes after the calling code are removed from E.164 output."
+      },
+      "japanese_sms": {
+        "functions": {
+          "send": "b56964422e5e205bf456e0302521b7f05b7cba1ce1d97f5f1f38bea30242b788",
+          "sendSMS": "9cad656538eee6abc15b34f7e2bf92f09611fd8cacacb0a98e4c9d4ff859b87f",
+          "callFlightNumber": "6ea102b4d3d127b72921fcbefaf01f2b7f74adc3cd7672430eb1a9e70e1509e7",
+          "callFlightFull": "0d2210ae916e459db0fd59c93c9a0ded787275871ef1c6f55513f702b4e45d4e",
+          "callFlightOk": "50da4efa2f4b66ae9e89644c27e37ed56f70fb8160c9ea56847541169daa19eb",
+          "taipeiTime": "7a8d7c063cf9c90e5409b3e9e0a24d778bf3a998a7d99f80df4c5f354f26e7e3"
+        },
+        "language_selector_html_sha256": "36c6ac0ea3a04be3f3a3e04981c907aa63a7fedc613a2adc334af0a231e0b9ad",
+        "scenario1_approved_copy": "【キャセイパシフィック航空】預け手荷物のX線再検査に立会いが必要です。出国審査前は至急4番カウンターへ。保安検査後・出国審査前は係員に申し出て4番へお戻りください。出国審査後はゲート係員にお申し出ください。お越しいただけない場合、荷物が搭載できない可能性があります。",
+        "routing": "Scenario 1 Japanese, Scenario 2 Join Japanese, and Scenario 2 Transit Japanese use native SMS; Chinese/English use WhatsApp.",
+        "suffix_policy": "No flight/SEC/date suffix for Japanese SMS. All Japanese SMS open with 【キャセイパシフィック航空】 (v1.8).",
+        "transit_time_policy": "Only Scenario 2 Transit Japanese includes current Taipei time via Asia/Taipei in HH:mm."
+      },
+      "scenario2": {
+        "structure": [
+          "Join Pax & Message",
+          "Transit Pax & Message",
+          "Call Directly"
+        ],
+        "join_flight_rule": "CX fixed; approved general CX whitelist from flight_rules_v114.",
+        "transit_flights": [
+          "CX450",
+          "CX451",
+          "CX530",
+          "CX531",
+          "CX564",
+          "CX565"
+        ],
+        "destination_constant_sha256": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
+        "call_direct_rule": "Same call-only behavior as former No message; open WhatsApp with no text body.",
+        "ui_policy": "Passenger Type page keeps existing layout; no icons; Join/Transit/Call labels use brand teal. Join/Transit display labels include “& Message”.",
+        "confirmation_destination_codes": {
+          "CX450": "NRT",
+          "CX564": "KIX",
+          "CX530": "NGO",
+          "CX451": "HKG",
+          "CX565": "HKG",
+          "CX531": "HKG"
+        },
+        "destination_display_policy": "Call Passenger confirmation/preview Destination row uses IATA airport codes only; approved message copy continues to use full localized destination names."
+      },
+      "ui_language_heading": "All four scenarios use the heading 'Language'.",
+      "scenario3_languages": "Chinese/English only; Japanese option removed per user request.",
+      "scenario1_passenger_type": {
+        "status": "LOCKED",
+        "labels": [
+          "Join Pax & Message",
+          "Transit Pax & Message",
+          "Call Directly"
+        ],
+        "join_languages": [
+          "zh",
+          "en",
+          "ja"
+        ],
+        "transit_languages": [
+          "zh",
+          "en",
+          "ja"
+        ],
+        "call_directly": "Same call-only WhatsApp logic as Scenario 2; no message."
+      },
+      "scenario1_transit_copy": {
+        "status": "LOCKED",
+        "zh": "您好：這裡是國泰航空桃園機場辦公室。\n\n由於您的寄艙行李未能通過桃園機場的轉機X 光安全檢查。因此，您的行李目前暫時留在\n轉機行李檢查處，未能安排裝載上機。\n\n為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回登機閘口聯繫國泰航空職員，我們會協助您跟進。\n\n多謝您的理解和配合",
+        "en": "Hello, this is Cathay Pacific at Taoyuan Airport.\n\nYour checked baggage did not pass the transfer X-ray security screening and is currently being held at the screening area.\n\nPlease return to the boarding gate as soon as possible and contact our staff for assistance, so we can arrange for your baggage to be loaded before departure.\n\nThank you for your cooperation.",
+        "ja": "【キャセイパシフィック航空】お預け手荷物は桃園空港の乗り継ぎX線検査で確認が必要です。至急搭乗ゲートのスタッフまでお申し出ください。"
+      },
+      "flight_rules_v114": {
+        "status": "LOCKED",
+        "general_cx": [
+          "CX407",
+          "CX489",
+          "CX477",
+          "CX499",
+          "CX461",
+          "CX450",
+          "CX564",
+          "CX530",
+          "CX495",
+          "CX443",
+          "CX421",
+          "CX473",
+          "CX565",
+          "CX451",
+          "CX531",
+          "CX479",
+          "CX469",
+          "CX463",
+          "CX465",
+          "CX401",
+          "CX403"
+        ],
+        "applies": [
+          "Scenario 1 Join",
+          "Scenario 2 Join",
+          "Scenario 4 Disrupted flight"
+        ],
+        "exceptions": [
+          "Scenario 1/2 Transit special rule",
+          "Scenario 3 Arrival Flight",
+          "Scenario 4 Connecting Flight",
+          "Scenario 4 Protect to"
+        ],
+        "transit_origin_iata": {
+          "CX450": "HKG",
+          "CX530": "HKG",
+          "CX564": "HKG",
+          "CX451": "NRT",
+          "CX531": "NGO",
+          "CX565": "KIX"
+        }
+      },
+      "datetime": {
+        "functions": {
+          "dateCode": "1b16f9f8cc6351789a110c4d737147abf3112f6fcdc81b232d3e8fb911407bcc"
+        },
+        "policy": "Both dateCode() and taipeiTime() are based on Asia/Taipei."
+      },
+      "functional_fixes_v116": {
+        "status": "LOCKED",
+        "service_worker": "ASSETS is explicitly declared; APP_VERSION is v1.0.16; local libphonenumber-js 1.12.29 is precached; cache revision r3 forces the UI/state hotfix to refresh.",
+        "transit_sec_ui": "Scenario 2 Final Call SEC page was explicitly removed for Join and Transit; Scenario 1 retains SEC origin UI.",
+        "scenario_entry_language_reset": "Scenario 3 resets to Chinese First; Scenario 4 resets to English First; scenario re-entry also clears stale case fields.",
+        "scenario4_airline_designator": "Connecting flight and Protect to accept exactly two alphanumeric IATA designator characters.",
+        "message_copy_changed": false
+      },
+      "state_navigation_hotfix_v116": {
+        "status": "LOCKED",
+        "policy": "Back/Next within the same flow preserves inputs. Re-entering a scenario from the Scenario screen starts that scenario clean. Changing Passenger Type clears fields that belong to the previous type.",
+        "scenario1": "Re-entry clears Flight/SEC. Join↔Transit/Direct type changes clear Scenario 1 Flight/SEC; reselecting the same type after Back preserves them.",
+        "scenario2": "Re-entry clears Flight/SEC/Gate. Join↔Transit/Direct type changes clear Flight/SEC/Gate; reselecting the same type after Back preserves them.",
+        "scenario3": "Re-entry clears Arrival Flight and both baggage tags.",
+        "scenario4": "Re-entry clears disrupted/connecting/protect flight fields, status/arrangement choices, and times.",
+        "progress": "Scenario 2 Join/Transit use a stable four-step Final Call flow after authorized SEC-page removal. Call Directly preview hides the progress bar.",
+        "preview_draft": "Opening a read-only message preview and navigating Back does not create a custom draft. Actual typed edits are still preserved per language.",
+        "blocked_warning": "Both canned-number blacklist entries surface 罐頭號碼 無用 even when libphonenumber regards the exact number as invalid.",
+        "message_copy_changed": false
+      }
+    },
+    "parent_locked_baseline": "v1.0.6-Locked-Japanese-SMS",
+    "scenario2_restructure_approved": true
+  },
+  "layout": {
+    "schema": "find-pax-layout-lock",
+    "version": "1.0",
+    "release": "v1.1",
+    "status": "LOCKED",
+    "policy": "Approved page structure and field placement are immutable. Do not change protected screen HTML, screen order, application chrome, or field/control order unless the user explicitly authorizes a layout change. Authorized SEC layout: Scenario 1 Join/Transit keeps the inline IATA-prefix + SEC-number field. Scenario 2 Final Call SEC page is intentionally removed for both Join and Transit. Authorized progress update: all progress text uses 20px/700; Scenario 1/2 progress uses “Flow - N/N - Passenger Type” after Passenger Type selection; before selection it uses “Flow - N/N”. Authorized responsive adjustment: keyboard-open mode may change Safe Area spacing and vertical workspace distribution, while protected screen/chrome markup and field/control order remain immutable. Authorized message-preview update: Message Preview is read-only on all message paths; Edit and Copy Text controls are removed. Authorized final visual tuning: preview language-order labels use 18px/700; progress counts use a lighter gray-green while retaining 20px/700. Scenario 3 step 2/4 Bag Tag 1 is restored to its prior stacked layout. Scenario 3 step 4/4 Confirm details places “無人領取的行李” immediately left of the Bag Tag 1 number at 18px/700. Confirm-details SEC displays IATA and SEC with visual spacing, and “Proceed to Gate” is renamed “Go to Gate”. These authorized regions are locked again. Authorized Passenger Type hierarchy: in Scenario 1 and Scenario 2, Join Pax & Message is the large primary option; Transit Pax & Message and Call Directly are smaller secondary options beneath it. Authorized progress compaction: numeric progress is displayed without spaces around the slash (for example 1/4). These authorized regions are locked again. Authorized Scenario 4 layout change: Flight Type is step 1/6 and uses the Passenger Type visual hierarchy; Tight Connection is the large primary choice, with Delayed and To be updated as the two smaller choices below. Authorized Scenario 4 follow-up: Flight Type remains step 1/6 but now behaves exactly like a Passenger Type choice page: its heading uses the default Passenger Type placement and it has no footer/Next. The delayed-time control is moved from Flight Type to Disrupted flight step 2/6, where it appears only for Delayed. Tight Connection and To be updated do not show that control. These authorized regions are locked again. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type third option is renamed from “To be updated” to “Suspended”; s-dstatus is locked again with this label. Authorized layout change (user-approved 2026-09-23): Scenario 4 step 2/6 title is the single line “Flight from TPE” and the TPE chip is removed; s-dflight is locked again with this structure. Authorized release-label rename: visible release identity changed from r41 to R1; no other protected s-phone structure changed. Authorized K1.0 progress layout: flow label stays left and numeric progress is aligned right across all scenarios; subtype annotations remain attached to the flow label.",
+    "authorization_rule": "A verifier failure must not be fixed by regenerating hashes unless the user explicitly approves the specific layout change.",
+    "source": "index.html",
+    "normalization": "Exact UTF-8 HTML substrings are SHA-256 hashed. Any protected markup change requires explicit approval.",
+    "screen_order": [
+      "s-phone",
+      "s-scenario",
+      "s-misstype",
+      "s-mflight",
+      "s-msec",
+      "s-wflight",
+      "s-bag1",
+      "s-bag2",
+      "s-dflight",
+      "s-dtransfer",
+      "s-dstatus",
+      "s-darrange",
+      "s-darrive",
+      "s-dnew",
+      "s-calltype",
+      "s-callflight",
+      "s-callgate",
+      "s-preview"
+    ],
+    "screen_sha256": {
+      "s-phone": "8b5646dc4d4cfd345c1ecd18e9617ba0678be8d9ba06f0ca34579f03fea4b4da",
+      "s-scenario": "7523a82d86605eebfe342061062c014e3f14628f87c65f4f0c9aeb736e3efb49",
+      "s-misstype": "be1d62dac0d6e5eebde6a4104ee38b2a554245e6681457c1f9d57271fb127304",
+      "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
+      "s-msec": "0d7a494a0e68311418799796480e0c7d22f5b83857c89db9987de36cf300f4e6",
+      "s-wflight": "e1ca7e54cdcc801f9c472ca129c6fd8620e8cdf85cdb631792104a0e82eb0040",
+      "s-bag1": "45ca0084918b40fadf764e4af4c07ced0c4da57f9096619fb53c589d21331289",
+      "s-bag2": "54f8a82ab9509fcabe6c14b0e8f932e8ca1cdee7ce7132c754caea12828c69f0",
+      "s-dflight": "c0e9c4fb10c9a1ee1758ab587fa7e88cc01f15a49083df6efbcc9226c1acc9d3",
+      "s-dtransfer": "7a43274f91983adffd80ecd83124fd7590d9ecdd7e6f559edede463ca3153e92",
+      "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
+      "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
+      "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
+      "s-calltype": "1e43ba35c82e1ca258340a16c8abcd3a722a9e27fc55920b09eae7925d62816e",
+      "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
+      "s-callgate": "a7e5d306fbbb9159a2b1c093f45590eb25a6981240c0e9fecfbd93a3a9b47abe",
+      "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
+      "s-dnew": "fdf1db3215da3a7665118821a0ab9caa880934d9d2691bf9a60df1cf77676721"
+    },
+    "chrome_sha256": {
+      "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
+      "footer": "cb0b6abd246293fe334285ff9a1af15cef4f337fdd214f0ec8d8728ad939e48a"
+    },
+    "control_order": {
+      "s-phone": [
+        "phoneField",
+        "phoneInput",
+        "badge",
+        "warn"
+      ],
+      "s-scenario": [
+        "goMiss",
+        "goCall",
+        "goDirect",
+        "goDp",
+        "goWpp"
+      ],
+      "s-misstype": [
+        "missJoin",
+        "missTransit"
+      ],
+      "s-mflight": [
+        "mFlight"
+      ],
+      "s-msec": [
+        "mSecField",
+        "mSecPrefix",
+        "mSec"
+      ],
+      "s-wflight": [
+        "wFlight"
+      ],
+      "s-bag1": [
+        "b1a",
+        "b1n"
+      ],
+      "s-bag2": [
+        "b2a",
+        "b2n"
+      ],
+      "s-dflight": [
+        "dFlight",
+        "gStatusWrap",
+        "gsDelayed",
+        "gsCancelled",
+        "delayWrap",
+        "delayTime"
+      ],
+      "s-dtransfer": [
+        "tA",
+        "tN"
+      ],
+      "s-dstatus": [
+        "stGate",
+        "stPossible",
+        "stDelayed",
+        "stUnknown"
+      ],
+      "s-darrange": [
+        "arKnown",
+        "arUnknown",
+        "altWrap",
+        "altA",
+        "altN",
+        "altTime"
+      ],
+      "s-darrive": [
+        "arriveTime"
+      ],
+      "s-calltype": [
+        "callJoin",
+        "callTransit"
+      ],
+      "s-callflight": [
+        "callFlightField",
+        "callFlight"
+      ],
+      "s-callgate": [
+        "callGateField",
+        "callGateZone",
+        "callGate",
+        "callGateR"
+      ],
+      "s-preview": [
+        "sum",
+        "previewLangTitle",
+        "previewLangSeg",
+        "ordZh",
+        "ordEn",
+        "ordJa",
+        "msgToggle",
+        "previewOrderLabel",
+        "viewLabel",
+        "msgPanel",
+        "msg"
+      ],
+      "s-dnew": [
+        "gNewField",
+        "gNewN",
+        "gGateField",
+        "gGateZone",
+        "gGate",
+        "gGateR",
+        "gDepField",
+        "gDepTime",
+        "gOriginalFlight",
+        "gProtectedFlight",
+        "gpAsap",
+        "gpWait"
+      ]
+    },
+    "protected_scope": [
+      "Scenario/page order and screen markup",
+      "Field/control order and placement inside each screen",
+      "Passenger Type option placement",
+      "Progress/top-bar DOM including phone badge placement",
+      "Confirm details / preview DOM including Call Directly Phone Number row placement",
+      "Bottom CTA/footer DOM",
+      "Unified SEC field layout: [ IATA prefix | SEC number ] for Scenario 1/2 Join and Transit"
+    ],
+    "not_protected_by_this_file": [
+      "Generated message copy and business logic (protected by existing message/baseline locks)",
+      "Runtime data values inserted into existing locked elements"
+    ],
+    "authorized_progress_update": {
+      "scenario1": "漏查 - N/3 - Joining Passenger / Transit Passenger (Passenger Type page: 漏查 1/3)",
+      "scenario2": "Final Call - N/4 - Joining Passenger / Transit Passenger (Passenger Type page: Final Call 1/4)"
+    },
+    "authorized_final_call_update": "Scenario 2 remains named Final Call. Authorized flow update: SEC page removed for both Join and Transit; Final Call is now 4 steps (Passenger Type, Flight, Gate, Preview). Progress order remains Flow - N/N - Passenger Type. Scenario 1 is unchanged.",
+    "authorized_scenario4_followup": {
+      "flight_type_layout": "s-dstatus: title uses default Passenger Type h1 placement; controls are only stPossible, stDelayed, stUnknown; no delay input lives on this screen.",
+      "step2_layout": "s-dflight: existing dFlight field remains first; delayWrap/delayTime follows it and is conditionally shown only for Delayed.",
+      "footer_behavior": "Flight Type is an immediate-choice screen, so the shared footer/Next is hidden while s-dstatus is active.",
+      "header_behavior": "Flight Type follows Passenger Type header presentation: no phone-number pill on the choice page."
+    },
+    "authorized_r34_home_version": {
+      "scope": "s-phone + home-only footer styling",
+      "change": "Preserve Golden Baseline home geometry and styling; release identity text only advances to r41 beside the icon right foot.",
+      "approved_text": "r41",
+      "effect": "display only; no field/control/navigation change"
+    },
+    "authorized_scenario4_gate_branch": "User-approved 2026-09-25. Scenario page: 3 Disrupted Passenger (goDp), 4 Wrong Pick-Up (goWpp); progress titles unchanged (Disrupted Pax / Wrong Pick-up). Disrupted Pax 1/6 'Passenger Type': left-aligned group labels 'At Gate' (Already at Gate, tinted full row) and 'Not at the Airport' (Tight Connection full row, same size, neutral colour; Delayed | Suspended). Already at Gate branch: 2/4 Flight from TPE + Flight status Delayed/Cancelled (Delayed shows Delayed to), 3/4 Protect to: CX flight | gate, Dep, Proceed to Gate ASAP | Wait for Staff, 4/4 Confirm details.",
+    "authorized_passenger_type_icons": "User-approved 2026-09-25: Scenario 1 and 2 Passenger Type show Joining Passenger (big card), Transit Passenger and Call Directly on full-width rows; '& Message' becomes a single-colour message icon and Call Directly a phone icon, beside the arrow. ICON POLICY: these action icons exist only on these two pages; Scenario 4 Disrupted Passenger (always a message) and all other screens stay icon-free. Scenario 4 Protect to: 'Proceed to Gate &' label and Confirm details row.",
+    "authorized_r1_2": "R1.2 (2026-09-26), from the user's own build plus approved icon/layout work: Scenario page lists 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up without numbers; Final Call uses the carry-on runner illustration, Call Directly the former Final Call picture; icons 42x30 (38x27 on narrow phones); long labels wrap instead of hitting the arrow. Call Directly removed from the Scenario 1/2 Passenger Type pages. Already at Gate: Delayed-to opens smoothly on step 2; Protect to adds 'Proceed to Gate' target (original flight / new flight) followed by ASAP / Wait for Staff.",
+    "authorized_r1_2_4": "R1.2.4 (2026-09-26): clean rebuild from R1.2.3. Approved changes only: Scenario 1/2 label Joining Passenger -> Joining Passenger while progress remains Join Pax; legacy Android startup compatibility removes optional chaining/replaceChildren dependency; Home Scenario card icon/text/arrow geometry uses explicit margins instead of CSS Grid/flex-gap dependency; fresh-case invalid borders are cleared; Scenario 4 Flight from TPE / Protect to treats CX450/CX530/CX564 as non-TPE-origin transit legs while CX451/CX531/CX565 remain valid TPE departures. Verification adds a focused priority browser gate before exhaustive tests.",
+    "authorized_r1_2_4_minimal_modular_refactor": {
+      "date": "2026-09-26",
+      "scope": "No intentional UI/flow change. Scenario 1/2 labels moved to scenario-config.js and CSS moved to app.css.",
+      "screens": [
+        "s-misstype",
+        "s-calltype"
+      ]
+    },
+    "authorized_k1_0": "K1.0 (2026-09-26): release identity renamed from R1.2.4 to K1.0 only; no intentional UI, Scenario, message-copy, or flow behavior changes."
+  },
+  "navigation": {
+    "schema": "find-pax-navigation-lock",
+    "version": "1.0",
+    "release": "v1.1",
+    "status": "LOCKED",
+    "policy": "Scenario step counts, progress display/order, step order, entry routing, and Passenger Type routing are immutable unless explicitly authorized. Scenario 1 Passenger Type is locked as progress step 1/3. Scenario 2 Final Call has no SEC page and is locked to 4 steps. Scenario 1/2 selected Passenger Type is a trailing annotation after the numeric progress. When Back returns to Passenger Type, the selected Passenger Type annotation is hidden on that page. Call Directly is a separate one-page branch and displays 1/1 on its Confirm details page. Browser history navigation is state-position aware: Back and Forward restore the corresponding screen rather than treating every popstate as Back. Authorized Scenario 4 behavior: Flight Type is step 1/6 and behaves like Passenger Type — no footer/Next; tapping Tight Connection, Delayed, or To be updated immediately opens step 2/6. Delayed time is not part of Flight Type; it is displayed and validated only on Disrupted flight step 2/6 when Delayed is selected. To be updated and Tight Connection never depend on delayed time. Flight Type title uses the same default heading placement as Passenger Type. Flight Type header follows Passenger Type as well: the phone-number pill is hidden on this choice screen. The remaining Scenario 4 steps retain their order through 6/6. Authorized label change (user-approved 2026-09-23): Scenario 4 Flight Type option “To be updated” is renamed “Suspended”; routing to status “unknown” is unchanged.",
+    "flows": {
+      "miss": {
+        "name": "漏查",
+        "steps": [
+          "misstype",
+          "mflight",
+          "msec"
+        ],
+        "progress_denominator": 3
+      },
+      "call": {
+        "name": "Final Call",
+        "steps": [
+          "calltype",
+          "callflight",
+          "callgate",
+          "preview"
+        ],
+        "progress_denominator": 4
+      },
+      "wpp": {
+        "name": "Wrong Pick-up",
+        "steps": [
+          "wflight",
+          "bag1",
+          "bag2",
+          "preview"
+        ],
+        "progress_denominator": 4
+      },
+      "dp": {
+        "name": "Disrupted Pax",
+        "steps": [
+          "dstatus",
+          "dflight",
+          "dtransfer",
+          "darrange",
+          "darrive",
+          "preview"
+        ],
+        "progress_denominator": 6
+      },
+      "dpgate": {
+        "name": "Disrupted Pax",
+        "steps": [
+          "dstatus",
+          "dflight",
+          "dnew",
+          "preview"
+        ],
+        "progress_denominator": 4
+      }
+    },
+    "scenario1": {
+      "entry": "goMiss -> misstype",
+      "join": "missJoin -> mflight",
+      "transit": "missTransit -> mflight",
+      "direct": "missDirect -> preview",
+      "progress_labels": [
+        "漏查 1/3",
+        "漏查 - Joining Passenger 2/3",
+        "漏查 - Transit Passenger 2/3"
+      ],
+      "message_progress": "Passenger Type 漏查 1/3; after selection: 漏查 2/3 - Join/Transit Passenger -> 漏查 3/3 - Join/Transit Passenger; preview remains completed at 3/3",
+      "back_behavior": "Returning to misstype always displays 漏查 1/3 with no Join/Transit annotation.",
+      "direct_progress": "漏查 1/1 - Call Directly"
+    },
+    "scenario2": {
+      "entry": "goCall -> calltype",
+      "join": "callJoin -> callflight",
+      "transit": "callTransit -> callflight",
+      "direct": "callDirect -> preview",
+      "progress_labels": [
+        "Final Call 1/4",
+        "Final Call - Joining Passenger 2/4",
+        "Final Call - Transit Passenger 2/4"
+      ],
+      "message_progress": "Final Call 1/4; after selection: Final Call 2/4 - Join/Transit Passenger -> Final Call 3/4 - Join/Transit Passenger -> Final Call 4/4 - Join/Transit Passenger. SEC page removed for both Join and Transit.",
+      "authorized_change": "SEC page removed for both Join Pax and Transit Pax; Final Call is now a four-step flow.",
+      "back_behavior": "Returning to calltype always displays Final Call 1/4 with no Join/Transit annotation.",
+      "direct_progress": "Final Call 1/1 - Call Directly"
+    },
+    "browser_history": "popstate restores the screen identified by its Find Pax history state position; Safari/browser Forward must move forward, not pop backward.",
+    "scenario4": {
+      "entry": "goDp -> dstatus",
+      "step1": "Flight Type",
+      "options": [
+        "Tight Connection",
+        "Delayed",
+        "Suspended"
+      ],
+      "option_mapping": {
+        "Tight Connection": "possible",
+        "Delayed": "delayed",
+        "Suspended": "unknown"
+      },
+      "steps": [
+        "dstatus",
+        "dflight",
+        "dtransfer",
+        "darrange",
+        "darrive",
+        "preview"
+      ],
+      "progress": "Disrupted Pax 1/6 on Flight Type; each choice immediately opens Disrupted Pax 2/6; remaining steps continue through 6/6.",
+      "selection_navigation": "Each Flight Type choice immediately routes to dflight; step 1/6 has no footer/Next.",
+      "delayed_time_placement": "delayTime is inside dflight (step 2/6) and is visible/required only when status=delayed.",
+      "non_delayed_validation": "Tight Connection (possible) and Suspended (unknown) do not require delayTime.",
+      "title_layout": "Flight Type uses the same default h1 placement as Passenger Type; no Scenario-4-specific centered heading override. The phone-number pill is hidden on Flight Type, matching Passenger Type choice pages.",
+      "back_forward": "Back from dflight returns to Flight Type; browser Forward restores dflight using history state.",
+      "gate_branch": "Already at Gate: Passenger Type (Disrupted Pax 1/6) -> Flight from TPE + Flight status (2/4) -> Protect to (3/4) -> Confirm details (4/4); progress suffix ' - Already at Gate'. Returning to Passenger Type shows Disrupted Pax 1/6. Leaving the branch clears its fields."
+    }
+  },
+  "message_copy": {
+    "name": "Find Pax executable message-copy lock",
+    "message_master_version": "1.24",
+    "app_base": "Find-Pax-v1.0.16-Functional-Fix",
+    "source": "v1.0.16 functional fixes; approved message copy unchanged from v1.0.15/v1.0.14 locked copy. | v1.9 (2026-09-23, user-approved): final wording of four Japanese SMS copies. | v1.10 (2026-09-23, user-approved): Final Call Transit Japanese wrong-way guidance. | v1.11 (2026-09-24, user-approved): Scenario 1 Join Japanese SMS wording updated. | v1.12 (2026-09-24, user-approved): Scenario 2 Final Call Transit Japanese template updated. | v1.17 (2026-09-24, user-approved): Transit Japanese closing sentence shortened to 台北時間{HH:mm}現在。 | v1.18 (2026-09-24, user-approved): Scenario 1 Join Chinese message replaced. | v1.19 (2026-09-24, user-approved): Scenario 1 Join English message replaced. | v1.20 (2026-09-25, user-approved): Scenario 1 Join English layout aligned with Chinese. | v1.21 (2026-09-25, user-approved): Scenario 1 Join Chinese/English bullet U+2022 -> U+2981. | v1.22 (2026-09-25, user-approved): Scenario 2 Final Call Join Chinese/English copy replaced. | v1.23 (2026-09-25, user-approved): Scenario 4 Pax already at Gate branch copy (Delayed / Cancelled, zh/en). | v1.24 (2026-09-26, R1.2, user build): Already at Gate gate target (original / new flight), 16 zh/en copies.",
+    "functions": {
+      "textMiss": "32b5d00c45be121e52c68b381c337f4f35c11bf7d32c5914cf9106e10ac03b29",
+      "textJoin": "736eccf92c603b274a3e06ff45e9c29569f6d4475606ba7a180976687bd71706",
+      "textTransit": "84f3c9ae79124ca4df6cf22c4c4bb04ed74fca21e5c9e6aa4ef18b61bc88076c",
+      "textCall": "ed3eb2a3c51d639de3f49d6a75a391f160378081633f5d5c67f38ed37f3f2482",
+      "textWpp": "829cc997609e3f676ba3013ec8d5bba878154cd44944f37d69ad0d7bc8978e92",
+      "textDp": "62c4a76a727cb33b598f420e01199cf59d2ab55739a649cb148845217bebcef7",
+      "textMissTransit": "1987c6e8c7b387205702e5ea302f73ad439a0eba6036213e384cac3910137a83"
+    },
+    "constants": {
+      "TRANSIT_DESTINATIONS": "f36d332cc66b169f6c30b5c6a3b976ef191c0f0a1843cf6627f541c699562c9f",
+      "TRANSIT_SMS_ROUTE_JA": "d1c0d15ac63d06b32c5eec9f4bd796310d5316ee170a9172a13810dec1adfd84"
+    },
+    "message_master_sha256": "dd4060890551acce51990f28626cba1fdfb1abf194660574fa0fb95a53324f72"
+  },
+  "authorized_progress_passenger_label_2026_09_26": "User-approved: Scenario 1/2 progress trailing labels change Join Pax -> Joining Passenger and Transit Pax -> Transit Passenger only. Other scenarios unchanged."
+}
