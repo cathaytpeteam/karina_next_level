@@ -34,6 +34,12 @@ import asyncio, json, re, sys, urllib.parse
 
 R = Path(__file__).resolve().parent
 HTML = (R / "index.html").read_text(encoding="utf-8")
+# Browser-flow tests use set_content() because managed Chromium may block file://.
+# Inline the two modular local assets so the test document matches the deployed app.
+_APP_CSS = (R / "app.css").read_text(encoding="utf-8")
+_SCENARIO_CONFIG = (R / "scenario-config.js").read_text(encoding="utf-8")
+HTML = HTML.replace('<link rel="stylesheet" href="./app.css">', '<style>'+_APP_CSS+'</style>')
+HTML = HTML.replace('<script src="./scenario-config.js"></script>', '<script>'+_SCENARIO_CONFIG+'</script>')
 SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
 PHONE = "886983952902"
 

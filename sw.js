@@ -5,6 +5,8 @@ const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
   "./",
   "./index.html",
+  "./app.css",
+  "./scenario-config.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
   "./icon-192.png",

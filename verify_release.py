@@ -35,7 +35,9 @@ if _mode_count>1:
     print('ERROR: choose exactly one check mode: --fast, --full, --quick (or legacy --gate).')
     raise SystemExit(2)
 FOCUSED=FAST or GATE
-s=(r/'index.html').read_text(encoding='utf-8')
+s_html=(r/'index.html').read_text(encoding='utf-8')
+css_external=(r/'app.css').read_text(encoding='utf-8') if (r/'app.css').is_file() else ''
+s=s_html+'\n<style>'+css_external+'</style>'
 LOCKS=json.loads((r/'locks.json').read_text(encoding='utf-8'))
 b=LOCKS['baseline']
 c=LOCKS['message_copy']
@@ -208,8 +210,8 @@ def navigation_lock():
     for sid,pre in (('s-misstype','miss'),('s-calltype','call')):
         sec=section(sid)
         j,t=btn(sec,pre+'Join'),btn(sec,pre+'Transit')
-        ck(f'{sid} labels and order', '<span>Joining Passenger</span>' in j and '<span>Transit Passenger</span>' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
-        ck(f'{sid} screen readers still hear "& Message"', 'aria-label="Joining Passenger &amp; Message"' in j and 'aria-label="Transit Passenger &amp; Message"' in t)
+        ck(f'{sid} labels and order', 'data-scenario-label="joining"' in j and 'data-scenario-label="transit"' in t and f'id="{pre}Direct"' not in sec and 'Message' not in re.sub(r'aria-label="[^"]*"','',sec) and sec.index(pre+'Join')<sec.index(pre+'Transit'))
+        ck(f'{sid} screen readers still hear "& Message"', 'data-scenario-label="joining"' in j and 'data-scenario-label="transit"' in t)
         ck(f'{sid} message icons beside the arrow', all(ICON_MSG in b and b.index('class="actIco"')<b.index('class="chev"') for b in (j,t)) and sec.count('class="actIco"')==2)
     ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px;color:var(--brand-strong)}' in s)
     # ICON POLICY (user rule 2026-09-25): small action icons (message) appear ONLY on the Scenario 1 and 2
@@ -350,7 +352,7 @@ ck('service worker cache write failure isolated', 'if(canCache) e.waitUntil(cach
 ck('service worker navigation redirect not cached', '!(req.mode==="navigate"&&r.redirected)' in sw)
 ck('service worker no forced startup update/reload', 'reg.update()' not in s and 'controllerchange' not in s and 'location.reload()' not in s)
 required={
-    './','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
+    './','./index.html','./app.css','./scenario-config.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png',
     './phone-bottom-icon.png','./scenario-icon-1.png',
     './scenario-icon-2.png','./scenario-icon-3.png','./scenario-icon-4.png','./libphonenumber-max.js'
 }
@@ -384,8 +386,8 @@ ck('legacy Android JS: no optional chaining', '?.' not in s)
 ck('legacy Android JS: no native replaceChildren dependency', '.replaceChildren(' not in s and 'replaceChildrenCompat' in s)
 ck('legacy Android Home: critical row geometry uses explicit flex margins', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;' in s and '#s-scenario .ctext{flex:1 1 auto;' in s and 'margin-left:14px' in s and '#s-scenario .chev{flex:0 0 20px;margin-left:14px;' in s)
 ck('legacy Android Passenger Type: action-icon spacing is explicit', '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px' in s and '#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px' in s)
-ck('Scenario 1/2 label is Joining Passenger only', s.count('>Joining Passenger</span>')==2 and 'aria-label="Joining Passenger &amp; Message"' in s)
-ck('Scenario 1/2 progress wording uses Passenger', 'S.missMode==="join"?"Joining Passenger":"Transit Passenger"' in s and 'S.callMode==="join"?"Joining Passenger":"Transit Passenger"' in s)
+ck('Scenario 1/2 label is Joining Passenger only', 'joining: "Joining Passenger"' in (r/'scenario-config.js').read_text(encoding='utf-8') and len(re.findall(r'<span data-scenario-label="joining"></span>',s_html))==2)
+ck('Scenario 1/2 progress wording uses Passenger', 'SCENARIO_COPY.passenger.joining' in s and 'SCENARIO_COPY.passenger.transit' in s)
 ck('Scenario 4 TPE departure split is explicit', 'const TPE_NON_ORIGIN_TRANSIT_FLIGHTS=new Set(["450","530","564"]);' in s and 'const tpeDepartureCxOk=raw=>TPE_DEPARTURE_FLIGHTS.has' in s)
 ck('fresh case clears stale invalid borders', 'function clearInvalidMarks(ids)' in s and 'clearInvalidMarks(["dFlight","tA","tN","delayTime","altA","altN","altTime","arriveTime"]);' in s)
 

@@ -2,7 +2,7 @@
 
 ## Files
 
-App (deployed, 14): `index.html`, `sw.js`, `manifest.webmanifest`, `libphonenumber-max.js`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `phone-bottom-icon.png`, `scenario-icon-1.png` … `scenario-icon-4.png`.
+App (deployed, 16): `index.html`, `app.css`, `scenario-config.js`, `sw.js`, `manifest.webmanifest`, `libphonenumber-max.js`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `phone-bottom-icon.png`, `scenario-icon-1.png` … `scenario-icon-4.png`.
 
 Release control (7):
 
@@ -13,6 +13,15 @@ Release control (7):
 - `verify_behavior.py` — browser suites: focused priority gate (`--priority`), exhaustive flow behaviour, and Service Worker scenarios (`--sw`).
 - `SHA256SUMS.txt` — checksum of every release file.
 - `README.md` — this file: files, how to verify, latest result, checklist, change log.
+
+
+## Minimal modular structure (R1.2.4)
+
+- `index.html` — HTML structure and existing application logic.
+- `app.css` — all UI styling, extracted without intentional visual changes.
+- `scenario-config.js` — centralized Scenario 1/2 passenger labels used by both choice cards and progress titles.
+- Existing release-control files remain in place; no GitHub file deletion is required for this refactor.
+- Future Scenario 1/2 wording changes should be made in `scenario-config.js` first, then verified with FAST/FULL as appropriate.
 
 ## Check mode — mandatory choice before every verification
 

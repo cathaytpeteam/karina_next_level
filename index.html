@@ -13,307 +13,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>
-:root{
-  color-scheme:light only;
-  --bg:#FFFFFF; --surface:#F1F6F6; --line:#D3DDDE; --ink:#14201F; --muted:#556A6C;
-  --brand:#00747A; --brand-strong:#005D63; --brand-soft:#DCEFEF; --on-brand:#FFFFFF;
-  --danger:#C62828; --delay-ink:#B0574A; --danger-soft:#FBE9E9; --input-ink:#0B3B3F; --field-bg:#EEF6F6; --field-line:#BBD9D9;
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;background:#fff}
-body{color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}
-button,input,textarea{font:inherit;color:inherit}
-input,textarea,.sum dd{color:var(--input-ink)}
-button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
-
-.app{position:fixed;top:var(--vt,0px);left:0;right:0;height:var(--vh,100%);max-width:480px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
-
-.head{flex:none;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 0;min-height:64px}
-.headrow{display:flex;align-items:center;gap:10px;min-height:44px}
-.back{border:0;background:transparent;color:var(--brand-strong);font-size:17px;font-weight:700;padding:8px 8px 8px 0;min-width:64px;text-align:left;cursor:pointer}
-.back[hidden]{visibility:hidden;display:block}
-.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
-.who[hidden]{display:none}
-.bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
-.bar[hidden]{display:block;visibility:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
-.step{font-size:20px;font-weight:700;color:var(--muted);margin:8px 0 0;min-height:26px}
-
-main{flex:1;min-height:0;min-width:0;overflow-y:auto;padding:8px 20px 24px;-webkit-overflow-scrolling:touch}
-.screen[hidden]{display:none}
-#s-preview[hidden]{display:none!important}
-h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);font-weight:800;letter-spacing:-.01em}
-
-.foot{flex:none;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
-.app.kb .step{display:block!important}
-.app.kb main{padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
-.app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]),.app.kb #s-dnew:not([hidden]){padding-bottom:8px}
-.app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
-.app.phoneHome .foot,.app.phoneHome.kb .foot{border-top-color:transparent}
-.app.kb .hint{display:none}
-.app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}
-.foot[hidden]{display:none}
-.hint{min-height:22px;margin:0 0 8px;font-size:15px;color:var(--muted);text-align:center}
-.hint:not(.bad){visibility:hidden}
-.hint.bad{color:var(--danger);font-weight:700}
-.cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
-.cta:disabled{opacity:.32;cursor:default}
-.cta.smsCta{margin-top:8px;background:var(--bg);color:var(--brand-strong);border:1px solid var(--brand)}
-.cta.smsCta[hidden]{display:none}
-
-.field{display:flex;align-items:center;min-height:64px;border:1px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
-.field + .field{margin-top:10px}
-.field:focus-within{border-color:var(--brand)}
-.field.bad{border-color:var(--danger)}
-.plus{font-size:26px;color:var(--brand-strong);padding:0 4px 0 10px}
-.field input{border:0;outline:0;background:transparent;width:100%;min-width:0;height:64px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 8px}
-.field input::placeholder{color:transparent;opacity:0}
-.field .code{flex:none;width:64px;margin-right:6px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);text-align:center;font-weight:800;text-transform:uppercase;height:52px;padding:0}
-span.code{display:grid;place-items:center;font-size:28px;text-transform:none}
-.field.time{min-height:72px}
-#phoneInput{font-size:24px;letter-spacing:0}
-.field.time input{text-align:center}
-.badge{flex:none;background:var(--brand-soft);color:var(--brand-strong);border-radius:10px;padding:5px 9px;font-size:15px;font-weight:800;white-space:nowrap}
-.badge[hidden]{display:none}
-.warn{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--danger-soft);color:var(--danger);font-size:22px;font-weight:800;text-align:center}
-.warn.show{display:block}
-.chip{width:max-content;margin:-8px auto 22px;padding:6px 18px;border-radius:999px;background:var(--brand-soft);color:var(--brand-strong);font-size:22px;font-weight:800;letter-spacing:.04em}
-.chip + .field{margin-top:0}
-h1 + .chip{margin-top:-8px}
-
-.choices{display:grid;gap:12px;margin-top:8px}
-/* Scenario — original ChatGPT mixed Chinese/English labels, icons and colours */
-#s-scenario{padding-top:clamp(12px,4vh,40px)}
-#s-scenario .choices{gap:10px;margin-top:0}
-#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;align-items:center;color:#005D63;background:#EEF3F7}
-#s-scenario .choice:first-child{background:#DDF2F2}
-#s-scenario .ico{flex:0 0 42px;width:42px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:0;background:transparent;color:#005D63}
-#s-scenario .ico img,#s-scenario .ico .scIco{width:42px;height:30px;object-fit:contain;display:block}
-#s-scenario .ico .scIco{fill:none;stroke:none}
-#s-scenario .ctext{flex:1 1 auto;align-self:center;min-width:0;margin-left:14px;font-family:var(--font);font-size:21px;line-height:1.15;font-weight:700;letter-spacing:0;color:#005D63}
-#s-scenario .ctext span{white-space:normal;overflow-wrap:normal;text-wrap:balance}
-#s-scenario .chev{flex:0 0 20px;margin-left:14px;text-align:right;font-family:var(--font);font-size:34px;line-height:1;font-weight:400;color:#005D63;transform:translateY(-2px)}
-
-.choice{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;padding:12px 18px;border:0;border-radius:16px;background:var(--surface);text-align:left;cursor:pointer}
-.choice:active{background:var(--brand-soft)}
-.ico{flex:none;width:52px;height:52px;border-radius:14px;background:var(--brand-soft);display:grid;place-items:center}
-.ico svg{width:32px;height:32px;fill:none;stroke:var(--brand-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.ctext{flex:1;font-size:20px;font-weight:800}
-.chev{font-size:30px;color:var(--brand-strong)}
-#s-calltype .ctext,#s-misstype .ctext,#s-dstatus .ctext{color:var(--brand-strong)}
-/* Passenger Type hierarchy: Join is the primary, high-frequency action. */
-#s-calltype .choices,#s-misstype .choices,#s-dstatus .choices{grid-template-columns:1fr 1fr;gap:12px}
-#s-calltype .choice,#s-misstype .choice,#s-dstatus .choice{min-height:76px;padding:12px 14px;gap:10px}
-#s-calltype .choice.passengerPrimary,#s-misstype .choice.passengerPrimary,#s-dstatus .choice.passengerPrimary{grid-column:1/-1;min-height:118px;padding:18px 20px;background:var(--brand-soft)}
-#s-calltype .choice.passengerPrimary .ctext,#s-misstype .choice.passengerPrimary .ctext,#s-dstatus .choice.passengerPrimary .ctext{font-size:23px}
-#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:17px;line-height:1.2}
-#s-calltype .choice.passengerSecondary .chev,#s-misstype .choice.passengerSecondary .chev,#s-dstatus .choice.passengerSecondary .chev{font-size:26px}
-#s-dstatus .choice .chev{margin-left:10px}
-/* Final Call 1/4 and 漏查 1/3: Transit and Call Directly each on their own full-width row (same 76px height). */
-#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}
-/* Final Call 1/4 and 漏查 1/3: single-colour action icon beside the arrow (message / phone), one column across rows. */
-#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px;color:var(--brand-strong)}
-#s-calltype .choice,#s-misstype .choice,#s-dstatus .choice{gap:0}
-#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:14px}
-#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px;text-align:center;flex:none}
-@media(max-width:360px){#s-calltype .choice.passengerPrimary,#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerPrimary,#s-misstype .choice.passengerSecondary{padding-right:10px}}
-@media(max-width:360px){#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary,#s-dstatus .choice.passengerSecondary{padding:10px}#s-calltype .choice.passengerSecondary .ctext,#s-misstype .choice.passengerSecondary .ctext,#s-dstatus .choice.passengerSecondary .ctext{font-size:15px}}
-
-.opts{display:grid;gap:12px}
-.opt{width:100%;min-height:68px;padding:12px 18px;border:1px solid transparent;border-radius:16px;background:var(--surface);font-size:20px;font-weight:700;text-align:center;cursor:pointer}
-.opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-strong)}
-.optExtra{margin-top:10px}
-.optExtra[hidden]{display:none}
-.delayLabel{margin:0 0 8px;color:var(--brand-strong);font-size:17px;font-weight:700}
-
-.bagHelp{margin:-8px 0 20px;font-size:20px;line-height:1.35;font-weight:700;color:var(--brand-strong)}
-.bagInline{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 20px}
-.bagInline .bagHelp{margin:0;font-size:18px;line-height:1.25;font-weight:700;white-space:nowrap}
-.bagInline .field{margin:0!important}
-.step .progressCount{color:#718584;font:inherit;font-weight:700;white-space:nowrap}
-/* Phone landing page */
-#s-phone{min-height:100%;box-sizing:border-box;display:flex;flex-direction:column}
-#s-phone[hidden]{display:none!important}
-#s-phone h1{text-align:center}
-.phoneHeroWrap{position:relative;display:block;width:116px;height:116px;margin:auto auto 0;flex:none}
-.phoneHeroIcon{display:block;width:116px;height:116px;object-fit:contain;margin:0}
-.appVersion{position:absolute;left:78px;bottom:5px;font-size:9px;line-height:1;font-weight:600;letter-spacing:.04em;color:#98A7A8;white-space:nowrap;user-select:none;-webkit-user-select:none;pointer-events:none}
-/* Footer hint always reserves one line so the CTA never jumps when a hint appears. */
-/* Message focus mode: when the preview is open, reclaim the upper screen space. */
-#s-preview.preview-focus>h1,#s-preview.preview-focus>#sum,#s-preview.preview-focus>.previewLangTitle,#s-preview.preview-focus>.seg{display:none}
-#s-preview.preview-focus{padding-top:0}
-#s-preview.preview-focus .msgToggle{margin-top:0}
-
-
-.sum{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 16px}
-.sum div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:17px}
-.sum div + div{border-top:1px solid var(--line)}
-.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:normal;word-break:normal}
-.sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
-.sum dd{min-width:0;overflow-wrap:anywhere;margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
-.sum dd .flightAccent{color:var(--brand);font-weight:900}
-.sum dd.bagConfirmValue{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
-.sum dd .bagConfirmNote{font-size:18px;line-height:1.2;font-weight:700;color:var(--brand-strong);white-space:nowrap}
-.seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}
-.seg button{border:0;background:transparent;min-height:48px;border-radius:11px;font-size:17px;font-weight:700;color:var(--muted);cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 1px 3px rgba(0,0,0,.14)}
-#ordJa[hidden]{display:none!important}
-.previewLangTitle{margin:28px 0 14px;font-size:22px;line-height:1.2;color:var(--brand-strong);font-weight:700;text-align:center}
-.msgToggle{width:100%;border:0;background:var(--surface);border-radius:16px;padding:16px;text-align:left;font-size:17px;font-weight:700;color:var(--brand-strong);cursor:pointer;display:flex;align-items:center;justify-content:space-between}.msgToggle::after{content:"＋";font-size:22px;font-weight:400}.msgToggle[aria-expanded="true"]::after{content:"−"}.msg{width:100%;box-sizing:border-box;border:0;outline:0;resize:none;min-height:calc(var(--vh, 100vh) - 245px);background:var(--surface);border-radius:16px;padding:16px;font:inherit;font-size:16px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:8px;color:var(--input-ink)}
-:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
-@media(max-height:620px){h1{margin:10px 0 14px;font-size:24px}.field{min-height:60px}.field input{height:54px}.cta{min-height:54px}}
-/* Narrow phones (<=380px): slightly smaller scenario rows; long labels wrap onto two lines instead of hitting the arrow. */
-@media(max-width:380px){
-  main{padding-left:14px;padding-right:14px}
-  #s-scenario .choice{min-height:74px;padding:6px 10px}
-  #s-scenario .ico,#s-scenario .ico img,#s-scenario .ico .scIco{width:38px;height:27px}
-  #s-scenario .ico{flex-basis:38px}
-  #s-scenario .ctext{font-size:19px;margin-left:12px}
-  #s-scenario .chev{flex-basis:16px;margin-left:12px;font-size:30px}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none !important}}
-
-/* Prefix + value fields share one centered two-column geometry across the app. */
-#s-darrange .field, #s-wflight .field, #s-mflight .field, #s-dflight .field, #s-dtransfer .field, #s-bag1 .field, #s-bag2 .field, #s-msec .field, #s-callflight .field, #s-callgate .field{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px}
-#s-darrange .field .code, #s-wflight .field .code, #s-mflight .field .code, #s-dflight .field .code, #s-dtransfer .field .code, #s-bag1 .field .code, #s-bag2 .field .code, #s-msec .field .code, #s-callflight .field .code, #s-callgate .field .code{width:72px;margin-right:0;justify-self:end}
-#s-darrange .field input:not(.code), #s-wflight .field input, #s-mflight .field input, #s-dflight .field input, #s-dtransfer .field input:not(.code), #s-bag1 .field input:not(.code), #s-bag2 .field input:not(.code), #s-msec .field input, #s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
-#s-darrange .field.time input{width:100%;text-align:left}
-/* Expanded message editor fills the remaining viewport instead of shrinking to content. */
-main.preview-open{display:flex;flex-direction:column;overflow:hidden}
-#s-preview.preview-focus{display:flex;flex:1 1 0;flex-direction:column;min-height:0;min-width:0}
-#s-preview.preview-focus .msgToggle{flex:none}
-#s-preview.preview-focus .msg{display:block;flex:1 1 0;height:0;min-height:0;margin-bottom:0;overflow-y:auto}
-
-/* Confirm page: compact so "Message Preview and Edit" is visible without scrolling. */
-#s-preview:not(.preview-focus) h1{font-size:22px;line-height:1.15;margin:2px 0 10px}
-#s-preview:not(.preview-focus) .sum{margin:0 0 10px}
-#s-preview:not(.preview-focus) .sum div{padding:8px 14px;font-size:15px}
-#s-preview:not(.preview-focus) .sum dt small{font-size:15px}
-#s-preview:not(.preview-focus) .previewLangTitle{margin:12px 0 8px;font-size:18px}
-#s-preview:not(.preview-focus) .seg{margin-bottom:10px;gap:2px;padding:3px}
-#s-preview:not(.preview-focus) .seg button{min-height:40px}
-#s-preview .msgToggle{padding:14px 16px;background:var(--bg);border:1px solid var(--brand);color:var(--brand-strong)}
-
-/* Confirmed text/function updates only; preserve v2.2.9 visual system. */
-.disruptedTitle{display:flex;align-items:center;justify-content:center;gap:9px}
-.msgToggle{gap:8px;flex-wrap:wrap}
-.msgToggle>span:first-child{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:baseline;gap:0;min-width:0;overflow-wrap:anywhere}
-.msgToggle small{font-size:18px;font-weight:700;color:var(--muted);white-space:nowrap;margin-left:8px}
-.msgToggle::after{content:none!important}
-.viewLabel{flex:none;margin-left:auto;font-size:15px;font-weight:700;white-space:nowrap}
-.msgPanel{position:relative;flex:1 1 auto;min-height:0;margin-top:8px;background:var(--surface);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
-.msgPanel[hidden]{display:none}
-#s-preview.preview-focus .msgPanel{flex:1 1 0;min-height:0}
-#s-preview.preview-focus .msg{flex:1 1 0;height:0;min-height:0;margin-top:0;border-radius:16px;padding-bottom:24px;overflow-y:auto}
-.msg[readonly]{cursor:default}
-
-/* Call Passenger — uses the existing v2.2.9 field / language-bar visual system. */
-#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{text-align:center}
-#callGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;height:52px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
-#callGateField input{text-transform:uppercase}
-.callNoMessageSeg{margin-top:18px}
-.callNoMessageSeg button{width:100%}
-#previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
-
-.transitIata{width:max-content;margin:0 auto 20px;text-align:center}.transitIataLabel{display:none}.transitIataValue{display:inline-block;border:0;border-radius:999px;padding:8px 20px;background:var(--brand-soft);font-size:17px;font-weight:800;color:var(--brand-strong);letter-spacing:.08em}
-/* Scenario 4 · Pax already at Gate: 4th Flight Type choice on its own full-width row,
-   and the New Flight page (flight status, Delayed-to time, Protect to CX flight + gate). */
-#s-dstatus .choices{grid-template-columns:repeat(2,minmax(0,1fr))}
-#s-dstatus .choice{min-width:0}
-#s-dstatus .choiceGroup{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:2px 0 -2px;color:var(--brand-strong);font-size:18px;font-weight:800;white-space:nowrap}
-#s-dstatus .choiceGroup::after{content:"";flex:1;height:1px;background:var(--line)}
-#s-dstatus .choiceGroup+.choice{margin-top:0}
-#s-dstatus .choice+.choiceGroup{margin-top:10px}
-#s-dstatus #stPossible.passengerPrimary{background:var(--surface)}
-#s-dstatus #stPossible.passengerPrimary:active{background:var(--brand-soft)}
-#s-dflight #gStatusWrap[hidden]{display:none}
-#s-dflight #delayWrap.gateDelay{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-7px);margin-top:0;transition:grid-template-rows .23s ease,opacity .23s ease,transform .23s ease,margin-top .23s ease}
-#s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr;opacity:1;transform:translateY(0);margin-top:10px}
-#s-dflight #delayWrap.gateDelay .delayInner{min-height:0;overflow:hidden}
-#s-dflight #delayWrap[hidden]{display:none}
-#s-dflight #gStatusWrap .opts{grid-template-columns:1fr 1fr;gap:10px}
-#s-dflight #gStatusWrap .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
-#s-dnew h1{text-align:center;font-size:24px;line-height:1.15;margin:10px 0 16px}
-#s-dnew .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
-#s-dnew .delayLabel::before,#s-dnew .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
-#s-dnew .opts{grid-template-columns:1fr 1fr;gap:10px}
-#s-dnew .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
-#s-dnew .gateRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#s-dnew .gateRow .field{margin:0;min-width:0;padding:0 6px;gap:6px}
-#s-dnew .gateRow .field .code{width:56px;height:48px;margin:0;font-size:24px}
-#s-dnew .gateRow .field input{flex:1;height:60px;min-width:0;padding:0 4px;font-size:26px;text-align:left}
-#s-dnew #gDepField{margin-top:10px;min-height:64px;gap:6px;padding:0 6px}
-#s-dnew #gDepField .code{width:auto;min-width:56px;height:48px;margin:0;padding:0 12px;font-size:22px;text-transform:none}
-#s-dnew #gDepField input{flex:1;height:60px;min-width:0;padding:0 4px;font-size:26px;text-align:left}
-#s-dnew .gateDestinations{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
-#s-dnew .gateDestination{min-width:0;min-height:60px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);font-size:24px;font-weight:800;color:var(--brand-strong);cursor:pointer}
-#s-dnew .gateDestination.original{color:var(--delay-ink)}
-#s-dnew .gateDestination[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
-#s-dnew .gateAmp{text-align:center;font-size:24px;font-weight:800;color:var(--brand-strong);margin:6px 0}
-#s-dnew .gateActions{grid-template-columns:1fr 1fr;gap:10px}
-#s-dnew .gateActions .opt{min-height:60px;padding:8px;font-size:19px}
-#gGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:24px;font-weight:800;text-align:center;text-align-last:center;padding:0 6px;cursor:pointer}
-#gGateField input{text-transform:uppercase}
-/* Gate B1R: reveal the suggestion only for gate 1 in area B. */
-.gateRRow{display:flex;justify-content:flex-end;margin-top:8px;min-height:36px}
-.gateR[hidden]{display:none}
-.gateRRowSplit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gateRRowSplit .gateR{justify-self:end}
-.gateR{min-width:64px;height:36px;padding:0 14px;border:1.5px dashed var(--brand);border-radius:999px;background:#fff;color:var(--brand-strong);font:inherit;font-size:17px;font-weight:800;line-height:1;cursor:pointer}
-.gateR[aria-pressed="true"]{border-style:solid;background:var(--brand-soft)}
-#s-dnew #gDepField{margin-top:8px}
-@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}
-/* Scenario 4 Disrupted flight 2/6 — Delayed to (r15 fixed the clipped "8:00"; r24 restyle). */
-#s-dflight .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
-#s-dflight .delayLabel::before,#s-dflight .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
-/* r24 · Delayed-to time: no icon, no placeholder; value centred in a muted brick red (--delay-ink) that sits with the teal palette.
-   Flex (not the shared 2-column grid) so the whole "18:00" is always visible. */
-#s-dflight .field.time{display:flex;justify-content:center;align-items:center}
-#s-dflight .field.time input{width:100%;max-width:none;text-align:center;color:var(--delay-ink);font-size:32px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
-#s-dflight #delayWrap{margin-top:0}
-/* r16 · Scenario 4 Flight arrangement 4/6 — match the teal choice-card system.
-   CSS only (protected s-darrange markup unchanged): brand-teal left-aligned labels,
-   radio indicator, and the Protect-to fields shown directly under "Will protect to". */
-#s-darrange:not([hidden]){display:flex;flex-direction:column}
-#s-darrange .opts{display:contents}
-#s-darrange #arKnown{order:1}
-#s-darrange #altWrap{order:2}
-#s-darrange #arUnknown{order:3;margin-top:10px}
-#s-darrange .opt{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:10px 18px 10px 20px;border:1.5px solid transparent;background:var(--surface);color:var(--brand-strong);font-size:20px;font-weight:800;text-align:left;transition:background-color .12s,border-color .12s}
-#s-darrange .opt::after{content:"";flex:none;width:24px;height:24px;border-radius:50%;box-sizing:border-box;border:2px solid #9DBDBD;background:var(--bg)}
-#s-darrange .opt[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand)}
-#s-darrange .opt[aria-pressed="true"]::after{border:7px solid var(--brand)}
-#s-darrange .opt:active{background:var(--brand-soft)}
-/* r23 · "Will protect to" opens as one card: the option and its fields share one
-   teal outline, and the panel slides open (Arrange in airport glides down with it). */
-#s-darrange #arKnown[aria-pressed="true"]{border-bottom-width:0;border-bottom-left-radius:0;border-bottom-right-radius:0;min-height:52px;padding-bottom:4px}
-/* r27 · Protect-to panel per the suggested design: one card, CX flight and DEP time side by side
-   in compact tinted fields (no large white boxes). */
-#s-darrange #altWrap{margin-top:0;padding:8px 12px 12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-top:0;border-radius:0 0 16px 16px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#s-darrange #altWrap[hidden]{display:none}
-#s-darrange #altWrap .field{display:flex;align-items:center;gap:8px;min-height:48px;height:48px;margin:0;padding:0 6px;background:#F2F8F8;border:1px solid #B5D2D5;border-radius:12px;min-width:0;font-size:18px}
-#s-darrange #altWrap .field.bad{border-color:var(--danger)}
-#s-darrange #altWrap .field .code{flex:none;width:auto;min-width:48px;height:32px;margin:0;padding:0 10px;border-radius:8px;background:#BCDADD;color:var(--brand-strong);font-size:15px;font-weight:700;line-height:32px;justify-self:auto}
-#s-darrange #altWrap .field input.code{width:52px;min-width:52px}
-#s-darrange #altWrap .field input:not(.code){flex:1;width:auto;min-width:0;height:44px;padding:0 2px;font-size:18px;font-weight:700;color:var(--input-ink);text-align:left}
-@media (max-width:360px){#s-darrange #altWrap{padding:8px 10px 10px;gap:6px}#s-darrange #altWrap .field{gap:5px;padding:0 4px}#s-darrange #altWrap .field .code{min-width:40px;padding:0 6px;font-size:14px}#s-darrange #altWrap .field input.code{width:42px;min-width:42px}#s-darrange #altWrap .field input:not(.code){font-size:17px}}
-#s-darrange #altWrap:not([hidden]){animation:altReveal .22s cubic-bezier(.2,.7,.2,1)}
-@keyframes altReveal{from{max-height:0;opacity:0;padding-top:0;padding-bottom:0}70%{opacity:1}to{max-height:120px;opacity:1}}
-@media (prefers-reduced-motion:reduce){#s-darrange #altWrap:not([hidden]){animation:none}}
-/* r18 · Step title stays on one line (Android / narrow screens): auto-shrinks to fit, ellipsis only as a last resort. */
-.step{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* r26 · Stable page layout. Pages used to (1) re-centre vertically and (2) shrink the header,
-   titles and fields a moment after the keyboard opened, so every page change looked like a jump.
-   Now form pages use one set of sizes with or without the keyboard and stay top-aligned, and a
-   short fade replaces the hard cut between pages. */
-#s-phone h1,#s-mflight h1,#s-msec h1,#s-wflight h1,#s-bag1 h1,#s-bag2 h1,#s-dflight h1,#s-dtransfer h1,#s-darrange h1,#s-darrive h1,#s-callflight h1,#s-callgate h1{font-size:24px;line-height:1.15;margin:10px 0 16px}
-.chip{margin:-6px auto 14px}
-.screen:not([hidden]){animation:screenIn .16s ease-out}
-@keyframes screenIn{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.screen:not([hidden]){animation:none}}
-</style>
+<link rel="stylesheet" href="./app.css">
 </head>
 <body>
 <div class="app" id="app">
@@ -370,8 +70,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-misstype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice passengerPrimary" id="missJoin" type="button" aria-label="Joining Passenger &amp; Message"><span class="ctext"><span>Joining Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="missTransit" type="button" aria-label="Transit Passenger &amp; Message"><span class="ctext"><span>Transit Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="missJoin" type="button" aria-label=""><span class="ctext"><span data-scenario-label="joining"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="missTransit" type="button" aria-label=""><span class="ctext"><span data-scenario-label="transit"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -476,8 +176,8 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     <section class="screen" id="s-calltype" hidden>
       <h1>Passenger Type</h1>
       <div class="choices">
-        <button class="choice passengerPrimary" id="callJoin" type="button" aria-label="Joining Passenger &amp; Message"><span class="ctext"><span>Joining Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
-        <button class="choice passengerSecondary" id="callTransit" type="button" aria-label="Transit Passenger &amp; Message"><span class="ctext"><span>Transit Passenger</span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerPrimary" id="callJoin" type="button" aria-label=""><span class="ctext"><span data-scenario-label="joining"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
+        <button class="choice passengerSecondary" id="callTransit" type="button" aria-label=""><span class="ctext"><span data-scenario-label="transit"></span></span><svg class="actIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8h8M8 11.5h5"/></svg><span class="chev">›</span></button>
       </div>
     </section>
 
@@ -527,10 +227,14 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   </footer>
 </div>
 
+<script src="./scenario-config.js"></script>
 <script>
 (function(){
   "use strict";
   const $=id=>document.getElementById(id);
+  const SCENARIO_COPY=window.FIND_PAX_SCENARIO_COPY;
+  document.querySelectorAll('[data-scenario-label="joining"]').forEach(el=>{el.textContent=SCENARIO_COPY.passenger.joining;el.closest("button").setAttribute("aria-label",SCENARIO_COPY.passenger.joining+" & Message");});
+  document.querySelectorAll('[data-scenario-label="transit"]').forEach(el=>{el.textContent=SCENARIO_COPY.passenger.transit;el.closest("button").setAttribute("aria-label",SCENARIO_COPY.passenger.transit+" & Message");});
   const replaceChildrenCompat=(el,...nodes)=>{while(el.firstChild)el.removeChild(el.firstChild);nodes.forEach(node=>el.appendChild(node));};
   const digits=s=>String(s||"").replace(/\D/g,"");
   const v=id=>$(id).value;
@@ -1512,9 +1216,9 @@ Thank you for your understanding and cooperation.`;
       $("barFill").style.width=((idx+1)/f.steps.length*100)+"%";
       const progressText=(idx+1)+"/"+f.steps.length;
       const passengerType=flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")
-        ? (S.missMode==="join"?"Joining Passenger":"Transit Passenger")
+        ? (S.missMode==="join"?SCENARIO_COPY.passenger.joining:SCENARIO_COPY.passenger.transit)
         : flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")
-          ? (S.callMode==="join"?"Joining Passenger":"Transit Passenger") : "";
+          ? (S.callMode==="join"?SCENARIO_COPY.passenger.joining:SCENARIO_COPY.passenger.transit) : "";
       const disruptedType=flow==="dp" && cur!=="dstatus"
         ? (S.status==="possible"?"Tight connection":S.status==="delayed"?"Flight delayed":S.status==="unknown"?"Flight Suspended":S.status==="gate"?"Already at Gate":"") : "";
       if((flow==="miss"||flow==="call")&&passengerType){
