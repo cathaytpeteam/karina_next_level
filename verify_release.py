@@ -308,7 +308,15 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2.1";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.2";' in sw)
+for gate in ('callGate','gGate'):
+    tag=re.search(r'<input\b[^>]*\bid="'+gate+r'"[^>]*>',s)
+    ck(gate+' numeric keyboard',tag is not None and 'inputmode="numeric"' in tag.group(0) and 'pattern="[0-9]*"' in tag.group(0))
+ck('B1R suggestion only for area B and gate 1', '$(bid).hidden=v(zid)!=="B"||!/^1R?$/.test(g);' in s)
+ck('B1R toggle preserves focus', '$(bid).addEventListener("pointerdown",e=>e.preventDefault());' in s and '$(iid).value=v(iid)==="1R"?"1":"1R";' in s)
+ck('C1R removed when area changes', 'if(v(zid)==="C"&&el.value==="1R") el.value="1";' in s and '$(zid).addEventListener("change",normalize);' in s)
+ck('C1R rejected by message gate helpers', '!(z==="C"&&n==="1R")' in ef('callGateFull') and '!(z==="C"&&x==="1R")' in ef('dnGateFull'))
+ck('B1R row reserves height', 'min-height:36px' in s and '@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}' in s)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=_rev_m.group(1) if _rev_m else ''

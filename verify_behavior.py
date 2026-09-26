@@ -448,7 +448,44 @@ async def case_s4_gate(r, status, target, go, lang, new="531"):
     ck(f"[{r.name}] Confirm details shows the grouped number top-right", await r.pg.locator("#who").is_visible() and " " in who and who.replace(" ", "") == "+" + PHONE, who)
     await r.act("cta", "external:whatsapp", ("CX451", "CX" + new, "19:55") + (("21:00",) if st == "delayed" else ()) + (("B9",) if tg == "new" else ()))
 
-CASES = []
+async def case_b1r(r, gate_path):
+    iid, bid, zid = ("gGate", "gGateR", "gGateZone") if gate_path else ("callGate", "callGateR", "callGateZone")
+    if gate_path:
+        await to_s4_gate(r, "407", "gsCancelled")
+        await fill_protect(r, "401", "B", "", "1945", "gpAsap")
+    else:
+        await to_s2(r, "callJoin", "407"); await r.act("cta", "callgate")
+    pg=r.pg
+    ck(f"[{bid}] numeric keyboard", await pg.locator('#'+iid).get_attribute('inputmode') == 'numeric')
+    await r.fill(iid, "")
+    y=(await pg.locator('#cta').bounding_box())['y']
+    for value in ("", "2", "3", "4", "5", "6", "7", "8", "9"):
+        await r.fill(iid,value)
+        ck(f"[{bid}] hidden for {value or 'empty'}", not await pg.locator('#'+bid).is_visible())
+    await r.fill(iid,"1")
+    ck(f"[{bid}] B1R suggestion", await pg.locator('#'+bid).is_visible() and await pg.locator('#'+bid).inner_text() == 'B1R?')
+    ck(f"[{bid}] reveal does not move Next", abs((await pg.locator('#cta').bounding_box())['y']-y)<1)
+    await r.act(bid)
+    ck(f"[{bid}] selected", await r.val(iid)=='1R' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='true' and await pg.locator('#'+bid).inner_text()=='B1R')
+    ck(f"[{bid}] focus retained", await pg.evaluate('document.activeElement.id')==iid)
+    await r.act(bid)
+    ck(f"[{bid}] toggles back to 1", await r.val(iid)=='1' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='false')
+    await r.act(bid); await r.fill(zid,'C')
+    ck(f"[{bid}] switching to C yields C1", await r.val(iid)=='1' and not await pg.locator('#'+bid).is_visible())
+    await r.fill(iid,'1R')
+    ck(f"[{bid}] pasted C1R cannot remain", await r.val(iid)=='1')
+    await r.fill(iid,'')
+    ck(f"[{bid}] hide does not move Next", abs((await pg.locator('#cta').bounding_box())['y']-y)<1)
+    await r.fill(zid,'B'); await r.fill(iid,'1'); await r.act(bid)
+    if gate_path:
+        await pg.set_viewport_size({'width':320,'height':844})
+        await pg.wait_for_timeout(300)
+        fits=await pg.locator('#gGate').evaluate('''e=>{const c=getComputedStyle(e),cv=document.createElement('canvas').getContext('2d');cv.font=c.font;return e.value==='1R'&&cv.measureText(e.value).width<=e.clientWidth-parseFloat(c.paddingLeft)-parseFloat(c.paddingRight);}''')
+        ck('[gGateR] 320px input fits 1R',fits)
+    await r.act('cta','preview')
+    ck(f'[{bid}] message includes B1R', 'B1R' in await pg.locator('#msg').input_value())
+
+CASES = [("Final Call B1R", lambda r: case_b1r(r,False)), ("Protect to B1R", lambda r: case_b1r(r,True))]
 for m, f in (("missJoin", "407"), ("missTransit", "450")):
     for l in ("ordZh", "ordEn", "ordJa"):
         CASES.append((f"S1 {m} {l}", lambda r, m=m, f=f, l=l: case_s1(r, m, f, l)))
@@ -542,20 +579,20 @@ async def g(r, name):
             ck(f"[guard] {W}px: CX401 / 15:30 not clipped", not clip, str(clip))
     elif name == "s2_transit_ja_all_flights":
         # Every transit flight gets the right origin/destination and stays within 2 SMS,
-        # using the longest gate form (C1R).
+        # using the longest supported gate form (B1R).
         first = True
         for f in ("450", "451", "530", "531", "564", "565"):
             rr = r if first else await Run(r.browser, f"{name} CX{f}").open()
             await to_s2(rr, "callTransit", f); await rr.act("cta", "callgate")
-            await rr.fill("callGateZone", "C"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
-            await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "transit", "CX" + f, "C1R"))
+            await rr.fill("callGateZone", "B"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
+            await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "transit", "CX" + f, "B1R"))
             if not first: await rr.close()
             first = False
         # Join, longest gate form: still one SMS (<=67)
-        rr = await Run(r.browser, f"{name} Join C1R").open()
+        rr = await Run(r.browser, f"{name} Join B1R").open()
         await to_s2(rr, "callJoin", "407"); await rr.act("cta", "callgate")
-        await rr.fill("callGateZone", "C"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
-        await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "join", "CX407", "C1R")); await rr.close()
+        await rr.fill("callGateZone", "B"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
+        await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "join", "CX407", "B1R")); await rr.close()
     elif name == "layout_does_not_jump":
         # Keyboard open/close must not move or resize the title and fields, and the header
         # must keep the same height on every page (r26). Keyboard mode is forced via the
@@ -666,7 +703,8 @@ async def g(r, name):
         await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r, "401", "B", "", "1945", "gpAsap")
         await r.expect("gate empty keeps Next disabled", False)
         await r.fill("gGate", "0"); await r.expect("gate 0 rejected", False)
-        await r.fill("gGateZone", "C"); await r.fill("gGate", "1R"); await r.expect("gate C1R accepted", True)
+        await r.fill("gGateZone", "C"); await r.fill("gGate", "1R"); await r.expect("gate C1R normalizes to C1", True)
+        ck("[guard] C1R is not retained", await r.val("gGate") == "1")
     elif name == "s4_gate_dep_and_proceed_required":
         await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r, "401", "B", "9", "")
         await r.expect("no Dep and no Proceed choice keeps Next disabled", False)
@@ -678,7 +716,7 @@ async def g(r, name):
         for W in (390, 360, 320):
             await r.pg.set_viewport_size({"width": W, "height": 844})
             if W == 390:
-                await to_s4_gate(r, "451", "gsDelayed", "2100"); await fill_protect(r, "531", "C", "1R", "1955", "gpWait")
+                await to_s4_gate(r, "451", "gsDelayed", "2100"); await fill_protect(r, "531", "B", "1R", "1955", "gpWait")
             await r.pg.wait_for_timeout(300)
             a = await r.pg.locator("#gNewN").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")
             t = await r.pg.locator("#gGate").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")

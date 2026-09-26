@@ -44,6 +44,9 @@
   ]
  },
  "toggles": {
+  "callgate": [
+   "callGateR"
+  ],
   "darrange": [
    "arKnown",
    "arUnknown"
@@ -55,6 +58,7 @@
    "msgToggle"
   ],
   "dnew": [
+   "gGateR",
    "gOriginalFlight",
    "gProtectedFlight",
    "gpAsap",

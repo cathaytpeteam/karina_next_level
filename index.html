@@ -252,6 +252,15 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dnew .gateActions .opt{min-height:60px;padding:8px;font-size:19px}
 #gGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:24px;font-weight:800;text-align:center;text-align-last:center;padding:0 6px;cursor:pointer}
 #gGateField input{text-transform:uppercase}
+/* Gate B1R: reveal the suggestion only for gate 1 in area B. */
+.gateRRow{display:flex;justify-content:flex-end;margin-top:8px;min-height:36px}
+.gateR[hidden]{display:none}
+.gateRRowSplit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gateRRowSplit .gateR{justify-self:end}
+.gateR{min-width:64px;height:36px;padding:0 14px;border:1.5px dashed var(--brand);border-radius:999px;background:#fff;color:var(--brand-strong);font:inherit;font-size:17px;font-weight:800;line-height:1;cursor:pointer}
+.gateR[aria-pressed="true"]{border-style:solid;background:var(--brand-soft)}
+#s-dnew #gDepField{margin-top:8px}
+@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}
 /* Scenario 4 Disrupted flight 2/6 — Delayed to (r15 fixed the clipped "8:00"; r24 restyle). */
 #s-dflight .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
 #s-dflight .delayLabel::before,#s-dflight .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -324,7 +333,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">R1.2.1</span>
+        <span class="appVersion" aria-label="App version">R1.2.2</span>
       </div>
     </section>
 
@@ -448,9 +457,10 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
             <option value="B" selected>B</option>
             <option value="C">C</option>
           </select>
-          <input autocomplete="off" id="gGate" inputmode="text" maxlength="2" autocapitalize="characters" aria-label="Gate number">
+          <input autocomplete="off" id="gGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
         </div>
       </div>
+      <div class="gateRRow gateRRowSplit"><span></span><button type="button" class="gateR" id="gGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
       <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
       <div class="delayLabel">Proceed to Gate</div>
       <div class="gateDestinations" role="group" aria-label="Gate destinations"><button type="button" class="gateDestination original" id="gOriginalFlight" aria-pressed="false">CX</button><button type="button" class="gateDestination" id="gProtectedFlight" aria-pressed="false">CX</button></div>
@@ -485,8 +495,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
           <option value="B" selected>B</option>
           <option value="C">C</option>
         </select>
-        <input autocomplete="off" id="callGate" inputmode="text" maxlength="2" autocapitalize="characters" aria-label="Gate number">
+        <input autocomplete="off" id="callGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
       </div>
+      <div class="gateRRow"><button type="button" class="gateR" id="callGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
     </section>
 
     <!-- shared preview -->
@@ -736,11 +747,11 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
   }
   function callGateFull(){
     const z=v("callGateZone"), n=callGateNumber();
-    return /^[BC]$/.test(z)&&n?z+n:"";
+    return /^[BC]$/.test(z)&&n&&!(z==="C"&&n==="1R")?z+n:"";
   }
   function dnGateFull(){
     const z=v("gGateZone"), x=normalizeCallGate(v("gGate"));
-    return /^[BC]$/.test(z)&&/^(?:[1-9]|1R)$/.test(x)?z+x:"";
+    return /^[BC]$/.test(z)&&/^(?:[1-9]|1R)$/.test(x)&&!(z==="C"&&x==="1R")?z+x:"";
   }
   // Header number, grouped the way the destination country writes it (+886 983 952 902).
   // Falls back to the plain +digits if the phone library is not ready or cannot parse it.
@@ -1496,6 +1507,13 @@ Thank you for your understanding and cooperation.`;
       $("delayWrap").hidden=!gateDelay&&S.status!=="delayed";
       $("delayWrap").classList.toggle("gateDelayOpen",delayOpen);
     }
+    [["callGateR","callGate","callGateZone"],["gGateR","gGate","gGateZone"]].forEach(([bid,iid,zid])=>{
+      const g=v(iid), on=g==="1R";
+      $(bid).hidden=v(zid)!=="B"||!/^1R?$/.test(g);
+      $(bid).setAttribute("aria-pressed",on);
+      $(bid).textContent=on?"B1R":"B1R?";
+      $(bid).setAttribute("aria-label",on?"Gate B1R selected, tap to change back to B1":"Change gate to B1R");
+    });
     if(cur==="dnew"){
       $("gOriginalFlight").textContent="CX"+(normalizeFlight(v("dFlight"))||"—");
       $("gProtectedFlight").textContent="CX"+(normalizeFlight(v("gNewN"))||"—");
@@ -1618,12 +1636,24 @@ Thank you for your understanding and cooperation.`;
 
   $("callFlight").addEventListener("input",function(){this.value=digits(this.value).slice(0,3);render();});
   $("callFlight").addEventListener("blur",function(){const n=callFlightNumber();if(n)this.value=n;render();});
-  $("callGate").addEventListener("input",function(){this.value=normalizeCallGate(this.value);render();});
-  $("callGate").addEventListener("blur",function(){this.value=normalizeCallGate(this.value);render();});
-  $("callGateZone").addEventListener("change",()=>render());
-  $("gGate").addEventListener("input",function(){this.value=normalizeCallGate(this.value);render();});
-  $("gGate").addEventListener("blur",function(){this.value=normalizeCallGate(this.value);render();});
-  $("gGateZone").addEventListener("change",()=>render());
+  [["callGateR","callGate","callGateZone"],["gGateR","gGate","gGateZone"]].forEach(([bid,iid,zid])=>{
+    const normalize=()=>{
+      const el=$(iid);
+      el.value=normalizeCallGate(el.value);
+      if(v(zid)==="C"&&el.value==="1R") el.value="1";
+      render();
+    };
+    $(iid).addEventListener("input",normalize);
+    $(iid).addEventListener("blur",normalize);
+    $(zid).addEventListener("change",normalize);
+    // Keep the numeric keyboard open while toggling the B1R suggestion.
+    $(bid).addEventListener("pointerdown",e=>e.preventDefault());
+    $(bid).onclick=()=>{
+      if(v(zid)!=="B"||!/^1R?$/.test(v(iid))) return;
+      $(iid).value=v(iid)==="1R"?"1":"1R";
+      render();
+    };
+  });
   $("goMiss").onclick=()=>{clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
   $("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
   $("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};

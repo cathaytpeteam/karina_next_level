@@ -240,7 +240,7 @@
       "s-preview"
     ],
     "screen_sha256": {
-      "s-phone": "036ecb02e824d2580801f795924652957783b1454182dd0aa5d8afba6bc22e3c",
+      "s-phone": "966d5b3b8d492ff583a6b0801709a342986622c1ab099f27f11f231bd87ebc21",
       "s-scenario": "7523a82d86605eebfe342061062c014e3f14628f87c65f4f0c9aeb736e3efb49",
       "s-misstype": "c7958928f6b79a477dc7a15bb3b1d0092151800b3c2a8b7ee253d39fe85897ee",
       "s-mflight": "078008cb87f1cbf303a9b97e883dfb1b504a3e8afde8edf6b0f59c3a1ad437ee",
@@ -255,9 +255,9 @@
       "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
       "s-calltype": "6ce48cf35cb030deae82d2387fd33c822ce786c0b8b88ba67a84715e44444478",
       "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
-      "s-callgate": "ef1270198eee7fe6dfac946792491d3b03b88f685ee67a9faed41d353c4effc0",
+      "s-callgate": "a7e5d306fbbb9159a2b1c093f45590eb25a6981240c0e9fecfbd93a3a9b47abe",
       "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
-      "s-dnew": "54a894bb86d6a3d55a5cc872d949b85fb52aaa5d45d3e0b0614137bd8b3bee79"
+      "s-dnew": "fdf1db3215da3a7665118821a0ab9caa880934d9d2691bf9a60df1cf77676721"
     },
     "chrome_sha256": {
       "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
@@ -340,7 +340,8 @@
       "s-callgate": [
         "callGateField",
         "callGateZone",
-        "callGate"
+        "callGate",
+        "callGateR"
       ],
       "s-preview": [
         "sum",
@@ -361,6 +362,7 @@
         "gGateField",
         "gGateZone",
         "gGate",
+        "gGateR",
         "gDepField",
         "gDepTime",
         "gOriginalFlight",

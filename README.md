@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.2
+# Find Pax v1.1 R1.2.2
 
 ## Files
 
@@ -26,7 +26,7 @@ python3 verify_release.py --previous OLD_DIR   # also test upgrading from the bu
 
 ## Latest verification result
 
-- Full gate `verify_release.py`: all checks PASS (browser flow behaviour 796 checks; Service Worker scenarios 55 checks incl. upgrade from the originally uploaded R1 build).
+- Full gate `verify_release.py`: static, lock, checksum, and focused B1R checks are required before release. Browser execution requires a working Chromium installation.
 - Only Chromium is available in the test environment. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices were not tested.
 - Known, unchanged behaviour: without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch. Same as the original build.
 
@@ -184,6 +184,13 @@ For every future request:
 This checklist is intentionally conservative because prior revisions suffered regressions when unrelated UI or behavior changed during otherwise small fixes.
 
 ## Change log
+
+### R1.2.2 — Gate B1R suggestion
+
+- Final Call and Protect to gate inputs use the numeric keyboard.
+- When area B and gate `1` are entered, a reserved-height `B1R?` toggle appears below the field. It switches between `B1` and `B1R` without dismissing the keyboard.
+- Area C never offers `B1R`; changing from B to C normalizes the value back to `C1`.
+- Added flow toggles, release checks, and browser coverage for the B1R interaction.
 
 ### File consolidation (31 → 22 files)
 
