@@ -234,6 +234,7 @@
       "s-darrange",
       "s-darrive",
       "s-dnew",
+      "s-dgateaction",
       "s-calltype",
       "s-callflight",
       "s-callgate",
@@ -253,11 +254,12 @@
       "s-dstatus": "fee82a5415a41bd50f8a9bf40f25c933825344813324d30256636f80f7944e58",
       "s-darrange": "1365991ac8b872ac2765ad4f78bb0da580cf589de575e4be0dff5743c7d21fea",
       "s-darrive": "ebdb14f0c3cbd5225270aab0b807d7ed507074ccd10a255e87dbdd95487a7b1d",
+      "s-dnew": "6ae67b565fd7d422a5b198d25c05e0cb14b0e73533d9869a7c9260a1b4f47c96",
+      "s-dgateaction": "5bb51912dc74d4b98d2f0b839b0e190c9f3f9b59edc50abe49f73c1a091bd1f8",
       "s-calltype": "1e43ba35c82e1ca258340a16c8abcd3a722a9e27fc55920b09eae7925d62816e",
       "s-callflight": "a64f958a5da92f96ad935547ad8152372ae518c39cf2bf548f37d10d9180af75",
       "s-callgate": "a7e5d306fbbb9159a2b1c093f45590eb25a6981240c0e9fecfbd93a3a9b47abe",
-      "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222",
-      "s-dnew": "fdf1db3215da3a7665118821a0ab9caa880934d9d2691bf9a60df1cf77676721"
+      "s-preview": "88620821c7455fb981660bb76a0ad6abae9d7db449c11417737730e3e4085222"
     },
     "chrome_sha256": {
       "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
@@ -329,6 +331,22 @@
       "s-darrive": [
         "arriveTime"
       ],
+      "s-dnew": [
+        "gNewField",
+        "gNewN",
+        "gGateField",
+        "gGateZone",
+        "gGate",
+        "gGateR",
+        "gDepField",
+        "gDepTime"
+      ],
+      "s-dgateaction": [
+        "gOriginalFlight",
+        "gProtectedFlight",
+        "gpAsap",
+        "gpWait"
+      ],
       "s-calltype": [
         "callJoin",
         "callTransit"
@@ -355,20 +373,6 @@
         "viewLabel",
         "msgPanel",
         "msg"
-      ],
-      "s-dnew": [
-        "gNewField",
-        "gNewN",
-        "gGateField",
-        "gGateZone",
-        "gGate",
-        "gGateR",
-        "gDepField",
-        "gDepTime",
-        "gOriginalFlight",
-        "gProtectedFlight",
-        "gpAsap",
-        "gpWait"
       ]
     },
     "protected_scope": [
@@ -469,9 +473,10 @@
           "dstatus",
           "dflight",
           "dnew",
+          "dgateaction",
           "preview"
         ],
-        "progress_denominator": 4
+        "progress_denominator": 5
       }
     },
     "scenario1": {

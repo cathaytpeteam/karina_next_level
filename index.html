@@ -166,7 +166,9 @@
       </div>
       <div class="gateRRow gateRRowSplit"><span></span><button type="button" class="gateR" id="gGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
       <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
-      <div class="delayLabel">Proceed to Gate</div>
+    </section>
+    <section class="screen" id="s-dgateaction" hidden>
+      <h1>Proceed to Gate</h1>
       <div class="gateDestinations" role="group" aria-label="Gate destinations"><button type="button" class="gateDestination original" id="gOriginalFlight" aria-pressed="false">CX</button><button type="button" class="gateDestination" id="gProtectedFlight" aria-pressed="false">CX</button></div>
       <div class="gateAmp">&amp;</div>
       <div class="opts gateActions"><button class="opt" id="gpAsap" type="button" aria-pressed="false">ASAP</button><button class="opt" id="gpWait" type="button" aria-pressed="false">Wait for Staff</button></div>
@@ -436,7 +438,7 @@
   };
   // Scenario 4 · "Pax already at Gate" branch: Flight Type -> Flight from TPE -> New Flight -> Confirm details.
   const DP_BRANCH_FLOWS={
-    dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","preview"]}
+    dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","dgateaction","preview"]}
   };
   let flow="", cur="phone", resetting=false;
   const stack=["phone"];
@@ -634,7 +636,8 @@
     dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime")))&&disruptedFlightOk(v("dFlight")),
     dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))&&!tpeDepartureBlocked(v("tA"),v("tN")),
     dstatus:()=>S.status==="possible"||S.status==="delayed"||S.status==="unknown"||S.status==="gate",
-    dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),
+    dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime"),
+    dgateaction:()=> (S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),
     darrange:()=>S.arrange==="unknown"||(S.arrange==="known"&&isCarrier(v("altA"))&&isFlt(v("altN"))&&protectFlightOk(v("altA"),v("altN"),v("dFlight"))&&timeOk("altTime")&&(v("altA")!=="CX"||disruptedFlightOk(v("altN")))),
     darrive:()=>timeOk("arriveTime"),
     callflight:()=>{
@@ -702,7 +705,8 @@
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");if(S.status==="gate")go("dnew");else go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
     darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
-    dnew:()=>{normalizeFlightField("gNewN");go("preview");},
+    dnew:()=>{normalizeFlightField("gNewN");go("dgateaction");},
+    dgateaction:()=>go("preview"),
     callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callgate");},
     callgate:()=>go("preview"),
     preview:()=>send()
@@ -1261,7 +1265,7 @@ Thank you for your understanding and cooperation.`;
       $(bid).textContent=on?"B1R":"B1R?";
       $(bid).setAttribute("aria-label",on?"Gate B1R selected, tap to change back to B1":"Change gate to B1R");
     });
-    if(cur==="dnew"){
+    if(cur==="dnew"||cur==="dgateaction"){
       $("gOriginalFlight").textContent="CX"+(normalizeFlight(v("dFlight"))||"—");
       $("gProtectedFlight").textContent="CX"+(normalizeFlight(v("gNewN"))||"—");
       $("gOriginalFlight").setAttribute("aria-pressed",S.gateTarget==="original");

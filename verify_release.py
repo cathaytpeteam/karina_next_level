@@ -191,12 +191,15 @@ def navigation_lock():
 
     # Scenario 4 "Pax already at Gate" branch (user-approved 2026-09-25).
     dnew=section('s-dnew')
-    ck('Scenario 4 gate branch flow', 'dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","preview"]}' in s and 'flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]' in s)
-    ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("preview");}' in next_block)
+    dgateaction=section('s-dgateaction')
+    ck('Scenario 4 gate branch flow', 'dpgate:{name:"Disrupted Pax",steps:["dstatus","dflight","dnew","dgateaction","preview"]}' in s and 'flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]' in s)
+    ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("dgateaction");}' in next_block)
     ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
     ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime")))&&disruptedFlightOk(v("dFlight")),' in ok_block)
-    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"','>Proceed to Gate<','id="gOriginalFlight"','id="gProtectedFlight"','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']) and dnew.index('id="gNewN"') < dnew.index('id="gGate"') < dnew.index('id="gDepTime"') < dnew.index('id="gpAsap"') < dnew.index('id="gpWait"'))
-    ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime")&&(S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
+    ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"']) and all(x not in dnew for x in ['>Proceed to Gate<','id="gOriginalFlight"','id="gpAsap"']))
+    ck('Scenario 4 Proceed to Gate page fields', all(x in dgateaction for x in ['<h1>Proceed to Gate</h1>','id="gOriginalFlight"','id="gProtectedFlight"','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']))
+    ck('Scenario 4 Protect to validation', 'dnew:()=>isFlt(v("gNewN"))&&protectFlightOk("CX",v("gNewN"),v("dFlight"))&&!!dnGateFull()&&timeOk("gDepTime"),' in ok_block)
+    ck('Scenario 4 Proceed to Gate validation', 'dgateaction:()=> (S.gateTarget==="original"||S.gateTarget==="new")&&(S.gateGo==="asap"||S.gateGo==="wait"),' in ok_block)
     ck('Scenario 4 Delayed to opens smoothly on step 2 (gate branch)', '$("delayWrap").classList.toggle("gateDelayOpen",delayOpen);' in s and '#s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr' in s)
     ck('Scenario 4 Cancelled clears Delayed-to', '$("gsCancelled").onclick=()=>{S.gateStatus="cancelled";$("delayTime").value="";render();};' in s)
     ck('Scenario 4 gate progress label', 'S.status==="gate"?"Already at Gate"' in s)
@@ -217,7 +220,7 @@ def navigation_lock():
     # ICON POLICY (user rule 2026-09-25): small action icons (message) appear ONLY on the Scenario 1 and 2
     # Passenger Type pages. Scenario 4 Disrupted Passenger always sends a message, so its pages stay icon-free.
     # The Scenario page uses the illustrated scenario icons (not action icons).
-    ck('ICON POLICY: action icons only on Scenario 1/2 Passenger Type', s.count('class="actIco"')==4 and all('<svg' not in section(x) for x in ('s-dstatus','s-dflight','s-dnew','s-dtransfer','s-darrange','s-darrive')))
+    ck('ICON POLICY: action icons only on Scenario 1/2 Passenger Type', s.count('class="actIco"')==4 and all('<svg' not in section(x) for x in ('s-dstatus','s-dflight','s-dnew','s-dgateaction','s-dtransfer','s-darrange','s-darrive')))
     # R1.2 (user build 2026-09-26): Scenario page = 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up,
     # no numbers; Final Call uses the carry-on runner illustration, Call Directly the former Final Call picture.
     sc=section('s-scenario')
