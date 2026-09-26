@@ -1,5 +1,5 @@
 const CACHE_PREFIX="find-pax-";
-const APP_VERSION="v1.1";
+const APP_VERSION="v1.2";
 const CACHE_REV="K1.0";
 const CACHE=CACHE_PREFIX+APP_VERSION+"-"+CACHE_REV;
 const ASSETS=[
