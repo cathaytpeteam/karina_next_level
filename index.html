@@ -5,6 +5,7 @@
 <meta name="color-scheme" content="light">
 <title>Find Pax</title>
 <link rel="manifest" href="./manifest.webmanifest">
+<link rel="preload" href="./libphonenumber-max.js" as="script">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Find Pax">
@@ -333,7 +334,7 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
       <div class="warn" id="warn" role="alert" lang="zh-Hant">罐頭號碼 無用</div>
       <div class="phoneHeroWrap">
         <img class="phoneHeroIcon" src="phone-bottom-icon.png" alt="">
-        <span class="appVersion" aria-label="App version">R1.2.2</span>
+        <span class="appVersion" aria-label="App version">R1.2.3</span>
       </div>
     </section>
 
@@ -558,21 +559,44 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
     }
     return phoneLibReady;
   }
+  let phoneLibLoading=false, phoneLibAttempts=0;
+  function retryPhoneLibrary(){
+    phoneLibLoading=false;
+    if(!phoneLibReady&&phoneLibAttempts<4){
+      phoneLibAttempts++;
+      setTimeout(loadPhoneLibrary,250);
+    }
+  }
   function loadPhoneLibrary(){
     if(activatePhoneLibrary()) return;
-    if(document.querySelector('script[data-phone-lib="1"]')) return;
+    if(phoneLibLoading) return;
+    const old=document.querySelector('script[data-phone-lib="1"]');
+    if(old&&!old.dataset.failed){
+      phoneLibLoading=true;
+      setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);
+      return;
+    }
+    if(old) old.remove();
     const script=document.createElement("script");
     script.src="./libphonenumber-max.js";
     script.async=true;
     script.dataset.phoneLib="1";
-    script.onload=()=>activatePhoneLibrary();
-    script.onerror=()=>{};
+    phoneLibLoading=true;
+    script.onload=()=>{
+      phoneLibLoading=false;
+      if(!activatePhoneLibrary()) retryPhoneLibrary();
+    };
+    script.onerror=()=>{script.dataset.failed="1";retryPhoneLibrary();};
     document.head.appendChild(script);
   }
 
   function detectCountryEarly(raw){
     const n=digits(raw), lp=window.libphonenumber;
-    if(!n||!lp) return null;
+    if(!n) return null;
+    // Show the country badge as soon as the calling code is typed, even while
+    // the bundled phone metadata is still loading. Full validation follows.
+    if(n.startsWith("886")) return {country:"TW",label:phoneLabel("TW")};
+    if(!lp) return null;
     const code=callingCodeFor(n);
     if(!code) return null;
     const regions=PHONE_META.byCode[code]||[];

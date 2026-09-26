@@ -1,4 +1,4 @@
-# Find Pax v1.1 R1.2.2
+# Find Pax v1.1 R1.2.3
 
 ## Files
 
@@ -184,6 +184,12 @@ For every future request:
 This checklist is intentionally conservative because prior revisions suffered regressions when unrelated UI or behavior changed during otherwise small fixes.
 
 ## Change log
+
+### R1.2.3 — Phone library loading recovery
+
+- The local phone metadata remains deferred so the first paint stays quick.
+- Added a preload hint and bounded retry path when Android delays or drops the background library load.
+- A successful load immediately revalidates the current phone input, country badge, and Next state.
 
 ### R1.2.2 — Gate B1R suggestion
 

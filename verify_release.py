@@ -308,7 +308,9 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.1";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="R1.2.2";' in sw)
+ck('service worker cache revision', 'const CACHE_REV="R1.2.3";' in sw)
+ck('phone library preload', '<link rel="preload" href="./libphonenumber-max.js" as="script">' in s)
+ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
     tag=re.search(r'<input\b[^>]*\bid="'+gate+r'"[^>]*>',s)
     ck(gate+' numeric keyboard',tag is not None and 'inputmode="numeric"' in tag.group(0) and 'pattern="[0-9]*"' in tag.group(0))
