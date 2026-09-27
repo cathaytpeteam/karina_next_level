@@ -56,8 +56,7 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 
 - **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers). Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
 - **Call Directly** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
-- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the progress plane below.
-- **Progress plane:** a 26px plane (bold outline, CSS mask, `--brand` like the line) sits with its nose at the end of the progress fill and moves with it; a page-coloured clearing stops the line and the track just before and after it. It never touches Back, the phone number or the title (checked at 390 and 320 px) and takes no layout height.
+- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free.
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Message Preview is read-only:** no in-app Edit or Copy Text.
 - **Progress label:** 20px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
