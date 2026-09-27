@@ -98,7 +98,7 @@ Step 1 **Passenger Type** (1/6, no footer/Next; a choice opens the next step dir
 - **Flight from TPE:** general CX whitelist minus CX450 / 530 / 564 (not TPE departures).
 - **Delayed to:** only for Delayed, HHMM → HH:MM, 00:00–23:59, centred in `--delay-ink` (not error red), never clipped.
 - **Connecting flight:** two-character alphanumeric airline code (non-CX allowed); a CX TPE departure is rejected.
-- **Protect to / Will protect to:** CX must be a TPE departure and must not equal Flight from TPE (compared after normalization). Non-CX uses the airline-code rule. CX flight and DEP time sit side by side in one teal card; on Protect to (3/5) the Gate field sits below the card under a `Gate` title.
+- **Protect to / Will protect to:** CX must be a TPE departure and must not equal Flight from TPE (compared after normalization). Non-CX uses the airline-code rule. CX flight and DEP time sit side by side in one teal card; on Protect to (3/5) the `Protect to` title sits inside that card (no radio dot) and the Gate field sits below it under a plain centred `Gate` title.
 - Default message order: English first.
 
 ### 9. General CX whitelist
@@ -123,12 +123,12 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Older history is in git.
 
+### K1.3-r8 (2026-09-27)
+
+- Protect to (3/5): the `Protect to` title moves into the teal CX / DEP card with no radio dot; the `Gate` title drops its side lines.
+- Already at Gate (2/5): the Delayed-to field no longer jumps while it opens; the reveal clips instead of scrolling when the time field takes focus.
+
 ### K1.3-r7 (2026-09-27)
 
 - Protect to (3/5): CX flight and DEP share one teal card; Gate sits below it under a `Gate` title with B1R? underneath. Flight arrangement no longer shows its title text.
 - Already at Gate messages: Chinese uses 閣下, adds 原定的 for the original flight and ends with 感謝閣下的體諒與配合; English uses "your original flight" and "If you wish to travel on this flight".
-
-### K1.3 (2026-09-27)
-
-- Option buttons default to `--brand-strong`; ASAP / Wait for Staff no longer show the body ink. Button text colours are a README rule and the priority gate checks every button on every screen.
-- The upgrade test now detects the new build by its homepage version label; the layout lock and `CACHE_REV` checks no longer hard-code a version. The manual GitHub workflow is renamed Find Pax Full Verification.

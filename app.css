@@ -209,16 +209,18 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dflight #gStatusWrap[hidden]{display:none}
 #s-dflight #delayWrap.gateDelay{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-7px);margin-top:0;transition:grid-template-rows .23s ease,opacity .23s ease,transform .23s ease,margin-top .23s ease}
 #s-dflight #delayWrap.gateDelay.gateDelayOpen{grid-template-rows:1fr;opacity:1;transform:translateY(0);margin-top:10px}
-#s-dflight #delayWrap.gateDelay .delayInner{min-height:0;overflow:hidden}
+/* Clip (not scroll) the revealing Delayed-to field so focusing it cannot shift the content mid-animation. */
+#s-dflight #delayWrap.gateDelay .delayInner{min-height:0;overflow:hidden;overflow:clip}
 #s-dflight #delayWrap[hidden]{display:none}
 #s-dflight #gStatusWrap .opts{grid-template-columns:1fr 1fr;gap:10px}
 #s-dflight #gStatusWrap .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
 #s-dnew h1,#s-dgateaction h1{text-align:center;font-size:24px;line-height:1.15;margin:10px 0 16px}
-#s-dnew .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
-#s-dnew .delayLabel::before,#s-dnew .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
+#s-dnew .delayLabel{display:flex;align-items:center;justify-content:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
 #s-dnew .opts{grid-template-columns:1fr 1fr;gap:10px}
 #s-dnew .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
-#s-dnew .gateRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-radius:16px}
+/* Protect to title and its flight/departure fields share one teal card. */
+#s-dnew h1{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;margin:10px 0 0;padding:10px 18px 4px 20px;background:var(--brand-soft);border:1.5px solid var(--brand);border-bottom:0;border-radius:16px 16px 0 0;font-size:20px;font-weight:800;text-align:left}
+#s-dnew .gateRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px 12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-top:0;border-radius:0 0 16px 16px}
 #s-dnew .gateRow .field{display:flex;align-items:center;gap:8px;min-height:48px;height:48px;margin:0;padding:0 6px;background:var(--arrange-bg);border:1px solid var(--arrange-line);border-radius:12px;min-width:0;font-size:18px}
 #s-dnew .gateRow .field.bad{border-color:var(--danger)}
 #s-dnew .gateRow .field .code{flex:none;width:auto;min-width:48px;height:32px;margin:0;padding:0 10px;border-radius:8px;background:var(--arrange-code);color:var(--brand-strong);font-size:15px;font-weight:700;line-height:32px}

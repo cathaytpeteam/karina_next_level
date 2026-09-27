@@ -980,7 +980,7 @@
   $("stUnknown").onclick=()=>selectDpFlightType("unknown");
   $("stDelayed").onclick=()=>selectDpFlightType("delayed");
   $("stGate").onclick=()=>selectDpFlightType("gate");
-  $("gsDelayed").onclick=()=>{S.gateStatus="delayed";render();try{$("delayTime").focus();}catch(e){}};
+  $("gsDelayed").onclick=()=>{S.gateStatus="delayed";render();try{$("delayTime").focus({preventScroll:true});}catch(e){}};
   $("gOriginalFlight").onclick=()=>{S.gateTarget="original";render();};
   $("gProtectedFlight").onclick=()=>{S.gateTarget="new";render();};
   $("gpAsap").onclick=()=>{S.gateGo="asap";render();};
