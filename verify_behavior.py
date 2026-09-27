@@ -43,6 +43,10 @@ _APP_JS = (R / "app.js").read_text(encoding="utf-8")
 HTML = HTML.replace('<link rel="stylesheet" href="./app.css">', '<style>'+_APP_CSS+'</style>')
 HTML = HTML.replace('<script src="./copy.js"></script>', '<script>'+_COPY_JS+'</script>')
 HTML = HTML.replace('<script src="./app.js"></script>', '<script>'+_APP_JS+'</script>')
+# The inlined test page cannot satisfy the app's Content-Security-Policy (script-src 'self' forbids
+# inline code), so it is removed here only. The CSP itself is verified on a real http origin in the
+# priority gate's privacy check, exactly as a phone loads the app.
+HTML = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', '', HTML)
 _COPY_MATCH = re.search(r'window\.FIND_PAX_COPY\s*=\s*Object\.freeze\((\{.*\})\);', _COPY_JS, re.S)
 COPY = json.loads(_COPY_MATCH.group(1)) if _COPY_MATCH else {}
 SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
@@ -651,6 +655,13 @@ async def priority_suite():
         ck("[priority] privacy: the real-origin run reached Confirm details", pv["screen"] == "s-preview", str(pv))
         ck("[priority] privacy: nothing loaded from another site", not pv["outside"], str(pv["outside"]))
         ck("[priority] privacy: nothing stored on the device (storage, cookies, databases)", pv["local"] == 0 and pv["session"] == 0 and pv["cookie"] == 0 and pv["dbs"] == 0, str(pv))
+        # The Content-Security-Policy makes the browser itself refuse other sites, even if code tried.
+        blocked = await pg.evaluate("""() => new Promise(done => {
+            const seen = []; document.addEventListener('securitypolicyviolation', e => seen.push(e.effectiveDirective));
+            const img = new Image(); img.src = 'https://blocked.example/x.png';
+            fetch('https://blocked.example/y').catch(() => {});
+            setTimeout(() => done(seen), 500);})""")
+        ck("[priority] privacy: the browser blocks other sites (Content-Security-Policy)", "img-src" in blocked and "connect-src" in blocked, str(blocked))
         await pg.close(); _srv.shutdown()
 
         # Button text colours: every button on every screen uses an approved colour,

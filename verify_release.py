@@ -447,6 +447,10 @@ _vc=(r/'verify_changed.py').read_text(encoding='utf-8')
 _pm=re.search(r'# ---- privacy lock .*?(?=# ---- summary)',_vc,re.S)
 ck('privacy lock present in verify_changed.py', bool(_pm))
 ck('privacy lock unchanged (locks.json privacy)', bool(_pm) and hashlib.sha256(_pm.group(0).encode()).hexdigest()==LOCKS.get('privacy',{}).get('verify_changed_sha256'))
+_priv=LOCKS.get('privacy',{})
+ck('privacy lock: phone library is the pinned official build', hashlib.sha256((r/'libphonenumber-mobile.js').read_bytes()).hexdigest()==_priv.get('phone_library_sha256'))
+ck('privacy lock: sw.js unchanged apart from CACHE_REV', hashlib.sha256(re.sub(r'const CACHE_REV="[^"]+";','const CACHE_REV="*";',sw).encode()).hexdigest()==_priv.get('service_worker_sha256'))
+ck('privacy lock: Content-Security-Policy present and unchanged', '<meta http-equiv="Content-Security-Policy" content="'+_priv.get('csp','-')+'">' in s and s.find('Content-Security-Policy')<s.find('<link rel="stylesheet"'))
 
 # Packaging hygiene: temporary Python files are never valid release content.
 _junk=[p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and ('__pycache__' in p.parts or p.suffix in ('.pyc','.pyo'))]

@@ -24,7 +24,7 @@ Find Pax handles passenger phone numbers, so these rules are locked like the lay
 3. **No server.** The app contacts no website. The only network use is the Service Worker loading the app's own files.
 4. **Only three ways out:** `whatsapp://send`, `https://wa.me/` and `sms:`. No other links, external scripts, fonts, images, analytics or generated code.
 
-Enforced three ways: the privacy lock in `verify_changed.py` (every edit), its own hash in `locks.json` so the lock cannot be weakened quietly, and a run-time check in the priority gate (nothing stored, nothing loaded from another site). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
+Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
 
 ## Test environment limits
 
