@@ -636,6 +636,11 @@
     const inp=$("s-"+id).querySelector("input:not(.code)");
     if(inp&&inp.offsetParent!==null){try{inp.focus({preventScroll:true});}catch(e){inp.focus();}}
   }
+  // Auto-advance: a complete, valid field moves the cursor to the next field after the keystroke
+  // settles, without scrolling, and never onto a field that already has a value.
+  function advanceTo(id){
+    if(!v(id)) requestAnimationFrame(()=>{try{$(id).focus({preventScroll:true});}catch(e){}});
+  }
   function go(id){
     if(navPos<stack.length-1) stack.splice(navPos+1);
     stack.push(id);
@@ -858,7 +863,13 @@
           dd.classList.add("bagConfirmValue");
           const note=document.createElement("span");note.className="bagConfirmNote";note.lang="zh-Hant";note.textContent=copy("label.bag.unclaimed");dd.appendChild(note);
           const value=document.createElement("span");value.textContent=r[1];dd.appendChild(value);
+        }else if(r[0]==="Sec" && /^[A-Z]{3} /.test(r[1]) && r[1].slice(0,3)!=="TPE"){
+          // A Sec whose origin is not TPE shows the three-letter prefix in the brand colour.
+          const o=document.createElement("span");o.className="secOrigin";o.textContent=r[1].slice(0,3);dd.appendChild(o);
+          dd.appendChild(document.createTextNode(r[1].slice(3)));
         }else dd.textContent=r[1];
+        // The gate row (Final Call Go to Gate, Already at Gate Proceed to Gate) uses the brand colour, like a non-TPE Sec prefix.
+        if(r[0]==="Go to Gate"||r[0]==="Proceed to Gate") dd.classList.add("gateValue");
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
       const callOnly=flow==="call"&&S.callNoMessage;
@@ -936,10 +947,12 @@
     if(id==="dFlight" && S.status==="delayed" && this.value.length===3 && generalCxOk(this.value)){
       requestAnimationFrame(()=>{try{$("delayTime").focus();}catch(e){}});
     }
+    if(id==="gNewN" && this.value.length===3 && isFlt(this.value) && protectFlightOk("CX",this.value,v("dFlight"))) advanceTo("gDepTime");
+    if(id==="altN" && this.value.length===3 && isCarrier(v("altA")) && protectFlightOk(v("altA"),this.value,v("dFlight")) && (v("altA")!=="CX"||disruptedFlightOk(this.value))) advanceTo("altTime");
   }));
   ["mFlight","wFlight","dFlight","tN","altN","gNewN"].forEach(id=>$(id).addEventListener("blur",function(){normalizeFlightField(id);render();}));
-  ["b1a","b2a"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();}));
-  ["tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,2);render();}));
+  ["b1a","b2a"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,2);render();if(this.value.length===2)advanceTo(id==="b1a"?"b1n":"b2n");}));
+  ["tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,2);render();if(isCarrier(this.value))advanceTo(id==="tA"?"tN":"altN");}));
   ["delayTime","altTime","arriveTime","gDepTime"].forEach(id=>{
     const el=$(id);
     el.addEventListener("input",function(){
@@ -1096,6 +1109,7 @@
       vvFrame=0;
       const open=keyboardOpen(), app=$("app");
       app.classList.toggle("kb",open);
+      app.style.setProperty("--rest-h",Math.round(base)+"px");
       app.style.setProperty("--vh",open?Math.round(vv.height)+"px":"100%");
       app.style.setProperty("--vt",open?Math.round(vv.offsetTop)+"px":"0px");
       if(open) revealWorkspace();

@@ -136,6 +136,11 @@ h1 + .chip{margin-top:-8px}
 .sum dt small{display:inline;font-size:17px;line-height:1.2;color:var(--brand-strong);font-weight:700}
 .sum dd{min-width:0;overflow-wrap:anywhere;margin:0;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .sum dd .flightAccent{color:var(--brand);font-weight:900}
+.sum dd .secOrigin{color:var(--brand)}
+.sum dd.gateValue{color:var(--brand)}
+/* Single-field pages sit lower on taller phones, centred in the space left above the numeric keyboard.
+   The offset depends only on the resting screen height (--rest-h, set by app.js), so it never moves when the keyboard opens. */
+#s-mflight,#s-msec,#s-wflight,#s-bag1,#s-bag2,#s-dtransfer,#s-darrive,#s-callflight,#s-callgate{padding-top:clamp(0px,calc((var(--rest-h,100svh) - 640px) * .65),180px)}
 .sum dd.bagConfirmValue{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
 .sum dd .bagConfirmNote{font-size:18px;line-height:1.2;font-weight:700;color:var(--brand-strong);white-space:nowrap}
 .seg{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px}

@@ -373,6 +373,12 @@ async def to_s4_gate(r, flight="407", status=None, delay="1830"):
             await r.fill("delayTime", delay)
         await r.act("cta", "dnew")
 
+GATE_JS = """() => {
+  const probe=document.createElement('i'); document.body.appendChild(probe);
+  probe.style.color='var(--brand)'; const ink=getComputedStyle(probe).color; probe.remove();
+  const row=[...document.querySelectorAll('#sum > div')].find(d=>['Go to Gate','Proceed to Gate'].includes(d.querySelector('dt').textContent.trim()));
+  return {row:row?row.querySelector('dt').textContent.trim():'', colour:row?getComputedStyle(row.querySelector('dd')).color:'', ink};}"""
+
 async def fill_protect(r, n="401", zone="B", gate="5", dep="1945"):
     # Fills Protect to (3/5) only. Proceed to Gate is its own page (4/5): callers that need it
     # continue with r.act("cta", "dgateaction") and select there.
@@ -461,6 +467,15 @@ async def priority_suite():
         await _simple_click(r, "cta", "msec"); await r.fill("mSec", "123"); await r.expect("S1 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "preview")
         ck("[priority] S1 reaches Confirm details", (await r.st())["screen"] == "preview")
+        sec = await r.pg.evaluate("""() => {
+          const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
+          const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
+          const probe=document.createElement('i'); document.body.appendChild(probe);
+          const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
+          const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
+                     brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
+          probe.remove(); return out;}""")
+        ck("[priority] S1 Join Sec TPE keeps the normal value colour", sec["origin"] is None and sec["text"] == "TPE 123" and sec["valueColour"] == sec["ink"], str(sec))
         await r.close()
 
         # Scenario 2 happy path.
@@ -474,7 +489,40 @@ async def priority_suite():
         await r.fill("mSec", "123"); await r.expect("S2 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
         await _simple_click(r, "cta", "preview"); ck("[priority] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
+        sec = await r.pg.evaluate("""() => {
+          const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
+          const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
+          const probe=document.createElement('i'); document.body.appendChild(probe);
+          const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
+          const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
+                     brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
+          probe.remove(); return out;}""")
+        ck("[priority] S2 Join Sec TPE keeps the normal value colour", sec["origin"] is None and sec["text"] == "TPE 123" and sec["valueColour"] == sec["ink"], str(sec))
+        g = await r.pg.evaluate(GATE_JS); ck("[priority] S2 Join Go to Gate is --brand", g["row"] == "Go to Gate" and g["colour"] == g["ink"], str(g))
         await r.close()
+
+        # Transit Sec: a non-TPE origin prefix uses --brand; the digits keep the value colour.
+        for scen, ptype, field, flight, origin, gate in (("goMiss", "missTransit", "mFlight", "451", "NRT", False),
+                                                       ("goCall", "callTransit", "callFlight", "450", "HKG", True)):
+            r = await Run(browser, f"priority-sec-{origin}").open(); await _priority_phone_to_scenario(r)
+            await _simple_click(r, scen); await _simple_click(r, ptype)
+            await r.fill(field, flight); await _simple_click(r, "cta", "msec"); await r.fill("mSec", "123")
+            if gate:
+                await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5")
+            await _simple_click(r, "cta", "preview")
+            sec = await r.pg.evaluate("""() => {
+          const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
+          const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
+          const probe=document.createElement('i'); document.body.appendChild(probe);
+          const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
+          const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
+                     brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
+          probe.remove(); return out;}""")
+            ck(f"[priority] {scen[2:]} Transit Sec {origin} prefix uses the brand colour", sec["origin"] == origin and sec["originColour"] == sec["brand"] and sec["text"] == origin + " 123", str(sec))
+            ck(f"[priority] {scen[2:]} Transit Sec digits keep the value colour", sec["valueColour"] == sec["ink"], str(sec))
+            if gate:
+                g = await r.pg.evaluate(GATE_JS); ck(f"[priority] {scen[2:]} Transit Go to Gate is --brand", g["row"] == "Go to Gate" and g["colour"] == g["ink"], str(g))
+            await r.close()
 
         # Scenario 3 happy path + Confirm details completeness.
         r = await Run(browser, "priority-s3").open(); await _priority_phone_to_scenario(r)
@@ -522,6 +570,66 @@ async def priority_suite():
         await _simple_click(r, "cta", "darrive"); await r.fill("arriveTime", "1400"); await r.expect("S4 arrival time enables Next", True, not_bad=["arriveTime"])
         await _simple_click(r, "cta", "preview"); ck("[priority] S4 non-gate flow reaches Confirm details", (await r.st())["screen"] == "preview")
         await r.close()
+
+        # Auto-advance: a complete, valid field moves the cursor to the next empty field; an invalid one keeps it.
+        async def focused(r):
+            await r.pg.wait_for_timeout(150)
+            return await r.pg.evaluate("document.activeElement ? document.activeElement.id : ''")
+        async def enter(r, id_, val):
+            await r.pg.locator("#" + id_).click(); await r.fill(id_, val)
+        r = await Run(browser, "priority-auto-advance").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDp", "dstatus"); await _simple_click(r, "stGate", "dflight")
+        await r.fill("dFlight", "407"); await _simple_click(r, "gsCancelled"); await _simple_click(r, "cta", "dnew")
+        await enter(r, "gNewN", "407"); ck("[priority] Protect to: invalid flight keeps the cursor", await focused(r) == "gNewN")
+        await enter(r, "gNewN", "401"); ck("[priority] Protect to: valid flight moves to DEP", await focused(r) == "gDepTime")
+        await r.fill("gDepTime", "1945"); ck("[priority] Protect to: complete DEP moves to Gate", await focused(r) == "gGate")
+        await r.close()
+        r = await Run(browser, "priority-auto-advance-2").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDp", "dstatus"); await _simple_click(r, "stPossible", "dflight")
+        await r.fill("dFlight", "451"); await _simple_click(r, "cta", "dtransfer")
+        await enter(r, "tA", "BR"); ck("[priority] Connecting flight: airline code moves to number", await focused(r) == "tN")
+        await r.fill("tN", "123"); await _simple_click(r, "cta", "darrange"); await _simple_click(r, "arKnown")
+        await enter(r, "altA", "BR"); ck("[priority] Flight arrangement: airline code moves to number", await focused(r) == "altN")
+        await enter(r, "altN", "401"); ck("[priority] Flight arrangement: valid flight moves to dep time", await focused(r) == "altTime")
+        await r.close()
+        r = await Run(browser, "priority-auto-advance-3").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goWpp", "wflight"); await r.fill("wFlight", "123"); await _simple_click(r, "cta", "bag1")
+        await enter(r, "b1a", "BR"); ck("[priority] Bag 1: airline code moves to tag number", await focused(r) == "b1n")
+        await r.close()
+
+        # Already at Gate Confirm details: the Proceed to Gate row is --brand.
+        r = await Run(browser, "priority-confirm-S4-gate").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDp", "dstatus"); await _simple_click(r, "stGate", "dflight")
+        await r.fill("dFlight", "407"); await _simple_click(r, "gsCancelled"); await _simple_click(r, "cta", "dnew")
+        await fill_protect(r); await _simple_click(r, "cta", "dgateaction")
+        await _simple_click(r, "gProtectedFlight"); await _simple_click(r, "gpAsap"); await _simple_click(r, "cta", "preview")
+        g = await r.pg.evaluate(GATE_JS)
+        ck("[priority] S4 Already at Gate Proceed to Gate is --brand", g["row"] == "Proceed to Gate" and g["colour"] == g["ink"], str(g))
+        await r.close()
+
+        # Single-field pages sit lower on taller phones; opening the keyboard must not move the title,
+        # scroll the page, or hide the field behind Next. Worst cases: small phones with a tall keyboard.
+        KB_JS = """() => {const s=document.querySelector('.screen:not([hidden])'), h=s.querySelector('h1'), f=[...s.querySelectorAll('.field')].filter(x=>x.offsetParent);
+          return {id:s.id, kb:document.querySelector('#app').classList.contains('kb'), h1:Math.round(h.getBoundingClientRect().top),
+                  fb:Math.round(Math.max(...f.map(x=>x.getBoundingClientRect().bottom))), ft:Math.round(document.querySelector('#foot').getBoundingClientRect().top),
+                  sc:document.querySelector('main').scrollTop, pad:parseFloat(getComputedStyle(s).paddingTop)};}"""
+        for label, w, full, visible, steps, field in (
+                ("iPhone 390x844 Flight", 390, 844, 550, [("goMiss", None), ("missJoin", None)], "mFlight"),
+                ("small Android tall keyboard Bag Tag 1", 360, 668, 348, [("goWpp", None), ("wFlight", "123"), ("cta", None)], "b1n"),
+                ("small Android tall keyboard Connecting flight", 360, 668, 348, [("goDp", None), ("stPossible", None), ("dFlight", "451"), ("cta", None)], "tN")):
+            r = await Run(browser, "priority-single-field-" + label).open(); await r.pg.set_viewport_size({"width": w, "height": full})
+            await _priority_phone_to_scenario(r)
+            for trig, val in steps:
+                if val is None: await _simple_click(r, trig)
+                else: await r.fill(trig, val)
+            await r.pg.wait_for_timeout(200); before = await r.pg.evaluate(KB_JS)
+            await r.pg.focus("#" + field); await r.pg.set_viewport_size({"width": w, "height": visible}); await r.pg.wait_for_timeout(500)
+            after = await r.pg.evaluate(KB_JS)
+            ck(f"[priority] {label}: keyboard opens without moving the title or scrolling", after["kb"] and before["h1"] == after["h1"] and after["sc"] == 0, f"{before} -> {after}")
+            ck(f"[priority] {label}: field stays above Next with the keyboard open", after["fb"] <= after["ft"] - 6, str(after))
+            if full >= 800:
+                ck(f"[priority] {label}: page sits lower on a tall phone", before["pad"] > 100, str(before))
+            await r.close()
 
         # Button text colours: every button on every screen uses an approved colour,
         # never the body ink or black (button defaults to color:inherit).
