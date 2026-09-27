@@ -123,14 +123,13 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Older history is in git.
 
+### K1.3 (2026-09-27)
+
+- Option buttons default to `--brand-strong`; ASAP / Wait for Staff no longer show the body ink. Button text colours are a README rule and the priority gate checks every button on every screen.
+- The upgrade test now detects the new build by its homepage version label; the layout lock and `CACHE_REV` checks no longer hard-code a version. The manual GitHub workflow is renamed Find Pax Full Verification.
+
 ### K1.2 (2026-09-27)
 
 - Switched to the 245-region mobile phone metadata; landlines now fail the normal invalid-phone check while the Japan rule stays unchanged. The fixed ten-number UI matrix runs in `--fast`.
 - Compressed the 512 maskable icon to 64 colours and retired the 192 maskable icon. Updated the PWA asset list and cache revision to K1.2-r2.
 - Release verification uses the full priority, exhaustive-flow and Service Worker gates; only a passing final tree may update `SHA256SUMS.txt`.
-
-### K1.1 (2026-09-27)
-
-- Phase 1 + Phase 2 consolidated release: split Already at Gate into five steps (Protect 3/5, Proceed to Gate 4/5 with CSS scoped to `#s-dgateaction`, Confirm details 5/5), then completed the maintenance refactor.
-- Centralized colours in `:root`, merged copy/rule data into `copy.js`, retired `scenario-config.js` and `message-master.json`, and added copy-ID verification.
-- UI, copy/message output and flow behaviour remain unchanged from the approved Phase 1/2 result; release label/cache revision finalized as K1.1 / K1.1-r1.
