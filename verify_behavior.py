@@ -488,6 +488,21 @@ async def priority_suite():
         await _simple_click(r, "cta", "msec"); ck("[priority] S2 Sec progress is 3/5", " ".join((await r.pg.locator("#step").inner_text()).split()) == "Final Call - Joining Passenger 3/5", (await r.pg.locator("#step").inner_text()).strip())
         await r.fill("mSec", "123"); await r.expect("S2 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
+        for width in (390, 320):
+            await r.pg.set_viewport_size({"width": width, "height": 844}); await r.pg.wait_for_timeout(350)
+            pl = await r.pg.evaluate("""() => {
+              const f=document.querySelector('#barFill'), a=getComputedStyle(f,'::after'), c=getComputedStyle(f,'::before');
+              const fr=f.getBoundingClientRect(), back=document.querySelector('.back').getBoundingClientRect();
+              const rg=document.createRange(); rg.selectNodeContents(document.querySelector('#step')); const t=rg.getBoundingClientRect();
+              const cy=(fr.top+fr.bottom)/2, h=parseFloat(a.height);
+              return {w:parseFloat(a.width), h, mask:a.webkitMaskImage||a.maskImage||'', plane:a.backgroundColor,
+                      line:getComputedStyle(f).backgroundColor, clear:c.backgroundColor, page:getComputedStyle(document.body).backgroundColor,
+                      top:cy-h/2, bottom:cy+h/2, backBottom:back.bottom, titleTop:t.top};}""")
+            ck(f"[priority] Final Call {width}px progress plane is 32x16 and drawn from the plane shape", pl["w"] == 32 and pl["h"] == 16 and pl["mask"].startswith("url("), str(pl))
+            ck(f"[priority] Final Call {width}px progress plane uses the line colour", pl["plane"] == pl["line"], f'{pl["plane"]} vs {pl["line"]}')
+            ck(f"[priority] Final Call {width}px progress line stops before the plane (page-coloured clearing)", pl["clear"] == pl["page"], pl["clear"])
+            ck(f"[priority] Final Call {width}px progress plane clears Back and the title", pl["top"] >= pl["backBottom"] and pl["bottom"] <= pl["titleTop"], str(pl))
+        await r.pg.set_viewport_size({"width": 390, "height": 844})
         await _simple_click(r, "cta", "preview"); ck("[priority] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
         sec = await r.pg.evaluate("""() => {
           const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
@@ -554,6 +569,7 @@ async def priority_suite():
         await r.fill("gGate", "9"); await r.fill("gDepTime", "1955"); await r.blur("gDepTime")
         await r.expect("S4 valid Protect to fields enable Next", True, not_bad=["gNewN","gDepTime"])
         await _simple_click(r, "cta", "dgateaction")
+        ck("[priority] S4 Disrupted Pax has no progress plane", await r.pg.evaluate("getComputedStyle(document.querySelector('#barFill'),'::after').content") == "none")
         await _simple_click(r, "gProtectedFlight"); await _simple_click(r, "gpAsap")
         await r.expect("S4 Proceed to Gate selection enables Next", True)
         await _simple_click(r, "cta", "preview"); ck("[priority] S4 reaches Confirm details", (await r.st())["screen"] == "preview")
@@ -630,6 +646,12 @@ async def priority_suite():
             if full >= 800:
                 ck(f"[priority] {label}: page sits lower on a tall phone", before["pad"] > 100, str(before))
             await r.close()
+
+        # Call Directly shares the Final Call flow internally but keeps the plain progress bar.
+        r = await Run(browser, "priority-call-directly-no-plane").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goDirect", "preview")
+        ck("[priority] Call Directly has no progress plane", await r.pg.evaluate("getComputedStyle(document.querySelector('#barFill'),'::after').content") == "none")
+        await r.close()
 
         # Button text colours: every button on every screen uses an approved colour,
         # never the body ink or black (button defaults to color:inherit).

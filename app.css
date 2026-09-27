@@ -26,6 +26,12 @@ button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 .bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
 .bar[hidden]{display:block;visibility:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
+/* Progress plane, Final Call only (.planeBar, set by app.js): A350 icon, 32x16, 20 degree climb.
+   Its nose sits at the end of the fill; the clearing keeps the line off the plane. */
+.app.planeBar .bar{overflow:visible}
+.app.planeBar .bar i{position:relative;border-radius:2px}
+.app.planeBar .bar i::before{content:"";position:absolute;right:-6px;top:50%;width:43px;height:10px;margin-top:-5px;background:var(--bg)}
+.app.planeBar .bar i::after{content:"";position:absolute;right:0;top:50%;width:32px;height:16px;margin-top:-8px;background:var(--brand);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2032%27%3E%3Cg%20transform%3D%27rotate%28-20%2032%2016%29%27%20stroke%3D%27currentColor%27%20stroke-width%3D%270.6%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M8%2012.5%20L48%2012.5%20Q59%2012.5%2061.8%2017.2%20Q62.4%2019.5%2059.5%2019.5%20L29%2019.5%20L5.2%2014.6%20Z%27/%3E%3Cpath%20d%3D%27M17%2012.5%20L8.3%203.2%20L5.4%203.2%20L8.6%2012.5%20Z%27/%3E%3Cpath%20d%3D%27M40%2012.5%20L24.4%204.8%20L23.2%202.8%20L22.2%203.2%20L22.6%205.8%20L29.5%2012.5%20Z%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2032%27%3E%3Cg%20transform%3D%27rotate%28-20%2032%2016%29%27%20stroke%3D%27currentColor%27%20stroke-width%3D%270.6%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M8%2012.5%20L48%2012.5%20Q59%2012.5%2061.8%2017.2%20Q62.4%2019.5%2059.5%2019.5%20L29%2019.5%20L5.2%2014.6%20Z%27/%3E%3Cpath%20d%3D%27M17%2012.5%20L8.3%203.2%20L5.4%203.2%20L8.6%2012.5%20Z%27/%3E%3Cpath%20d%3D%27M40%2012.5%20L24.4%204.8%20L23.2%202.8%20L22.2%203.2%20L22.6%205.8%20L29.5%2012.5%20Z%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 .step{font-size:17px;font-weight:700;color:var(--muted);margin:10px 0 0;min-height:26px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 
 main{flex:1;min-height:0;min-width:0;overflow-y:auto;padding:8px 20px 24px;-webkit-overflow-scrolling:touch}
