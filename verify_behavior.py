@@ -501,6 +501,21 @@ async def priority_suite():
         await r.fill("gGate", "9"); await r.fill("gDepTime", "1955"); await r.blur("gDepTime")
         await r.expect("S4 valid Protect to fields enable Next", True, not_bad=["gNewN","gDepTime"])
         await _simple_click(r, "cta", "dgateaction")
+        for width in (390, 320):
+            await r.pg.set_viewport_size({"width": width, "height": 844}); await r.pg.wait_for_timeout(350)
+            pl = await r.pg.evaluate("""() => {
+              const f=document.querySelector('#barFill'), a=getComputedStyle(f,'::after'), c=getComputedStyle(f,'::before');
+              const fr=f.getBoundingClientRect(), back=document.querySelector('.back').getBoundingClientRect();
+              const rg=document.createRange(); rg.selectNodeContents(document.querySelector('#step')); const t=rg.getBoundingClientRect();
+              const cy=(fr.top+fr.bottom)/2, h=parseFloat(a.height);
+              return {w:parseFloat(a.width), h, mask:a.webkitMaskImage||a.maskImage||'', plane:a.backgroundColor,
+                      line:getComputedStyle(f).backgroundColor, clear:c.backgroundColor, page:getComputedStyle(document.body).backgroundColor,
+                      top:cy-h/2, bottom:cy+h/2, backBottom:back.bottom, titleTop:t.top};}""")
+            ck(f"[priority] {width}px progress plane is 26px and drawn from the plane shape", pl["w"] == 26 and pl["h"] == 26 and pl["mask"].startswith("url("), str(pl))
+            ck(f"[priority] {width}px progress plane uses the line colour", pl["plane"] == pl["line"], f'{pl["plane"]} vs {pl["line"]}')
+            ck(f"[priority] {width}px progress line stops before the plane (page-coloured clearing)", pl["clear"] == pl["page"], pl["clear"])
+            ck(f"[priority] {width}px progress plane clears Back and the title", pl["top"] >= pl["backBottom"] and pl["bottom"] <= pl["titleTop"], str(pl))
+        await r.pg.set_viewport_size({"width": 390, "height": 844})
         await _simple_click(r, "gProtectedFlight"); await _simple_click(r, "gpAsap")
         await r.expect("S4 Proceed to Gate selection enables Next", True)
         await _simple_click(r, "cta", "preview"); ck("[priority] S4 reaches Confirm details", (await r.st())["screen"] == "preview")
@@ -516,6 +531,25 @@ async def priority_suite():
         await r.expect("S4 arrangement choice enables Next", True)
         await _simple_click(r, "cta", "darrive"); await r.fill("arriveTime", "1400"); await r.expect("S4 arrival time enables Next", True, not_bad=["arriveTime"])
         await _simple_click(r, "cta", "preview"); ck("[priority] S4 non-gate flow reaches Confirm details", (await r.st())["screen"] == "preview")
+        await r.close()
+
+        # Button text colours: every button on every screen uses an approved colour,
+        # never the body ink or black (button defaults to color:inherit).
+        r = await Run(browser, "priority-button-colours").open()
+        bad = await r.pg.evaluate("""() => {
+          const probe=document.createElement('i'); document.body.appendChild(probe);
+          const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
+          const allowed=['--brand-strong','--delay-ink','--on-brand','--muted'].map(rgb), banned=[rgb('--ink'),'rgb(0, 0, 0)'];
+          document.querySelectorAll('section.screen').forEach(x=>x.hidden=false);
+          const out=[];
+          document.querySelectorAll('button').forEach(b=>{
+            const hasText=el=>[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
+            const t=hasText(b)?b:([...b.querySelectorAll('*')].find(hasText)||b);
+            const c=getComputedStyle(t).color;
+            if(banned.includes(c)||!allowed.includes(c)) out.push((b.id||b.className)+' '+c);
+          });
+          probe.remove(); return out;}""")
+        ck("[priority] button text uses approved colours only (never body ink or black)", not bad, "; ".join(bad))
         await r.close()
 
         await browser.close()
@@ -1068,6 +1102,26 @@ async def _until(ctx, srv, marker, maxn=4, expire=False):
         if ok: return i
     return None
 
+async def _until_app_version(ctx, srv, version, maxn=4, expire=False):
+    """Wait for the installed page to render the current build's home label."""
+    if expire: await _expire_http_cache(ctx)
+    for i in range(1, maxn + 1):
+        pg, _, _ = await _sw_launch(ctx, srv)
+        try:
+            label = await pg.locator(".appVersion").inner_text(timeout=5000)
+        except Exception:
+            label = ""
+        finally:
+            await pg.close()
+        if label.strip() == version:
+            return i
+    return None
+
+def _app_version(root):
+    html = Path(root, "index.html").read_text(encoding="utf-8")
+    m = re.search(r'<span\b[^>]*class="[^"]*\bappVersion\b[^"]*"[^>]*>([^<]+)</span>', html)
+    return m.group(1).strip() if m else ""
+
 async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     T = f"[SW {tag}] "
     exp = " after HTTP cache expiry" if noroutes else ""
@@ -1154,7 +1208,9 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
             pg, _, _ = await _sw_launch(ctx, srv, settle=2500); await pg.close()
         for f in os.listdir(R):
             if (R / f).is_file(): shutil.copy(R / f, os.path.join(up, f))
-        n = await _until(ctx, srv, "phone-input idle window", expire=noroutes)
+        current_version = _app_version(R)
+        ck(T + "8 upgrade: current build has a homepage version label", bool(current_version), current_version)
+        n = await _until_app_version(ctx, srv, current_version, expire=noroutes)
         ck(T + "8 upgrade from previous build: new version by 3rd launch" + exp, n is not None and n <= 3, f"launch {n}")
         pg, early, errs = await _sw_launch(ctx, srv)
         if not noroutes: ck(T + "8 upgrade: launch makes zero network requests", early == 0, f"{early}")

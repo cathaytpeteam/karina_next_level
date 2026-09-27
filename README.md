@@ -1,4 +1,4 @@
-# Find Pax K1.2
+# Find Pax K1.3
 
 Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
@@ -33,7 +33,7 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 - A failed `cache.put()` must not fail a successful network response. Redirected navigation responses are never cached.
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K1.2`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K1.3`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
@@ -56,7 +56,9 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 
 - **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers). Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
 - **Call Directly** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
-- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free.
+- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the progress plane below.
+- **Progress plane:** a 26px plane (bold outline, CSS mask, `--brand` like the line) sits with its nose at the end of the progress fill and moves with it; a page-coloured clearing stops the line and the track just before and after it. It never touches Back, the phone number or the title (checked at 390 and 320 px) and takes no layout height.
+- **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Message Preview is read-only:** no in-app Edit or Copy Text.
 - **Progress label:** 20px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
 - **No layout jump:** form pages keep the same sizes with or without the keyboard (title 24px, fields 64px, top-aligned); only the footer compacts. Header height is identical on every page. 0.16 s page fade, off with "reduce motion".

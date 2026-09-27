@@ -220,7 +220,7 @@ for f in ('app.css', 'index.html', 'app.js', 'copy.js', 'manifest.webmanifest'):
     new = colours(text(f), f.endswith('.css')) - approved
     ck('colour lock: ' + f, not new, 'unapproved colour(s): ' + ', '.join(sorted(new)))
 
-# Phase 2: all deployed colour literals are centralized in :root (manifest keeps its own theme colours).
+# All deployed colour literals are centralized in :root (manifest keeps its own theme colours).
 _css=text('app.css')
 _root_m=re.search(r':root\{(.*?)\}',_css,re.S)
 _css_rest=_css[:_root_m.start()]+_css[_root_m.end():] if _root_m else _css

@@ -23,7 +23,7 @@ Search these markers instead of reading the whole file: `[phone validation]`, `[
 3. After each edit: `python3 verify_changed.py` (seconds, no browser).
 4. Before handing over: `python3 verify_release.py --fast`. Use `--full` only when the user asks for a release (完整檢查).
 5. Never edit `locks.json` to make a check pass. If a lock fails outside the task, stop and report it.
-6. `PLAN.md` holds approved future phases. Follow it only when the user asks for that phase.
+6. `README.md` holds the current product rules and maintenance guidance. No future-phase plan is kept in the release ZIP.
 
 ## Rules that keep the project small
 

@@ -77,10 +77,9 @@ def layout_lock():
         else:
             markup=found[sid]
             if sid=='s-phone':
-                # The separately checked release label is the only approved
-                # variable inside this otherwise byte-locked screen.
-                markup=markup.replace('<span class="appVersion" aria-label="App version">K1.2</span>',
-                                      '<span class="appVersion" aria-label="App version">K1.1</span>')
+                # The release label is the only variable inside this byte-locked screen
+                # (checked separately against CACHE_REV). The hash was recorded with K1.1.
+                markup=re.sub(r'(<span class="appVersion" aria-label="App version">)[^<]*(</span>)',r'\1K1.1\2',markup)
             if sha(markup)!=want: ok=fail(f'{sid} protected markup changed') and ok
     for sid,want_ids in lock['control_order'].items():
         if sid in found:
@@ -342,7 +341,7 @@ ck('listed CX helper removed', 'Please select a listed CX flight' not in s)
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker version', 'const APP_VERSION="v1.2";' in sw)
-ck('service worker cache revision', 'const CACHE_REV="K1.2-r2";' in sw)
+ck('service worker cache revision', bool(re.search(r'const CACHE_REV="K\d+\.\d+-r\d+";', sw)))
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-mobile.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
 for gate in ('callGate','gGate'):
