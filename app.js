@@ -198,7 +198,7 @@
   // ==== [flow definitions] ====
   const FLOWS={
     miss:{name:copy("progress.flow.miss"),steps:["misstype","mflight","msec"]},
-    call:{name:copy("progress.flow.call"),steps:["calltype","callflight","callgate","preview"]},
+    call:{name:copy("progress.flow.call"),steps:["calltype","callflight","msec","callgate","preview"]},
     wpp:{name:copy("progress.flow.wpp"),steps:["wflight","bag1","bag2","preview"]},
     dp:{name:copy("progress.flow.dp"),steps:["dstatus","dflight","dtransfer","darrange","darrive","preview"]}
   };
@@ -414,13 +414,13 @@
   };
   const NEXT={
     phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
-    mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>go("preview"),
+    mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>{if(flow==="call")go("callgate");else go("preview");},
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");if(S.status==="gate")go("dnew");else go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
     darrange:()=>{if(S.arrange==="known")normalizeFlightField("altN");go("darrive");}, darrive:()=>go("preview"),
     dnew:()=>{normalizeFlightField("gNewN");go("dgateaction");},
     dgateaction:()=>go("preview"),
-    callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("callgate");},
+    callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("msec");},
     callgate:()=>go("preview"),
     preview:()=>send()
   };
@@ -511,6 +511,7 @@
         rows.push(["Flight",callFlightFull()]);
         if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}
         {const code=TRANSIT_DESTINATION_CODES[callFlightNumber()];if(code)rows.push(["Destination",code]);}
+        rows.push(["Sec",(secPrefix(v("callFlight"),S.callMode)||"")+" "+String(Number(v("mSec"))).padStart(3,"0")]);
         rows.push(["Go to Gate",callGateFull()]);
       }
     }else if(flow==="miss"){
@@ -681,8 +682,8 @@
     clearDrafts();
   }
   function clearCallCase(){
-    ["callFlight","callGate"].forEach(id=>$(id).value="");
-    clearInvalidMarks(["callFlight","callGate"]);
+    ["callFlight","mSec","callGate"].forEach(id=>$(id).value="");
+    clearInvalidMarks(["callFlight","mSec","callGate"]);
     $("callGateZone").value="B";
     S.callMode="";S.callNoMessage=false;
     clearDrafts();
@@ -715,7 +716,8 @@
   }
   function clearCallForModeChange(nextMode){
     if(S.callMode && S.callMode!==nextMode){
-      ["callFlight","callGate"].forEach(id=>$(id).value="");
+      ["callFlight","mSec","callGate"].forEach(id=>$(id).value="");
+      clearInvalidMarks(["mSec"]);
       $("callGateZone").value="B";
       clearDrafts();
     }
@@ -799,7 +801,11 @@
     }else $("step").textContent="";
 
     // status / arrange option state
-    if(cur==="msec"){$("mSecPrefix").textContent=secPrefix(v("mFlight"),S.missMode)||"—";}
+    if(cur==="msec"){
+      const secFlight=flow==="call"?v("callFlight"):v("mFlight");
+      const secMode=flow==="call"?S.callMode:S.missMode;
+      $("mSecPrefix").textContent=secPrefix(secFlight,secMode)||"—";
+    }
     if(cur==="dstatus"){
       $("stPossible").setAttribute("aria-pressed",S.status==="possible");
       $("stDelayed").setAttribute("aria-pressed",S.status==="delayed");

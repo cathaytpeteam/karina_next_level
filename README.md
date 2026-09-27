@@ -76,7 +76,7 @@ Flow: Passenger Type -> Flight -> SEC -> Confirm details (3/3).
 
 ### 6. Scenario 2 — Final Call
 
-Flow: Passenger Type -> Flight -> Gate -> Confirm details (4/4). No SEC page.
+Flow: Passenger Type -> Flight -> SEC -> Gate -> Confirm details (5/5). SEC follows the Scenario 1 format: origin prefix + 1–3 digit SEC, up to 580. On Confirm details, Sec appears immediately above Go to Gate. The selected flight and passenger type determine the origin prefix.
 
 - Same passenger types and flight rules as Scenario 1.
 - Gate pages (Final Call and Protect to): area and number are centred as a pair.
@@ -122,14 +122,16 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 ## Change log
 
-Older history is in git.
+Only the latest two final releases. Trials are not recorded. Older history is in git.
 
-### K1.3-r9 (2026-09-27)
+### K1.3-r10 (2026-09-28)
 
-- Protect to (3/5): a complete DEP time moves the cursor to an empty Gate number one frame later, so the page does not scroll.
-- Gate on Final Call and Protect to: area and number are centred as a pair; the number stays tappable to the right.
+- Final Call gains a SEC step (5 steps): Scenario 1 format, origin prefix from passenger type and flight (TPE / HKG / NRT / NGO / KIX), up to 580. Confirm details shows Sec directly above Go to Gate. Navigation lock and flow tests updated.
+- Already at Gate messages (16 zh/en variants) reworded: Chinese uses 閣下 and 原定的 flight with a new closing line; English says "your original flight".
+- Layout: Gate area and number centred as a pair (Final Call, Protect to); Protect to title inside the teal CX / DEP card; Gate title without side lines; Flight arrangement title hidden with its height kept; Delayed-to reveal and the DEP-to-Gate cursor move no longer jump or scroll.
+- AI-GUIDE: flow-change rule; unverified builds are named `-UNVERIFIED` and never go to `main`.
 
-### K1.3-r8 (2026-09-27)
+### K1.3 (2026-09-27)
 
-- Protect to (3/5): the `Protect to` title moves into the teal CX / DEP card with no radio dot; the `Gate` title drops its side lines.
-- Already at Gate (2/5): the Delayed-to field no longer jumps while it opens; the reveal clips instead of scrolling when the time field takes focus.
+- Option buttons default to `--brand-strong`; ASAP / Wait for Staff no longer show the body ink. Button text colours are a README rule and the priority gate checks every button on every screen.
+- The upgrade test now detects the new build by its homepage version label; the layout lock and `CACHE_REV` checks no longer hard-code a version. The manual GitHub workflow is renamed Find Pax Full Verification.

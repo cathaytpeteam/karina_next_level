@@ -8,6 +8,7 @@ Do not read `locks.json`, `SHA256SUMS.txt`, the `verify_*.py` files, or all of `
 |---|---|
 | User-facing copy, passenger labels, progress titles, hints/errors, approved rule data | `copy.js` (lock change: ask the user unless already approved) |
 | Validation, flow, navigation | `app.js` (search the section/function name) |
+| 流程或步數變更 | 改 `app.js`、`flow-behavior-spec.json`，並經使用者同意後，更新 `locks.json` 的導覽鎖和對應的驗證檢查。 |
 | Visual change, only if asked | `app.css`, existing colour variables only |
 | Screen structure | `index.html` (layout-locked: ask the user) |
 | Deployed file added or renamed | `sw.js` ASSETS + bump `CACHE_REV` |
@@ -28,6 +29,7 @@ Search these markers instead of reading the whole file: `[phone validation]`, `[
 ## Rules that keep the project small
 
 - Trial builds: no change-log entry and no README rule change. When the user says a build is final, add one change-log entry and keep only two.
+- If browser tests cannot run in the current environment: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP filename, and never recommend uploading it to `main`.
 - Comments describe current behaviour. No `rNN`, `v1.x`, dates or "formerly" (verify_changed fails on them).
 - New colour, new file, bigger README: verify_changed fails. Ask the user instead of working around it.
 - Copy IDs are stable and hash-locked. Do not rename an ID or change its value as a side effect.

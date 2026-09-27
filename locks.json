@@ -236,10 +236,11 @@
         "steps": [
           "calltype",
           "callflight",
+          "msec",
           "callgate",
           "preview"
         ],
-        "progress_denominator": 4
+        "progress_denominator": 5
       },
       "wpp": {
         "name": "Wrong Pick-up",

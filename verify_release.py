@@ -143,7 +143,7 @@ def navigation_lock():
     ck('Scenario 1 Back hides Passenger Type annotation', 'cur!=="misstype"' in s)
     ck('Scenario 2 Back hides Passenger Type annotation', 'cur!=="calltype"' in s)
     ck('Scenario 1 Passenger Type is progress step 1/3', 'miss:{name:copy("progress.flow.miss"),steps:["misstype","mflight","msec"]}' in s)
-    ck('Scenario 2 SEC page removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
+    ck('Scenario 2 SEC page reuses existing layout', 'call:{name:copy("progress.flow.call"),steps:["calltype","callflight","msec","callgate","preview"]}' in s and 'id="s-msec"' in s)
     ck('Scenario 1 preview keeps completed 3/3', 'const missCompletedPreview=flow==="miss"&&cur==="preview"' in s)
     ck('Progress calculation uses locked flow denominator', 'const progressText=(idx+1)+"/"+f.steps.length;' in s)
     ck('Call Directly progress 1/1', 'renderProgressTitle(directName,"1/1")' in s and 'const directName=S.missMode==="direct"?copy("progress.flow.miss"):(S.callMode==="direct"?copy("progress.flow.direct"):copy("progress.flow.call"));' in s)
@@ -268,11 +268,12 @@ ck('Protect CX whitelist + same-flight guard', 'protectFlightOk(v("altA"),v("alt
 ck('Alphanumeric airline designator', 'const isCarrier=s=>/^[A-Z0-9]{2}$/.test(s);' in s and 'replace(/[^A-Za-z0-9]/g,"")' in s)
 
 ck('Scenario 1 SEC origin UI', all(x in s for x in ['mSecPrefix','mSec']) and 'missTransitIataValue' not in s)
-ck('Scenario 2 SEC removed', 'id="s-callsec"' not in s and 'callSec' not in s and '"callsec"' not in s)
+ck('Scenario 2 reuses shared SEC page', 'call:{name:copy("progress.flow.call"),steps:["calltype","callflight","msec","callgate","preview"]}' in s and 'id="s-msec"' in s)
 ck('No obsolete callTransitIataValue requirement', 'callTransitIataValue' not in s)
 ck('Origin IATA mapping', COPY.get('rules.transit.origins') == {'450':'HKG','530':'HKG','564':'HKG','451':'NRT','531':'NGO','565':'KIX'})
 ck('Destination IATA preserved', COPY.get('rules.transit.destinationCodes') == {'450':'NRT','564':'KIX','530':'NGO','451':'HKG','565':'HKG','531':'HKG'})
 ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=transitOriginIata(callFlightNumber());if(origin)rows.push(["Dep from",origin]);}' in s)
+ck('Final Call Sec immediately above Go to Gate', 'rows.push(["Sec",(secPrefix(v("callFlight"),S.callMode)||"")+" "+String(Number(v("mSec"))).padStart(3,"0")]);\n        rows.push(["Go to Gate",callGateFull()]);' in s)
 ck('SEC prefix TPE/Transit mapping', COPY.get('rules.sec.prefixes',{}).get('450')=={'join':'TPE','transit':'HKG'} and COPY.get('rules.sec.prefixes',{}).get('451')=={'join':'TPE','transit':'NRT'} and COPY.get('rules.sec.prefixes',{}).get('531')=={'join':'TPE','transit':'NGO'} and COPY.get('rules.sec.prefixes',{}).get('565')=={'join':'TPE','transit':'KIX'})
 
 vp=ef('validatePhone') or ''
@@ -288,8 +289,8 @@ ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{clearMissCase();' in s
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s)
 ck('Scenario 1 type switch guard', 'clearMissForModeChange("join")' in s and 'clearMissForModeChange("transit")' in s)
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s)
-ck('Scenario 2 gate clears on type change', '["callFlight","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
-ck('Call progress stable four-step', 'call:{name:copy("progress.flow.call"),steps:["calltype","callflight","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
+ck('Scenario 2 SEC clears on type change', '["callFlight","mSec","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
+ck('Call progress stable five-step', 'call:{name:copy("progress.flow.call"),steps:["calltype","callflight","msec","callgate","preview"]}' in s and 'FLOWS.call.steps=' not in s)
 ck('Call Directly progress 1/1', 'const directProgress=directPreview;' in s and 'renderProgressTitle(directName,"1/1")' in s and 'copy("progress.flow.direct")' in s)
 cp=ef('closePreviewEditor') or ''
 ck('Read-only preview does not create draft', 'edits[S.order]=m.value' not in cp)

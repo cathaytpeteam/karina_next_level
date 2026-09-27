@@ -355,6 +355,9 @@ async def to_s2(r, mode, flight):
     await r.phone(); await r.act("goCall", "calltype"); await r.act(mode, "callflight")
     await r.fill("callFlight", flight)
 
+async def to_s2_gate(r, mode, flight, sec="123"):
+    await to_s2(r, mode, flight); await r.act("cta", "msec"); await r.fill("mSec", sec); await r.act("cta", "callgate")
+
 async def to_s4(r, status, flight="407", delay="1800"):
     await r.phone(); await r.act("goDp", "dstatus"); await r.act(status, "dflight")
     await r.fill("dFlight", flight)
@@ -465,8 +468,10 @@ async def priority_suite():
         await _simple_click(r, "goCall", "calltype")
         ck("[priority] S2 Passenger Type says Joining Passenger", (await r.pg.locator("#callJoin .ctext").inner_text()).strip() == "Joining Passenger")
         await _simple_click(r, "callJoin", "callflight")
-        ck("[priority] S2 progress wording uses Joining Passenger", "Joining Passenger" in (await r.pg.locator("#step").inner_text()))
+        ck("[priority] S2 progress uses Joining Passenger 2/5", " ".join((await r.pg.locator("#step").inner_text()).split()) == "Final Call - Joining Passenger 2/5", (await r.pg.locator("#step").inner_text()).strip())
         await r.fill("callFlight", "407"); await r.expect("S2 valid CX407 enables Next", True, not_bad=["callFlight"])
+        await _simple_click(r, "cta", "msec"); ck("[priority] S2 Sec progress is 3/5", " ".join((await r.pg.locator("#step").inner_text()).split()) == "Final Call - Joining Passenger 3/5", (await r.pg.locator("#step").inner_text()).strip())
+        await r.fill("mSec", "123"); await r.expect("S2 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
         await _simple_click(r, "cta", "preview"); ck("[priority] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
         await r.close()
@@ -565,7 +570,7 @@ async def case_s1(r, mode, flight, lang):
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", has, exact=exact)
 
 async def case_s2(r, mode, flight, lang):
-    await to_s2(r, mode, flight); await r.act("cta", "callgate")
+    await to_s2_gate(r, mode, flight)
     await r.fill("callGateZone", "C"); await r.fill("callGate", "5"); await r.act("cta", "preview")
     if lang != "ordZh": await r.act(lang)
     has = ["CX" + flight, "C5"]
@@ -641,7 +646,7 @@ async def case_b1r(r, gate_path):
         await to_s4_gate(r, "407", "gsCancelled")
         await fill_protect(r, "401", "B", "", "1945")
     else:
-        await to_s2(r, "callJoin", "407"); await r.act("cta", "callgate")
+        await to_s2_gate(r, "callJoin", "407")
     pg=r.pg
     ck(f"[{bid}] numeric keyboard", await pg.locator('#'+iid).get_attribute('inputmode') == 'numeric')
     await r.fill(iid, "")
@@ -715,8 +720,25 @@ async def g(r, name):
     elif name == "s2_transit_rejects_join_only_flight":
         await to_s2(r, "callTransit", "407"); await r.expect("S2 Transit CX407 rejected", False, ["callFlight"])
         await r.fill("callFlight", "565"); await r.expect("S2 Transit CX565 accepted", True, not_bad=["callFlight"])
+    elif name == "s2_sec_rules_history_and_summary_order":
+        await to_s2(r, "callJoin", "407"); await r.act("cta", "msec")
+        ck("[guard] Final Call Sec uses the TPE origin prefix", await r.pg.locator("#mSecPrefix").inner_text() == "TPE")
+        await r.fill("mSec", "600"); await r.expect("Final Call SEC 600 rejected", False, ["mSec"])
+        await r.fill("mSec", "580"); await r.expect("Final Call SEC 580 accepted", True, not_bad=["mSec"])
+        await r.act("cta", "callgate"); ck("[guard] Sec survives Next Back/Forward", await r.val("mSec") == "580")
+        await r.back("msec"); ck("[guard] Back returns to Sec with value", await r.val("mSec") == "580")
+        await r.pg.go_forward(); await r.wait(lambda state: state["screen"] == "callgate")
+        ck("[guard] Forward returns to Gate with Sec value", await r.val("mSec") == "580")
+        await r.fill("callGate", "5"); await r.act("cta", "preview")
+        labels = await r.pg.evaluate("[...document.querySelectorAll('#sum dt')].map(e => e.textContent.trim())")
+        ck("[guard] Sec is directly above Go to Gate", labels.index("Go to Gate") == labels.index("Sec") + 1, str(labels))
+        sec_value = await r.pg.locator("#sum dd").nth(labels.index("Sec")).inner_text()
+        ck("[guard] Confirm details show TPE 580", sec_value.strip() == "TPE 580", sec_value)
+        await r.back("callgate"); await r.back("msec"); await r.back("callflight"); await r.back("calltype")
+        await r.act("callTransit", "callflight"); await r.fill("callFlight", "451"); await r.act("cta", "msec")
+        ck("[guard] Transit Sec prefix is its departure airport", await r.pg.locator("#mSecPrefix").inner_text() == "NRT")
     elif name == "s2_gate_requires_valid_number":
-        await to_s2(r, "callJoin", "407"); await r.act("cta", "callgate")
+        await to_s2_gate(r, "callJoin", "407")
         await r.expect("gate empty keeps Next disabled", False)
         await r.fill("callGate", "0"); await r.expect("gate 0 rejected", False)
         await r.fill("callGate", "1R"); await r.expect("gate 1R accepted", True)
@@ -771,14 +793,14 @@ async def g(r, name):
         first = True
         for f in ("450", "451", "530", "531", "564", "565"):
             rr = r if first else await Run(r.browser, f"{name} CX{f}").open()
-            await to_s2(rr, "callTransit", f); await rr.act("cta", "callgate")
+            await to_s2_gate(rr, "callTransit", f)
             await rr.fill("callGateZone", "B"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
             await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "transit", "CX" + f, "B1R"))
             if not first: await rr.close()
             first = False
         # Join, longest gate form: still one SMS (<=67)
         rr = await Run(r.browser, f"{name} Join B1R").open()
-        await to_s2(rr, "callJoin", "407"); await rr.act("cta", "callgate")
+        await to_s2_gate(rr, "callJoin", "407")
         await rr.fill("callGateZone", "B"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
         await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "join", "CX407", "B1R")); await rr.close()
     elif name == "layout_does_not_jump":
