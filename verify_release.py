@@ -441,6 +441,13 @@ def run_live(cmd):
             print(line,end='',flush=True)
     return pr.wait(),n
 
+# Privacy lock: the privacy section of verify_changed.py is itself hash-locked, so it cannot be
+# weakened quietly. Changing it means recomputing locks.json "privacy", which the handoff must list.
+_vc=(r/'verify_changed.py').read_text(encoding='utf-8')
+_pm=re.search(r'# ---- privacy lock .*?(?=# ---- summary)',_vc,re.S)
+ck('privacy lock present in verify_changed.py', bool(_pm))
+ck('privacy lock unchanged (locks.json privacy)', bool(_pm) and hashlib.sha256(_pm.group(0).encode()).hexdigest()==LOCKS.get('privacy',{}).get('verify_changed_sha256'))
+
 # Packaging hygiene: temporary Python files are never valid release content.
 _junk=[p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and ('__pycache__' in p.parts or p.suffix in ('.pyc','.pyo'))]
 ck('release tree contains no Python temp files', not _junk)

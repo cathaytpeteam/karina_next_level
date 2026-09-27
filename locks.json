@@ -406,5 +406,10 @@
       "#FFFFFF",
       "rgba(0,0,0,.14)"
     ]
+  },
+  "privacy": {
+    "status": "LOCKED",
+    "policy": "The privacy section of verify_changed.py (storage, network and dynamic-code bans; the only allowed external link is wa.me). Recompute only with explicit user approval, and list it under Locks recomputed.",
+    "verify_changed_sha256": "45725d42e5d48cc9120d9283ee5965208e5fa2aa692174e133bfdf1bdea8c0c1"
   }
 }

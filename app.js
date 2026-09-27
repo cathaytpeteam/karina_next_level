@@ -762,8 +762,6 @@
   function render(){
     $("app").classList.toggle("phoneHome",cur==="phone");
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    // The progress plane is shown on Final Call only (not on Call Directly or any other scenario).
-    $("app").classList.toggle("planeBar",flow==="call"&&!S.callNoMessage);
     const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;

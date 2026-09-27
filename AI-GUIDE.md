@@ -2,6 +2,10 @@
 
 Do not read `locks.json`, `SHA256SUMS.txt`, the `verify_*.py` files, or all of `app.js`. Search for the name you need and read only that part. Read `README.md` only when a task touches behaviour or layout rules.
 
+## Safety first (locked)
+
+This app handles passenger phone numbers. Never add code that stores them, contacts a server, loads external files, runs generated code, or opens WhatsApp / SMS without a staff tap. If a request seems to need any of this, stop and ask; do not work around or edit the privacy lock (README "Privacy and safety").
+
 ## Where to edit
 
 | Task | Edit |

@@ -15,6 +15,17 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 - **Older Android first.** No framework, build step, web font, optional chaining, native `replaceChildren()`, or unnecessary animation.
 - **Surgical changes.** Anything not explicitly requested is locked. A failing lock outside the requested change is a regression, not something to re-hash.
 
+## Privacy and safety (locked)
+
+Find Pax handles passenger phone numbers, so these rules are locked like the layout and message copy:
+
+1. **Staff send every message by hand.** The app only opens WhatsApp or SMS with the number and text filled in, and only after a staff tap on Confirm details. It never sends, schedules or repeats a message by itself.
+2. **Nothing is kept.** No phone number, message or case history is stored between uses; every launch starts blank. No storage, cookies or databases.
+3. **No server.** The app contacts no website. The only network use is the Service Worker loading the app's own files.
+4. **Only three ways out:** `whatsapp://send`, `https://wa.me/` and `sms:`. No other links, external scripts, fonts, images, analytics or generated code.
+
+Enforced three ways: the privacy lock in `verify_changed.py` (every edit), its own hash in `locks.json` so the lock cannot be weakened quietly, and a run-time check in the priority gate (nothing stored, nothing loaded from another site). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
+
 ## Test environment limits
 
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
@@ -56,8 +67,7 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 
 - **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers). Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
 - **Call Directly** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
-- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Final Call progress plane below.
-- **Progress plane (Final Call only):** an A350 icon (straight-edged, drooped nose, wing above the body with a winglet, no engine or tailplane, 20° climb), 32 × 16 px, `--brand` like the line. Its nose sits at the end of the progress fill and moves with it; a page-coloured clearing stops the line and the track around it. It never touches Back, the phone number or the title (checked at 390 and 320 px) and takes no layout height. Every other scenario, including Call Directly, keeps the plain progress bar.
+- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free.
 - **Confirm details Sec:** when the origin prefix is not TPE (Transit: HKG / NRT / NGO / KIX), the three letters use `--brand`; the digits and a TPE prefix keep the normal value colour. Not red: a different origin is not a disruption.
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.

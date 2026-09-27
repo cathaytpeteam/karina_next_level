@@ -488,21 +488,6 @@ async def priority_suite():
         await _simple_click(r, "cta", "msec"); ck("[priority] S2 Sec progress is 3/5", " ".join((await r.pg.locator("#step").inner_text()).split()) == "Final Call - Joining Passenger 3/5", (await r.pg.locator("#step").inner_text()).strip())
         await r.fill("mSec", "123"); await r.expect("S2 valid SEC enables Next", True, not_bad=["mSec"])
         await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
-        for width in (390, 320):
-            await r.pg.set_viewport_size({"width": width, "height": 844}); await r.pg.wait_for_timeout(350)
-            pl = await r.pg.evaluate("""() => {
-              const f=document.querySelector('#barFill'), a=getComputedStyle(f,'::after'), c=getComputedStyle(f,'::before');
-              const fr=f.getBoundingClientRect(), back=document.querySelector('.back').getBoundingClientRect();
-              const rg=document.createRange(); rg.selectNodeContents(document.querySelector('#step')); const t=rg.getBoundingClientRect();
-              const cy=(fr.top+fr.bottom)/2, h=parseFloat(a.height);
-              return {w:parseFloat(a.width), h, mask:a.webkitMaskImage||a.maskImage||'', plane:a.backgroundColor,
-                      line:getComputedStyle(f).backgroundColor, clear:c.backgroundColor, page:getComputedStyle(document.body).backgroundColor,
-                      top:cy-h/2, bottom:cy+h/2, backBottom:back.bottom, titleTop:t.top};}""")
-            ck(f"[priority] Final Call {width}px progress plane is 32x16 and drawn from the plane shape", pl["w"] == 32 and pl["h"] == 16 and pl["mask"].startswith("url("), str(pl))
-            ck(f"[priority] Final Call {width}px progress plane uses the line colour", pl["plane"] == pl["line"], f'{pl["plane"]} vs {pl["line"]}')
-            ck(f"[priority] Final Call {width}px progress line stops before the plane (page-coloured clearing)", pl["clear"] == pl["page"], pl["clear"])
-            ck(f"[priority] Final Call {width}px progress plane clears Back and the title", pl["top"] >= pl["backBottom"] and pl["bottom"] <= pl["titleTop"], str(pl))
-        await r.pg.set_viewport_size({"width": 390, "height": 844})
         await _simple_click(r, "cta", "preview"); ck("[priority] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
         sec = await r.pg.evaluate("""() => {
           const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
@@ -569,7 +554,6 @@ async def priority_suite():
         await r.fill("gGate", "9"); await r.fill("gDepTime", "1955"); await r.blur("gDepTime")
         await r.expect("S4 valid Protect to fields enable Next", True, not_bad=["gNewN","gDepTime"])
         await _simple_click(r, "cta", "dgateaction")
-        ck("[priority] S4 Disrupted Pax has no progress plane", await r.pg.evaluate("getComputedStyle(document.querySelector('#barFill'),'::after').content") == "none")
         await _simple_click(r, "gProtectedFlight"); await _simple_click(r, "gpAsap")
         await r.expect("S4 Proceed to Gate selection enables Next", True)
         await _simple_click(r, "cta", "preview"); ck("[priority] S4 reaches Confirm details", (await r.st())["screen"] == "preview")
@@ -647,11 +631,27 @@ async def priority_suite():
                 ck(f"[priority] {label}: page sits lower on a tall phone", before["pad"] > 100, str(before))
             await r.close()
 
-        # Call Directly shares the Final Call flow internally but keeps the plain progress bar.
-        r = await Run(browser, "priority-call-directly-no-plane").open(); await _priority_phone_to_scenario(r)
-        await _simple_click(r, "goDirect", "preview")
-        ck("[priority] Call Directly has no progress plane", await r.pg.evaluate("getComputedStyle(document.querySelector('#barFill'),'::after').content") == "none")
-        await r.close()
+        # Privacy at run time, on a real http origin (like a phone) where storage is available:
+        # a complete Final Call case keeps nothing on the device and loads nothing from another site.
+        import http.server as _hs, functools as _ft, threading as _th
+        class _Quiet(_hs.SimpleHTTPRequestHandler):
+            def log_message(self, *a): pass
+        _srv = _hs.ThreadingHTTPServer(("127.0.0.1", 0), _ft.partial(_Quiet, directory=str(R)))
+        _th.Thread(target=_srv.serve_forever, daemon=True).start()
+        pg = await browser.new_page(viewport={"width": 390, "height": 844})
+        await pg.goto(f"http://127.0.0.1:{_srv.server_address[1]}/index.html"); await pg.wait_for_function("!!window.libphonenumber", timeout=15000)
+        async def _fill(i, v): await pg.fill("#" + i, v); await pg.dispatch_event("#" + i, "input"); await pg.wait_for_timeout(120)
+        async def _tap(i): await pg.click("#" + i); await pg.wait_for_timeout(250)
+        await _fill("phoneInput", "886912345678"); await _tap("cta"); await _tap("goCall"); await _tap("callTransit")
+        await _fill("callFlight", "450"); await _tap("cta"); await _fill("mSec", "123"); await _tap("cta"); await _fill("callGate", "5"); await _tap("cta")
+        pv = await pg.evaluate("""async () => ({screen: document.querySelector('.screen:not([hidden])').id, origin: location.origin,
+            outside: performance.getEntriesByType('resource').map(e=>e.name).filter(u=>!u.startsWith(location.origin) && !u.startsWith('data:')),
+            local: localStorage.length, session: sessionStorage.length, cookie: document.cookie.length,
+            dbs: indexedDB.databases ? (await indexedDB.databases()).length : 0})""")
+        ck("[priority] privacy: the real-origin run reached Confirm details", pv["screen"] == "s-preview", str(pv))
+        ck("[priority] privacy: nothing loaded from another site", not pv["outside"], str(pv["outside"]))
+        ck("[priority] privacy: nothing stored on the device (storage, cookies, databases)", pv["local"] == 0 and pv["session"] == 0 and pv["cookie"] == 0 and pv["dbs"] == 0, str(pv))
+        await pg.close(); _srv.shutdown()
 
         # Button text colours: every button on every screen uses an approved colour,
         # never the body ink or black (button defaults to color:inherit).

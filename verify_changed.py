@@ -307,6 +307,27 @@ orphans = sorted(f for f in files if f not in CONTROL_FILES and f not in assets 
 ck('no orphan files (every file is deployed or a listed control file)', not orphans, ', '.join(orphans))
 
 
+# ---- privacy lock ------------------------------------------------------------------
+# The app stores nothing and sends nothing on its own. Its only way out is a WhatsApp / SMS
+# link that the staff member opens and then sends by hand. Anything that could remember
+# passenger numbers, talk to a server, or run generated code fails here.
+PRIVACY_FORBIDDEN = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon', 'EventSource', 'localStorage',
+                     'sessionStorage', 'indexedDB', 'document.cookie', 'navigator.share', 'window.open(',
+                     'importScripts', 'new Worker', 'eval(', 'new Function(']
+# postMessage is allowed: app.js only tells its own Service Worker to check for an update ({type:"refresh"}).
+PRIVACY_URLS_ALLOWED = {'https://wa.me/', 'http://www.w3.org/2000/svg'}
+for f in ('app.js', 'copy.js', 'index.html'):
+    t = text(f)
+    found = [w for w in PRIVACY_FORBIDDEN if w in t]
+    ck(f'privacy lock: {f} has no storage, network or dynamic-code API', not found, ', '.join(found))
+for f in ('app.js', 'copy.js', 'index.html', 'app.css', 'sw.js', 'manifest.webmanifest'):
+    urls = set(re.findall(r'https?://[^\s"\'<>)`]+', text(f)))
+    bad_urls = sorted(u for u in urls if not any(u.startswith(a) for a in PRIVACY_URLS_ALLOWED))
+    ck(f'privacy lock: {f} links only to WhatsApp (wa.me)', not bad_urls, ', '.join(bad_urls))
+ck('privacy lock: messages leave only through WhatsApp / SMS links', all(x in a for x in ('whatsapp://send?phone=', 'https://wa.me/', '"sms:"')))
+ck('privacy lock: index.html loads only local scripts and styles',
+   not re.search(r'<(?:script|link|img|iframe|form)\b[^>]*(?:src|href|action)="(?:https?:)?//', h, re.I))
+
 # ---- summary --------------------------------------------------------------------
 scope = 'all files' if (ALL or not listed) and not ARGS else (', '.join(changed + ['-' + d for d in deleted]) or 'no changes')
 if len(scope) > 120:
