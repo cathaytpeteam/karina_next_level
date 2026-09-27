@@ -128,14 +128,16 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.3-r14 (2026-09-28)
+
+- Home title reads "Phone Number / from CTCM" (home layout hash updated for this line only).
+- Confirm details: a non-TPE Sec prefix and the gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) use `--brand`; TPE keeps the value colour. No new colour.
+- Auto-advance: Protect to flight → DEP, Flight arrangement flight → dep time, airline code → number (Connecting flight, Flight arrangement, Bag 1/2); only for a complete, valid value.
+- The nine single-field pages sit lower by screen height (18 px small phones, ~132 px 844 px phones, 180 px max); no movement when the keyboard opens.
+
 ### K1.3-r10 (2026-09-28)
 
 - Final Call gains a SEC step (5 steps): Scenario 1 format, origin prefix from passenger type and flight (TPE / HKG / NRT / NGO / KIX), up to 580. Confirm details shows Sec directly above Go to Gate. Navigation lock and flow tests updated.
 - Already at Gate messages (16 zh/en variants) reworded: Chinese uses 閣下 and 原定的 flight with a new closing line; English says "your original flight".
 - Layout: Gate area and number centred as a pair (Final Call, Protect to); Protect to title inside the teal CX / DEP card; Gate title without side lines; Flight arrangement title hidden with its height kept; Delayed-to reveal and the DEP-to-Gate cursor move no longer jump or scroll.
 - AI-GUIDE: flow-change rule; unverified builds are named `-UNVERIFIED` and never go to `main`.
-
-### K1.3 (2026-09-27)
-
-- Option buttons default to `--brand-strong`; ASAP / Wait for Staff no longer show the body ink. Button text colours are a README rule and the priority gate checks every button on every screen.
-- The upgrade test now detects the new build by its homepage version label; the layout lock and `CACHE_REV` checks no longer hard-code a version. The manual GitHub workflow is renamed Find Pax Full Verification.
