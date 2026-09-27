@@ -936,7 +936,11 @@
   ["tA","altA"].forEach(id=>$(id).addEventListener("input",function(){this.value=this.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,2);render();}));
   ["delayTime","altTime","arriveTime","gDepTime"].forEach(id=>{
     const el=$(id);
-    el.addEventListener("input",function(){fmtTime(this);render();});
+    el.addEventListener("input",function(){
+      fmtTime(this);render();
+      // A complete DEP time on Protect to moves to an empty Gate number after the keystroke settles, so the page does not scroll.
+      if(id==="gDepTime"&&timeOk("gDepTime")&&!v("gGate")) requestAnimationFrame(()=>{try{$("gGate").focus({preventScroll:true});}catch(e){}});
+    });
     el.addEventListener("focus",function(){if(this.select)this.select();});
   });
 
