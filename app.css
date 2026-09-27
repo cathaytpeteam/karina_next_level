@@ -218,13 +218,14 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dnew .delayLabel::before,#s-dnew .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}
 #s-dnew .opts{grid-template-columns:1fr 1fr;gap:10px}
 #s-dnew .opt{min-height:60px;padding:8px 10px;border-width:1.5px;color:var(--brand-strong);font-weight:800}
-#s-dnew .gateRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#s-dnew .gateRow .field{margin:0;min-width:0;padding:0 6px;gap:6px}
-#s-dnew .gateRow .field .code{width:56px;height:48px;margin:0;font-size:24px}
-#s-dnew .gateRow .field input{flex:1;height:60px;min-width:0;padding:0 4px;font-size:26px;text-align:left}
-#s-dnew #gDepField{margin-top:10px;min-height:64px;gap:6px;padding:0 6px}
-#s-dnew #gDepField .code{width:auto;min-width:56px;height:48px;margin:0;padding:0 12px;font-size:22px;text-transform:none}
-#s-dnew #gDepField input{flex:1;height:60px;min-width:0;padding:0 4px;font-size:26px;text-align:left}
+#s-dnew .gateRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:var(--brand-soft);border:1.5px solid var(--brand);border-radius:16px}
+#s-dnew .gateRow .field{display:flex;align-items:center;gap:8px;min-height:48px;height:48px;margin:0;padding:0 6px;background:var(--arrange-bg);border:1px solid var(--arrange-line);border-radius:12px;min-width:0;font-size:18px}
+#s-dnew .gateRow .field.bad{border-color:var(--danger)}
+#s-dnew .gateRow .field .code{flex:none;width:auto;min-width:48px;height:32px;margin:0;padding:0 10px;border-radius:8px;background:var(--arrange-code);color:var(--brand-strong);font-size:15px;font-weight:700;line-height:32px}
+#s-dnew .gateRow .field input{flex:1;width:auto;min-width:0;height:44px;padding:0 2px;font-size:18px;font-weight:700;color:var(--input-ink);text-align:left}
+#s-dnew #gGateField{display:grid;grid-template-columns:72px minmax(0,7.2ch);font-size:28px;font-weight:700;justify-content:center;align-items:center;column-gap:12px;margin-top:0}
+#s-dnew #gGateField .code{width:72px;margin-right:0;justify-self:end}
+#s-dnew #gGateField input{flex:0 0 auto;width:100%;max-width:100%;padding-left:0;padding-right:0;justify-self:start;text-align:left}
 #s-dgateaction .gateDestinations{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
 #s-dgateaction .gateDestination{min-width:0;min-height:60px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);font-size:24px;font-weight:800;color:var(--brand-strong);cursor:pointer}
 #s-dgateaction .gateDestination.original{color:var(--delay-ink)}
@@ -232,17 +233,15 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-dgateaction .gateAmp{text-align:center;font-size:24px;font-weight:800;color:var(--brand-strong);margin:6px 0}
 #s-dgateaction .gateActions{grid-template-columns:1fr 1fr;gap:10px}
 #s-dgateaction .gateActions .opt{min-height:60px;padding:8px;font-size:19px}
-#gGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:24px;font-weight:800;text-align:center;text-align-last:center;padding:0 6px;cursor:pointer}
+#gGateField select.code{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;border:0;outline:0;background:var(--brand-soft);color:var(--brand-strong);font:inherit;font-size:28px;font-weight:800;text-align:center;text-align-last:center;padding:0 8px;cursor:pointer}
 #gGateField input{text-transform:uppercase}
 /* Gate B1R: reveal the suggestion only for gate 1 in area B. */
 .gateRRow{display:flex;justify-content:flex-end;margin-top:8px;min-height:36px}
 .gateR[hidden]{display:none}
-.gateRRowSplit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gateRRowSplit .gateR{justify-self:end}
 .gateR{min-width:64px;height:36px;padding:0 14px;border:1.5px dashed var(--brand);border-radius:999px;background:var(--bg);color:var(--brand-strong);font:inherit;font-size:17px;font-weight:800;line-height:1;cursor:pointer}
 .gateR[aria-pressed="true"]{border-style:solid;background:var(--brand-soft)}
-#s-dnew #gDepField{margin-top:8px}
 @media(max-width:380px){#s-dnew #gGateField .code{width:44px}}
+@media (max-width:360px){#s-dnew .gateRow{padding:8px 10px;gap:6px}#s-dnew .gateRow .field{gap:5px;padding:0 4px}#s-dnew .gateRow .field .code{min-width:40px;padding:0 6px;font-size:14px}#s-dnew .gateRow .field input{font-size:17px}}
 /* Delayed time uses the shared compact time field. */
 #s-dflight .delayLabel{display:flex;align-items:center;gap:14px;margin:16px 0 10px;color:var(--brand-strong);font-size:21px;font-weight:800;letter-spacing:0}
 #s-dflight .delayLabel::before,#s-dflight .delayLabel::after{content:"";flex:1;height:1px;background:var(--line)}

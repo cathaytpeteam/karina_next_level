@@ -136,7 +136,7 @@
       </div>
     </section>
     <section class="screen" id="s-darrange" hidden>
-      <h1>Flight arrangement</h1>
+      <h1>&nbsp;</h1>
       <div class="opts">
         <button class="opt" id="arKnown" type="button" aria-pressed="false">Will protect to</button>
         <button class="opt" id="arUnknown" type="button" aria-pressed="false">Arrange in airport</button>
@@ -154,17 +154,18 @@
       <h1>Protect to</h1>
       <div class="gateRow">
         <div class="field" id="gNewField"><span class="code">CX</span><input autocomplete="off" id="gNewN" inputmode="numeric" maxlength="3" aria-label="Protect to flight number digits"></div>
-        <div class="field" id="gGateField">
-          <select class="code" id="gGateZone" aria-label="Gate area">
-            <option value="" hidden disabled></option>
-            <option value="B" selected>B</option>
-            <option value="C">C</option>
-          </select>
-          <input autocomplete="off" id="gGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
-        </div>
+        <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
       </div>
-      <div class="gateRRow gateRRowSplit"><span></span><button type="button" class="gateR" id="gGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
-      <div class="field time" id="gDepField"><span class="code">Dep</span><input autocomplete="off" id="gDepTime" inputmode="numeric" maxlength="5" aria-label="Departure time, HHMM"></div>
+      <div class="delayLabel">Gate</div>
+      <div class="field" id="gGateField">
+        <select class="code" id="gGateZone" aria-label="Gate area">
+          <option value="" hidden disabled></option>
+          <option value="B" selected>B</option>
+          <option value="C">C</option>
+        </select>
+        <input autocomplete="off" id="gGate" inputmode="numeric" pattern="[0-9]*" maxlength="2" aria-label="Gate number">
+      </div>
+      <div class="gateRRow"><button type="button" class="gateR" id="gGateR" aria-pressed="false" aria-label="Change gate to B1R" hidden>B1R?</button></div>
     </section>
     <section class="screen" id="s-dgateaction" hidden>
       <h1>Proceed to Gate</h1>

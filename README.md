@@ -93,12 +93,12 @@ Flow: Arrival Flight -> Bag 1 -> Bag 2 -> Confirm details (4/4).
 
 Step 1 **Passenger Type** (1/6, no footer/Next; a choice opens the next step directly). Group **At Gate**: Already at Gate. Group **Not at the Airport**: Tight Connection, then Delayed | Suspended.
 
-- **Main flow (6 steps):** Passenger Type -> Flight from TPE -> Connecting flight -> Flight arrangement -> Arrival time -> Confirm details.
+- **Main flow (6 steps):** Passenger Type -> Flight from TPE -> Connecting flight -> Flight arrangement (no visible page title; its height is kept) -> Arrival time -> Confirm details.
 - **Already at Gate (5 steps):** Passenger Type -> Flight from TPE + status Delayed/Cancelled (2/5) -> Protect to (3/5) -> Proceed to Gate: original/new flight & ASAP / Wait for Staff (4/5) -> Confirm details (5/5).
 - **Flight from TPE:** general CX whitelist minus CX450 / 530 / 564 (not TPE departures).
 - **Delayed to:** only for Delayed, HHMM → HH:MM, 00:00–23:59, centred in `--delay-ink` (not error red), never clipped.
 - **Connecting flight:** two-character alphanumeric airline code (non-CX allowed); a CX TPE departure is rejected.
-- **Protect to / Will protect to:** CX must be a TPE departure and must not equal Flight from TPE (compared after normalization). Non-CX uses the airline-code rule. CX flight and DEP time sit side by side in one teal card.
+- **Protect to / Will protect to:** CX must be a TPE departure and must not equal Flight from TPE (compared after normalization). Non-CX uses the airline-code rule. CX flight and DEP time sit side by side in one teal card; on Protect to (3/5) the Gate field sits below the card under a `Gate` title.
 - Default message order: English first.
 
 ### 9. General CX whitelist
@@ -123,13 +123,12 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Older history is in git.
 
+### K1.3-r7 (2026-09-27)
+
+- Protect to (3/5): CX flight and DEP share one teal card; Gate sits below it under a `Gate` title with B1R? underneath. Flight arrangement no longer shows its title text.
+- Already at Gate messages: Chinese uses 閣下, adds 原定的 for the original flight and ends with 感謝閣下的體諒與配合; English uses "your original flight" and "If you wish to travel on this flight".
+
 ### K1.3 (2026-09-27)
 
 - Option buttons default to `--brand-strong`; ASAP / Wait for Staff no longer show the body ink. Button text colours are a README rule and the priority gate checks every button on every screen.
 - The upgrade test now detects the new build by its homepage version label; the layout lock and `CACHE_REV` checks no longer hard-code a version. The manual GitHub workflow is renamed Find Pax Full Verification.
-
-### K1.2 (2026-09-27)
-
-- Switched to the 245-region mobile phone metadata; landlines now fail the normal invalid-phone check while the Japan rule stays unchanged. The fixed ten-number UI matrix runs in `--fast`.
-- Compressed the 512 maskable icon to 64 colours and retired the 192 maskable icon. Updated the PWA asset list and cache revision to K1.2-r2.
-- Release verification uses the full priority, exhaustive-flow and Service Worker gates; only a passing final tree may update `SHA256SUMS.txt`.

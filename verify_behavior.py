@@ -913,7 +913,7 @@ async def g(r, name):
             t = await r.pg.locator("#gGate").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")
             dp = await r.pg.locator("#gDepTime").evaluate("e => e.closest('.field').getBoundingClientRect().toJSON()")
             clip = await r.pg.evaluate("[...document.querySelectorAll('#s-dnew input, #s-dnew .opt')].filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1).map(e => e.id)")
-            ck(f"[guard] {W}px: CX flight and gate side by side, Dep below", abs(a["top"] - t["top"]) < 1 and t["left"] > a["right"] and dp["top"] >= a["bottom"], f"{a} {t} {dp}")
+            ck(f"[guard] {W}px: CX flight and Dep side by side, gate below", abs(a["top"] - dp["top"]) < 1 and dp["left"] > a["right"] and t["top"] >= a["bottom"], f"{a} {t} {dp}")
             ck(f"[guard] {W}px: Protect to fields not clipped", not clip, str(clip))
     elif name == "s4_arrive_rejects_invalid_time":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
