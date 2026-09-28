@@ -15,7 +15,7 @@
   "progress.dp.gate": "Already at Gate",
   "label.bag.unclaimed": "無人領取的行李",
   "label.preview.language": "Language",
-  "label.preview.msgLength": "Msg length",
+  "label.preview.msgLength": "Message Length",
   "label.preview.jaOnly": "日本語のみ",
   "label.preview.enFirst": "English first",
   "label.preview.zhFirst": "中文在前",

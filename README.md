@@ -88,6 +88,7 @@ Flow: Passenger Type -> Flight -> SEC -> Confirm details (3/3).
 - SEC is one inline field `[ IATA | SEC ]`, above 580 rejected. Join uses TPE; Transit origin: CX450/530/564 → HKG, CX451 → NRT, CX531 → NGO, CX565 → KIX.
 - Transit Confirm details includes `Dep from`. Join message suffix format `450/000`.
 - Languages: 中文 / English / 日本語 (Japanese = native SMS).
+- Joining Confirm details (中文 / English): Msg length Short / Full side by side between the summary and Language, default Short; Full is the original message. Tapping Short or Full scrolls Language into view, only on this page and only when it is not fully visible; every other page keeps auto-advance without scrolling.
 
 ### 6. Scenario 2 — Final Call
 
@@ -139,16 +140,14 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.3-r19 (2026-09-28)
+
+- 漏查 Joining Confirm details gains Msg length (Short / Full, default Short) between the summary and Language; hidden for Transit and 日本語. New copy `s1.join.zh.short`, `s1.join.en.short`, `label.preview.msgLength`; s-preview layout lock and flow tests updated.
+- Tapping Short or Full scrolls Language into view on that page only.
+
 ### K1.3-r14 (2026-09-28)
 
 - Home title reads "Phone Number / from CTCM" (home layout hash updated for this line only).
 - Confirm details: a non-TPE Sec prefix and the gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) use `--brand`; TPE keeps the value colour. No new colour.
 - Auto-advance: Protect to flight → DEP, Flight arrangement flight → dep time, airline code → number (Connecting flight, Flight arrangement, Bag 1/2); only for a complete, valid value.
 - The nine single-field pages sit lower by screen height (18 px small phones, ~132 px 844 px phones, 180 px max); no movement when the keyboard opens.
-
-### K1.3-r10 (2026-09-28)
-
-- Final Call gains a SEC step (5 steps): Scenario 1 format, origin prefix from passenger type and flight (TPE / HKG / NRT / NGO / KIX), up to 580. Confirm details shows Sec directly above Go to Gate. Navigation lock and flow tests updated.
-- Already at Gate messages (16 zh/en variants) reworded: Chinese uses 閣下 and 原定的 flight with a new closing line; English says "your original flight".
-- Layout: Gate area and number centred as a pair (Final Call, Protect to); Protect to title inside the teal CX / DEP card; Gate title without side lines; Flight arrangement title hidden with its height kept; Delayed-to reveal and the DEP-to-Gate cursor move no longer jump or scroll.
-- AI-GUIDE: flow-change rule; unverified builds are named `-UNVERIFIED` and never go to `main`.

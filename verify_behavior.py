@@ -667,7 +667,12 @@ async def priority_suite():
         _srv = _hs.ThreadingHTTPServer(("127.0.0.1", 0), _ft.partial(_Quiet, directory=str(R)))
         _th.Thread(target=_srv.serve_forever, daemon=True).start()
         pg = await browser.new_page(viewport={"width": 390, "height": 844})
-        await pg.goto(f"http://127.0.0.1:{_srv.server_address[1]}/index.html"); await pg.wait_for_function("!!window.libphonenumber", timeout=15000)
+        await pg.goto(f"http://127.0.0.1:{_srv.server_address[1]}/index.html")
+        # wait_for_function evaluates a string in the page, which the page's CSP refuses; poll with evaluate instead.
+        _t0 = asyncio.get_running_loop().time()
+        while not await pg.evaluate("!!window.libphonenumber"):
+            if asyncio.get_running_loop().time() - _t0 > 15: raise TimeoutError("window.libphonenumber not ready within 15 s")
+            await asyncio.sleep(0.05)
         async def _fill(i, v): await pg.fill("#" + i, v); await pg.dispatch_event("#" + i, "input"); await pg.wait_for_timeout(120)
         async def _tap(i): await pg.click("#" + i); await pg.wait_for_timeout(250)
         await _fill("phoneInput", "886912345678"); await _tap("cta"); await _tap("goCall"); await _tap("callTransit")
