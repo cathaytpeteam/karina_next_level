@@ -144,6 +144,7 @@ Only the latest two final releases. Trials are not recorded. Older history is in
 
 - Release label is now `K2.0`.
 - 漏查 Joining `s1.join.en` drops "Depending on the inspection,"; `s1.join.zh` is unchanged. Copy lock for `s1.join.en` updated.
+- Service worker tests check the current `s1.join.en` text from `copy.js` instead of fixed strings.
 
 ### K1.3-r24 (2026-09-28)
 
