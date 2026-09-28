@@ -1304,6 +1304,12 @@ def _app_version(root):
     m = re.search(r'<span\b[^>]*class="[^"]*\bappVersion\b[^"]*"[^>]*>([^<]+)</span>', html)
     return m.group(1).strip() if m else ""
 
+def _join_en(root):
+    """Current S1 Join English message, read from the build's copy.js."""
+    src = Path(root, "copy.js").read_text(encoding="utf-8")
+    m = re.search(r'"s1\.join\.en":\s*("(?:[^"\\]|\\.)*")', src)
+    return json.loads(m.group(1)) if m else ""
+
 async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     T = f"[SW {tag}] "
     exp = " after HTTP cache expiry" if noroutes else ""
@@ -1332,7 +1338,7 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     seen = set(srv.hits[n0:])
     ck(T + "2 launch: every cached file revalidated in the phone-input window", assets <= seen, str(sorted(assets - seen)))
     msg = await _sw_flow(pg)
-    ck(T + "2 launch: S1 Join flow reaches preview with current copy", "CX451" in msg and "451/123" in msg and "\u2981 Have passed immigration" in msg, msg[:80])
+    ck(T + "2 launch: S1 Join flow reaches preview with current copy", "451/123" in msg and _join_en(R) in msg, msg[:80])
     ck(T + "2 launch: no JavaScript errors", not errs, "; ".join(errs[:3])); await pg.close()
     # 3 offline
     srv.stop()
@@ -1340,7 +1346,7 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     ck(T + "3 offline: app opens with the phone library loaded", await pg.evaluate("!!window.libphonenumber"))
     ck(T + "3 offline: every image renders", await pg.evaluate("[...document.images].every(i=>i.complete&&i.naturalWidth>0)"))
     msg = await _sw_flow(pg)
-    ck(T + "3 offline: full flow reaches preview", "CX451" in msg and "451/123" in msg)
+    ck(T + "3 offline: full flow reaches preview", _join_en(R) in msg and "451/123" in msg)
     ck(T + "3 offline: failed background refresh raises no JavaScript errors", not errs, "; ".join(errs[:3]))
     ck(T + "3 offline: cache intact", sum((await pg.evaluate(_CACHE_JS)).values()) == N_ASSETS); await pg.close()
     srv.start()
@@ -1397,11 +1403,11 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
         pg, early, errs = await _sw_launch(ctx, srv)
         if not noroutes: ck(T + "8 upgrade: launch makes zero network requests", early == 0, f"{early}")
         msg = await _sw_flow(pg)
-        ck(T + "8 upgrade: current copy in effect", "\u2981 Have passed immigration: Please go to the CX451 gate" in msg)
+        ck(T + "8 upgrade: current copy in effect", _join_en(R) in msg and "451/123" in msg)
         ck(T + "8 upgrade: no JavaScript errors", not errs, "; ".join(errs[:3])); await pg.close()
         srv.stop()
         pg, _, _ = await _sw_launch(ctx, srv, settle=2500)
-        ck(T + "8 upgrade: offline flow works", "\u2981 Have passed immigration" in await _sw_flow(pg)); await pg.close()
+        ck(T + "8 upgrade: offline flow works", _join_en(R) in await _sw_flow(pg)); await pg.close()
     srv.stop(); await b.close()
 
 async def sw_suite(previous):

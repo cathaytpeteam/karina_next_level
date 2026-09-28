@@ -186,7 +186,7 @@
   "rules.gate.b1rZone": "B",
   "rules.gate.b1rNumber": "1R",
   "s1.join.zh": "您好，這裡是國泰航空。請閣下儘快返回 4 號櫃位，機場安檢人員發現閣下寄艙行李可能含有不可寄艙物品，故行李未能安排裝載。須請閣下在通過護照檢查前返回開箱檢查，物品將視乎檢查結果改為隨身攜帶或棄置，多謝閣下配合。",
-  "s1.join.en": "Hello, this is Cathay Pacific. Please return to Counter 4 as soon as possible. Airport Security found a possible prohibited item in your checked bag, so it cannot be loaded. Please return before passing immigration to have it opened. Depending on the inspection, the item will be carried with you or discarded. Thank you for your cooperation.",
+  "s1.join.en": "Hello, this is Cathay Pacific. Please return to Counter 4 as soon as possible. Airport Security found a possible prohibited item in your checked bag, so it cannot be loaded. Please return before passing immigration to have it opened. The item will be carried with you or discarded. Thank you for your cooperation.",
   "s1.join.ja": "【キャセイパシフィック航空】預け手荷物のX線再検査に立会いが必要です。出国審査前は至急4番カウンターへ。保安検査後・出国審査前は係員に申し出て4番へお戻りください。出国審査後はゲート係員にお申し出ください。お越しいただけない場合、荷物が搭載できない可能性があります。",
   "s1.transit.zh": "您好：這裡是國泰航空桃園機場辦公室。\n\n由於您的寄艙行李未能通過桃園機場的轉機X 光安全檢查。因此，您的行李目前暫時留在\n轉機行李檢查處，未能安排裝載上機。\n\n為了確保您的行李可以在航班起飛前順利完成檢查並安排裝載，麻煩您盡快返回登機閘口聯繫國泰航空職員，我們會協助您跟進。\n\n多謝您的理解和配合",
   "s1.transit.en": "Hello, this is Cathay Pacific at Taoyuan Airport.\n\nYour checked baggage did not pass the transfer X-ray security screening and is currently being held at the screening area.\n\nPlease return to the boarding gate as soon as possible and contact our staff for assistance, so we can arrange for your baggage to be loaded before departure.\n\nThank you for your cooperation.",
