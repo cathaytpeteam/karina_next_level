@@ -140,12 +140,12 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r27 (2026-09-29)
+
+- Home phone input now applies number grouping progressively while typing instead of waiting for the full number, reducing visual jumps while preserving caret behavior.
+
 ### K2.0-r26 (2026-09-28)
 
 - Release label is now `K2.0`.
 - 漏查 Joining `s1.join.en` drops "Depending on the inspection,"; `s1.join.zh` is unchanged. Copy lock for `s1.join.en` updated.
 - Service worker tests check the current `s1.join.en` text from `copy.js` instead of fixed strings.
-
-### K1.3-r24 (2026-09-28)
-
-- 漏查 Joining Confirm details no longer has Msg length (Short / Full). `s1.join.zh` and `s1.join.en` now hold the short message; `s1.join.zh.short`, `s1.join.en.short` and `label.preview.msgLength` are removed. s-preview layout lock, copy locks and flow tests updated.
