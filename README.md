@@ -1,4 +1,4 @@
-# Find Pax K1.3
+# Find Pax K2.0
 
 Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
@@ -44,7 +44,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - A failed `cache.put()` must not fail a successful network response. Redirected navigation responses are never cached.
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K1.3`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K2.0`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
@@ -88,7 +88,7 @@ Flow: Passenger Type -> Flight -> SEC -> Confirm details (3/3).
 - SEC is one inline field `[ IATA | SEC ]`, above 580 rejected. Join uses TPE; Transit origin: CX450/530/564 → HKG, CX451 → NRT, CX531 → NGO, CX565 → KIX.
 - Transit Confirm details includes `Dep from`. Join message suffix format `450/000`.
 - Languages: 中文 / English / 日本語 (Japanese = native SMS).
-- Joining Confirm details (中文 / English): Msg length Short / Full side by side between the summary and Language, default Short; Full is the original message. Tapping Short or Full scrolls Language into view, only on this page and only when it is not fully visible; every other page keeps auto-advance without scrolling.
+- Joining Confirm details (中文 / English) uses the short message only; there is no message-length control.
 
 ### 6. Scenario 2 — Final Call
 
@@ -140,11 +140,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.3-r24 (2026-09-28)
+
+- 漏查 Joining Confirm details no longer has Msg length (Short / Full). `s1.join.zh` and `s1.join.en` now hold the short message; `s1.join.zh.short`, `s1.join.en.short` and `label.preview.msgLength` are removed. s-preview layout lock, copy locks and flow tests updated.
+
 ### K1.3-r22 (2026-09-28)
 
 - Test-only: `verify_behavior.py` waits for the phone library with `pg.evaluate` polling instead of `wait_for_function`, which the page's Content-Security-Policy refuses intermittently. App files and behaviour are unchanged.
-
-### K1.3-r19 (2026-09-28)
-
-- 漏查 Joining Confirm details gains Msg length (Short / Full, default Short) between the summary and Language; hidden for Transit and 日本語. New copy `s1.join.zh.short`, `s1.join.en.short`, `label.preview.msgLength`; s-preview layout lock and flow tests updated.
-- Tapping Short or Full scrolls Language into view on that page only.
