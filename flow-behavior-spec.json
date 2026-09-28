@@ -57,7 +57,9 @@
    "ordZh",
    "ordEn",
    "ordJa",
-   "msgToggle"
+   "msgToggle",
+   "lenShort",
+   "lenFull"
   ],
   "dnew": [
    "gGateR"
@@ -770,7 +772,8 @@
   "s4_gate_protect_rules",
   "s4_gate_requires_valid_gate",
   "s4_gate_dep_and_proceed_required",
-  "s4_gate_fields_side_by_side"
+  "s4_gate_fields_side_by_side",
+  "s1_msg_length_short_full"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",

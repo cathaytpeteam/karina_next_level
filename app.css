@@ -206,6 +206,9 @@ main.preview-open{display:flex;flex-direction:column;overflow:hidden}
 #s-callgate #callGateField{grid-template-columns:72px 2.6ch}
 #s-callgate #callGateField input{width:calc(100% + 96px);max-width:none;margin-right:-96px}
 #previewLangTitle[hidden],#previewLangSeg[hidden],#msgToggle[hidden],#msgPanel[hidden]{display:none!important}
+/* Scenario 1 Joining: Msg length Short / Full sit side by side. */
+#previewLenSeg{grid-template-columns:1fr 1fr}
+#previewLenTitle[hidden],#previewLenSeg[hidden]{display:none!important}
 
 /* Scenario 4 · Pax already at Gate: 4th Flight Type choice on its own full-width row,
    and the New Flight page (flight status, Delayed-to time, Protect to CX flight + gate). */

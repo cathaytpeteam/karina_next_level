@@ -194,7 +194,7 @@
   }
 
   // ==== [state] ====
-  const S={phone:"",country:"",status:"",arrange:"",gateStatus:"",gateGo:"",gateTarget:"",order:"zh",orderSet:false,callNoMessage:false,callMode:"",missMode:""};
+  const S={phone:"",country:"",status:"",arrange:"",gateStatus:"",gateGo:"",gateTarget:"",order:"zh",orderSet:false,callNoMessage:false,callMode:"",missMode:"",msgLen:"short"};
   // ==== [flow definitions] ====
   const FLOWS={
     miss:{name:copy("progress.flow.miss"),steps:["misstype","mflight","msec"]},
@@ -446,8 +446,10 @@
   function textMiss(zhFirst){
     const flight=String(Number(v("mFlight"))), tag=flight+"/"+String(Number(v("mSec"))).padStart(3,"0");
     if(S.order==="ja") return copy("s1.join.ja");
-    const zh=fillCopy("s1.join.zh",{flight_number:flight});
-    const en=fillCopy("s1.join.en",{flight_number:flight});
+    // Msg length: Short uses the short Joining copy; Full keeps the original copy.
+    const full=S.msgLen==="full";
+    const zh=full?fillCopy("s1.join.zh",{flight_number:flight}):fillCopy("s1.join.zh.short",{flight_number:flight});
+    const en=full?fillCopy("s1.join.en",{flight_number:flight}):fillCopy("s1.join.en.short",{flight_number:flight});
     return bilingual(zh,en,zhFirst)+"\n\n"+tag;
   }
   function textMissTransit(zhFirst){
@@ -538,7 +540,7 @@
     return [flow,S.phone,S.status,S.arrange,
       v("mFlight"),v("mSec"),v("wFlight"),v("b1a"),v("b1n"),v("b2a"),v("b2n"),
       v("dFlight"),v("tA"),v("tN"),v("delayTime"),v("altA"),v("altN"),v("altTime"),v("arriveTime"),
-      v("callFlight"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode,
+      v("callFlight"),v("callGateZone"),v("callGate"),S.callNoMessage,S.callMode,S.missMode,S.msgLen,
       S.gateStatus,S.gateGo,S.gateTarget,v("gNewN"),v("gGateZone"),v("gGate"),v("gDepTime")
     ].join("\u241F");
   }
@@ -683,7 +685,7 @@
   function clearMissCase(){
     ["mFlight","mSec"].forEach(id=>$(id).value="");
     clearInvalidMarks(["mFlight","mSec"]);
-    S.missMode="";
+    S.missMode="";S.msgLen="short";
     clearDrafts();
   }
   function clearCallCase(){
@@ -873,6 +875,13 @@
         d.appendChild(t);d.appendChild(dd);sum.appendChild(d);
       });
       const callOnly=flow==="call"&&S.callNoMessage;
+      // Msg length appears only for Scenario 1 Joining in Chinese or English.
+      const lenShown=flow==="miss"&&S.missMode==="join"&&S.order!=="ja";
+      $("previewLenTitle").hidden=!lenShown;
+      $("previewLenSeg").hidden=!lenShown;
+      $("previewLenTitle").textContent=copy("label.preview.msgLength");
+      $("lenShort").setAttribute("aria-pressed",S.msgLen!=="full");
+      $("lenFull").setAttribute("aria-pressed",S.msgLen==="full");
       $("previewLangTitle").hidden=callOnly;
       $("previewLangSeg").hidden=callOnly;
       $("msgToggle").hidden=callOnly;
@@ -1032,6 +1041,19 @@
   $("arKnown").onclick=()=>{S.arrange="known";render();try{$("altN").focus();}catch(e){}};
 
   function setOrder(o){S.order=o;S.orderSet=true;syncDrafts();$("msg").value=currentText();render();}
+  // Tapping Short or Full scrolls Language into view only when it is not already fully visible.
+  function showLanguage(){
+    const m=$("main"), top=$("previewLangTitle"), end=$("msgToggle");
+    if(!m||top.hidden) return;
+    const box=m.getBoundingClientRect(), a=top.getBoundingClientRect(), b=end.getBoundingClientRect();
+    if(a.top>=box.top&&b.bottom<=box.bottom) return;
+    let reduce=false;
+    try{reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
+    m.scrollTo({top:m.scrollTop+a.top-box.top-8,behavior:reduce?"auto":"smooth"});
+  }
+  function setMsgLen(len){S.msgLen=len;syncDrafts();$("msg").value=currentText();render();showLanguage();}
+  $("lenShort").onclick=()=>setMsgLen("short");
+  $("lenFull").onclick=()=>setMsgLen("full");
   $("ordZh").onclick=()=>setOrder("zh");
   $("ordEn").onclick=()=>setOrder("en");
   $("ordJa").onclick=()=>{ if(flow==="miss" || (flow==="call"&&(S.callMode==="join"||S.callMode==="transit"))) setOrder("ja"); };
