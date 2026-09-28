@@ -635,22 +635,28 @@ async def priority_suite():
                 ck(f"[priority] {label}: page sits lower on a tall phone", before["pad"] > 100, str(before))
             await r.close()
 
-        # Gate 1 in area B: the B1R row under the gate field stays above Next with the keyboard open.
-        B1R_JS = """() => {const b=document.querySelector('.screen:not([hidden]) .gateR');
+        # Gate 1 in area B: the layout stays as it is until B1R? appears; then the page lifts so
+        # B1R? clears Next, and drops back to the same place when B1R? hides again.
+        B1R_JS = """() => {const s=document.querySelector('.screen:not([hidden])'), b=s.querySelector('.gateR');
           return {kb:document.querySelector('#app').classList.contains('kb'), shown:!b.hidden, rb:Math.round(b.getBoundingClientRect().bottom),
+                  h1:Math.round(s.querySelector('h1').getBoundingClientRect().top), pad:parseFloat(getComputedStyle(s).paddingTop),
                   ft:Math.round(document.querySelector('#foot').getBoundingClientRect().top)};}"""
         for label, w, full, visible, gate_path in (("iPhone 393x852 Final Call gate", 393, 852, 450, False),
                                                    ("Pro Max 430x932 Final Call gate", 430, 932, 480, False),
                                                    ("small Android tall keyboard Protect to gate", 360, 668, 348, True)):
-            r = await Run(browser, "priority-b1r-row-" + label).open(); await r.pg.set_viewport_size({"width": w, "height": full})
+            r = await Run(browser, "priority-b1r-lift-" + label).open(); await r.pg.set_viewport_size({"width": w, "height": full})
             if gate_path:
                 await to_s4_gate(r, "407", "gsCancelled"); await r.fill("gNewN", "401"); iid = "gGate"
             else:
                 await to_s2_gate(r, "callJoin", "407"); iid = "callGate"
-            await r.pg.focus("#" + iid); await r.fill(iid, "1")
-            await r.pg.set_viewport_size({"width": w, "height": visible}); await r.pg.wait_for_timeout(500); await r.pg.focus("#" + iid)
-            a = await r.pg.evaluate(B1R_JS)
-            ck(f"[priority] {label}: B1R? stays above Next with the keyboard open", a["kb"] and a["shown"] and a["rb"] <= a["ft"] - 6, str(a))
+            await r.pg.focus("#" + iid); await r.pg.set_viewport_size({"width": w, "height": visible}); await r.pg.wait_for_timeout(500)
+            await r.fill(iid, "2"); rest = await r.pg.evaluate(B1R_JS)
+            if not gate_path:
+                ck(f"[priority] {label}: original layout kept before B1R? appears", rest["kb"] and rest["pad"] > 100, str(rest))
+            await r.fill(iid, "1"); up = await r.pg.evaluate(B1R_JS)
+            ck(f"[priority] {label}: B1R? lifts the page above Next", up["shown"] and up["rb"] <= up["ft"] - 6 and up["h1"] < rest["h1"], f"{rest} -> {up}")
+            await r.fill(iid, "2"); down = await r.pg.evaluate(B1R_JS)
+            ck(f"[priority] {label}: page drops back when B1R? hides", not down["shown"] and down["h1"] == rest["h1"], f"{rest} -> {down}")
             await r.close()
 
         # Privacy at run time, on a real http origin (like a phone) where storage is available:

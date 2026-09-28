@@ -1085,13 +1085,12 @@
       const screen=el.closest(".screen");
       const mr=main.getBoundingClientRect(), fr=foot.getBoundingClientRect();
       const top=mr.top+6, bottom=Math.min(mr.bottom,fr.top)-6, available=bottom-top;
-      const fields=screen ? [...screen.querySelectorAll(".field,.gateRRow")].filter(f=>{
+      const fields=screen ? [...screen.querySelectorAll(".field")].filter(f=>{
         const r=f.getBoundingClientRect(), cs=getComputedStyle(f);
         return cs.display!=="none" && cs.visibility!=="hidden" && r.width>0 && r.height>0;
       }) : [];
       // Treat all visible fields on this page as one work area so pages with
-      // Flight + DEP (or other multi-field forms) stay visible together; the
-      // reserved B1R row counts as part of the gate field.
+      // Flight + DEP (or other multi-field forms) stay visible together.
       const rects=fields.map(f=>f.getBoundingClientRect());
       let wt=rects.length?Math.min(...rects.map(r=>r.top)):0;
       let wb=rects.length?Math.max(...rects.map(r=>r.bottom)):0;
@@ -1101,12 +1100,28 @@
         return;
       }
       // If the complete work area physically cannot fit, keep the active field
-      // visible (with its B1R row) while leaving the content scrollable for the neighbouring fields.
+      // visible while leaving the content scrollable for the neighbouring fields.
       const field=el.closest(".field");const er=field ? field.getBoundingClientRect() : el.getBoundingClientRect();
-      const rRow=field&&field.nextElementSibling, eb=rRow&&rRow.classList.contains("gateRRow") ? rRow.getBoundingClientRect().bottom : er.bottom;
-      if(eb>bottom) main.scrollBy({top:eb-bottom+8,behavior:"auto"});
+      if(er.bottom>bottom) main.scrollBy({top:er.bottom-bottom+8,behavior:"auto"});
       else if(er.top<top) main.scrollBy({top:er.top-top-8,behavior:"auto"});
     };
+    // Gate 1 in area B: when B1R? appears with the keyboard open, lift the page just enough
+    // for it to clear Next; when it hides or the keyboard closes, drop the page back.
+    let b1rRest=null, b1rScreen=null;
+    const revealB1R=()=>{
+      const main=$("main"), foot=$("foot"), el=document.activeElement, screen=el&&el.closest(".screen");
+      const b=screen&&screen.querySelector(".gateR");
+      if(!main||!foot||!b) return;
+      if(screen!==b1rScreen){b1rScreen=screen;b1rRest=null;}
+      if(b.hidden||!keyboardOpen()||foot.hidden){
+        if(b1rRest!==null){main.scrollTop=b1rRest;b1rRest=null;}
+        return;
+      }
+      const need=Math.round(b.getBoundingClientRect().bottom-(Math.min(main.getBoundingClientRect().bottom,foot.getBoundingClientRect().top)-6));
+      if(need>0){if(b1rRest===null) b1rRest=main.scrollTop;main.scrollBy({top:need,behavior:"auto"});}
+    };
+    ["callGate","gGate"].forEach(id=>$(id).addEventListener("input",revealB1R));
+    ["callGateZone","gGateZone"].forEach(id=>$(id).addEventListener("change",revealB1R));
     const syncNow=()=>{
       vvFrame=0;
       const open=keyboardOpen(), app=$("app");
@@ -1115,6 +1130,7 @@
       app.style.setProperty("--vh",open?Math.round(vv.height)+"px":"100%");
       app.style.setProperty("--vt",open?Math.round(vv.offsetTop)+"px":"0px");
       if(open) revealWorkspace();
+      revealB1R();
     };
     const sync=()=>{
       if(vvFrame) cancelAnimationFrame(vvFrame);
