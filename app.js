@@ -339,7 +339,7 @@
     // Scenario 1 flight number follows the selected passenger-type rule.
     bad("mFlight",filled("mFlight")&&(!isFlt(v("mFlight"))||(S.missMode==="transit"&&listBad("mFlight",v("mFlight"),TRANSIT_FLIGHTS))||(S.missMode==="join"&&listBad("mFlight",v("mFlight"),GENERAL_CX_FLIGHTS))));
     bad("mSec",filled("mSec")&&(!isFlt(v("mSec"))||+v("mSec")>copy("rules.sec.max")));
-    // Scenario 3 · Wrong Pick-up flight number
+    // Scenario 5 · Wrong Pick-up flight number
     bad("wFlight",filled("wFlight")&&!isFlt(v("wFlight")));
     // Scenario 4 · Disrupted Pax
     bad("dFlight",listBad("dFlight",v("dFlight"),S.status==="gate"?TPE_DEPARTURE_FLIGHTS:DP_HKG_FLIGHTS));
@@ -471,7 +471,7 @@
   }
   function textWpp(zhFirst){
     const vals={"Arrival Flight":"CX"+v("wFlight"),"Bag Tag 1":v("b1a")+v("b1n"),"Bag Tag 2":v("b2a")+v("b2n")};
-    return bilingual(fillCopy("s3.zh",vals),fillCopy("s3.en",vals),zhFirst);
+    return bilingual(fillCopy("s5.zh",vals),fillCopy("s5.en",vals),zhFirst);
   }
   function textDp(zhFirst){
     const f="CX"+v("dFlight"), tf=v("tA")+v("tN"), alt=v("altA")+v("altN");
@@ -958,14 +958,17 @@
       ?(externalReturnReady?"Next Passenger":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
       :copy("cta.next");
     cta.lang=japaneseSMS?"ja":"en";
-    // Scenario 3: after staff return from WhatsApp, offer a phone call above Next Passenger.
+    // Call Directly and Wrong Pick-up: after staff return from WhatsApp, offer a phone call above Next Passenger.
     const phoneCall=$("callPhone");
-    phoneCall.hidden=!(cur==="preview"&&flow==="wpp"&&externalReturnReady);
+    phoneCall.hidden=!phoneCallReady();
     $("callPhoneLabel").textContent=copy("cta.phone.call");
+  }
+  function phoneCallReady(){
+    return cur==="preview"&&externalReturnReady&&(flow==="wpp"||(flow==="call"&&S.callMode==="direct"));
   }
   // Opens the phone dialer with the number filled in; staff place the call by hand.
   $("callPhone").onclick=function(){
-    if(this.hidden||!(cur==="preview"&&flow==="wpp"&&externalReturnReady)||!S.phone) return;
+    if(this.hidden||!phoneCallReady()||!S.phone) return;
     window.location.href="tel:+"+S.phone;
   };
   $("cta").onclick=function(){

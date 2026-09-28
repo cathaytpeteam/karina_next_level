@@ -65,9 +65,10 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 
 ### 4. Shared UI
 
-- **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers). Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
-- **Call Directly** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
-- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free.
+- **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers on screen). Docs, tests and copy IDs number them S1–S5 in this order. Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
+- **Call Directly (S3)** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
+- **Call by Phone:** on S3 Call Directly and S5 Wrong Pick-up only, after staff return from WhatsApp, a phone-icon button above Next Passenger opens the dialer (`tel:`) with the number filled in.
+- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button.
 - **Confirm details Sec:** when the origin prefix is not TPE (Transit: HKG / NRT / NGO / KIX), the three letters use `--brand`; the digits and a TPE prefix keep the normal value colour. Not red: a different origin is not a disruption.
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.
@@ -99,14 +100,7 @@ Flow: Passenger Type -> Flight -> SEC -> Gate -> Confirm details (5/5). SEC foll
 - Transit Confirm details includes `Dep from`; Destination shows CX450 → NRT, CX564 → KIX, CX530 → NGO, CX451 / 565 / 531 → HKG.
 - Languages: 中文 / English / 日本語 (Japanese = native SMS; only Transit Japanese includes Taipei time). Button order as Scenario 1.
 
-### 7. Scenario 3 — Wrong Pick-up
-
-Flow: Arrival Flight -> Bag 1 -> Bag 2 -> Confirm details (4/4).
-
-- Arrival Flight is 1–3 digits, outside the CX whitelist. Bag tags: six digits with the airline-letter validation.
-- Languages: 中文 / English only, via WhatsApp (photo sharing).
-
-### 8. Scenario 4 — Disrupted Pax
+### 7. Scenario 4 — Disrupted Pax
 
 Step 1 **Passenger Type** (1/6, no footer/Next; a choice opens the next step directly). Group **At Gate**: Already at Gate. Group **Not at the Airport**: Tight Connection, then Delayed | Suspended.
 
@@ -117,6 +111,13 @@ Step 1 **Passenger Type** (1/6, no footer/Next; a choice opens the next step dir
 - **Connecting flight:** two-character alphanumeric airline code (non-CX allowed); a CX TPE departure is rejected.
 - **Protect to / Will protect to:** CX must be a TPE departure and must not equal Flight from TPE (compared after normalization). Non-CX uses the airline-code rule. CX flight and DEP time sit side by side in one teal card; on Protect to (3/5) the `Protect to` title sits inside that card (no radio dot) and the Gate field sits below it under a plain centred `Gate` title. A complete DEP time moves the cursor to an empty Gate number without scrolling.
 - Default message order: English first.
+
+### 8. Scenario 5 — Wrong Pick-up
+
+Flow: Arrival Flight -> Bag 1 -> Bag 2 -> Confirm details (4/4).
+
+- Arrival Flight is 1–3 digits, outside the CX whitelist. Bag tags: six digits with the airline-letter validation.
+- Languages: 中文 / English only, via WhatsApp (photo sharing).
 
 ### 9. General CX whitelist
 
@@ -140,10 +141,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r32 (2026-09-29)
+
+- Call by Phone also appears on S3 Call Directly after staff return from WhatsApp (still S5 Wrong Pick-up too; nowhere else). Scenarios are numbered S1–S5 in Scenario page order in docs, tests and copy IDs: Wrong Pick-up is now S5 and its copy IDs are `s5.zh` / `s5.en` (text unchanged). Copy ID lock keys renamed; hashes unchanged.
+
 ### K2.0-r29 (2026-09-29)
 
 - Scenario 3: after staff return from WhatsApp, a `Call by Phone` button with a phone icon sits above Next Passenger and opens the phone dialer (`tel:`) with the number filled in, only on a staff tap. Scenario 1 and 2: the phone-based default language stays first; picking another language no longer reorders the language buttons. Copy ID and footer layout locks in `locks.json` recomputed.
-
-### K2.0-r28 (2026-09-29)
-
-- Privacy rules allow the phone dialer (`tel:`) as a fourth way out, opened only by a staff tap with the number filled in; staff place the call by hand. The privacy lock now also rejects any link scheme other than WhatsApp, SMS and `tel:`. Privacy lock in `locks.json` recomputed.

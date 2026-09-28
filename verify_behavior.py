@@ -528,14 +528,14 @@ async def priority_suite():
                 g = await r.pg.evaluate(GATE_JS); ck(f"[priority] {scen[2:]} Transit Go to Gate is --brand", g["row"] == "Go to Gate" and g["colour"] == g["ink"], str(g))
             await r.close()
 
-        # Scenario 3 happy path + Confirm details completeness.
-        r = await Run(browser, "priority-s3").open(); await _priority_phone_to_scenario(r)
-        await _simple_click(r, "goWpp", "wflight"); await r.fill("wFlight", "123"); await r.expect("S3 arrival flight enables Next", True, not_bad=["wFlight"])
-        await _simple_click(r, "cta", "bag1"); await r.fill("b1n", "123456"); await r.expect("S3 Bag Tag 1 enables Next", True)
-        await _simple_click(r, "cta", "bag2"); await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.expect("S3 Bag Tag 2 enables Next", True)
+        # Scenario 5 happy path + Confirm details completeness.
+        r = await Run(browser, "priority-s5").open(); await _priority_phone_to_scenario(r)
+        await _simple_click(r, "goWpp", "wflight"); await r.fill("wFlight", "123"); await r.expect("S5 arrival flight enables Next", True, not_bad=["wFlight"])
+        await _simple_click(r, "cta", "bag1"); await r.fill("b1n", "123456"); await r.expect("S5 Bag Tag 1 enables Next", True)
+        await _simple_click(r, "cta", "bag2"); await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.expect("S5 Bag Tag 2 enables Next", True)
         await _simple_click(r, "cta", "preview")
         rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent.trim())")
-        ck("[priority] S3 Confirm details has all three summary rows", rows == ["Arrival Flight", "Bag Tag 1", "Bag Tag 2"], str(rows))
+        ck("[priority] S5 Confirm details has all three summary rows", rows == ["Arrival Flight", "Bag Tag 1", "Bag Tag 2"], str(rows))
         a = await r.pg.locator("#msgToggle>span:first-child").bounding_box(); b = await r.pg.locator("#previewOrderLabel").bounding_box()
         ck("[priority] Message Preview order label has visual separation", bool(a and b) and b["x"] > a["x"] + 110)
         await r.close()
@@ -753,7 +753,7 @@ async def case_direct(r):
     ck(f"[{r.name}] call-only preview hides message preview", not await r.pg.locator("#msgToggle").is_visible())
     await r.act("cta", "external:whatsapp-call")
 
-async def case_s3(r, lang):
+async def case_s5(r, lang):
     await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
     await r.fill("b1n", "123456"); await r.act("cta", "bag2")
     await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.act("cta", "preview")
@@ -857,7 +857,7 @@ for m, f in (("callJoin", "407"), ("callTransit", "451")):
         CASES.append((f"S2 {m} {l}", lambda r, m=m, f=f, l=l: case_s2(r, m, f, l)))
 CASES.append(("Call Directly", lambda r: case_direct(r)))
 for l in ("ordZh", "ordEn"):
-    CASES.append((f"S3 {l}", lambda r, l=l: case_s3(r, l)))
+    CASES.append((f"S5 {l}", lambda r, l=l: case_s5(r, l)))
 for i, s in enumerate(("stPossible", "stDelayed", "stUnknown")):
     for j, a in enumerate(("arKnown", "arUnknown")):
         l = ("ordEn", "ordZh")[(i + j) % 2]
@@ -868,6 +868,12 @@ for s_, t_, g_, l_, n_ in (("gsDelayed", "gProtectedFlight", "gpAsap", "ordZh", 
     CASES.append((f"S4 Already at Gate {s_} {t_} {g_} {l_} CX{n_}", lambda r, s_=s_, t_=t_, g_=g_, l_=l_, n_=n_: case_s4_gate(r, s_, t_, g_, l_, n_)))
 
 # ---- guards -------------------------------------------------------------------
+RETURN_FROM_APP_JS = """() => {
+    const setHidden = h => Object.defineProperty(document, 'hidden', {configurable: true, get: () => h});
+    setHidden(true); document.dispatchEvent(new Event('visibilitychange'));
+    setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
+}"""
+
 async def g(r, name):
     if name == "phone_invalid_blocks_next":
         await r.fill("phoneInput", "123"); await r.expect("short phone keeps Next disabled", cta_enabled=False)
@@ -912,34 +918,53 @@ async def g(r, name):
         await r.expect("gate empty keeps Next disabled", False)
         await r.fill("callGate", "0"); await r.expect("gate 0 rejected", False)
         await r.fill("callGate", "1R"); await r.expect("gate 1R accepted", True)
-    elif name == "s3_bag_requires_six_digits":
+    elif name == "s5_bag_requires_six_digits":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
         await r.fill("b1n", "12345"); await r.expect("bag tag 5 digits rejected", False)
         await r.fill("b1n", "123456"); await r.expect("bag tag 6 digits accepted", True)
-    elif name == "s3_bag_airline_letters_only":
+    elif name == "s5_bag_airline_letters_only":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
         await r.fill("b1n", "123456"); await r.fill("b1a", "1X"); await r.expect("bag airline '1X' rejected", False)
-    elif name == "s3_call_by_phone_after_whatsapp":
-        await case_s3(r, "ordZh")
-        ck("[guard] S3 Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
+    elif name == "s5_call_by_phone_after_whatsapp":
+        await case_s5(r, "ordZh")
+        ck("[guard] S5 Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
         await r.pg.evaluate("""() => {
             const setHidden = h => Object.defineProperty(document, 'hidden', {configurable: true, get: () => h});
             setHidden(true); document.dispatchEvent(new Event('visibilitychange'));
             setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
         }""")
         await r.pg.wait_for_timeout(100)
-        ck("[guard] S3 return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
-        ck("[guard] S3 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
-        ck("[guard] S3 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
-        ck("[guard] S3 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
+        ck("[guard] S5 return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
+        ck("[guard] S5 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
+        ck("[guard] S5 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
+        ck("[guard] S5 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
         a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-        ck("[guard] S3 Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        ck("[guard] S5 Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
         n0 = len(r.nav); await r.pg.click("#callPhone")
         for _ in range(40):
             if len(r.nav) > n0: break
             await r.pg.wait_for_timeout(50)
         url = r.nav[n0] if len(r.nav) > n0 else ""
-        ck("[guard] S3 Call by Phone opens tel: with the number only after a tap", url == "tel:+" + PHONE, url)
+        ck("[guard] S5 Call by Phone opens tel: with the number only after a tap", url == "tel:+" + PHONE, url)
+    elif name == "direct_call_by_phone_after_whatsapp":
+        await case_direct(r)
+        ck("[guard] Call Directly: Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        ck("[guard] Call Directly return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
+        ck("[guard] Call Directly: Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
+        a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
+        ck("[guard] Call Directly: Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        n0 = len(r.nav); await r.pg.click("#callPhone")
+        for _ in range(40):
+            if len(r.nav) > n0: break
+            await r.pg.wait_for_timeout(50)
+        url = r.nav[n0] if len(r.nav) > n0 else ""
+        ck("[guard] Call Directly: Call by Phone opens tel: with the number", url == "tel:+" + PHONE, url)
+    elif name == "call_by_phone_only_on_direct_and_wrong_pickup":
+        await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); await r.act("cta", "preview")
+        await r.act("ordEn"); await r.act("cta", "external:whatsapp")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        ck("[guard] 漏查 return shows Next Passenger without Call by Phone", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger" and await r.pg.locator("#callPhone").is_hidden())
     elif name == "s4_flight_from_tpe_rejects_non_whitelist":
         await to_s4(r, "stPossible", "888"); await r.expect("Flight from TPE CX888 rejected", False, ["dFlight"])
         await r.fill("dFlight", "407"); await r.expect("Flight from TPE CX407 accepted", True, not_bad=["dFlight"])

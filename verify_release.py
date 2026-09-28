@@ -253,7 +253,7 @@ ck('Language heading', 'Message Language' not in s and 'First Message Language' 
 ck('copy.js loaded before app.js', 0 <= s_html.find('./copy.js') < s_html.find('./app.js'))
 ck('Scenario 1 Join Japanese', COPY.get('s1.join.ja') == b['protected']['japanese_sms']['scenario1_approved_copy'])
 ck('Scenario 1 Transit Japanese', COPY.get('s1.transit.ja') == b['protected']['scenario1_transit_copy']['ja'])
-ck('Scenario 3 no Japanese', 's3.ja' not in COPY)
+ck('Scenario 5 no Japanese', 's5.ja' not in COPY)
 
 # Flight rules and exceptions.
 ck('general whitelist', COPY.get('rules.cx.general') == [x[2:] for x in b['protected']['flight_rules']['general_cx']])
@@ -262,7 +262,7 @@ ck('S1 Transit special', 'S.missMode==="transit"?transitCxOk' in s)
 ck('S2 Join whitelist', 'S.callMode==="join") return generalCxOk' in s)
 ck('S2 Transit special', 'S.callMode==="transit") return transitCxOk' in s)
 ck('S4 whitelist', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk' in s)
-ck('S3 arrival exception', 'wflight:()=>isFlt(v("wFlight"))' in s)
+ck('S5 arrival exception', 'wflight:()=>isFlt(v("wFlight"))' in s)
 ck('Connecting exception', 'dtransfer:()=>isCarrier(v("tA"))&&isFlt(v("tN"))' in s)
 ck('Protect CX whitelist + same-flight guard', 'protectFlightOk(v("altA"),v("altN"),v("dFlight"))' in s and 'sameProtectedCxFlight' in s and 'copy("error.protect.tpe")' in s and 'copy("error.protect.same")' in s)
 ck('Alphanumeric airline designator', 'const isCarrier=s=>/^[A-Z0-9]{2}$/.test(s);' in s and 'replace(/[^A-Za-z0-9]/g,"")' in s)
@@ -283,7 +283,7 @@ ck('Canonical E.164 output', 'String(ph.number||"").replace(/^\\+/,"")' in vp)
 ck('SMS routing', 'isiOS?"&":"?"' in s)
 ck('WhatsApp routing', 'whatsapp://send?phone=' in s and 'https://wa.me/' in s)
 
-ck('Scenario 3 language reset', '$("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};' in s)
+ck('Scenario 5 language reset', '$("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};' in s)
 ck('Scenario 4 language reset', '$("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
 ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{clearMissCase();' in s)
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{clearCallCase();' in s)
@@ -329,7 +329,7 @@ ck('preview edit/copy controls removed', 'id="editMsg"' not in s and 'id="copyMs
 
 # Explicitly authorized final visual/copy tuning.
 ck('language order labels 18px/700', '.msgToggle small{font-size:18px;font-weight:700' in s)
-ck('Scenario 3 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
+ck('Scenario 5 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
 ck('Scenario 1 Join suffix compact', 'tag=flight+"/"+String(Number(v("mSec"))).padStart(3,"0")' in s and 'const tag="cx"' not in s)
 
 # Consistency fixes.
@@ -468,7 +468,7 @@ ck('hygiene, colour lock and wiring (verify_changed.py --all)', _rc==0)
 
 # Browser verification is layered: the focused priority gate first; the exhaustive
 # suite and the Service Worker matrix only in --full and only after the gate passes.
-print('--- PRIORITY GATE: phone, Home geometry, S1/S2 Next, S3 confirm, S4 validation ---', flush=True)
+print('--- PRIORITY GATE: phone, Home geometry, S1/S2 Next, S5 confirm, S4 validation ---', flush=True)
 _rc,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--priority']); N_PASS+=_n
 ck('priority release gate (focused user-facing regressions)', _rc==0)
 if FULL:

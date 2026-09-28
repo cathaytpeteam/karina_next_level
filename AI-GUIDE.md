@@ -51,7 +51,7 @@ Needs your decision: none | <question>
 
 ## 給使用者：下指令範本
 
-每個任務開一個新對話，附上最新定案的 ZIP，一次一件事：
+每個任務開一個新對話，附上最新定案的 ZIP，一次一件事。S 編號照 Scenario 頁順序：S1 漏查、S2 Final Call、S3 Call Directly、S4 Disrupted Passenger、S5 Wrong Pick-up。
 
 - 改文字：「S2 Final Call Transit 中文訊息改成：……」
 - 改規則：「S4 Protect to 也接受 CX407」
