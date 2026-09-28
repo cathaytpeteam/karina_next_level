@@ -87,7 +87,7 @@ Flow: Passenger Type -> Flight -> SEC -> Confirm details (3/3).
 - Join: general CX whitelist. Transit: only CX450 / 451 / 530 / 531 / 564 / 565.
 - SEC is one inline field `[ IATA | SEC ]`, above 580 rejected. Join uses TPE; Transit origin: CX450/530/564 → HKG, CX451 → NRT, CX531 → NGO, CX565 → KIX.
 - Transit Confirm details includes `Dep from`. Join message suffix format `450/000`.
-- Languages: 中文 / English / 日本語 (Japanese = native SMS).
+- Languages: 中文 / English / 日本語 (Japanese = native SMS). The phone-based default language is first; picking another language does not reorder the buttons.
 - Joining Confirm details (中文 / English) uses the short message only; there is no message-length control.
 
 ### 6. Scenario 2 — Final Call
@@ -97,7 +97,7 @@ Flow: Passenger Type -> Flight -> SEC -> Gate -> Confirm details (5/5). SEC foll
 - Same passenger types and flight rules as Scenario 1.
 - Gate pages (Final Call and Protect to): area and number are centred as a pair.
 - Transit Confirm details includes `Dep from`; Destination shows CX450 → NRT, CX564 → KIX, CX530 → NGO, CX451 / 565 / 531 → HKG.
-- Languages: 中文 / English / 日本語 (Japanese = native SMS; only Transit Japanese includes Taipei time).
+- Languages: 中文 / English / 日本語 (Japanese = native SMS; only Transit Japanese includes Taipei time). Button order as Scenario 1.
 
 ### 7. Scenario 3 — Wrong Pick-up
 
@@ -140,10 +140,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r29 (2026-09-29)
+
+- Scenario 3: after staff return from WhatsApp, a `Call by Phone` button with a phone icon sits above Next Passenger and opens the phone dialer (`tel:`) with the number filled in, only on a staff tap. Scenario 1 and 2: the phone-based default language stays first; picking another language no longer reorders the language buttons. Copy ID and footer layout locks in `locks.json` recomputed.
+
 ### K2.0-r28 (2026-09-29)
 
 - Privacy rules allow the phone dialer (`tel:`) as a fourth way out, opened only by a staff tap with the number filled in; staff place the call by hand. The privacy lock now also rejects any link scheme other than WhatsApp, SMS and `tel:`. Privacy lock in `locks.json` recomputed.
-
-### K2.0-r27 (2026-09-29)
-
-- Home phone input groups digits as they are typed (`886 983 95`), so the number no longer jumps when the last digit is entered. A complete number keeps the Header phone display format.

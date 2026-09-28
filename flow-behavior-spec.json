@@ -745,6 +745,7 @@
   "s2_gate_requires_valid_number",
   "s3_bag_requires_six_digits",
   "s3_bag_airline_letters_only",
+  "s3_call_by_phone_after_whatsapp",
   "s4_flight_from_tpe_rejects_non_whitelist",
   "s4_delayed_requires_time",
   "s4_delayed_rejects_invalid_time",
@@ -771,7 +772,8 @@
   "s4_gate_requires_valid_gate",
   "s4_gate_dep_and_proceed_required",
   "s4_gate_fields_side_by_side",
-  "s1_join_short_message"
+  "s1_join_short_message",
+  "s1_s2_language_pick_keeps_button_order"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",

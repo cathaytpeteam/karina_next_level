@@ -918,7 +918,9 @@
         $("previewLangTitle").textContent=copy("label.preview.language");
         if(S.order==="ja"&&!japanesePath){ S.order=defaultMessageOrder(false); S.orderSet=false; }
         if(!S.orderSet) S.order=defaultMessageOrder(japanesePath);
-        const langOrder=[S.order,"zh","en","ja"].filter((x,i,a)=>a.indexOf(x)===i);
+        // Scenario 1 and 2 keep the phone-based default first; picking another language does not move the buttons.
+        const leadLang=japanesePath?defaultMessageOrder(true):S.order;
+        const langOrder=[leadLang,"zh","en","ja"].filter((x,i,a)=>a.indexOf(x)===i);
         $("ordZh").style.order=String(langOrder.indexOf("zh"));
         $("ordEn").style.order=String(langOrder.indexOf("en"));
         $("ordJa").style.order=String(langOrder.indexOf("ja"));
@@ -956,7 +958,16 @@
       ?(externalReturnReady?"Next Passenger":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
       :copy("cta.next");
     cta.lang=japaneseSMS?"ja":"en";
+    // Scenario 3: after staff return from WhatsApp, offer a phone call above Next Passenger.
+    const phoneCall=$("callPhone");
+    phoneCall.hidden=!(cur==="preview"&&flow==="wpp"&&externalReturnReady);
+    $("callPhoneLabel").textContent=copy("cta.phone.call");
   }
+  // Opens the phone dialer with the number filled in; staff place the call by hand.
+  $("callPhone").onclick=function(){
+    if(this.hidden||!(cur==="preview"&&flow==="wpp"&&externalReturnReady)||!S.phone) return;
+    window.location.href="tel:+"+S.phone;
+  };
   $("cta").onclick=function(){
     if(this.disabled||!NEXT[cur]) return;
     if(cur==="preview"&&!externalReturnReady) armExternalReturn();

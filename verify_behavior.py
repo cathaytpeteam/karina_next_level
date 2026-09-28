@@ -919,6 +919,27 @@ async def g(r, name):
     elif name == "s3_bag_airline_letters_only":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
         await r.fill("b1n", "123456"); await r.fill("b1a", "1X"); await r.expect("bag airline '1X' rejected", False)
+    elif name == "s3_call_by_phone_after_whatsapp":
+        await case_s3(r, "ordZh")
+        ck("[guard] S3 Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
+        await r.pg.evaluate("""() => {
+            const setHidden = h => Object.defineProperty(document, 'hidden', {configurable: true, get: () => h});
+            setHidden(true); document.dispatchEvent(new Event('visibilitychange'));
+            setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
+        }""")
+        await r.pg.wait_for_timeout(100)
+        ck("[guard] S3 return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
+        ck("[guard] S3 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
+        ck("[guard] S3 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
+        ck("[guard] S3 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
+        a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
+        ck("[guard] S3 Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        n0 = len(r.nav); await r.pg.click("#callPhone")
+        for _ in range(40):
+            if len(r.nav) > n0: break
+            await r.pg.wait_for_timeout(50)
+        url = r.nav[n0] if len(r.nav) > n0 else ""
+        ck("[guard] S3 Call by Phone opens tel: with the number only after a tap", url == "tel:+" + PHONE, url)
     elif name == "s4_flight_from_tpe_rejects_non_whitelist":
         await to_s4(r, "stPossible", "888"); await r.expect("Flight from TPE CX888 rejected", False, ["dFlight"])
         await r.fill("dFlight", "407"); await r.expect("Flight from TPE CX407 accepted", True, not_bad=["dFlight"])
@@ -1112,6 +1133,22 @@ async def g(r, name):
         msg = await r.pg.locator("#msg").input_value()
         ck("[guard] S1 Join uses the short message", "4 號櫃位" in msg and "Counter 4" in msg and "尚未進入離境禁區" not in msg and msg.endswith("450/012"), msg[-60:])
         ck("[guard] S1 Join has no Msg length control", await r.pg.locator("#previewLenSeg").count() == 0)
+    elif name == "s1_s2_language_pick_keeps_button_order":
+        order_js = "() => ['ordZh','ordEn','ordJa'].filter(id => !document.getElementById(id).hidden).sort((a, b) => Number(getComputedStyle(document.getElementById(a)).order) - Number(getComputedStyle(document.getElementById(b)).order))"
+        await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); await r.act("cta", "preview")
+        start = await r.pg.evaluate(order_js)
+        ck("[guard] S1 Taiwan phone puts 中文 first", start[0] == "ordZh", str(start))
+        for lang in ("ordEn", "ordJa", "ordZh"):
+            await r.act(lang)
+            now = await r.pg.evaluate(order_js)
+            ck(f"[guard] S1 picking {lang} keeps the button order", now == start, str(now))
+            ck(f"[guard] S1 {lang} is selected", await r.pg.locator("#" + lang).get_attribute("aria-pressed") == "true")
+        await r.back("msec"); await r.back("mflight"); await r.back("misstype"); await r.back("scenario")
+        await r.act("goCall", "calltype"); await r.act("callJoin", "callflight"); await r.fill("callFlight", "407"); await r.act("cta", "msec")
+        await r.fill("mSec", "12"); await r.act("cta", "callgate"); await r.fill("callGate", "5"); await r.act("cta", "preview")
+        start = await r.pg.evaluate(order_js)
+        await r.act("ordEn"); now = await r.pg.evaluate(order_js)
+        ck("[guard] S2 picking English keeps the button order", now == start and start[0] == "ordZh", f"{start} -> {now}")
     elif name == "s4_arrive_rejects_invalid_time":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
         await r.act("arUnknown"); await r.act("cta", "darrive")

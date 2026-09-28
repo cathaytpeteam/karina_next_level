@@ -24,6 +24,7 @@
   "cta.whatsapp.call": "Call on WhatsApp",
   "cta.whatsapp.send": "Send on WhatsApp",
   "cta.next": "Next",
+  "cta.phone.call": "Call by Phone",
   "hint.time.empty": "HHMM",
   "hint.time.partial": "HHMM, for example 0811",
   "error.time.invalid": "Invalid time (00:00–23:59)",

@@ -47,6 +47,9 @@ h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);f
 .hint.bad{color:var(--danger);font-weight:700}
 .cta{width:100%;min-height:60px;border:0;border-radius:16px;background:var(--brand);color:var(--on-brand);font-size:20px;font-weight:800;cursor:pointer}
 .cta:disabled{opacity:.32;cursor:default}
+.cta-phone{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;background:var(--brand-soft);color:var(--brand-strong)}
+.cta-phone[hidden]{display:none}
+.cta-phone-icon{width:22px;height:22px;flex:none;fill:currentColor}
 
 .field{display:flex;align-items:center;min-height:64px;border:1px solid var(--field-line);border-radius:16px;background:var(--field-bg);padding:0 8px;transition:border-color .12s}
 .field + .field{margin-top:10px}
