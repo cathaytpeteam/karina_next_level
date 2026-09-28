@@ -205,7 +205,7 @@
   const DP_BRANCH_FLOWS={
     dpgate:{name:copy("progress.flow.dp"),steps:["dstatus","dflight","dnew","dgateaction","preview"]}
   };
-  let flow="", cur="phone", resetting=false;
+  let flow="", cur="phone", resetting=false, externalReturnReady=false;
   const stack=["phone"];
   let navPos=0;
   try{history.replaceState({findPax:true,pos:0,id:"phone"},"");}catch(e){}
@@ -260,6 +260,11 @@
       if(ph) return ph.formatInternational();
     }catch(e){}
     return "+"+d;
+  }
+  function defaultMessageOrder(japanesePath){
+    if(S.country==="JP"&&japanesePath) return "ja";
+    if(["HK","MO","CN","TW"].includes(S.country)) return "zh";
+    return "en";
   }
   function callFlightNumber(){
     const d=digits(v("callFlight")).slice(0,3);
@@ -422,7 +427,7 @@
     dgateaction:()=>go("preview"),
     callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("msec");},
     callgate:()=>go("preview"),
-    preview:()=>send()
+    preview:()=>{if(externalReturnReady)resetAll();else send();}
   };
 
   // ---- messages ----------------------------------------------------------
@@ -553,6 +558,18 @@
   }
 
   // ---- WhatsApp ----------------------------------------------------------
+  function armExternalReturn(){
+    let leftApp=false;
+    const onVisibility=()=>{
+      if(document.hidden){ leftApp=true; return; }
+      if(leftApp){
+        document.removeEventListener("visibilitychange",onVisibility);
+        externalReturnReady=true;
+        if(cur==="preview") render();
+      }
+    };
+    document.addEventListener("visibilitychange",onVisibility);
+  }
   function openWA(text){
     const encoded=text?encodeURIComponent(text):"";
     const appUrl="whatsapp://send?phone="+encodeURIComponent(S.phone)+(encoded?"&text="+encoded:"");
@@ -743,6 +760,7 @@
     $("s-preview").classList.remove("preview-focus");
   }
   function clearFields(){
+    externalReturnReady=false;
     $("phoneInput").value="";
     clearCaseData();
     S.phone="";S.country="";
@@ -888,9 +906,12 @@
         $("ordJa").disabled=false;
         $("ordJa").title="";
         $("previewLangTitle").textContent=copy("label.preview.language");
-        $("ordEn").style.order=flow==="dp"?"-1":"";
-        if(S.order==="ja"&&!japanesePath){ S.order=flow==="dp"?"en":"zh"; S.orderSet=false; }
-        if(!S.orderSet) S.order=flow==="dp"?"en":"zh";
+        if(S.order==="ja"&&!japanesePath){ S.order=defaultMessageOrder(false); S.orderSet=false; }
+        if(!S.orderSet) S.order=defaultMessageOrder(japanesePath);
+        const langOrder=[S.order,"zh","en","ja"].filter((x,i,a)=>a.indexOf(x)===i);
+        $("ordZh").style.order=String(langOrder.indexOf("zh"));
+        $("ordEn").style.order=String(langOrder.indexOf("en"));
+        $("ordJa").style.order=String(langOrder.indexOf("ja"));
         $("ordZh").setAttribute("aria-pressed",S.order==="zh");
         $("ordEn").setAttribute("aria-pressed",S.order==="en");
         $("ordJa").setAttribute("aria-pressed",S.order==="ja");
@@ -922,16 +943,21 @@
     cta.disabled=!ok;
     const japaneseSMS=cur==="preview"&&(flow==="miss"||(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")))&&S.order==="ja";
     cta.textContent=cur==="preview"
-      ?(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send")))
+      ?(externalReturnReady?"Next Passenger":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
       :copy("cta.next");
     cta.lang=japaneseSMS?"ja":"en";
   }
-  $("cta").onclick=function(){ if(!this.disabled&&NEXT[cur]) NEXT[cur](); };
+  $("cta").onclick=function(){
+    if(this.disabled||!NEXT[cur]) return;
+    if(cur==="preview"&&!externalReturnReady) armExternalReturn();
+    NEXT[cur]();
+  };
 
   // ==== [event wiring] ====
   $("phoneInput").addEventListener("input",function(){
-    this.value=digits(this.value).slice(0,18);
-    const p=normalizePhone(this.value), early=p?null:detectCountryEarly(this.value), b=$("badge");
+    const rawDigits=digits(this.value).slice(0,18);
+    this.value=groupedPhone(rawDigits).replace(/^\+/,"");
+    const p=normalizePhone(rawDigits), early=p?null:detectCountryEarly(rawDigits), b=$("badge");
     const cc=(p&&p.country)||(early&&early.country)||"";
     b.hidden=!cc;
     if(cc) b.textContent=phoneLabel(cc);
