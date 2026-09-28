@@ -140,14 +140,11 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.3-r22 (2026-09-28)
+
+- Test-only: `verify_behavior.py` waits for the phone library with `pg.evaluate` polling instead of `wait_for_function`, which the page's Content-Security-Policy refuses intermittently. App files and behaviour are unchanged.
+
 ### K1.3-r19 (2026-09-28)
 
 - 漏查 Joining Confirm details gains Msg length (Short / Full, default Short) between the summary and Language; hidden for Transit and 日本語. New copy `s1.join.zh.short`, `s1.join.en.short`, `label.preview.msgLength`; s-preview layout lock and flow tests updated.
 - Tapping Short or Full scrolls Language into view on that page only.
-
-### K1.3-r14 (2026-09-28)
-
-- Home title reads "Phone Number / from CTCM" (home layout hash updated for this line only).
-- Confirm details: a non-TPE Sec prefix and the gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) use `--brand`; TPE keeps the value colour. No new colour.
-- Auto-advance: Protect to flight → DEP, Flight arrangement flight → dep time, airline code → number (Connecting flight, Flight arrangement, Bag 1/2); only for a complete, valid value.
-- The nine single-field pages sit lower by screen height (18 px small phones, ~132 px 844 px phones, 180 px max); no movement when the keyboard opens.
