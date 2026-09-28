@@ -19,10 +19,10 @@ Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and app
 
 Find Pax handles passenger phone numbers, so these rules are locked like the layout and message copy:
 
-1. **Staff send every message by hand.** The app only opens WhatsApp or SMS with the number and text filled in, and only after a staff tap on Confirm details. It never sends, schedules or repeats a message by itself.
+1. **Staff send every message and make every call by hand.** The app only opens WhatsApp or SMS with the number and text filled in, or the phone dialer with the number filled in, and only after a staff tap on Confirm details. It never sends, dials, schedules or repeats a message or call by itself.
 2. **Nothing is kept.** No phone number, message or case history is stored between uses; every launch starts blank. No storage, cookies or databases.
 3. **No server.** The app contacts no website. The only network use is the Service Worker loading the app's own files.
-4. **Only three ways out:** `whatsapp://send`, `https://wa.me/` and `sms:`. No other links, external scripts, fonts, images, analytics or generated code.
+4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code.
 
 Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
 
@@ -140,12 +140,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r28 (2026-09-29)
+
+- Privacy rules allow the phone dialer (`tel:`) as a fourth way out, opened only by a staff tap with the number filled in; staff place the call by hand. The privacy lock now also rejects any link scheme other than WhatsApp, SMS and `tel:`. Privacy lock in `locks.json` recomputed.
+
 ### K2.0-r27 (2026-09-29)
 
-- Home phone input now applies number grouping progressively while typing instead of waiting for the full number, reducing visual jumps while preserving caret behavior.
-
-### K2.0-r26 (2026-09-28)
-
-- Release label is now `K2.0`.
-- 漏查 Joining `s1.join.en` drops "Depending on the inspection,"; `s1.join.zh` is unchanged. Copy lock for `s1.join.en` updated.
-- Service worker tests check the current `s1.join.en` text from `copy.js` instead of fixed strings.
+- Home phone input groups digits as they are typed (`886 983 95`), so the number no longer jumps when the last digit is entered. A complete number keeps the Header phone display format.

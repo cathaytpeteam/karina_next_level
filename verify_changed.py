@@ -308,9 +308,10 @@ ck('no orphan files (every file is deployed or a listed control file)', not orph
 
 
 # ---- privacy lock ------------------------------------------------------------------
-# The app stores nothing and sends nothing on its own. Its only way out is a WhatsApp / SMS
-# link that the staff member opens and then sends by hand. Anything that could remember
-# passenger numbers, talk to a server, or run generated code fails here.
+# The app stores nothing and sends nothing on its own. Its only ways out are a WhatsApp / SMS
+# link that the staff member opens and then sends by hand, and the phone dialer (tel:) that the
+# staff member opens and then calls from by hand. Anything that could remember passenger numbers,
+# talk to a server, open any other app, or run generated code fails here.
 PRIVACY_FORBIDDEN = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon', 'EventSource', 'localStorage',
                      'sessionStorage', 'indexedDB', 'document.cookie', 'navigator.share', 'window.open(',
                      'importScripts', 'new Worker', 'eval(', 'new Function(']
@@ -325,6 +326,11 @@ for f in ('app.js', 'copy.js', 'index.html', 'app.css', 'sw.js', 'manifest.webma
     bad_urls = sorted(u for u in urls if not any(u.startswith(a) for a in PRIVACY_URLS_ALLOWED))
     ck(f'privacy lock: {f} links only to WhatsApp (wa.me)', not bad_urls, ', '.join(bad_urls))
 ck('privacy lock: messages leave only through WhatsApp / SMS links', all(x in a for x in ('whatsapp://send?phone=', 'https://wa.me/', '"sms:"')))
+# Link schemes in code: WhatsApp, SMS and the phone dialer only (https is limited by the URL check above).
+PRIVACY_SCHEMES_ALLOWED = {'whatsapp', 'https', 'http', 'sms', 'tel'}
+for f in ('app.js', 'copy.js', 'index.html'):
+    schemes = sorted(set(re.findall(r'["\'`]([a-z][a-z0-9+.-]*):(?![a-z-]+\()', text(f))) - PRIVACY_SCHEMES_ALLOWED)
+    ck(f'privacy lock: {f} opens only WhatsApp, SMS or the phone dialer', not schemes, ', '.join(schemes))
 ck('privacy lock: index.html loads only local scripts and styles',
    not re.search(r'<(?:script|link|img|iframe|form)\b[^>]*(?:src|href|action)="(?:https?:)?//', h, re.I))
 
