@@ -1085,12 +1085,13 @@
       const screen=el.closest(".screen");
       const mr=main.getBoundingClientRect(), fr=foot.getBoundingClientRect();
       const top=mr.top+6, bottom=Math.min(mr.bottom,fr.top)-6, available=bottom-top;
-      const fields=screen ? [...screen.querySelectorAll(".field")].filter(f=>{
+      const fields=screen ? [...screen.querySelectorAll(".field,.gateRRow")].filter(f=>{
         const r=f.getBoundingClientRect(), cs=getComputedStyle(f);
         return cs.display!=="none" && cs.visibility!=="hidden" && r.width>0 && r.height>0;
       }) : [];
       // Treat all visible fields on this page as one work area so pages with
-      // Flight + DEP (or other multi-field forms) stay visible together.
+      // Flight + DEP (or other multi-field forms) stay visible together; the
+      // reserved B1R row counts as part of the gate field.
       const rects=fields.map(f=>f.getBoundingClientRect());
       let wt=rects.length?Math.min(...rects.map(r=>r.top)):0;
       let wb=rects.length?Math.max(...rects.map(r=>r.bottom)):0;
@@ -1100,9 +1101,10 @@
         return;
       }
       // If the complete work area physically cannot fit, keep the active field
-      // visible while leaving the content scrollable for the neighbouring fields.
+      // visible (with its B1R row) while leaving the content scrollable for the neighbouring fields.
       const field=el.closest(".field");const er=field ? field.getBoundingClientRect() : el.getBoundingClientRect();
-      if(er.bottom>bottom) main.scrollBy({top:er.bottom-bottom+8,behavior:"auto"});
+      const rRow=field&&field.nextElementSibling, eb=rRow&&rRow.classList.contains("gateRRow") ? rRow.getBoundingClientRect().bottom : er.bottom;
+      if(eb>bottom) main.scrollBy({top:eb-bottom+8,behavior:"auto"});
       else if(er.top<top) main.scrollBy({top:er.top-top-8,behavior:"auto"});
     };
     const syncNow=()=>{
