@@ -144,11 +144,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.0-r42 (2026-09-30)
+
+- Phone home: keep the original top spacing inside the scrollable content so it remains in its original position and can scroll beneath the former blank area. Added guards for home scrollability and content movement.
+
 ### K1.0-r41 (2026-09-30)
 
 - Phone home: remove the empty fixed header space, keeping the top safe area. Other screens retain their navigation header. Cache revision bumped; locks unchanged.
-
-### K1.0-r40 (2026-09-29)
-
-- Release renamed K1.0 (home label and `CACHE_REV`).
-- Home: grey `Clear` chip under the phone field, below the country badge. It clears the number and any case kept by Try Another Number, and keeps the cursor in the field. Layout lock (phone screen) and copy lock (`cta.phone.clear`) recomputed for this change only; one behaviour guard added.

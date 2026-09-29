@@ -1134,7 +1134,20 @@ async def g(r, name):
                 heads.add(n[5]); heads.add(k[5])
             if abs(n[5] - k[5]) > 1: header_jumps.append(f"{n[0]}: {n[5]} -> {k[5]}")
             if n[1:5] != k[1:5]: jumps.append(f"{n[0]}: {n[1:5]} -> {k[1:5]}")
-        await probe(); await r.phone(); await r.act("goDp", "dstatus"); await r.act("stDelayed", "dflight"); await probe()
+        await probe()
+        home_scroll = await r.pg.evaluate("""() => {
+          const main = document.querySelector('#main'), screen = document.querySelector('#s-phone');
+          const before = screen.getBoundingClientRect().top;
+          const canScroll = main.scrollHeight > main.clientHeight + 1;
+          main.scrollTo(0, Math.min(120, main.scrollHeight));
+          const after = screen.getBoundingClientRect().top;
+          const moved = main.scrollTop > 0 && after < before - 1;
+          main.scrollTo(0, 0);
+          return {canScroll, moved, before: Math.round(before), after: Math.round(after)};
+        }""")
+        ck("[guard] home content keeps its initial top spacing", home_scroll["before"] >= 0, str(home_scroll))
+        ck("[guard] home content scrolls instead of being covered by a fixed blank block", home_scroll["canScroll"] and home_scroll["moved"], str(home_scroll))
+        await r.phone(); await r.act("goDp", "dstatus"); await r.act("stDelayed", "dflight"); await probe()
         await r.fill("dFlight", "407"); await r.fill("delayTime", "1800"); await r.act("cta", "dtransfer"); await probe()
         await r.fill("tN", "888"); await r.act("cta", "darrange"); await r.act("arKnown"); await r.pg.wait_for_timeout(350); await probe()
         await r.fill("altN", "401"); await r.fill("altTime", "1530"); await r.act("cta", "darrive"); await probe()

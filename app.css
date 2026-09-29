@@ -40,6 +40,8 @@ h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);f
 .app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .app.phoneHome .head{min-height:0;padding:env(safe-area-inset-top,0px) 0 0}
 .app.phoneHome .head > *{display:none!important}
+/* Keep the original home spacing inside the scrolling content. */
+.app.phoneHome #s-phone{padding-top:102px}
 .app.phoneHome .foot,.app.phoneHome.kb .foot{border-top-color:var(--clear)}
 .app.kb .hint{display:none}
 .app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}
