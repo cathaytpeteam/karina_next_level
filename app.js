@@ -955,16 +955,16 @@
     cta.disabled=!ok;
     const japaneseSMS=cur==="preview"&&(flow==="miss"||(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")))&&S.order==="ja";
     cta.textContent=cur==="preview"
-      ?(externalReturnReady?"Next Passenger":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
+      ?(externalReturnReady?"Back to main page":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
       :copy("cta.next");
     cta.lang=japaneseSMS?"ja":"en";
-    // Call Directly and Wrong Pick-up: after staff return from WhatsApp, offer a phone call above Next Passenger.
+    // S1, S2, S3 and S5: after staff return from WhatsApp or SMS, offer a phone call above Back to main page (not S4).
     const phoneCall=$("callPhone");
     phoneCall.hidden=!phoneCallReady();
     $("callPhoneLabel").textContent=copy("cta.phone.call");
   }
   function phoneCallReady(){
-    return cur==="preview"&&externalReturnReady&&(flow==="wpp"||(flow==="call"&&S.callMode==="direct"));
+    return cur==="preview"&&externalReturnReady&&(flow==="miss"||flow==="call"||flow==="wpp");
   }
   // Opens the phone dialer with the number filled in; staff place the call by hand.
   $("callPhone").onclick=function(){

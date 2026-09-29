@@ -67,7 +67,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 
 - **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers on screen). Docs, tests and copy IDs number them S1–S5 in this order. Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
 - **Call Directly (S3)** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
-- **Call by Phone:** on S3 Call Directly and S5 Wrong Pick-up only, after staff return from WhatsApp, a phone-icon button above Next Passenger opens the dialer (`tel:`) with the number filled in.
+- **After staff return from WhatsApp / SMS:** the main button reads `Back to main page` (S1–S5) and clears the case. On S1, S2, S3 and S5 (not S4) a `Call by Phone` button with a solid handset icon sits above it and opens the dialer (`tel:`) with the number filled in; Call by Phone takes the primary colours and Back to main page the secondary ones.
 - **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button.
 - **Confirm details Sec:** when the origin prefix is not TPE (Transit: HKG / NRT / NGO / KIX), the three letters use `--brand`; the digits and a TPE prefix keep the normal value colour. Not red: a different origin is not a disruption.
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
@@ -141,10 +141,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r34 (2026-09-29)
+
+- After staff return from WhatsApp / SMS the main button reads `Back to main page` (was Next Passenger) on S1–S5. Call by Phone now also appears on S1 漏查 and S2 Final Call (not S4), uses a solid handset icon, and takes the primary colours while Back to main page takes the secondary ones. Footer layout lock recomputed (icon path only); behaviour guards for S1 / S2 SMS / S4 replace the old S3-and-S5-only guard.
+
 ### K2.0-r32 (2026-09-29)
 
 - Call by Phone also appears on S3 Call Directly after staff return from WhatsApp (still S5 Wrong Pick-up too; nowhere else). Scenarios are numbered S1–S5 in Scenario page order in docs, tests and copy IDs: Wrong Pick-up is now S5 and its copy IDs are `s5.zh` / `s5.en` (text unchanged). Copy ID lock keys renamed; hashes unchanged.
-
-### K2.0-r29 (2026-09-29)
-
-- Scenario 3: after staff return from WhatsApp, a `Call by Phone` button with a phone icon sits above Next Passenger and opens the phone dialer (`tel:`) with the number filled in, only on a staff tap. Scenario 1 and 2: the phone-based default language stays first; picking another language no longer reorders the language buttons. Copy ID and footer layout locks in `locks.json` recomputed.

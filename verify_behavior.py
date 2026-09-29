@@ -874,6 +874,24 @@ RETURN_FROM_APP_JS = """() => {
     setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
 }"""
 
+async def call_by_phone_return(r, tag, want):
+    """After staff return from WhatsApp/SMS: label, visibility, position, colours and tel: link."""
+    await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+    ck(f"[guard] {tag} return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
+    ck(f"[guard] {tag} Call by Phone {'shown' if want else 'hidden'} after return", (await r.pg.locator("#callPhone").is_visible()) == want)
+    if not want: return
+    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
+    ck(f"[guard] {tag} Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+    bg = await r.pg.evaluate("['callPhone','cta'].map(i => getComputedStyle(document.getElementById(i)).backgroundColor)")
+    brand = await r.pg.evaluate("(() => { const e = document.createElement('i'); e.style.color = 'var(--brand)'; document.body.append(e); const c = getComputedStyle(e).color; e.remove(); return c; })()")
+    ck(f"[guard] {tag} Call by Phone takes the primary colour, Back to main page the secondary", bg[0] == brand and bg[1] != brand, str(bg))
+    n0 = len(r.nav); await r.pg.click("#callPhone")
+    for _ in range(40):
+        if len(r.nav) > n0: break
+        await r.pg.wait_for_timeout(50)
+    url = r.nav[n0] if len(r.nav) > n0 else ""
+    ck(f"[guard] {tag} Call by Phone opens tel: with the number", url == "tel:+" + PHONE, url)
+
 async def g(r, name):
     if name == "phone_invalid_blocks_next":
         await r.fill("phoneInput", "123"); await r.expect("short phone keeps Next disabled", cta_enabled=False)
@@ -934,12 +952,12 @@ async def g(r, name):
             setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
         }""")
         await r.pg.wait_for_timeout(100)
-        ck("[guard] S5 return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
+        ck("[guard] S5 return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
         ck("[guard] S5 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
         ck("[guard] S5 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
         ck("[guard] S5 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
         a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-        ck("[guard] S5 Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        ck("[guard] S5 Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
         n0 = len(r.nav); await r.pg.click("#callPhone")
         for _ in range(40):
             if len(r.nav) > n0: break
@@ -950,21 +968,27 @@ async def g(r, name):
         await case_direct(r)
         ck("[guard] Call Directly: Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
         await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
-        ck("[guard] Call Directly return shows Next Passenger", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger")
+        ck("[guard] Call Directly return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
         ck("[guard] Call Directly: Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
         a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-        ck("[guard] Call Directly: Call by Phone sits above Next Passenger", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        ck("[guard] Call Directly: Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
         n0 = len(r.nav); await r.pg.click("#callPhone")
         for _ in range(40):
             if len(r.nav) > n0: break
             await r.pg.wait_for_timeout(50)
         url = r.nav[n0] if len(r.nav) > n0 else ""
         ck("[guard] Call Directly: Call by Phone opens tel: with the number", url == "tel:+" + PHONE, url)
-    elif name == "call_by_phone_only_on_direct_and_wrong_pickup":
+    elif name == "s1_call_by_phone_after_whatsapp":
         await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); await r.act("cta", "preview")
-        await r.act("ordEn"); await r.act("cta", "external:whatsapp")
-        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
-        ck("[guard] 漏查 return shows Next Passenger without Call by Phone", (await r.pg.locator("#cta").inner_text()).strip() == "Next Passenger" and await r.pg.locator("#callPhone").is_hidden())
+        await r.act("ordEn")
+        ck("[guard] 漏查 Call by Phone hidden until staff return", await r.pg.locator("#callPhone").is_hidden())
+        await r.act("cta", "external:whatsapp"); await call_by_phone_return(r, "漏查", True)
+    elif name == "s2_call_by_phone_after_sms":
+        await case_s2(r, "callTransit", "451", "ordJa")
+        await call_by_phone_return(r, "Final Call Japanese SMS", True)
+    elif name == "s4_no_call_by_phone":
+        await case_s4(r, "stPossible", "arUnknown", "ordEn")
+        await call_by_phone_return(r, "S4", False)
     elif name == "s4_flight_from_tpe_rejects_non_whitelist":
         await to_s4(r, "stPossible", "888"); await r.expect("Flight from TPE CX888 rejected", False, ["dFlight"])
         await r.fill("dFlight", "407"); await r.expect("Flight from TPE CX407 accepted", True, not_bad=["dFlight"])
