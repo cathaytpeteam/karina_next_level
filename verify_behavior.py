@@ -1011,6 +1011,21 @@ async def g(r, name):
             await r.pg.wait_for_timeout(50)
         url = urllib.parse.unquote(r.nav[n0]) if len(r.nav) > n0 else ""
         ck("[guard] Retry sends to the new number with the kept case", PHONE_RETRY in url and PHONE not in url and "BR654321" in url, url[:90])
+    elif name == "edited_field_after_back_starts_from_send":
+        await case_s5(r, "ordZh")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        await r.back("bag2"); await r.act("cta", "preview")
+        ck("[guard] Back and Next without edits keeps Call by Phone and Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number" and await r.pg.locator("#callPhone").is_visible())
+        await r.back("bag2"); await r.fill("b2n", "654322"); await r.act("cta", "preview")
+        ck("[guard] Edited field after Back shows only Send on WhatsApp", (await r.pg.locator("#cta").inner_text()).strip() == "Send on WhatsApp" and await r.pg.locator("#callPhone").is_hidden())
+        await r.act("cta", "external:whatsapp", ("BR654322",))
+    elif name == "new_number_after_back_starts_from_send":
+        await case_s5(r, "ordZh")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        for to in ("bag2", "bag1", "wflight", "scenario", "phone"): await r.back(to)
+        await r.phone(PHONE_RETRY); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
+        await r.fill("b1n", "123456"); await r.act("cta", "bag2"); await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.act("cta", "preview")
+        ck("[guard] New number after Back shows only Send on WhatsApp", (await r.pg.locator("#cta").inner_text()).strip() == "Send on WhatsApp" and await r.pg.locator("#callPhone").is_hidden())
     elif name == "try_another_number_language_follows_new_number":
         await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); s_ = await r.act("cta", "preview")
         ck("[guard] Taiwan number defaults to 中文 on 漏查", "ordZh" in s_["pressed"], str(s_["pressed"]))

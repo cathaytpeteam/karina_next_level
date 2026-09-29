@@ -208,6 +208,8 @@
   let flow="", cur="phone", resetting=false, externalReturnReady=false;
   // Scenario kept by Try Another Number; re-picking it keeps the case fields.
   let retryScenario="";
+  // Case signature when staff returned from WhatsApp / SMS; any change shows the single send button again.
+  let returnSig=null;
   const stack=["phone"];
   let navPos=0;
   try{history.replaceState({findPax:true,pos:0,id:"phone"},"");}catch(e){}
@@ -577,6 +579,7 @@
       if(leftApp){
         document.removeEventListener("visibilitychange",onVisibility);
         externalReturnReady=true;
+        returnSig=sig();
         if(cur==="preview") render();
       }
     };
@@ -655,6 +658,8 @@
     if(id==="misstype") flow="miss";
     else if(id==="calltype") flow="call";
     else if(id==="preview"&&S.missMode==="direct"&&S.callNoMessage) flow="call";
+    // A new number or an edited field reaches Confirm details with the single send button.
+    if(id==="preview"&&externalReturnReady&&sig()!==returnSig) externalReturnReady=false;
     cur=id;
     document.querySelectorAll(".screen").forEach(s=>s.hidden=true);
     $("s-"+id).hidden=false;
