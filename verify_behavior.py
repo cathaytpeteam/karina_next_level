@@ -651,7 +651,7 @@ async def priority_suite():
             else:
                 await to_s2_gate(r, "callJoin", "407"); iid = "callGate"
             await r.pg.focus("#" + iid); await r.pg.set_viewport_size({"width": w, "height": visible}); await r.pg.wait_for_timeout(500)
-            await r.fill(iid, "2"); rest = await r.pg.evaluate(B1R_JS)
+            await r.fill(iid, ""); rest = await r.pg.evaluate(B1R_JS)
             if not gate_path:
                 ck(f"[priority] {label}: original layout kept before B1R? appears", rest["kb"] and rest["pad"] > 100, str(rest))
             await r.fill(iid, "1"); up = await r.pg.evaluate(B1R_JS)
@@ -804,7 +804,7 @@ async def case_s4_gate(r, status, target, go, lang, new="531"):
     got = await r.pg.locator("#msg").input_value()
     ck(f"[{r.name}] message is exactly the approved Already-at-Gate copy", got == want, got[:200])
     rows = await r.pg.evaluate("[...document.querySelectorAll('#sum div')].map(d => d.querySelector('dt').textContent + '=' + d.querySelector('dd').textContent)")
-    want_rows = ["Disrupted flight=CX451", "Protect to=CX" + new + " / dep 19:55",
+    want_rows = ["Disrupted Flight=CX451", "Protect to=CX" + new + " / Dep 19:55",
                  "Proceed to Gate=" + ("CX451" if tg == "original" else "CX" + new + " / B9")]
     ck(f"[{r.name}] confirm details rows", rows == want_rows, str(rows))
     who = await r.pg.locator("#whoNum").inner_text()
@@ -830,7 +830,8 @@ async def case_b1r(r, gate_path):
     ck(f"[{bid}] reveal does not move Next", abs((await pg.locator('#cta').bounding_box())['y']-y)<1)
     await r.act(bid)
     ck(f"[{bid}] selected", await r.val(iid)=='1R' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='true' and await pg.locator('#'+bid).inner_text()=='B1R')
-    ck(f"[{bid}] focus retained", await pg.evaluate('document.activeElement.id')==iid)
+    await pg.wait_for_timeout(150)
+    ck(f"[{bid}] B1R completes the gate and closes the keyboard", await pg.evaluate('document.activeElement.id')!=iid)
     await r.act(bid)
     ck(f"[{bid}] toggles back to 1", await r.val(iid)=='1' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='false')
     await r.act(bid); await r.fill(zid,'C')
@@ -1246,6 +1247,87 @@ async def g(r, name):
         start = await r.pg.evaluate(order_js)
         await r.act("ordEn"); now = await r.pg.evaluate(order_js)
         ck("[guard] S2 picking English keeps the button order", now == start and start[0] == "ordZh", f"{start} -> {now}")
+    elif name == "header_number_on_passenger_type":
+        who_js = "() => [!document.getElementById('who').hidden, document.getElementById('whoNum').textContent.replace(/ /g, '')]"
+        await r.phone()
+        for trig, scr in (("goMiss", "misstype"), ("goCall", "calltype"), ("goDp", "dstatus")):
+            await r.act(trig, scr)
+            shown, num = await r.pg.evaluate(who_js)
+            ck(f"[guard] {scr} shows the phone number top-right", shown and num == "+" + PHONE, num)
+            await r.back("scenario")
+        await r.act("goDirect", "preview")
+        shown, _ = await r.pg.evaluate(who_js)
+        ck("[guard] Call Directly Confirm details keeps the number out of the header", not shown)
+    elif name == "phone_input_fits":
+        fit_js = "() => { const e = document.getElementById('phoneInput'), b = document.getElementById('badge'); return [e.scrollWidth <= e.clientWidth + 1, parseFloat(getComputedStyle(e).fontSize), !b.hidden, b.textContent]; }"
+        for W in (390, 360, 320):
+            await r.pg.set_viewport_size({"width": W, "height": 844}); await r.pg.wait_for_timeout(150)
+            for num, cc in (("8613812345678", "CN"), ("4915123456789", "DE"), ("6281234567890", "ID")):
+                await r.fill("phoneInput", num); await r.pg.wait_for_timeout(100)
+                fits, fs, shown, label = await r.pg.evaluate(fit_js)
+                ck(f"[guard] {W}px: +{num} fits the phone field", fits and fs >= 16 and shown and label.startswith(chr(127397 + ord(cc[0]))), f"fits={fits} font={fs} badge={label!r}")
+        await r.pg.set_viewport_size({"width": 390, "height": 844}); await r.pg.wait_for_timeout(150)
+        await r.fill("phoneInput", "8613812345678"); await r.pg.wait_for_timeout(100)
+        _, _, _, label = await r.pg.evaluate(fit_js)
+        ck("[guard] 390px: badge keeps the country letters", label.endswith("CN"), label)
+        await r.fill("phoneInput", "85291234567"); await r.pg.wait_for_timeout(100)
+        _, fs, _, _ = await r.pg.evaluate(fit_js)
+        ck("[guard] 390px: a shorter number returns to the full 24px size", fs == 24, str(fs))
+    elif name == "keyboard_closes_when_page_done":
+        async def active():
+            await r.pg.wait_for_timeout(150)
+            return await r.pg.evaluate("document.activeElement && document.activeElement.tagName === 'INPUT' ? document.activeElement.id : ''")
+        await r.fill("phoneInput", PHONE)
+        ck("[guard] phone page keeps the keyboard", await active() == "phoneInput")
+        await r.act("cta", "scenario"); await r.act("goCall", "calltype"); await r.act("callJoin", "callflight")
+        await r.fill("callFlight", "40"); ck("[guard] 2-digit flight keeps the keyboard", await active() == "callFlight")
+        await r.fill("callFlight", "407"); ck("[guard] complete flight closes the keyboard", await active() == "")
+        await r.act("cta", "msec")
+        await r.fill("mSec", "12"); ck("[guard] 2-digit Sec keeps the keyboard", await active() == "mSec")
+        await r.fill("mSec", "123"); ck("[guard] 3-digit Sec closes the keyboard", await active() == "")
+        await r.pg.focus("#mSec"); ck("[guard] tapping a complete field reopens the keyboard and keeps it", await active() == "mSec")
+        await r.act("cta", "callgate")
+        await r.fill("callGate", "1"); ck("[guard] gate B1 keeps the keyboard", await active() == "callGate")
+        await r.fill("callGate", "2"); ck("[guard] gate B2 closes the keyboard", await active() == "")
+        await r.fill("callGateZone", "C"); await r.fill("callGate", "1"); ck("[guard] gate C1 closes the keyboard", await active() == "")
+        await r.back("msec"); await r.act("cta", "callgate")
+        ck("[guard] re-entering a complete page does not open the keyboard", await active() == "")
+        r2 = r
+        await r2.back("msec"); await r2.back("callflight"); await r2.back("calltype"); await r2.back("scenario")
+        await r2.act("goDp", "dstatus"); await r2.act("stGate", "dflight")
+        await r2.fill("dFlight", "407"); ck("[guard] Already at Gate keeps the keyboard until a status is chosen", await active() == "dFlight")
+        await r2.act("gsDelayed"); ck("[guard] Delayed moves to Delayed to", await active() == "delayTime")
+        await r2.fill("delayTime", "2130"); ck("[guard] complete Delayed to closes the keyboard", await active() == "")
+    elif name == "phone_formats_normalize":
+        state_js = "() => [document.getElementById('cta').disabled, document.getElementById('phoneField').classList.contains('bad'), document.getElementById('warn').classList.contains('show')]"
+        for raw, want in (("886983952902", "+886 983 952 902"), ("8860983952902", "+886 983 952 902"), ("886000983952902", "+886 983 952 902"),
+                          ("00886983952902", "+886 983 952 902"), ("008860983952902", "+886 983 952 902"),
+                          ("\uff18\uff18\uff16\uff10\uff19\uff18\uff13\uff19\uff15\uff12\uff19\uff10\uff12", "+886 983 952 902"),
+                          ("0086013812345678", "+86 138 1234 5678"), ("008109012345678", "+81 90 1234 5678")):
+            await r.fill("phoneInput", raw)
+            await r.act("cta", "scenario")
+            who = await r.pg.locator("#whoNum").inner_text()
+            ck(f"[guard] {raw!r} reaches {want}", who == want, who)
+            await r.back("phone")
+        for raw in ("0", "00"):
+            await r.fill("phoneInput", raw)
+            dis, bad, _ = await r.pg.evaluate(state_js)
+            ck(f"[guard] {raw!r} stays neutral while a 00 prefix is typed", dis and not bad)
+        await r.fill("phoneInput", "0085289648964")
+        dis, bad, warn = await r.pg.evaluate(state_js)
+        ck("[guard] a canned number behind 00 is still blocked", dis and bad and warn)
+    elif name == "progress_title_fits":
+        # A Range measures the label text exactly; scrollWidth rounds away the sub-pixel overflow that still shows an ellipsis.
+        fit_js = "() => { const e = document.getElementById('step'), l = e.querySelector('.progressLabel'); if (!l) return [false, 0, e.textContent]; const g = document.createRange(); g.selectNodeContents(l); return [g.getBoundingClientRect().width <= l.getBoundingClientRect().width + 0.01 && e.scrollWidth <= e.clientWidth + 0.5, parseFloat(getComputedStyle(e).fontSize), e.textContent]; }"
+        async def check():
+            for W in (390, 360, 320):
+                await r.pg.set_viewport_size({"width": W, "height": 844}); await r.pg.wait_for_timeout(150)
+                fits, fs, text = await r.pg.evaluate(fit_js)
+                ck(f"[guard] {W}px: progress title fits without an ellipsis ({text})", fits and fs >= 13, f"font={fs}")
+        await r.phone(); await r.act("goDp", "dstatus")
+        for st in ("stPossible", "stDelayed", "stUnknown", "stGate"):
+            await r.act(st, "dflight"); await check(); await r.back("dstatus")
+        await r.back("scenario"); await r.act("goCall", "calltype"); await r.act("callTransit", "callflight"); await check()
     elif name == "s4_arrive_rejects_invalid_time":
         await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange")
         await r.act("arUnknown"); await r.act("cta", "darrive")

@@ -182,6 +182,8 @@
     const n=digits(raw);
     if(!n||!phoneLibReady) return false;
     if(p) return !!p.blocked;
+    // "0" and "00" can still become a 00 international prefix.
+    if(/^0{1,2}$/.test(n)) return false;
     const code=callingCodeFor(n);
     if(!code) return !PHONE_META.codes.some(c=>c.startsWith(n));
     // Keep incomplete Japanese mobile prefixes neutral, including tolerated zeroes.
@@ -538,12 +540,12 @@
     }else if(flow==="wpp"){
       rows.push(["Arrival Flight","CX"+v("wFlight")],["Bag Tag 1",v("b1a")+v("b1n"),null,"unclaimed"],["Bag Tag 2",v("b2a")+v("b2n")]);
     }else if(flow==="dp"&&S.status==="gate"){
-      rows.push(["Disrupted flight","CX"+v("dFlight")]);
-      rows.push(["Protect to","CX"+v("gNewN")+" / dep "+v("gDepTime")],["Proceed to Gate",S.gateTarget==="original"?"CX"+v("dFlight"):"CX"+v("gNewN")+" / "+dnGateFull()]);
+      rows.push(["Disrupted Flight","CX"+v("dFlight")]);
+      rows.push(["Protect to","CX"+v("gNewN")+" / Dep "+v("gDepTime")],["Proceed to Gate",S.gateTarget==="original"?"CX"+v("dFlight"):"CX"+v("gNewN")+" / "+dnGateFull()]);
     }else if(flow==="dp"){
-      rows.push(["Disrupted flight","CX"+v("dFlight")],["Connecting flight",v("tA")+v("tN")]);
-      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / dep "+v("altTime") : "Arrange in airport"]);
-      rows.push(["Arrive airport before",v("arriveTime")]);
+      rows.push(["Disrupted Flight","CX"+v("dFlight")],["Connecting Flight",v("tA")+v("tN")]);
+      rows.push(["Arrangement",S.arrange==="known" ? "Protect to "+v("altA")+v("altN")+" / Dep "+v("altTime") : "Arrange in Airport"]);
+      rows.push(["Arrive at Airport Before",v("arriveTime")]);
     }
     return rows;
   }
@@ -667,6 +669,7 @@
     $("main").scrollTop=0;
   }
   function focusFirst(id){
+    if(pageDone()) return;
     const inp=$("s-"+id).querySelector("input:not(.code)");
     if(inp&&inp.offsetParent!==null){try{inp.focus({preventScroll:true});}catch(e){inp.focus();}}
   }
@@ -674,6 +677,32 @@
   // settles, without scrolling, and never onto a field that already has a value.
   function advanceTo(id){
     if(!v(id)) requestAnimationFrame(()=>{try{$(id).focus({preventScroll:true});}catch(e){}});
+  }
+  // Keyboard closes once every field on the page is complete and every choice is made
+  // (Next enabled). Complete: flight numbers and Sec 3 digits, bag tags 6, times HHMM, airline
+  // codes 2, gate 2-9 / 1R / C1. The phone page never closes it; a 1-2 digit Sec or gate B1 stays open.
+  const FIELD_DONE={mFlight:3,callFlight:3,wFlight:3,dFlight:3,tN:3,altN:3,gNewN:3,mSec:3,b1n:6,b2n:6,delayTime:4,altTime:4,arriveTime:4,gDepTime:4};
+  const CODE_DONE={tA:2,altA:2,b1a:2,b2a:2};
+  function fieldDone(el){
+    const id=el.id;
+    if(id==="callGate"||id==="gGate"){
+      const x=normalizeCallGate(el.value), z=v(id==="callGate"?"callGateZone":"gGateZone");
+      return /^[2-9]$/.test(x)||x===copy("rules.gate.b1rNumber")||(x==="1"&&z!==copy("rules.gate.b1rZone"));
+    }
+    if(CODE_DONE[id]) return el.value.length>=CODE_DONE[id];
+    if(FIELD_DONE[id]) return digits(el.value).length>=FIELD_DONE[id];
+    return false;
+  }
+  function pageDone(){
+    if(cur==="phone"||cur==="preview"||$("foot").hidden||$("cta").disabled) return false;
+    const inputs=[].slice.call($("s-"+cur).querySelectorAll("input")).filter(e=>e.offsetParent!==null);
+    return inputs.every(fieldDone);
+  }
+  function closeKeyboardIfDone(){
+    requestAnimationFrame(()=>{
+      const a=document.activeElement;
+      if(a&&a.tagName==="INPUT"&&pageDone()){try{a.blur();}catch(e){}}
+    });
   }
   function go(id){
     if(navPos<stack.length-1) stack.splice(navPos+1);
@@ -780,6 +809,7 @@
     $("phoneInput").value="";
     S.phone="";S.country="";
     $("badge").hidden=true;
+    $("badge").dataset.cc="";
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
   }
@@ -817,10 +847,26 @@
   }
 
   // ==== [render] ====
+  // Phone number fits its field: the font shrinks from the CSS size down to 18px; if it
+  // still overflows, the country badge shows the flag only and the font may go down to 16px.
+  function fitPhoneInput(){
+    const el=$("phoneInput"), b=$("badge");
+    if(!el||!el.clientWidth) return;
+    const cc=b.dataset.cc||"";
+    const shrink=min=>{
+      el.style.fontSize="";
+      let fs=parseFloat(getComputedStyle(el).fontSize)||24;
+      while(el.scrollWidth>el.clientWidth+0.5 && fs>min){fs-=0.5;el.style.fontSize=fs+"px";}
+    };
+    if(cc) b.textContent=phoneLabel(cc);
+    shrink(18);
+    if(cc && el.scrollWidth>el.clientWidth+0.5){ b.textContent=flagFor(cc); shrink(16); }
+  }
   function render(){
     $("app").classList.toggle("phoneHome",cur==="phone");
+    if(cur==="phone") fitPhoneInput();
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;
+    const hasWho=cur!=="phone"&&!directPreview&&S.phone;
     $("back").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
@@ -1008,18 +1054,26 @@
   };
 
   // ==== [event wiring] ====
+  // Phone input: full-width digits count as digits, and a leading 00 international prefix is
+  // dropped (a calling code never starts with 0), so 00886… and ８８６… reach the same number as 886….
+  const phoneDigits=s=>digits(String(s||"").replace(/[\uFF10-\uFF19]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0))).replace(/^00(?=[1-9])/,"");
   $("phoneInput").addEventListener("input",function(){
-    const rawDigits=digits(this.value).slice(0,18);
+    const rawDigits=phoneDigits(this.value).slice(0,18);
     this.value=typingPhone(rawDigits).replace(/^\+/,"");
     const p=normalizePhone(rawDigits), early=p?null:detectCountryEarly(rawDigits), b=$("badge");
     const cc=(p&&p.country)||(early&&early.country)||"";
     b.hidden=!cc;
+    b.dataset.cc=cc;
     if(cc) b.textContent=phoneLabel(cc);
     const bl=!!(p&&p.blocked);
     $("warn").classList.toggle("show",bl);
     $("phoneField").classList.toggle("bad",phoneInputIsBad(this.value,p));
     render();
   });
+  window.addEventListener("resize",()=>{if(cur==="phone") fitPhoneInput();},{passive:true});
+  // Runs after each field's own handler, so auto-advance and B1R have already settled.
+  document.addEventListener("input",e=>{if(e.target&&e.target.tagName==="INPUT") closeKeyboardIfDone();});
+  document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.closest(".opt,.gateR")) closeKeyboardIfDone();});
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,gNewN:3};
   Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){
     this.value=digits(this.value).slice(0,numInputs[id]);
@@ -1096,8 +1150,15 @@
       if(busy) return; busy=true;
       el.style.fontSize="";
       if(el.textContent && el.clientWidth>0){
+        // The label clips itself with an ellipsis, so the title fits only when the label's text is no
+        // wider than the label. The text is measured with a Range: scrollWidth rounds away sub-pixel overflow.
+        const label=el.querySelector(".progressLabel");
+        let range=null;
+        try{ if(label){ range=document.createRange(); range.selectNodeContents(label); } }catch(e){ range=null; }
+        const labelOver=()=>range?range.getBoundingClientRect().width>label.getBoundingClientRect().width+0.01:label.scrollWidth>label.clientWidth+0.5;
+        const over=()=>el.scrollWidth>el.clientWidth+0.5 || (!!label && labelOver());
         let fs=parseFloat(getComputedStyle(el).fontSize)||20;
-        while(el.scrollWidth>el.clientWidth+0.5 && fs>13){fs-=0.5;el.style.fontSize=fs+"px";}
+        while(over() && fs>13){fs-=0.5;el.style.fontSize=fs+"px";}
       }
       busy=false;
     };

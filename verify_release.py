@@ -170,7 +170,7 @@ def navigation_lock():
         if '#s-dstatus h1' in sel and 'text-align:center' in re.sub(r'\s+','',body):
             centered=True
     ck('Scenario 4 Flight Type title placement matches Passenger Type', not centered)
-    ck('Scenario 4 Flight Type header matches Passenger Type', 'const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"' in s)
+    ck('Scenario 4 Flight Type header matches Passenger Type', 'const hasWho=cur!=="phone"&&!directPreview&&S.phone;' in s)
 
     # Choice pages navigate immediately; there is no footer/Next and no NEXT[dstatus] path.
     ck('Scenario 4 Flight Type footer/Next hidden', 'const showFoot=cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus";' in s)
@@ -202,7 +202,7 @@ def navigation_lock():
     dgateaction=section('s-dgateaction')
     ck('Scenario 4 gate branch flow', 'dpgate:{name:copy("progress.flow.dp"),steps:["dstatus","dflight","dnew","dgateaction","preview"]}' in s and 'flow==="dp"&&S.status==="gate"&&cur!=="dstatus"?DP_BRANCH_FLOWS.dpgate:FLOWS[flow]' in s)
     ck('Scenario 4 gate branch routing', 'if(S.status==="gate")go("dnew");else go("dtransfer");' in next_block and 'dnew:()=>{normalizeFlightField("gNewN");go("dgateaction");}' in next_block)
-    ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
+    ck('Scenario 4 gate Flight status on step 2', all(x in dflight for x in ['id="gStatusWrap" hidden','>Flight Status<','id="gsDelayed"','>Delayed<','id="gsCancelled"','>Cancelled<']) and dflight.index('id="dFlight"') < dflight.index('id="gStatusWrap"') < dflight.index('id="delayWrap"') and '$("gStatusWrap").hidden=S.status!=="gate";' in s)
     ck('Scenario 4 gate step 2 validation', 'dflight:()=>isFlt(v("dFlight"))&&generalCxOk(v("dFlight"))&&(S.status!=="delayed"||timeOk("delayTime"))&&(S.status!=="gate"||S.gateStatus==="cancelled"||(S.gateStatus==="delayed"&&timeOk("delayTime")))&&disruptedFlightOk(v("dFlight")),' in ok_block)
     ck('Scenario 4 Protect to page fields', all(x in dnew for x in ['<h1>Protect to</h1>','id="gNewN"','id="gGateZone"','id="gGate"','id="gDepTime"']) and all(x not in dnew for x in ['>Proceed to Gate<','id="gOriginalFlight"','id="gpAsap"']))
     ck('Scenario 4 Proceed to Gate page fields', all(x in dgateaction for x in ['<h1>Proceed to Gate</h1>','id="gOriginalFlight"','id="gProtectedFlight"','id="gpAsap"','>ASAP<','id="gpWait"','>Wait for Staff<']))
@@ -316,7 +316,7 @@ for section in ('phone_validation','japanese_sms','datetime'):
 # UI regression checks: passenger type in progress and Direct phone placement.
 ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'function renderProgressTitle(label,count)' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:17px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{margin-left:auto;color:var(--progress-count)' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+groupedPhone(S.phone)])' in s)
-ck('direct phone hidden from header', 'const hasWho=cur!=="phone"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus"&&!directPreview&&S.phone;' in s)
+ck('direct phone hidden from header', 'const hasWho=cur!=="phone"&&!directPreview&&S.phone;' in s)
 # Header number: no background, muted grey, regular weight, grouped by country
 # (+886 983 952 902); shown on Confirm details too, so there is no "Send to" row. Links keep the plain digits.
 ck('header number style', '.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--clear);color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;' in s)

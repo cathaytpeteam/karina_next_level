@@ -53,8 +53,10 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - Invalid phone blocks Next. Canned/blocked numbers show `罐頭號碼 無用`.
 - **Landline numbers must be rejected (user-approved).** Only mobile numbers pass validation, in every country. The app uses the libphonenumber-js mobile metadata (`libphonenumber-mobile.js`); do not switch back to max/min metadata without explicit approval. Japan keeps its own rule (90/80/70/60 only), independent of the library.
 - Valid numbers normalize to canonical E.164 digits without `+` (`PhoneNumber.isValid()` required).
+- Passengers always give a country code. Spaces, dashes, brackets and `+` are ignored, full-width digits count, and a leading `00` international prefix is dropped, so 886…, 00886… and ８８６… give the same number; the field shows the converted digits. Numbers without a country code are not guessed.
+- Phone field never clips the number: the font shrinks from 24px to 18px, then the badge shows the flag only and the font may go to 16px.
 - Japan +81 has its own rule, independent of the library: after 81 and up to three tolerated leading zeroes, a 10-digit mobile part starting 90 / 80 / 70 / 60. Japanese 020, 050, 0800, landlines and wrong lengths are rejected.
-- Header phone number: muted grey, grouped the way each country writes it (+886 983 952 902). Grouping is display-only; WhatsApp / SMS / call links use plain digits.
+- Header phone number: muted grey, grouped the way each country writes it (+886 983 952 902). Grouping is display-only; WhatsApp / SMS / call links use plain digits. Shown on every screen after the phone page, Passenger Type pages included, except Call Directly Confirm details (its summary already shows the number).
 
 ### 3. Navigation / state
 
@@ -65,7 +67,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 
 ### 4. Shared UI
 
-- **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers on screen). Docs, tests and copy IDs number them S1–S5 in this order. Progress titles stay `Disrupted Pax - …` / `Wrong Pick-up - …`.
+- **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers on screen). Docs, tests and copy IDs number them S1–S5 in this order. Progress titles stay `Disrupted Pax - …` / `Wrong Pick-Up - …`.
 - **Call Directly (S3)** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
 - **After staff return from WhatsApp / SMS:** the main button reads `Try Another Number` (S1–S5). It returns to the phone page with the number field empty; re-picking the same scenario keeps every other field, picking another scenario clears the case. The language default follows the new number's country. A new number or any edited field reaches Confirm details with the single send button again; Back and Next without changes keep both return buttons. On S1, S2, S3 and S5 a `Call by Phone` button with a solid handset icon sits above it and opens the dialer (`tel:`) with the number filled in; Call by Phone takes the primary colours and Try Another Number the secondary ones. On S4 Try Another Number is the only button and takes the primary colours.
 - **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button.
@@ -73,12 +75,13 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.
 - **Auto-advance:** a complete, valid field moves the cursor to the next empty field without scrolling: Protect to flight → DEP → Gate; Flight arrangement flight → dep time; airline code → number (Connecting flight, Flight arrangement, Bag 1/2); Disrupted flight → Delayed-to. An invalid value keeps the cursor.
+- **Keyboard closes when the page is done:** once every field on the page is complete and every choice is made (Next enabled), the keyboard closes and staff tap Next. Complete: flight numbers and Sec 3 digits, bag tags 6, times HHMM, airline codes 2, gate 2–9 / B1R / C1. A 1–2 digit Sec, gate B1 and the phone page keep the keyboard. Tapping a field reopens it; re-entering a completed page does not open it.
 - **Message Preview is read-only:** no in-app Edit or Copy Text.
 - **Progress label:** 20px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
 - **No layout jump:** form pages keep the same sizes with or without the keyboard (title 24px, fields 64px; top-aligned except the single-field pages below); only the footer compacts. Header height is identical on every page. 0.16 s page fade, off with "reduce motion".
 - **Single-field pages sit lower:** Flight number (漏查, Final Call, Wrong Pick-up), Sec, Gate, Bag Tag 1/2, Connecting flight and Arrive airport before get `padding-top: clamp(0px, (resting height − 640px) × 0.65, 180px)` (18 px on small phones, ~132 px on 844 px phones, 180 px max). The resting height is kept by `app.js` (`--rest-h`), so the page never moves when the keyboard opens, and the field stays above Next with normal and 40 px taller keyboards on 360–430 px phones. Other pages stay top-aligned.
 - **Red borders:** blank fields stay neutral; a field stays neutral while its digits can still become valid (e.g. `4`, `40` → 407) and turns red when no valid value can start that way, when complete and invalid, or on leaving the field. Error red (`--danger`) is for invalid state only.
-- **Gate inputs:** numeric keyboard. Area B + gate `1` shows a reserved-height `B1R?` toggle (switches B1/B1R without closing the keyboard); area C never offers B1R.
+- **Gate inputs:** numeric keyboard. Area B + gate `1` shows a reserved-height `B1R?` toggle (choosing B1R completes the gate and closes the keyboard); area C never offers B1R.
 
 ### 5. Scenario 1 — 漏查
 
@@ -141,10 +144,13 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K2.0-r38 (2026-09-29)
+
+- Phone: 00 international prefix and full-width digits accepted; the number field shrinks the font (then flag-only badge) instead of clipping; the header number also shows on Passenger Type pages.
+- Keyboard closes once a page is complete (Sec 1–2 digits and gate B1 excepted); choosing B1R closes it.
+- Titles, buttons and summary labels in title case (`Ask Pax to Arrive at Airport Before?`); progress titles `Tight Connection`, `Flight Delayed`, `Wrong Pick-Up`. Layout and copy locks recomputed for these texts only.
+- Progress title auto-shrink now measures the label text, so it shrinks before any ellipsis. Five behaviour guards added.
+
 ### K2.0-r37 (2026-09-29)
 
 - After staff return from WhatsApp / SMS, a new number or an edited field shows only the send button on Confirm details, on S1–S5 and whichever way staff go back (Try Another Number, ‹ Back or the system back). Back and Next without changes keep Call by Phone and Try Another Number. Two behaviour guards added.
-
-### K2.0-r36 (2026-09-29)
-
-- Try Another Number now opens the phone page with the number field empty (was kept and selected); every other field of the same scenario is kept, and the language default follows the new number's country. One behaviour guard added (Japanese number on 漏查 defaults to 日本語).
