@@ -771,15 +771,18 @@
     $("msgToggle").setAttribute("aria-expanded","false");
     $("s-preview").classList.remove("preview-focus");
   }
-  function clearFields(){
-    externalReturnReady=false;
-    retryScenario="";
+  function clearPhoneField(){
     $("phoneInput").value="";
-    clearCaseData();
     S.phone="";S.country="";
     $("badge").hidden=true;
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
+  }
+  function clearFields(){
+    externalReturnReady=false;
+    retryScenario="";
+    clearCaseData();
+    clearPhoneField();
   }
   function returnHome(){
     const depth=navPos;
@@ -791,13 +794,14 @@
     clearFields();
     returnHome();
   }
-  // Try Another Number: back to the phone page with the number selected; the case stays for the retry.
+  // Try Another Number: back to an empty phone page; the case stays for the retry and the
+  // language default follows the new number's country.
   function tryAnotherNumber(){
     retryScenario=(flow==="call"&&S.callNoMessage)?"direct":flow;
     externalReturnReady=false;
+    clearPhoneField();
     returnHome();
-    const el=$("phoneInput");
-    try{el.focus({preventScroll:true});el.select();}catch(e){}
+    try{$("phoneInput").focus({preventScroll:true});}catch(e){}
   }
   // Re-picking the kept scenario keeps its fields; any other scenario starts from a clean case.
   function keepRetryCase(key){

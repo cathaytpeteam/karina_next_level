@@ -751,6 +751,7 @@
   "s2_call_by_phone_after_sms",
   "s4_no_call_by_phone",
   "try_another_number_keeps_case",
+  "try_another_number_language_follows_new_number",
   "s4_flight_from_tpe_rejects_non_whitelist",
   "s4_delayed_requires_time",
   "s4_delayed_rejects_invalid_time",

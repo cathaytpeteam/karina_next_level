@@ -51,7 +51,7 @@ _COPY_MATCH = re.search(r'window\.FIND_PAX_COPY\s*=\s*Object\.freeze\((\{.*\})\)
 COPY = json.loads(_COPY_MATCH.group(1)) if _COPY_MATCH else {}
 SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
 PHONE = "886983952902"
-PHONE_RETRY = "886912345678"
+PHONE_RETRY = "819012345678"
 
 failed = False
 
@@ -998,17 +998,30 @@ async def g(r, name):
         await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
         await r.pg.click("#cta"); s_ = await r.wait(lambda s: s["screen"] == "phone")
         ck("[guard] Try Another Number returns to the phone page", s_["screen"] == "phone", s_["screen"])
-        sel = await r.pg.evaluate("(() => { const e = document.getElementById('phoneInput'); return [document.activeElement === e, e.value.length > 0, e.selectionStart === 0 && e.selectionEnd === e.value.length]; })()")
-        ck("[guard] Try Another Number keeps the number, focused and selected", sel == [True, True, True], str(sel))
+        sel = await r.pg.evaluate("(() => { const e = document.getElementById('phoneInput'); return [document.activeElement === e, e.value, document.getElementById('badge').hidden]; })()")
+        ck("[guard] Try Another Number empties the number field and focuses it", sel == [True, "", True], str(sel))
+        await r.expect("empty number keeps Next disabled", cta_enabled=False)
         await r.fill("phoneInput", PHONE_RETRY); await r.act("cta", "scenario"); await r.act("goWpp", "wflight")
         ck("[guard] Try Another Number keeps the Wrong Pick-up fields", [await r.val(x) for x in ("wFlight", "b1n", "b2a", "b2n")] == ["123", "123456", "BR", "654321"])
-        await r.act("cta", "bag1"); await r.act("cta", "bag2"); await r.act("cta", "preview")
+        await r.act("cta", "bag1"); await r.act("cta", "bag2"); s_ = await r.act("cta", "preview")
+        ck("[guard] Retry language default follows the new number (Japan on Wrong Pick-up: English)", "ordEn" in s_["pressed"] and "ordZh" not in s_["pressed"], str(s_["pressed"]))
         n0 = len(r.nav); await r.pg.click("#cta")
         for _ in range(40):
             if len(r.nav) > n0: break
             await r.pg.wait_for_timeout(50)
         url = urllib.parse.unquote(r.nav[n0]) if len(r.nav) > n0 else ""
         ck("[guard] Retry sends to the new number with the kept case", PHONE_RETRY in url and PHONE not in url and "BR654321" in url, url[:90])
+    elif name == "try_another_number_language_follows_new_number":
+        await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); s_ = await r.act("cta", "preview")
+        ck("[guard] Taiwan number defaults to 中文 on 漏查", "ordZh" in s_["pressed"], str(s_["pressed"]))
+        await r.act("cta", "external:whatsapp")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+        await r.phone(PHONE_RETRY); await r.act("goMiss", "misstype"); await r.act("missJoin", "mflight")
+        ck("[guard] Retry keeps 漏查 flight", await r.val("mFlight") == "450", await r.val("mFlight"))
+        await r.act("cta", "msec"); ck("[guard] Retry keeps 漏查 SEC", await r.val("mSec") == "12", await r.val("mSec"))
+        s_ = await r.act("cta", "preview")
+        ck("[guard] Retry with a Japanese number defaults to 日本語 on 漏查", "ordJa" in s_["pressed"], str(s_["pressed"]))
     elif name == "s4_flight_from_tpe_rejects_non_whitelist":
         await to_s4(r, "stPossible", "888"); await r.expect("Flight from TPE CX888 rejected", False, ["dFlight"])
         await r.fill("dFlight", "407"); await r.expect("Flight from TPE CX407 accepted", True, not_bad=["dFlight"])
@@ -1272,7 +1285,7 @@ async def rule(r, name):
         await case_s5(r, "ordZh")
         await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
         await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
-        await r.act("cta", "scenario"); await r.act("goDp", "dstatus"); await r.back("scenario"); await r.act("goWpp", "wflight")
+        await r.phone(); await r.act("goDp", "dstatus"); await r.back("scenario"); await r.act("goWpp", "wflight")
         ck("[rule] Picking another scenario after Try Another Number clears the kept case", await r.val("wFlight") == "", await r.val("wFlight"))
     elif name == "scenario_reentry_starts_clean":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123")
