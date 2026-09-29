@@ -38,6 +38,8 @@ h1{font-size:28px;line-height:1.2;margin:10px 0 20px;color:var(--brand-strong);f
 .app.kb main{padding-bottom:4px;scroll-padding-top:8px;scroll-padding-bottom:52px}
 .app.kb #s-mflight:not([hidden]),.app.kb #s-msec:not([hidden]),.app.kb #s-wflight:not([hidden]),.app.kb #s-bag1:not([hidden]),.app.kb #s-bag2:not([hidden]),.app.kb #s-dflight:not([hidden]),.app.kb #s-dtransfer:not([hidden]),.app.kb #s-darrange:not([hidden]),.app.kb #s-callflight:not([hidden]),.app.kb #s-callgate:not([hidden]),.app.kb #s-dnew:not([hidden]){padding-bottom:8px}
 .app.kb .foot{padding:3px 20px max(3px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.app.phoneHome .head{min-height:0;padding:env(safe-area-inset-top,0px) 0 0}
+.app.phoneHome .head > *{display:none!important}
 .app.phoneHome .foot,.app.phoneHome.kb .foot{border-top-color:var(--clear)}
 .app.kb .hint{display:none}
 .app.kb .cta{min-height:40px;font-size:17px;border-radius:12px}

@@ -1113,25 +1113,35 @@ async def g(r, name):
         await rr.fill("callGateZone", "B"); await rr.fill("callGate", "1R"); await rr.act("cta", "preview")
         await rr.act("ordJa"); await rr.act("cta", "external:sms", exact=ja_expected("s2", "join", "CX407", "B1R")); await rr.close()
     elif name == "layout_does_not_jump":
-        # Keyboard open/close must not move or resize the title and fields, and the header
-        # must keep the same height on every page. Keyboard mode is forced via the
+        # Keyboard open/close must not move or resize the title and fields. Home keeps
+        # only the top safe area; other pages keep equal header heights. Keyboard mode uses the
         # same .kb class the app applies when the on-screen keyboard is up.
         M = """() => { const s = document.querySelector('.screen:not([hidden])'); const h = s.querySelector('h1');
           const f = s.querySelector('.field'); const r = e => e ? Math.round(e.getBoundingClientRect().top) : null;
+          const probe = document.createElement('div');
+          probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top,0px)';
+          document.body.appendChild(probe);
+          const safeTop = Math.round(parseFloat(getComputedStyle(probe).paddingTop) || 0); probe.remove();
           return [s.id, r(h), h ? getComputedStyle(h).fontSize : '', r(f), f ? Math.round(f.getBoundingClientRect().height) : null,
-                  Math.round(document.querySelector('.head').getBoundingClientRect().height)]; }"""
+                  Math.round(document.querySelector('.head').getBoundingClientRect().height), safeTop]; }"""
         K = "on => { const a = document.getElementById('app'); a.classList.toggle('kb', on); a.style.setProperty('--vh', on ? '470px' : '100%'); }"
-        heads, jumps = set(), []
+        heads, home_heads, jumps, header_jumps = set(), [], [], []
         async def probe():
             n = await r.pg.evaluate(M); await r.pg.evaluate(K, True); k = await r.pg.evaluate(M); await r.pg.evaluate(K, False)
-            heads.add(n[5]); heads.add(k[5])
+            if n[0] == "s-phone":
+                home_heads.extend([(n[5], n[6]), (k[5], k[6])])
+            else:
+                heads.add(n[5]); heads.add(k[5])
+            if abs(n[5] - k[5]) > 1: header_jumps.append(f"{n[0]}: {n[5]} -> {k[5]}")
             if n[1:5] != k[1:5]: jumps.append(f"{n[0]}: {n[1:5]} -> {k[1:5]}")
         await probe(); await r.phone(); await r.act("goDp", "dstatus"); await r.act("stDelayed", "dflight"); await probe()
         await r.fill("dFlight", "407"); await r.fill("delayTime", "1800"); await r.act("cta", "dtransfer"); await probe()
         await r.fill("tN", "888"); await r.act("cta", "darrange"); await r.act("arKnown"); await r.pg.wait_for_timeout(350); await probe()
         await r.fill("altN", "401"); await r.fill("altTime", "1530"); await r.act("cta", "darrive"); await probe()
         ck("[guard] title and fields do not move or resize when the keyboard opens", not jumps, "; ".join(jumps))
-        ck("[guard] header height identical on every page", max(heads) - min(heads) <= 1, str(sorted(heads)))
+        ck("[guard] home header contains only the top safe area", bool(home_heads) and all(abs(height - safe) <= 1 for height, safe in home_heads), str(home_heads))
+        ck("[guard] non-home header heights remain equal and nonzero", bool(heads) and min(heads) > 0 and max(heads) - min(heads) <= 1, str(sorted(heads)))
+        ck("[guard] header height stays stable when the keyboard opens", not header_jumps, "; ".join(header_jumps))
     elif name == "s4_delayed_rejects_invalid_time":
         await to_s4(r, "stDelayed", delay="2575"); await r.expect("Delayed 25:75 rejected", False, ["delayTime"])
     elif name == "s4_non_delayed_hides_time":

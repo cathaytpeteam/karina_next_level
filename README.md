@@ -144,11 +144,11 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.0-r41 (2026-09-30)
+
+- Phone home: remove the empty fixed header space, keeping the top safe area. Other screens retain their navigation header. Cache revision bumped; locks unchanged.
+
 ### K1.0-r40 (2026-09-29)
 
 - Release renamed K1.0 (home label and `CACHE_REV`).
 - Home: grey `Clear` chip under the phone field, below the country badge. It clears the number and any case kept by Try Another Number, and keeps the cursor in the field. Layout lock (phone screen) and copy lock (`cta.phone.clear`) recomputed for this change only; one behaviour guard added.
-
-### K2.0-r39 (2026-09-29)
-
-- Keyboard no longer closes by itself when a page is complete: it made the screen jump on every page (keyboard down, Next drops, keyboard back up on the next page). Keyboard and B1R behaviour are as in K2.0-r37; the related behaviour guard is removed and the two B1R checks are restored.
