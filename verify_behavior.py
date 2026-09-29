@@ -651,7 +651,7 @@ async def priority_suite():
             else:
                 await to_s2_gate(r, "callJoin", "407"); iid = "callGate"
             await r.pg.focus("#" + iid); await r.pg.set_viewport_size({"width": w, "height": visible}); await r.pg.wait_for_timeout(500)
-            await r.fill(iid, ""); rest = await r.pg.evaluate(B1R_JS)
+            await r.fill(iid, "2"); rest = await r.pg.evaluate(B1R_JS)
             if not gate_path:
                 ck(f"[priority] {label}: original layout kept before B1R? appears", rest["kb"] and rest["pad"] > 100, str(rest))
             await r.fill(iid, "1"); up = await r.pg.evaluate(B1R_JS)
@@ -830,8 +830,7 @@ async def case_b1r(r, gate_path):
     ck(f"[{bid}] reveal does not move Next", abs((await pg.locator('#cta').bounding_box())['y']-y)<1)
     await r.act(bid)
     ck(f"[{bid}] selected", await r.val(iid)=='1R' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='true' and await pg.locator('#'+bid).inner_text()=='B1R')
-    await pg.wait_for_timeout(150)
-    ck(f"[{bid}] B1R completes the gate and closes the keyboard", await pg.evaluate('document.activeElement.id')!=iid)
+    ck(f"[{bid}] focus retained", await pg.evaluate('document.activeElement.id')==iid)
     await r.act(bid)
     ck(f"[{bid}] toggles back to 1", await r.val(iid)=='1' and await pg.locator('#'+bid).get_attribute('aria-pressed')=='false')
     await r.act(bid); await r.fill(zid,'C')
@@ -1273,31 +1272,6 @@ async def g(r, name):
         await r.fill("phoneInput", "85291234567"); await r.pg.wait_for_timeout(100)
         _, fs, _, _ = await r.pg.evaluate(fit_js)
         ck("[guard] 390px: a shorter number returns to the full 24px size", fs == 24, str(fs))
-    elif name == "keyboard_closes_when_page_done":
-        async def active():
-            await r.pg.wait_for_timeout(150)
-            return await r.pg.evaluate("document.activeElement && document.activeElement.tagName === 'INPUT' ? document.activeElement.id : ''")
-        await r.fill("phoneInput", PHONE)
-        ck("[guard] phone page keeps the keyboard", await active() == "phoneInput")
-        await r.act("cta", "scenario"); await r.act("goCall", "calltype"); await r.act("callJoin", "callflight")
-        await r.fill("callFlight", "40"); ck("[guard] 2-digit flight keeps the keyboard", await active() == "callFlight")
-        await r.fill("callFlight", "407"); ck("[guard] complete flight closes the keyboard", await active() == "")
-        await r.act("cta", "msec")
-        await r.fill("mSec", "12"); ck("[guard] 2-digit Sec keeps the keyboard", await active() == "mSec")
-        await r.fill("mSec", "123"); ck("[guard] 3-digit Sec closes the keyboard", await active() == "")
-        await r.pg.focus("#mSec"); ck("[guard] tapping a complete field reopens the keyboard and keeps it", await active() == "mSec")
-        await r.act("cta", "callgate")
-        await r.fill("callGate", "1"); ck("[guard] gate B1 keeps the keyboard", await active() == "callGate")
-        await r.fill("callGate", "2"); ck("[guard] gate B2 closes the keyboard", await active() == "")
-        await r.fill("callGateZone", "C"); await r.fill("callGate", "1"); ck("[guard] gate C1 closes the keyboard", await active() == "")
-        await r.back("msec"); await r.act("cta", "callgate")
-        ck("[guard] re-entering a complete page does not open the keyboard", await active() == "")
-        r2 = r
-        await r2.back("msec"); await r2.back("callflight"); await r2.back("calltype"); await r2.back("scenario")
-        await r2.act("goDp", "dstatus"); await r2.act("stGate", "dflight")
-        await r2.fill("dFlight", "407"); ck("[guard] Already at Gate keeps the keyboard until a status is chosen", await active() == "dFlight")
-        await r2.act("gsDelayed"); ck("[guard] Delayed moves to Delayed to", await active() == "delayTime")
-        await r2.fill("delayTime", "2130"); ck("[guard] complete Delayed to closes the keyboard", await active() == "")
     elif name == "phone_formats_normalize":
         state_js = "() => [document.getElementById('cta').disabled, document.getElementById('phoneField').classList.contains('bad'), document.getElementById('warn').classList.contains('show')]"
         for raw, want in (("886983952902", "+886 983 952 902"), ("8860983952902", "+886 983 952 902"), ("886000983952902", "+886 983 952 902"),

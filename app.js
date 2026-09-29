@@ -669,7 +669,6 @@
     $("main").scrollTop=0;
   }
   function focusFirst(id){
-    if(pageDone()) return;
     const inp=$("s-"+id).querySelector("input:not(.code)");
     if(inp&&inp.offsetParent!==null){try{inp.focus({preventScroll:true});}catch(e){inp.focus();}}
   }
@@ -677,32 +676,6 @@
   // settles, without scrolling, and never onto a field that already has a value.
   function advanceTo(id){
     if(!v(id)) requestAnimationFrame(()=>{try{$(id).focus({preventScroll:true});}catch(e){}});
-  }
-  // Keyboard closes once every field on the page is complete and every choice is made
-  // (Next enabled). Complete: flight numbers and Sec 3 digits, bag tags 6, times HHMM, airline
-  // codes 2, gate 2-9 / 1R / C1. The phone page never closes it; a 1-2 digit Sec or gate B1 stays open.
-  const FIELD_DONE={mFlight:3,callFlight:3,wFlight:3,dFlight:3,tN:3,altN:3,gNewN:3,mSec:3,b1n:6,b2n:6,delayTime:4,altTime:4,arriveTime:4,gDepTime:4};
-  const CODE_DONE={tA:2,altA:2,b1a:2,b2a:2};
-  function fieldDone(el){
-    const id=el.id;
-    if(id==="callGate"||id==="gGate"){
-      const x=normalizeCallGate(el.value), z=v(id==="callGate"?"callGateZone":"gGateZone");
-      return /^[2-9]$/.test(x)||x===copy("rules.gate.b1rNumber")||(x==="1"&&z!==copy("rules.gate.b1rZone"));
-    }
-    if(CODE_DONE[id]) return el.value.length>=CODE_DONE[id];
-    if(FIELD_DONE[id]) return digits(el.value).length>=FIELD_DONE[id];
-    return false;
-  }
-  function pageDone(){
-    if(cur==="phone"||cur==="preview"||$("foot").hidden||$("cta").disabled) return false;
-    const inputs=[].slice.call($("s-"+cur).querySelectorAll("input")).filter(e=>e.offsetParent!==null);
-    return inputs.every(fieldDone);
-  }
-  function closeKeyboardIfDone(){
-    requestAnimationFrame(()=>{
-      const a=document.activeElement;
-      if(a&&a.tagName==="INPUT"&&pageDone()){try{a.blur();}catch(e){}}
-    });
   }
   function go(id){
     if(navPos<stack.length-1) stack.splice(navPos+1);
@@ -1071,9 +1044,6 @@
     render();
   });
   window.addEventListener("resize",()=>{if(cur==="phone") fitPhoneInput();},{passive:true});
-  // Runs after each field's own handler, so auto-advance and B1R have already settled.
-  document.addEventListener("input",e=>{if(e.target&&e.target.tagName==="INPUT") closeKeyboardIfDone();});
-  document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.closest(".opt,.gateR")) closeKeyboardIfDone();});
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,gNewN:3};
   Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){
     this.value=digits(this.value).slice(0,numInputs[id]);
