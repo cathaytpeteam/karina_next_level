@@ -69,6 +69,10 @@ span.code{display:grid;place-items:center;font-size:28px;text-transform:none}
 .badge[hidden]{display:none}
 .warn{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--danger-soft);color:var(--danger);font-size:22px;font-weight:800;text-align:center}
 .warn.show{display:block}
+/* Home Clear: grey chip under the country badge; its row keeps its height so nothing moves when it appears. */
+.clearRow{display:flex;justify-content:flex-end;align-items:center;min-height:48px;margin-top:10px}
+.clearBtn{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--muted);font-size:17px;font-weight:700;min-height:40px;padding:0 20px;cursor:pointer}
+.clearBtn[hidden]{display:none}
 .chip{width:max-content;margin:-8px auto 22px;padding:6px 18px;border-radius:999px;background:var(--brand-soft);color:var(--brand-strong);font-size:22px;font-weight:800;letter-spacing:.04em}
 .chip + .field{margin-top:0}
 h1 + .chip{margin-top:-8px}

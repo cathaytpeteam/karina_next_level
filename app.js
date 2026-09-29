@@ -835,8 +835,15 @@
     shrink(18);
     if(cc && el.scrollWidth>el.clientWidth+0.5){ b.textContent=flagFor(cc); shrink(16); }
   }
+  // Home Clear shows while there is a number or a case kept by Try Another Number.
+  function updateClear(){
+    const b=$("clearAll");
+    if(!b.textContent) b.textContent=copy("cta.phone.clear");
+    b.hidden=!(cur==="phone"&&(v("phoneInput")||retryScenario));
+  }
   function render(){
     $("app").classList.toggle("phoneHome",cur==="phone");
+    updateClear();
     if(cur==="phone") fitPhoneInput();
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
     const hasWho=cur!=="phone"&&!directPreview&&S.phone;
@@ -1044,6 +1051,12 @@
     render();
   });
   window.addEventListener("resize",()=>{if(cur==="phone") fitPhoneInput();},{passive:true});
+  // Home Clear: drops the number and any case kept by Try Another Number; the phone field keeps focus.
+  $("clearAll").addEventListener("click",function(){
+    clearFields();
+    render();
+    try{$("phoneInput").focus({preventScroll:true});}catch(e){}
+  });
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,gNewN:3};
   Object.keys(numInputs).forEach(id=>$(id).addEventListener("input",function(){
     this.value=digits(this.value).slice(0,numInputs[id]);

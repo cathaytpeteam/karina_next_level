@@ -1,4 +1,4 @@
-# Find Pax K2.0
+# Find Pax K1.0
 
 Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
@@ -43,8 +43,9 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - Background revalidation runs in parallel in the phone-input idle window (~600 ms after `load`), never during first paint. Unchanged files cost only a 304.
 - A failed `cache.put()` must not fail a successful network response. Redirected navigation responses are never cached.
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
+- **Home Clear:** a grey `Clear` chip (`--muted` text on `--surface`, `--line` border) sits right-aligned under the phone field, below the country badge. It shows while the field has a number or Try Another Number keeps a case, and its row keeps its height when hidden. One tap empties the number, badge, warning and red border, drops the kept case, and leaves the cursor in the phone field.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K2.0`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K1.0`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
@@ -143,13 +144,11 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.0-r40 (2026-09-29)
+
+- Release renamed K1.0 (home label and `CACHE_REV`).
+- Home: grey `Clear` chip under the phone field, below the country badge. It clears the number and any case kept by Try Another Number, and keeps the cursor in the field. Layout lock (phone screen) and copy lock (`cta.phone.clear`) recomputed for this change only; one behaviour guard added.
+
 ### K2.0-r39 (2026-09-29)
 
 - Keyboard no longer closes by itself when a page is complete: it made the screen jump on every page (keyboard down, Next drops, keyboard back up on the next page). Keyboard and B1R behaviour are as in K2.0-r37; the related behaviour guard is removed and the two B1R checks are restored.
-
-### K2.0-r38 (2026-09-29)
-
-- Phone: 00 international prefix and full-width digits accepted; the number field shrinks the font (then flag-only badge) instead of clipping; the header number also shows on Passenger Type pages.
-- Keyboard closes once a page is complete (Sec 1–2 digits and gate B1 excepted); choosing B1R closes it.
-- Titles, buttons and summary labels in title case (`Ask Pax to Arrive at Airport Before?`); progress titles `Tight Connection`, `Flight Delayed`, `Wrong Pick-Up`. Layout and copy locks recomputed for these texts only.
-- Progress title auto-shrink now measures the label text, so it shrinks before any ellipsis. Five behaviour guards added.

@@ -902,6 +902,27 @@ async def g(r, name):
     elif name == "phone_canned_number_blocked":
         await r.fill("phoneInput", "85289648964")
         await r.expect("canned number blocked with red border", cta_enabled=False, bad=["phoneInput"])
+    elif name == "home_clear_resets_number_and_kept_case":
+        clear_js = "(() => { const e = document.getElementById('phoneInput'), c = document.getElementById('clearAll'), i = document.querySelector('.phoneHeroIcon').getBoundingClientRect(); return {hidden: c.hidden, text: c.textContent.trim(), focused: document.activeElement === e, value: e.value, badge: document.getElementById('badge').hidden, warn: document.getElementById('warn').classList.contains('show'), iconTop: Math.round(i.top)}; })()"
+        c0 = await r.pg.evaluate(clear_js)
+        ck("[guard] Home Clear hidden on an empty phone page", c0["hidden"], str(c0))
+        await r.fill("phoneInput", "85289648964")
+        c1 = await r.pg.evaluate(clear_js)
+        ck("[guard] Home Clear appears with a number and reads Clear", not c1["hidden"] and c1["text"] == "Clear", str(c1))
+        ck("[guard] Home Clear appearing does not move the home icon", c1["iconTop"] == c0["iconTop"], f"{c0['iconTop']} -> {c1['iconTop']}")
+        await r.act("clearAll")
+        c2 = await r.pg.evaluate(clear_js)
+        ck("[guard] Home Clear empties the number, badge and warning and keeps focus", c2["value"] == "" and c2["badge"] and not c2["warn"] and c2["focused"] and c2["hidden"], str(c2))
+        await r.expect("Home Clear leaves Next disabled and no red border", cta_enabled=False, not_bad=["phoneInput"])
+        s_ = await r.st(); ck("[guard] Home Clear stays on the phone page", s_["screen"] == "phone", s_["screen"])
+        await case_s5(r, "ordZh")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+        c3 = await r.pg.evaluate(clear_js)
+        ck("[guard] Home Clear shows after Try Another Number while a case is kept", not c3["hidden"] and c3["value"] == "", str(c3))
+        await r.act("clearAll")
+        await r.phone(); await r.act("goWpp", "wflight")
+        ck("[guard] Home Clear drops the case kept by Try Another Number", await r.val("wFlight") == "", await r.val("wFlight"))
     elif name == "s1_join_rejects_non_whitelist":
         await to_s1(r, "missJoin", "888"); await r.expect("S1 Join CX888 rejected", False, ["mFlight"])
         await r.fill("mFlight", "407"); await r.expect("S1 Join CX407 accepted", True, not_bad=["mFlight"])

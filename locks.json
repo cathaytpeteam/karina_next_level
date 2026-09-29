@@ -83,7 +83,7 @@
       "s-preview"
     ],
     "screen_sha256": {
-      "s-phone": "eccc0c2b4de8ba06b6aae3102e5eea430e8b2c4590ab5fa1d3769f56e2c41c67",
+      "s-phone": "0f57c46455b686bd97d87517d87a08c4a282aa4541bcb071f2c56c15c2fe6bc6",
       "s-scenario": "2b08884d0b7dc4fc2740bb3c11bc0829e41a161cc9f65e3533b0e3fb5ee66023",
       "s-misstype": "be1d62dac0d6e5eebde6a4104ee38b2a554245e6681457c1f9d57271fb127304",
       "s-mflight": "341803a7a7f346b196198981f8dc6a2aa809077fb3ea0f80edce5865e3ba4425",
@@ -112,6 +112,7 @@
         "phoneField",
         "phoneInput",
         "badge",
+        "clearAll",
         "warn"
       ],
       "s-scenario": [
@@ -304,6 +305,7 @@
       "cta.next": "9a8bb238dc855a1c76baa30a147707c5b5b7694f779cc96228b3da99468efec8",
       "cta.phone.call": "3dd32a33c43ed7dd3248384d4aa14898f64d7cff2c68d7bc045bab6422104235",
       "cta.retry.number": "39cacd4902c874600f51059b1a8f75dab397553fe184f3b4435801252c0b9e4e",
+      "cta.phone.clear": "d0f86d2093269896341fb4121f115da27f07de0418653b34dff083fc56b5c0f1",
       "hint.time.empty": "223aa8eec43f4c75945ed8dd32cf418b924086f219e32f644457eb81f9121579",
       "hint.time.partial": "d5916405dcfab6a3533a870c42f28eed36553f5f9d6a20071621f95ca94303db",
       "error.time.invalid": "139e25d01dbad3fe6feed3c4c46ccbf5f99704e9379782423028ce3f4837f8d9",
