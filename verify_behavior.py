@@ -51,6 +51,7 @@ _COPY_MATCH = re.search(r'window\.FIND_PAX_COPY\s*=\s*Object\.freeze\((\{.*\})\)
 COPY = json.loads(_COPY_MATCH.group(1)) if _COPY_MATCH else {}
 SPEC = json.loads((R / "flow-behavior-spec.json").read_text(encoding="utf-8"))
 PHONE = "886983952902"
+PHONE_RETRY = "886912345678"
 
 failed = False
 
@@ -877,14 +878,17 @@ RETURN_FROM_APP_JS = """() => {
 async def call_by_phone_return(r, tag, want):
     """After staff return from WhatsApp/SMS: label, visibility, position, colours and tel: link."""
     await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
-    ck(f"[guard] {tag} return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
+    ck(f"[guard] {tag} return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
     ck(f"[guard] {tag} Call by Phone {'shown' if want else 'hidden'} after return", (await r.pg.locator("#callPhone").is_visible()) == want)
-    if not want: return
-    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-    ck(f"[guard] {tag} Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
-    bg = await r.pg.evaluate("['callPhone','cta'].map(i => getComputedStyle(document.getElementById(i)).backgroundColor)")
     brand = await r.pg.evaluate("(() => { const e = document.createElement('i'); e.style.color = 'var(--brand)'; document.body.append(e); const c = getComputedStyle(e).color; e.remove(); return c; })()")
-    ck(f"[guard] {tag} Call by Phone takes the primary colour, Back to main page the secondary", bg[0] == brand and bg[1] != brand, str(bg))
+    if not want:
+        solo = await r.pg.evaluate("getComputedStyle(document.getElementById('cta')).backgroundColor")
+        ck(f"[guard] {tag} Try Another Number alone takes the primary colour", solo == brand, solo)
+        return
+    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
+    ck(f"[guard] {tag} Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+    bg = await r.pg.evaluate("['callPhone','cta'].map(i => getComputedStyle(document.getElementById(i)).backgroundColor)")
+    ck(f"[guard] {tag} Call by Phone takes the primary colour, Try Another Number the secondary", bg[0] == brand and bg[1] != brand, str(bg))
     n0 = len(r.nav); await r.pg.click("#callPhone")
     for _ in range(40):
         if len(r.nav) > n0: break
@@ -952,12 +956,12 @@ async def g(r, name):
             setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
         }""")
         await r.pg.wait_for_timeout(100)
-        ck("[guard] S5 return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
+        ck("[guard] S5 return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
         ck("[guard] S5 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
         ck("[guard] S5 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
         ck("[guard] S5 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
         a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-        ck("[guard] S5 Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        ck("[guard] S5 Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
         n0 = len(r.nav); await r.pg.click("#callPhone")
         for _ in range(40):
             if len(r.nav) > n0: break
@@ -968,10 +972,10 @@ async def g(r, name):
         await case_direct(r)
         ck("[guard] Call Directly: Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
         await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
-        ck("[guard] Call Directly return shows Back to main page", (await r.pg.locator("#cta").inner_text()).strip() == "Back to main page")
+        ck("[guard] Call Directly return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
         ck("[guard] Call Directly: Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
         a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-        ck("[guard] Call Directly: Call by Phone sits above Back to main page", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
+        ck("[guard] Call Directly: Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
         n0 = len(r.nav); await r.pg.click("#callPhone")
         for _ in range(40):
             if len(r.nav) > n0: break
@@ -989,6 +993,22 @@ async def g(r, name):
     elif name == "s4_no_call_by_phone":
         await case_s4(r, "stPossible", "arUnknown", "ordEn")
         await call_by_phone_return(r, "S4", False)
+    elif name == "try_another_number_keeps_case":
+        await case_s5(r, "ordZh")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        await r.pg.click("#cta"); s_ = await r.wait(lambda s: s["screen"] == "phone")
+        ck("[guard] Try Another Number returns to the phone page", s_["screen"] == "phone", s_["screen"])
+        sel = await r.pg.evaluate("(() => { const e = document.getElementById('phoneInput'); return [document.activeElement === e, e.value.length > 0, e.selectionStart === 0 && e.selectionEnd === e.value.length]; })()")
+        ck("[guard] Try Another Number keeps the number, focused and selected", sel == [True, True, True], str(sel))
+        await r.fill("phoneInput", PHONE_RETRY); await r.act("cta", "scenario"); await r.act("goWpp", "wflight")
+        ck("[guard] Try Another Number keeps the Wrong Pick-up fields", [await r.val(x) for x in ("wFlight", "b1n", "b2a", "b2n")] == ["123", "123456", "BR", "654321"])
+        await r.act("cta", "bag1"); await r.act("cta", "bag2"); await r.act("cta", "preview")
+        n0 = len(r.nav); await r.pg.click("#cta")
+        for _ in range(40):
+            if len(r.nav) > n0: break
+            await r.pg.wait_for_timeout(50)
+        url = urllib.parse.unquote(r.nav[n0]) if len(r.nav) > n0 else ""
+        ck("[guard] Retry sends to the new number with the kept case", PHONE_RETRY in url and PHONE not in url and "BR654321" in url, url[:90])
     elif name == "s4_flight_from_tpe_rejects_non_whitelist":
         await to_s4(r, "stPossible", "888"); await r.expect("Flight from TPE CX888 rejected", False, ["dFlight"])
         await r.fill("dFlight", "407"); await r.expect("Flight from TPE CX407 accepted", True, not_bad=["dFlight"])
@@ -1248,6 +1268,12 @@ async def rule(r, name):
     elif name == "back_preserves_inputs":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
         await r.back("wflight"); ck("[rule] Back keeps typed flight", await r.val("wFlight") == "123")
+    elif name == "try_another_number_other_scenario_starts_clean":
+        await case_s5(r, "ordZh")
+        await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+        await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+        await r.act("cta", "scenario"); await r.act("goDp", "dstatus"); await r.back("scenario"); await r.act("goWpp", "wflight")
+        ck("[rule] Picking another scenario after Try Another Number clears the kept case", await r.val("wFlight") == "", await r.val("wFlight"))
     elif name == "scenario_reentry_starts_clean":
         await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123")
         await r.back("scenario"); await r.act("goWpp", "wflight")

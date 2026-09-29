@@ -750,6 +750,7 @@
   "s1_call_by_phone_after_whatsapp",
   "s2_call_by_phone_after_sms",
   "s4_no_call_by_phone",
+  "try_another_number_keeps_case",
   "s4_flight_from_tpe_rejects_non_whitelist",
   "s4_delayed_requires_time",
   "s4_delayed_rejects_invalid_time",
@@ -788,6 +789,7 @@
   "enter_key_advances",
   "back_preserves_inputs",
   "scenario_reentry_starts_clean",
+  "try_another_number_other_scenario_starts_clean",
   "s4_leaving_gate_branch_clears_fields",
   "s4_same_gate_branch_keeps_fields"
  ]

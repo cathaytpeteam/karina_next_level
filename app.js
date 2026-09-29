@@ -206,6 +206,8 @@
     dpgate:{name:copy("progress.flow.dp"),steps:["dstatus","dflight","dnew","dgateaction","preview"]}
   };
   let flow="", cur="phone", resetting=false, externalReturnReady=false;
+  // Scenario kept by Try Another Number; re-picking it keeps the case fields.
+  let retryScenario="";
   const stack=["phone"];
   let navPos=0;
   try{history.replaceState({findPax:true,pos:0,id:"phone"},"");}catch(e){}
@@ -428,7 +430,7 @@
     preview:()=>copy("hint.preview.check")
   };
   const NEXT={
-    phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
+    phone:()=>{const p=normalizePhone(v("phoneInput"));if(!p||p.blocked)return;if(S.phone&&p.digits!==S.phone&&!retryScenario)clearCaseData();S.phone=p.digits;S.country=p.country||"";go("scenario");},
     mflight:()=>{normalizeFlightField("mFlight");go("msec");}, msec:()=>{if(flow==="call")go("callgate");else go("preview");},
     wflight:()=>{normalizeFlightField("wFlight");go("bag1");}, bag1:()=>go("bag2"), bag2:()=>go("preview"),
     dflight:()=>{normalizeFlightField("dFlight");if(S.status==="gate")go("dnew");else go("dtransfer");}, dtransfer:()=>{normalizeFlightField("tN");go("darrange");},
@@ -437,7 +439,7 @@
     dgateaction:()=>go("preview"),
     callflight:()=>{const n=callFlightNumber();if(n)$("callFlight").value=n;go("msec");},
     callgate:()=>go("preview"),
-    preview:()=>{if(externalReturnReady)resetAll();else send();}
+    preview:()=>{if(externalReturnReady)tryAnotherNumber();else send();}
   };
 
   // ---- messages ----------------------------------------------------------
@@ -771,6 +773,7 @@
   }
   function clearFields(){
     externalReturnReady=false;
+    retryScenario="";
     $("phoneInput").value="";
     clearCaseData();
     S.phone="";S.country="";
@@ -778,12 +781,30 @@
     $("warn").classList.remove("show");
     $("phoneField").classList.remove("bad");
   }
-  function resetAll(){
-    clearFields();
+  function returnHome(){
     const depth=navPos;
     stack.length=0;stack.push("phone");navPos=0;
     if(depth>0){resetting=true;setTimeout(()=>{resetting=false;},1200);try{history.go(-depth);}catch(e){resetting=false;}}
     showScreen("phone");
+  }
+  function resetAll(){
+    clearFields();
+    returnHome();
+  }
+  // Try Another Number: back to the phone page with the number selected; the case stays for the retry.
+  function tryAnotherNumber(){
+    retryScenario=(flow==="call"&&S.callNoMessage)?"direct":flow;
+    externalReturnReady=false;
+    returnHome();
+    const el=$("phoneInput");
+    try{el.focus({preventScroll:true});el.select();}catch(e){}
+  }
+  // Re-picking the kept scenario keeps its fields; any other scenario starts from a clean case.
+  function keepRetryCase(key){
+    const keep=retryScenario===key;
+    if(retryScenario&&!keep) clearCaseData();
+    retryScenario="";
+    return keep;
   }
 
   // ==== [render] ====
@@ -955,10 +976,10 @@
     cta.disabled=!ok;
     const japaneseSMS=cur==="preview"&&(flow==="miss"||(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")))&&S.order==="ja";
     cta.textContent=cur==="preview"
-      ?(externalReturnReady?"Back to main page":(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
+      ?(externalReturnReady?copy("cta.retry.number"):(japaneseSMS?copy("cta.sms.ja"):(flow==="call"?(S.callNoMessage?copy("cta.whatsapp.call"):copy("cta.whatsapp.send")):copy("cta.whatsapp.send"))))
       :copy("cta.next");
     cta.lang=japaneseSMS?"ja":"en";
-    // S1, S2, S3 and S5: after staff return from WhatsApp or SMS, offer a phone call above Back to main page (not S4).
+    // S1, S2, S3 and S5: after staff return from WhatsApp or SMS, offer a phone call above Try Another Number (not S4).
     const phoneCall=$("callPhone");
     phoneCall.hidden=!phoneCallReady();
     $("callPhoneLabel").textContent=copy("cta.phone.call");
@@ -1033,15 +1054,15 @@
       render();
     };
   });
-  $("goMiss").onclick=()=>{clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
+  $("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
   $("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
   $("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
-  $("goCall").onclick=()=>{clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};
+  $("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};
   $("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
   $("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
-  $("goDirect").onclick=()=>{clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
-  $("goWpp").onclick=()=>{clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
-  $("goDp").onclick=()=>{clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
+  $("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
+  $("goWpp").onclick=()=>{if(!keepRetryCase("wpp"))clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
+  $("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
 
   function selectDpFlightType(nextStatus){
     if(S.status&&S.status!==nextStatus) $("delayTime").value="";
