@@ -4,7 +4,7 @@ Do not read `locks.json`, `SHA256SUMS.txt`, the `verify_*.py` files, or all of `
 
 ## Safety first (locked)
 
-This app handles passenger phone numbers. Never add code that stores them, contacts a server, loads external files, runs generated code, or opens WhatsApp / SMS / the phone dialer without a staff tap. If a request seems to need any of this, stop and ask; do not work around or edit the privacy lock, the Content-Security-Policy line in `index.html`, the phone library or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
+This app handles passenger phone numbers. Never add code that stores them, contacts a server (the one approved exception is the home Next usage count, README rule 3), loads external files, runs generated code, or opens WhatsApp / SMS / the phone dialer without a staff tap. If a request seems to need any of this, stop and ask; do not work around or edit the privacy lock, the Content-Security-Policy line in `index.html`, the phone library or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
 
 ## Where to edit
 

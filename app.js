@@ -1027,10 +1027,19 @@
     if(this.hidden||!phoneCallReady()||!S.phone) return;
     window.location.href="tel:+"+S.phone;
   };
+  // Usage count: each home Next that reaches the Scenario screen loads one image from the team's
+  // GoatCounter. The request carries only the fixed name "next" and a cache-busting time: no phone
+  // number, page address or referrer. It never delays the screen change and never runs remote code.
+  const USAGE_COUNT_URL="https://cathaytpeteam.goatcounter.com/count?p=next&e=true&rnd=";
+  function countNext(){
+    try{const img=new Image();img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+Date.now();}catch(e){}
+  }
   $("cta").onclick=function(){
     if(this.disabled||!NEXT[cur]) return;
     if(cur==="preview"&&!externalReturnReady) armExternalReturn();
+    const from=cur;
     NEXT[cur]();
+    if(from==="phone"&&cur==="scenario") countNext();
   };
 
   // ==== [event wiring] ====

@@ -21,13 +21,14 @@ Find Pax handles passenger phone numbers, so these rules are locked like the lay
 
 1. **Staff send every message and make every call by hand.** The app only opens WhatsApp or SMS with the number and text filled in, or the phone dialer with the number filled in, and only after a staff tap on Confirm details. It never sends, dials, schedules or repeats a message or call by itself.
 2. **Nothing is kept.** No phone number, message or case history is stored between uses; every launch starts blank. No storage, cookies or databases.
-3. **No server.** The app contacts no website. The only network use is the Service Worker loading the app's own files.
-4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code.
+3. **No server, apart from one usage count.** Each home Next that reaches the Scenario screen loads one image from `https://cathaytpeteam.goatcounter.com/count` carrying only the fixed name `next`: no phone number, page address or referrer, and it never delays the screen change. Otherwise the only network use is the Service Worker loading the app's own files.
+4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code; the usage-count image above is the only outside request, allowed by the CSP `img-src` for that one host.
 
-Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
+Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site except exactly one `next` count per home Next with no referrer, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
 
 ## Test environment limits
 
+- The tests answer the usage count locally; they never reach the real GoatCounter.
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
 - Without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch.
 
@@ -144,10 +145,10 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.0-r43 (2026-09-30)
+
+- Home Next usage count: each home Next that reaches the Scenario screen loads one GoatCounter image (`cathaytpeteam.goatcounter.com`) carrying only the fixed name `next`, with no phone number, page address or referrer; a failed or slow counter never delays the app. Privacy rules 3 and 4 updated; privacy lock recomputed with user approval (verify_changed privacy section, CSP `img-src`). Tests answer the counter locally. Cache revision bumped.
+
 ### K1.0-r42 (2026-09-30)
 
 - Phone home: keep the original top spacing inside the scrollable content so it remains in its original position and can scroll beneath the former blank area. Added guards for home scrollability and content movement.
-
-### K1.0-r41 (2026-09-30)
-
-- Phone home: remove the empty fixed header space, keeping the top safe area. Other screens retain their navigation header. Cache revision bumped; locks unchanged.

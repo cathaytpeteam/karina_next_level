@@ -195,12 +195,22 @@ STATE_JS = """() => {
   };
 }"""
 
+# The home Next usage count (one GoatCounter image) is answered locally in every test, so test
+# runs never reach the real counter; each request is recorded for the privacy checks.
+COUNT_HOST = "https://cathaytpeteam.goatcounter.com/"
+COUNT_GIF = bytes.fromhex("47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b")
+
+async def answer_count(route, seen):
+    seen.append({"url": route.request.url, "headers": await route.request.all_headers()})
+    await route.fulfill(status=200, content_type="image/gif", body=COUNT_GIF)
+
 class Run:
     def __init__(self, browser, name):
-        self.browser, self.name, self.nav = browser, name, []
+        self.browser, self.name, self.nav, self.counts = browser, name, [], []
 
     async def open(self):
         self.ctx = await self.browser.new_context(viewport={"width": 390, "height": 844})
+        await self.ctx.route(COUNT_HOST + "**", lambda route: answer_count(route, self.counts))
         self.pg = await self.ctx.new_page()
         self.errors = []
         self.pg.on("pageerror", lambda e: self.errors.append(str(e)))
@@ -668,6 +678,8 @@ async def priority_suite():
         _srv = _hs.ThreadingHTTPServer(("127.0.0.1", 0), _ft.partial(_Quiet, directory=str(R)))
         _th.Thread(target=_srv.serve_forever, daemon=True).start()
         pg = await browser.new_page(viewport={"width": 390, "height": 844})
+        _counts = []
+        await pg.route(COUNT_HOST + "**", lambda route: answer_count(route, _counts))
         await pg.goto(f"http://127.0.0.1:{_srv.server_address[1]}/index.html")
         # wait_for_function evaluates a string in the page, which the page's CSP refuses; poll with evaluate instead.
         _t0 = asyncio.get_running_loop().time()
@@ -683,7 +695,12 @@ async def priority_suite():
             local: localStorage.length, session: sessionStorage.length, cookie: document.cookie.length,
             dbs: indexedDB.databases ? (await indexedDB.databases()).length : 0})""")
         ck("[priority] privacy: the real-origin run reached Confirm details", pv["screen"] == "s-preview", str(pv))
-        ck("[priority] privacy: nothing loaded from another site", not pv["outside"], str(pv["outside"]))
+        ck("[priority] privacy: nothing loaded from another site except the usage count", not [u for u in pv["outside"] if not u.startswith(COUNT_HOST)], str(pv["outside"]))
+        # One home Next = one count, carrying only the fixed name "next", no phone number and no referrer.
+        ck("[priority] privacy: one home Next sends exactly one usage count", len(_counts) == 1, str(_counts))
+        ck("[priority] privacy: the usage count carries only the fixed name next",
+           all(re.fullmatch(r"https://cathaytpeteam\.goatcounter\.com/count\?p=next&e=true&rnd=\d+", c["url"]) and "912345678" not in c["url"] for c in _counts), str(_counts))
+        ck("[priority] privacy: the usage count sends no referrer", all("referer" not in c["headers"] for c in _counts), str(_counts))
         ck("[priority] privacy: nothing stored on the device (storage, cookies, databases)", pv["local"] == 0 and pv["session"] == 0 and pv["cookie"] == 0 and pv["dbs"] == 0, str(pv))
         # The Content-Security-Policy makes the browser itself refuse other sites, even if code tried.
         blocked = await pg.evaluate("""() => new Promise(done => {
