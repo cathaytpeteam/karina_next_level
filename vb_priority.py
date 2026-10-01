@@ -297,10 +297,10 @@ async def priority_suite():
             fetch('https://blocked.example/y').catch(() => {});
             setTimeout(() => done(seen), 500);})""")
         ck("[priority] privacy: the browser blocks other sites (Content-Security-Policy)", "img-src" in blocked and "connect-src" in blocked, str(blocked))
-        # One S2 WhatsApp send tap = one more count, carrying only the fixed name s2-wa, no phone number and no referrer.
+        # One S2 WhatsApp send tap = one more count, carrying only the fixed name S2-WhatsApp, no phone number and no referrer.
         await _tap("cta"); await pg.wait_for_timeout(300)
-        ck("[priority] privacy: one S2 WhatsApp send tap sends exactly one usage count s2-wa",
-           count_names(_counts[1:]) == ["s2-wa"] and all("912345678" not in c["url"] for c in _counts), str(_counts[1:]))
+        ck("[priority] privacy: one S2 WhatsApp send tap sends exactly one usage count S2-WhatsApp",
+           count_names(_counts[1:]) == ["S2-WhatsApp"] and all("912345678" not in c["url"] for c in _counts), str(_counts[1:]))
         await pg.close(); _srv.shutdown()
 
         # Button text colours: every button on every screen uses an approved colour,

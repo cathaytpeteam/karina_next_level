@@ -414,7 +414,7 @@
   "privacy": {
     "status": "LOCKED",
     "policy": "Privacy lock: the privacy section of verify_changed.py, the phone library (official libphonenumber-js 1.12.29 mobile bundle), sw.js (CACHE_REV ignored) and the Content-Security-Policy in index.html. Recompute only with explicit user approval, and list it under Locks recomputed.",
-    "verify_changed_sha256": "d446d8c0fbda6c3375f7ad8bce0b17b833adce37ce8c2b0204ccc22d421cca1e",
+    "verify_changed_sha256": "2a6240d6abb4a7e895e0110712e58c1f6ca7433a348bb7e7f1b62e3ba248515c",
     "phone_library_sha256": "3f3cfa3e33927918ab9a42c958cb72dbbc616143e65bbdcadd0a7bc46fd0b4bc",
     "service_worker_sha256": "d529f980d55fa4adfc41125b5f8c887fc1965ae62d26fc59709fa2fc2e201c5d",
     "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://cathaytpeteam.goatcounter.com; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'"

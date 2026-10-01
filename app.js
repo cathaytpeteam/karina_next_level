@@ -1025,23 +1025,33 @@
   // Opens the phone dialer with the number filled in; staff place the call by hand.
   $("callPhone").onclick=function(){
     if(this.hidden||!phoneCallReady()||!S.phone) return;
+    countUse(telCountName());
     window.location.href="tel:+"+S.phone;
   };
-  // Usage counts: a home Next that reaches the Scenario screen, and each Scenario 1 / Scenario 2
-  // WhatsApp or Japanese SMS send tap, loads one image from the team's GoatCounter. The request
-  // carries only one fixed name from the list below and a cache-busting time: no phone number,
-  // page address or referrer. It never delays the screen change and never runs remote code.
+  // Usage counts: a home Next that reaches the Scenario screen, each Scenario 1 / Scenario 2
+  // WhatsApp or Japanese SMS send tap, the Scenario 3 WhatsApp call tap and each Scenario 1-3
+  // Call by Phone tap load one image from the team's GoatCounter. The request carries only one
+  // fixed name from the list below and a cache-busting time: no phone number, page address or
+  // referrer. It never delays the screen change and never runs remote code.
   const USAGE_COUNT_URL="https://cathaytpeteam.goatcounter.com/count?p=";
-  const USAGE_COUNT_NAMES=["next","s1-wa","s2-wa","s1-sms-ja","s2-sms-ja"];
+  const USAGE_COUNT_NAMES=["next","S1-WhatsApp","S2-WhatsApp","S1-SMS-JA","S2-SMS-JA","S3-WhatsApp Call","S1-Call by phone","S2-Call by phone","S3-Call by phone"];
   function countUse(name){
     if(USAGE_COUNT_NAMES.indexOf(name)<0) return;
-    try{const img=new Image();img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+name+"&e=true&rnd="+Date.now();}catch(e){}
+    try{const img=new Image();img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+encodeURIComponent(name)+"&e=true&rnd="+Date.now();}catch(e){}
   }
-  // Send-tap name: Scenario 1 and Scenario 2 Join / Transit only (Japanese goes by SMS there); others send none.
+  // Send-tap name: Scenario 1, Scenario 2 Join / Transit (Japanese goes by SMS there) and the
+  // Scenario 3 WhatsApp call; Scenario 4 and 5 send none.
   function sendCountName(){
     const sms=S.order==="ja";
-    if(flow==="miss") return sms?"s1-sms-ja":"s1-wa";
-    if(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")) return sms?"s2-sms-ja":"s2-wa";
+    if(flow==="miss") return sms?"S1-SMS-JA":"S1-WhatsApp";
+    if(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")) return sms?"S2-SMS-JA":"S2-WhatsApp";
+    if(flow==="call"&&S.callNoMessage) return "S3-WhatsApp Call";
+    return "";
+  }
+  // Call by Phone name: Scenario 1, 2 and 3 only; Scenario 5 sends none.
+  function telCountName(){
+    if(flow==="miss") return "S1-Call by phone";
+    if(flow==="call") return S.callNoMessage?"S3-Call by phone":"S2-Call by phone";
     return "";
   }
   $("cta").onclick=function(){

@@ -164,12 +164,7 @@ async def guard_s5_call_by_phone_after_whatsapp(r, name="s5_call_by_phone_after_
     ck("[guard] S5 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
     a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
     ck("[guard] S5 Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
-    n0 = len(r.nav); await r.pg.click("#callPhone")
-    for _ in range(40):
-        if len(r.nav) > n0: break
-        await r.pg.wait_for_timeout(50)
-    url = r.nav[n0] if len(r.nav) > n0 else ""
-    ck("[guard] S5 Call by Phone opens tel: with the number only after a tap", url == "tel:+" + PHONE, url)
+    await tap_call_by_phone(r, "S5", "")
 
 async def guard_direct_call_by_phone_after_whatsapp(r, name="direct_call_by_phone_after_whatsapp"):
     await case_direct(r)
@@ -179,22 +174,17 @@ async def guard_direct_call_by_phone_after_whatsapp(r, name="direct_call_by_phon
     ck("[guard] Call Directly: Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
     a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
     ck("[guard] Call Directly: Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
-    n0 = len(r.nav); await r.pg.click("#callPhone")
-    for _ in range(40):
-        if len(r.nav) > n0: break
-        await r.pg.wait_for_timeout(50)
-    url = r.nav[n0] if len(r.nav) > n0 else ""
-    ck("[guard] Call Directly: Call by Phone opens tel: with the number", url == "tel:+" + PHONE, url)
+    await tap_call_by_phone(r, "Call Directly:", "S3-Call by phone")
 
 async def guard_s1_call_by_phone_after_whatsapp(r, name="s1_call_by_phone_after_whatsapp"):
     await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); await r.act("cta", "preview")
     await r.act("ordEn")
     ck("[guard] 漏查 Call by Phone hidden until staff return", await r.pg.locator("#callPhone").is_hidden())
-    await r.act("cta", "external:whatsapp"); await call_by_phone_return(r, "漏查", True)
+    await r.act("cta", "external:whatsapp"); await call_by_phone_return(r, "漏查", True, "S1-Call by phone")
 
 async def guard_s2_call_by_phone_after_sms(r, name="s2_call_by_phone_after_sms"):
     await case_s2(r, "callTransit", "451", "ordJa")
-    await call_by_phone_return(r, "Final Call Japanese SMS", True)
+    await call_by_phone_return(r, "Final Call Japanese SMS", True, "S2-Call by phone")
 
 async def guard_try_another_number_keeps_case(r, name="try_another_number_keeps_case"):
     await case_s5(r, "ordZh")

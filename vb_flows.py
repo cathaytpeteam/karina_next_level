@@ -17,7 +17,7 @@ def ja_expected(scen, mode, flight=None, gate=None):
     return rx, 67
 
 def ck_send_count(r, want):
-    """A send tap sends exactly the expected usage count (S1 / S2), or none (other scenarios)."""
+    """A send tap sends exactly the expected usage count (S1-S3), or none (S4, S5)."""
     ck(f"[{r.name}] send usage count is {want or 'none'}", r.send_counts == ([want] if want else []), str(r.send_counts))
 
 # ---- forward branch cases ----------------------------------------------------
@@ -30,7 +30,7 @@ async def case_s1(r, mode, flight, lang):
     has = (f"{flight}/123",) if mode == "missJoin" and lang != "ordJa" else ()
     exact = ja_expected("s1", "join" if mode == "missJoin" else "transit") if lang == "ordJa" else None
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", has, exact=exact)
-    ck_send_count(r, "s1-sms-ja" if lang == "ordJa" else "s1-wa")
+    ck_send_count(r, "S1-SMS-JA" if lang == "ordJa" else "S1-WhatsApp")
 
 async def case_s2(r, mode, flight, lang):
     await to_s2_gate(r, mode, flight)
@@ -39,13 +39,13 @@ async def case_s2(r, mode, flight, lang):
     has = ["CX" + flight, "C5"]
     exact = ja_expected("s2", "join" if mode == "callJoin" else "transit", "CX" + flight, "C5") if lang == "ordJa" else None
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", tuple(has), exact=exact)
-    ck_send_count(r, "s2-sms-ja" if lang == "ordJa" else "s2-wa")
+    ck_send_count(r, "S2-SMS-JA" if lang == "ordJa" else "S2-WhatsApp")
 
 async def case_direct(r):
     # Call Directly is its own entry on the Scenario page.
     await r.phone(); await r.act("goDirect", "preview")
     ck(f"[{r.name}] call-only preview hides message preview", not await r.pg.locator("#msgToggle").is_visible())
-    await r.act("cta", "external:whatsapp-call"); ck_send_count(r, "")
+    await r.act("cta", "external:whatsapp-call"); ck_send_count(r, "S3-WhatsApp Call")
 
 async def case_s5(r, lang):
     await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
@@ -168,7 +168,7 @@ RETURN_FROM_APP_JS = """() => {
     setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
 }"""
 
-async def call_by_phone_return(r, tag, want):
+async def call_by_phone_return(r, tag, want, tel_count=""):
     """After staff return from WhatsApp/SMS: label, visibility, position, colours and tel: link."""
     await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
     ck(f"[guard] {tag} return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
@@ -182,9 +182,16 @@ async def call_by_phone_return(r, tag, want):
     ck(f"[guard] {tag} Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
     bg = await r.pg.evaluate("['callPhone','cta'].map(i => getComputedStyle(document.getElementById(i)).backgroundColor)")
     ck(f"[guard] {tag} Call by Phone takes the primary colour, Try Another Number the secondary", bg[0] == brand and bg[1] != brand, str(bg))
-    n0 = len(r.nav); await r.pg.click("#callPhone")
+    await tap_call_by_phone(r, tag, tel_count)
+
+async def tap_call_by_phone(r, tag, tel_count):
+    """Tap Call by Phone: it opens tel: with the number and sends exactly the expected usage count (or none)."""
+    n0, c0 = len(r.nav), len(r.counts); await r.pg.click("#callPhone")
     for _ in range(40):
         if len(r.nav) > n0: break
         await r.pg.wait_for_timeout(50)
+    await r.pg.wait_for_timeout(150)
     url = r.nav[n0] if len(r.nav) > n0 else ""
     ck(f"[guard] {tag} Call by Phone opens tel: with the number", url == "tel:+" + PHONE, url)
+    got = count_names(r.counts[c0:])
+    ck(f"[guard] {tag} Call by Phone usage count is {tel_count or 'none'}", got == ([tel_count] if tel_count else []), str(got))

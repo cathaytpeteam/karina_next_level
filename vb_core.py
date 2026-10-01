@@ -221,14 +221,19 @@ STATE_JS = """() => {
   };
 }"""
 
-# Usage counts (one GoatCounter image per home Next or S1 / S2 send tap) are answered locally in
-# every test, so test runs never reach the real counter; each request is recorded for the privacy checks.
+# Usage counts (one GoatCounter image per home Next, S1-S3 send / WhatsApp call tap or S1-S3 Call by
+# Phone tap) are answered locally in every test, so test runs never reach the real counter; each
+# request is recorded for the privacy checks.
 COUNT_HOST = "https://cathaytpeteam.goatcounter.com/"
-COUNT_RX = re.compile(r"https://cathaytpeteam\.goatcounter\.com/count\?p=(next|s1-wa|s2-wa|s1-sms-ja|s2-sms-ja)&e=true&rnd=\d+")
+COUNT_NAMES = ["next", "S1-WhatsApp", "S2-WhatsApp", "S1-SMS-JA", "S2-SMS-JA", "S3-WhatsApp Call",
+               "S1-Call by phone", "S2-Call by phone", "S3-Call by phone"]
+COUNT_RX = re.compile(r"https://cathaytpeteam\.goatcounter\.com/count\?p=("
+                      + "|".join(re.escape(urllib.parse.quote(n)) for n in COUNT_NAMES) + r")&e=true&rnd=\d+")
 
 def count_names(counts):
     """Fixed names of recorded usage counts; anything else (or one carrying a referrer) shows as '?'."""
-    return [m.group(1) if (m := COUNT_RX.fullmatch(c["url"])) and "referer" not in c["headers"] else "?" for c in counts]
+    return [urllib.parse.unquote(m.group(1)) if (m := COUNT_RX.fullmatch(c["url"])) and "referer" not in c["headers"] else "?"
+            for c in counts]
 COUNT_GIF = bytes.fromhex("47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b")
 
 async def answer_count(route, seen):
