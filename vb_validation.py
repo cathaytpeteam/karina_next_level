@@ -90,6 +90,5 @@ async def check_row(r, row):
         await r.expect(f"{name}: {shown} keeps Next disabled", False, bad=[field] if red else None)
 
 
-async def run_table(browser):
-    for row in VALIDATION:
-        r = await Run(browser, "validation: " + row[0]).open(); await check_row(r, row); await r.close()
+def table_jobs(browser):
+    return [run_job(browser, "validation: " + row[0], lambda r, row=row: check_row(r, row)) for row in VALIDATION]

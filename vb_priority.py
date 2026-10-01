@@ -336,17 +336,20 @@ PRIORITY_GUARDS = ["s2_sec_rules_history_and_summary_order", "header_number_on_p
 PRIORITY_RULES = ["s1_mode_switch_clears_inputs", "s2_mode_switch_clears_inputs", "s4_flight_type_switch_clears_delay_time",
                   "s4_leaving_gate_branch_clears_fields", "scenario_reentry_starts_clean"]
 
-async def priority_extra():
+async def priority_gate():
+    """The whole --priority run: priority_suite (own browser, the longest job, so it starts first) beside
+    the sampled cases, guards and rules and the validation table, workers() jobs at a time."""
     from playwright.async_api import async_playwright
     cases = dict(CASES)
+    async def guard(r, name): ck(f"[priority] guard: {name}", await g(r, name))
+    async def state_rule(r, name): ck(f"[priority] state rule: {name}", await rule(r, name))
     async with async_playwright() as p:
         browser = await launch_chromium(p)
-        for name in PRIORITY_CASES:
-            r = await Run(browser, name).open(); await cases[name](r); await r.close()
-        for name in PRIORITY_GUARDS:
-            r = await Run(browser, name).open(); ck(f"[priority] guard: {name}", await g(r, name)); await r.close()
-        for name in PRIORITY_RULES:
-            r = await Run(browser, name).open(); ck(f"[priority] state rule: {name}", await rule(r, name)); await r.close()
-        await vb_validation.run_table(browser)
+        jobs = [priority_suite]
+        jobs += [run_job(browser, name, cases[name]) for name in PRIORITY_CASES]
+        jobs += [run_job(browser, name, lambda r, name=name: guard(r, name)) for name in PRIORITY_GUARDS]
+        jobs += [run_job(browser, name, lambda r, name=name: state_rule(r, name)) for name in PRIORITY_RULES]
+        jobs += vb_validation.table_jobs(browser)
+        await run_jobs(jobs)
         await browser.close()
     ck("[priority] sampled flows stay inside the spec", not unexpected, " | ".join(sorted(set(unexpected))[:8]))

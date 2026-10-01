@@ -4,6 +4,7 @@
   python3 verify_release.py --fast    normal changes: static locks + hygiene + focused browser gate
   python3 verify_release.py --full    release only: --fast plus exhaustive browser + Service Worker suites
   python3 verify_release.py ... -v    also print every PASS line (default prints only FAIL lines + a summary)
+  python3 verify_release.py ... --jobs 1|2|3    browser jobs at the same time (default 1, one after another)
 
 While editing, use verify_changed.py instead (no browser, a few seconds).
 On success, --fast/--full rewrite SHA256SUMS.txt so it records the verified tree.
@@ -22,6 +23,9 @@ VERBOSE='-v' in sys.argv or '--verbose' in sys.argv
 for _old,_new in (('--quick','python3 verify_changed.py'),('--gate','python3 verify_release.py --fast')):
     if _old in sys.argv:
         print(f'{_old} was removed. Use: {_new}'); raise SystemExit(2)
+JOBS=sys.argv[sys.argv.index('--jobs')+1] if '--jobs' in sys.argv and sys.argv.index('--jobs')+1<len(sys.argv) else '1'
+if JOBS not in ('1','2','3'):
+    print(f'ERROR: --jobs must be 1, 2 or 3 (got {JOBS!r}). No verification was run.'); raise SystemExit(2)
 _mode_count=sum((FAST, FULL, STATIC))
 if _mode_count!=1:
     print('CHECK MODE REQUIRED' if _mode_count==0 else 'ERROR: choose exactly one of --fast / --full')
@@ -366,12 +370,12 @@ ck('hygiene, colour lock and wiring (verify_changed.py --all)', _rc==0)
 # Browser verification is layered: the focused priority gate first; the exhaustive
 # suite and the Service Worker matrix only in --full and only after the gate passes.
 print('--- PRIORITY GATE: phone, Home geometry, S1/S2 Next, S5 confirm, S4 validation ---', flush=True)
-_rc,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--priority']); N_PASS+=_n
+_rc,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--priority', '--jobs', JOBS]); N_PASS+=_n
 ck('priority release gate (focused user-facing regressions)', _rc==0)
 if FULL:
     if _rc==0:
         print('--- EXHAUSTIVE FLOW SUITE ---', flush=True)
-        _rc2,_n=run_live([sys.executable, str(r/'verify_behavior.py')]); N_PASS+=_n
+        _rc2,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--jobs', JOBS]); N_PASS+=_n
         ck('flow behaviour (all branches, Back/Forward, guards, state rules)', _rc2==0)
         # Service Worker: install, launch, offline, update, broken deploy, cache miss, with and
         # without Static Routing (plus upgrade from a previous build when --previous DIR is given).
@@ -397,4 +401,4 @@ _mode='FULL' if FULL else 'FAST'
 if bad:
     print(f'FAIL: {_mode} check — fix the FAIL lines above. SHA256SUMS.txt was not updated.')
     sys.exit(1)
-print(f'PASS: {_display_version} {_mode} check — {N_PASS} checks passed in {time.time()-T0:.0f}s. SHA256SUMS.txt updated.')
+print(f'PASS: {_display_version} {_mode} check — {N_PASS} checks passed in {time.time()-T0:.0f}s (--jobs {JOBS}). SHA256SUMS.txt updated.')

@@ -1,6 +1,6 @@
 # AI guide — Find Pax (read this first)
 
-Read only what the task needs: search for a name and read that part. Skip `locks.json`, `SHA256SUMS.txt`, `verify_*.py` and the whole of `app.js`; for browser tests read only the `vb_*.py` file you change. Read `README.md` only when a task touches behaviour or layout rules.
+Read only what the task needs: search, then read that part. Skip `locks.json`, `SHA256SUMS.txt`, `verify_*.py`, the whole of `app.js`, and any `vb_*.py` you do not change. `README.md` only for behaviour or layout rules.
 
 ## Safety first (locked)
 
@@ -10,33 +10,29 @@ This app handles passenger phone numbers. Never add code that stores them, conta
 
 | Task | Edit |
 |---|---|
-| User-facing copy, passenger labels, progress titles, hints/errors, approved rule data | `copy.js` (lock change: ask the user unless already approved) |
-| Validation, flow, navigation | `app.js` (search the section/function name) |
-| 流程或步數變更 | 改 `app.js`、`flow-behavior-spec.json`，並經使用者同意後，更新 `locks.json` 的導覽鎖和對應的驗證檢查。 |
+| User-facing text, approved rule data | `copy.js` (lock change: ask the user unless already approved) |
+| Validation, flow, navigation | `app.js`, search a marker: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[render]`, `[event wiring]` |
+| Flow or step count | `app.js`, `flow-behavior-spec.json`; with user approval, the `locks.json` navigation lock and its checks |
 | Visual change, only if asked | `app.css`, existing colour variables only |
 | Screen structure | `index.html` (layout-locked: ask the user) |
 | Deployed file added or renamed | `sw.js` ASSETS + bump `CACHE_REV` |
-
-## app.js section markers
-
-Search these markers: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[render]`, `[event wiring]`.
 
 ## Workflow
 
 1. Start from the latest approved ZIP. One task per change; never mix a feature with cleanup.
 2. Small targeted edits; do not reformat code you were not asked to touch.
-3. After each edit: `python3 verify_changed.py` (seconds, no browser).
+3. After each edit: `python3 verify_changed.py` (seconds, no browser). A browser test you changed: `python3 verify_behavior.py --only NAME` (seconds).
 4. Before handover: `python3 verify_release.py --fast`; `--full` only when the user asks for a release (完整檢查).
 5. Never edit `locks.json` to make a check pass. A lock failing outside the task: stop and report.
-6. `README.md` holds the current product rules; no future-phase plan is kept in the ZIP.
 
 ## Rules that keep the project small
 
 - Trial builds: no change-log entry or README rule change. When the user says a build is final, add one change-log entry and keep only two.
 - Browser tests cannot run here: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP name, never recommend uploading it to `main`.
-- Comments describe current behaviour: no `rNN`, `v1.x`, dates or "formerly" (verify_changed fails).
+- Comments describe current behaviour: no `rNN`, `v1.x`, dates or "formerly".
 - New colour, new file or bigger README fails verify_changed: ask the user, do not work around it.
 - Copy IDs are stable and hash-locked: never rename or change one as a side effect.
+- Test files (`verify_*.py`, `vb_*.py`) are frozen: change them only when an app change needs it, a test fails wrongly, or a bug reached a real phone.
 - New field or rule: copy in `copy.js`, `app.js` rule + OK/HINT, a row in `vb_validation.py`, one README line. A multi-step rule also needs a guard in `flow-behavior-spec.json` and `vb_guards_*.py`.
 
 ## Handoff (five lines at most)

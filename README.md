@@ -1,4 +1,4 @@
-# Find Pax K1.1
+# Find Pax K3.0
 
 Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
@@ -46,7 +46,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
 - **Home Clear:** a grey `Clear` chip (`--muted` text on `--surface`, `--line` border) sits right-aligned under the phone field, below the country badge. It shows while the field has a number or Try Another Number keeps a case, and its row keeps its height when hidden. One tap empties the number, badge, warning and red border, drops the kept case, and leaves the cursor in the phone field.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K1.1`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K3.0`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
@@ -145,14 +145,15 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
-### K1.1-r46 (2026-10-01)
+### K3.0-r48 (2026-10-01)
+
+- Release K3.0: home label and `CACHE_REV` move from K1.1 to K3.0 (`K3.0-r48`), so the app updates on phones. App behaviour unchanged.
+- Browser tests run one after another by default again, with output identical to before. `--jobs 2|3` runs them in parallel as a quick look while editing only: same PASS/FAIL verdict, but a Back/Forward or language check may land in a different test. A test that raises now reports one FAIL line and the rest carry on.
+- `verify_behavior.py --only NAME` runs one test in seconds while editing; the handover check is still `--fast`.
+- AI-GUIDE is shorter and freezes the test files: change them only when an app change needs it, a test fails wrongly, or a bug reached a real phone.
+
+### K1.1-r47 (2026-10-01)
 
 - Tests only: app files and `CACHE_REV` (K1.1-r44) are unchanged, so nothing needs redeploying.
-- `verify_release.py` drops source-text checks that guarded code with no effect on app behaviour: C1R rejection in the message gate helpers, the Scenario 4 invalid-border clear, and the Scenario 4 and 5 language resets. Each was proven by planting the error: no browser test failed.
-- The Scenario 1, 2 and 4 entry route checks no longer compare the `S.order` value, which the confirm page replaces with the default language; the rest of each route, including `S.orderSet=false`, is still compared exactly.
-
-### K1.1-r45 (2026-10-01)
-
-- Tests only: app files and `CACHE_REV` (K1.1-r44) are unchanged, so nothing needs redeploying.
-- The fast check now covers behaviour that only source-text checks guarded: Final Call Transit "Dep from", the Call Directly grouped number, no Next on the S4 Flight Type page, the Delayed auto-focus and invalid-time hint, Proceed to Gate needing ASAP or Wait, the Already at Gate Flight status, and reloading the phone library after a broken first copy.
-- Browser style guards: progress title, header number, Confirm details labels and notes, Passenger Type row width, Scenario icon size, Final Call field alignment, S4 Flight Type colour and title, and the reserved B1R? row. Each new test was proven by planting the error it guards.
+- Browser tests run in parallel (CPU count + 2, at most 4; `FIND_PAX_WORKERS=1` runs them one by one), and each test prints its lines together. On one CPU the fast check went from about 70 s to 40 s with the same 1052 checks; the Service Worker suite still runs one test at a time.
+- `python3 verify_behavior.py --only NAME` runs one flow case, guard, state rule, validation row or `priority_suite` in seconds; AI-GUIDE says to use it after changing a browser test.

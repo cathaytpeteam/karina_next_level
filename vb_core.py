@@ -1,6 +1,6 @@
 """Shared setup for the Find Pax browser tests: app bundle, spec, ck(), Run and navigation helpers."""
 from pathlib import Path
-import asyncio, json, os, re, sys, urllib.parse
+import asyncio, contextvars, json, os, re, sys, traceback, urllib.parse
 
 R = Path(__file__).resolve().parent
 N_ASSETS = len(re.findall(r'"\./[^"]*"', re.search(r'const ASSETS=\[(.*?)\];', (R / "sw.js").read_text(encoding="utf-8"), re.S).group(1)))
@@ -35,12 +35,68 @@ async def launch_chromium(p):
     except Exception:
         return await p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox","--disable-dev-shm-usage"])
 
+# Lines of the browser job that is running; None prints at once (one job at a time).
+_OUT = contextvars.ContextVar("find_pax_out", default=None)
+
 def ck(name, ok, detail=""):
     global failed
-    print(("PASS " if ok else "FAIL ") + name + ("" if ok or not detail else "  -> " + detail))
+    line = ("PASS " if ok else "FAIL ") + name + ("" if ok or not detail else "  -> " + detail)
+    buf = _OUT.get()
+    if buf is None:
+        print(line)
+    else:
+        buf.append(line)
     if not ok:
         failed = True
     return ok
+
+JOB_CHOICES = ("1", "2", "3")
+
+def workers():
+    """Browser jobs run at the same time: --jobs 1, 2 or 3 (default 1, one after another)."""
+    v = sys.argv[sys.argv.index("--jobs") + 1] if "--jobs" in sys.argv and sys.argv.index("--jobs") + 1 < len(sys.argv) else "1"
+    if v not in JOB_CHOICES:
+        print(f"ERROR: --jobs must be 1, 2 or 3 (got {v!r}). No browser test was run.")
+        raise SystemExit(2)
+    return int(v)
+
+async def run_jobs(jobs):
+    """Run independent browser jobs (no-argument coroutine functions) workers() at a time, started in list order.
+    Each job prints its PASS/FAIL lines together when it ends, so parallel output never interleaves.
+    Shared records (failed, covered, unexpected, toggles_hit) only grow, so the totals do not depend on order.
+    back_verified and lang_checked make the first job to reach an edge or preview do its one Back/Forward
+    or language check; with --jobs 2/3 that can be a different job from run to run.
+    A job that raises is reported as one FAIL line (test file and line) and the other jobs carry on."""
+    sem = asyncio.Semaphore(workers())
+    async def one(job):
+        async with sem:
+            buf = []
+            _OUT.set(buf)
+            try:
+                await job()
+            except Exception as e:
+                tb = [f for f in traceback.extract_tb(e.__traceback__) if Path(f.filename).parent == R]
+                tb = [f for f in tb if Path(f.filename).name != "vb_core.py"] or tb  # point at the test, not the helper
+                where = f"{Path(tb[-1].filename).name}:{tb[-1].lineno}" if tb else "?"
+                msg = (str(e).strip().splitlines() or [""])[0][:160]
+                ck(f"[{getattr(job, 'label', job.__name__)}] test ran to the end", False, f"{type(e).__name__} at {where}: {msg}")
+            finally:
+                if buf:
+                    print("\n".join(buf), flush=True)
+    await asyncio.gather(*(one(j) for j in jobs))
+
+def run_job(browser, name, fn):
+    """A job that opens a fresh page as Run(name), calls fn(r) and closes it."""
+    async def job():
+        r = await Run(browser, name).open()
+        try:
+            await fn(r)
+        except Exception:
+            await r.ctx.close()
+            raise
+        await r.close()
+    job.label = name
+    return job
 
 # ---------------------------------------------------------------------------
 # 1 + 2. Static checks

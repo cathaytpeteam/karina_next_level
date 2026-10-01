@@ -27,12 +27,18 @@ screen - and then all of those branches are executed on every run.
 Service Worker scenarios run separately:  python3 verify_behavior.py --sw [--previous DIR]
 (verify_release.py runs both).
 
+One test while editing it:  python3 verify_behavior.py --only NAME
+  NAME is a flow case, guard, state rule or validation row name, or priority_suite.
+Browser jobs: --jobs 1 (default, one after another), 2 or 3 (in parallel). Parallel runs give the same
+PASS/FAIL verdict, but a Back/Forward or language check may land in a different test, so use 2/3 only as a
+quick look while editing; the handover check uses the default. The Service Worker suite always runs one by one.
+
 Requires:  pip install playwright  &&  python -m playwright install chromium
 """
-import asyncio, sys
+import asyncio, difflib, sys
 sys.dont_write_bytecode = True  # keep the release tree free of __pycache__
 
-import vb_core, vb_flows, vb_guards, vb_priority, vb_sw
+import vb_core, vb_flows, vb_guards, vb_priority, vb_sw, vb_validation
 globals().update({k: v for k, v in vars(vb_core).items() if not k.startswith("__")})
 globals().update({k: v for k, v in vars(vb_flows).items() if not k.startswith("__")})
 globals().update({k: v for k, v in vars(vb_guards).items() if not k.startswith("__")})
@@ -50,14 +56,12 @@ async def runtime():
         except Exception as ex:
             ck("runtime: Chromium available (Playwright-managed or /usr/bin/chromium)", False, str(ex)[:120])
             return
-        for name, fn in CASES:
-            r = await Run(browser, name).open(); await fn(r); await r.close()
-        for name in SPEC["guards"]:
-            r = await Run(browser, name).open()
-            ck(f"guard implemented: {name}", await g(r, name)); await r.close()
-        for name in SPEC["state_rules"]:
-            r = await Run(browser, name).open()
-            ck(f"state rule implemented: {name}", await rule(r, name)); await r.close()
+        async def guard(r, name): ck(f"guard implemented: {name}", await g(r, name))
+        async def state_rule(r, name): ck(f"state rule implemented: {name}", await rule(r, name))
+        jobs = [run_job(browser, name, fn) for name, fn in CASES]
+        jobs += [run_job(browser, name, lambda r, name=name: guard(r, name)) for name in SPEC["guards"]]
+        jobs += [run_job(browser, name, lambda r, name=name: state_rule(r, name)) for name in SPEC["state_rules"]]
+        await run_jobs(jobs)
         await browser.close()
 
     ck("runtime: no transition outside the spec", not unexpected, " | ".join(sorted(set(unexpected))[:8]))
@@ -72,10 +76,38 @@ async def runtime():
     ck("runtime: language buttons checked on every preview type", not lm, str(lm))
 
 
+async def only(name):
+    """Run one named test; a mistyped name lists the closest names."""
+    from playwright.async_api import async_playwright
+    cases = dict(CASES)
+    async def guard(r): ck(f"guard implemented: {name}", await g(r, name))
+    async def state_rule(r): ck(f"state rule implemented: {name}", await rule(r, name))
+    if name == "priority_suite":
+        await vb_priority.priority_suite(); return
+    fn = (cases.get(name) or (guard if name in SPEC["guards"] else None)
+          or (state_rule if name in SPEC["state_rules"] else None)
+          or ((lambda r: vb_validation.check_row(r, vb_validation.ROWS[name])) if name in vb_validation.ROWS else None))
+    if fn is None:
+        names = list(cases) + SPEC["guards"] + SPEC["state_rules"] + list(vb_validation.ROWS) + ["priority_suite"]
+        ck(f"--only: no test named {name!r}", False, "closest: " + ", ".join(difflib.get_close_matches(name, names, 8, 0.3)))
+        return
+    async with async_playwright() as p:
+        browser = await launch_chromium(p)
+        r = await Run(browser, name).open(); await fn(r); await r.close()
+        await browser.close()
+
+
+if __name__ == "__main__":
+    workers()  # reject a bad --jobs value before any test starts
+
+if __name__ == "__main__" and "--only" in sys.argv:
+    asyncio.run(only(sys.argv[sys.argv.index("--only") + 1]))
+    print("PASS: --only" if not vb_core.failed else "FAIL: --only")
+    sys.exit(1 if vb_core.failed else 0)
+
 if __name__ == "__main__" and "--priority" in sys.argv:
     static_checks()
-    asyncio.run(vb_priority.priority_suite())
-    asyncio.run(vb_priority.priority_extra())
+    asyncio.run(vb_priority.priority_gate())
     print("PASS: priority release gate" if not vb_core.failed else "FAIL: priority release gate")
     sys.exit(1 if vb_core.failed else 0)
 
