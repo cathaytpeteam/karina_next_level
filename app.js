@@ -1027,19 +1027,29 @@
     if(this.hidden||!phoneCallReady()||!S.phone) return;
     window.location.href="tel:+"+S.phone;
   };
-  // Usage count: each home Next that reaches the Scenario screen loads one image from the team's
-  // GoatCounter. The request carries only the fixed name "next" and a cache-busting time: no phone
-  // number, page address or referrer. It never delays the screen change and never runs remote code.
-  const USAGE_COUNT_URL="https://cathaytpeteam.goatcounter.com/count?p=next&e=true&rnd=";
-  function countNext(){
-    try{const img=new Image();img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+Date.now();}catch(e){}
+  // Usage counts: a home Next that reaches the Scenario screen, and each Scenario 1 / Scenario 2
+  // WhatsApp or Japanese SMS send tap, loads one image from the team's GoatCounter. The request
+  // carries only one fixed name from the list below and a cache-busting time: no phone number,
+  // page address or referrer. It never delays the screen change and never runs remote code.
+  const USAGE_COUNT_URL="https://cathaytpeteam.goatcounter.com/count?p=";
+  const USAGE_COUNT_NAMES=["next","s1-wa","s2-wa","s1-sms-ja","s2-sms-ja"];
+  function countUse(name){
+    if(USAGE_COUNT_NAMES.indexOf(name)<0) return;
+    try{const img=new Image();img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+name+"&e=true&rnd="+Date.now();}catch(e){}
+  }
+  // Send-tap name: Scenario 1 and Scenario 2 Join / Transit only (Japanese goes by SMS there); others send none.
+  function sendCountName(){
+    const sms=S.order==="ja";
+    if(flow==="miss") return sms?"s1-sms-ja":"s1-wa";
+    if(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")) return sms?"s2-sms-ja":"s2-wa";
+    return "";
   }
   $("cta").onclick=function(){
     if(this.disabled||!NEXT[cur]) return;
-    if(cur==="preview"&&!externalReturnReady) armExternalReturn();
+    if(cur==="preview"&&!externalReturnReady){ armExternalReturn(); countUse(sendCountName()); }
     const from=cur;
     NEXT[cur]();
-    if(from==="phone"&&cur==="scenario") countNext();
+    if(from==="phone"&&cur==="scenario") countUse("next");
   };
 
   // ==== [event wiring] ====

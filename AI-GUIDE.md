@@ -4,7 +4,7 @@ Read only what the task needs: search, then read that part. Skip `locks.json`, `
 
 ## Safety first (locked)
 
-This app handles passenger phone numbers. Never add code that stores them, contacts a server, loads external files, runs generated code, or opens WhatsApp / SMS / the dialer without a staff tap. The one approved server call is the home Next usage count (daily report): keep it, and add or change a count only under README rule 3. If a request seems to need any of this, stop and ask. Do not touch the privacy lock, the CSP line in `index.html`, the phone library, or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
+This app handles passenger phone numbers. Never add code that stores them, contacts a server, loads external files, runs generated code, or opens WhatsApp / SMS / the dialer without a staff tap. The only approved server calls are the GoatCounter usage counts (home Next and S1 / S2 send taps; daily report): keep them, and add or change a count only under README rule 3. If a request seems to need any of this, stop and ask. Do not touch the privacy lock, the CSP line in `index.html`, the phone library, or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
 
 ## Where to edit
 

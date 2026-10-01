@@ -21,14 +21,14 @@ Find Pax handles passenger phone numbers, so these rules are locked like the lay
 
 1. **Staff send every message and make every call by hand.** The app only opens WhatsApp or SMS with the number and text filled in, or the phone dialer with the number filled in, and only after a staff tap on Confirm details. It never sends, dials, schedules or repeats a message or call by itself.
 2. **Nothing is kept.** No phone number, message or case history is stored between uses; every launch starts blank. No storage, cookies or databases.
-3. **No server, apart from one usage count.** Each home Next that reaches the Scenario screen loads one image from `https://cathaytpeteam.goatcounter.com/count` carrying only the fixed name `next`: no phone number, page address or referrer, and it never delays the screen change. Otherwise the only network use is the Service Worker loading the app's own files. A separate private repo (`findpax-stats`) turns these counts into three reports a day by adding up every Android hit on this GoatCounter site, so keep this count, keep GoatCounter's User-Agent collection on, and update that report whenever a count is added, renamed or removed.
-4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code; the usage-count image above is the only outside request, allowed by the CSP `img-src` for that one host.
+3. **No server, apart from usage counts.** A home Next that reaches the Scenario screen, and each Scenario 1 / Scenario 2 WhatsApp or Japanese SMS send tap on Confirm details, loads one image from `https://cathaytpeteam.goatcounter.com/count` carrying only one fixed name: `next`, `s1-wa`, `s2-wa`, `s1-sms-ja` or `s2-sms-ja` (Try another number and other scenarios send none). No phone number, page address or referrer, and it never delays the screen change or the send. Otherwise the only network use is the Service Worker loading the app's own files. The platform comes from GoatCounter's User-Agent data, not from the app. A separate private repo (`findpax-stats`) turns these counts into three reports a day from this GoatCounter site and must count each name separately, so keep these counts, keep GoatCounter's User-Agent collection on, and update that report whenever a count is added, renamed or removed.
+4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code; the usage-count images above are the only outside request, allowed by the CSP `img-src` for that one host.
 
-Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site except exactly one `next` count per home Next with no referrer, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
+Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site except exactly one `next` count per home Next and one fixed-name count per S1 / S2 send tap with no referrer, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
 
 ## Test environment limits
 
-- The tests answer the usage count locally; they never reach the real GoatCounter.
+- The tests answer the usage counts locally; they never reach the real GoatCounter.
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
 - Without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch.
 
@@ -145,15 +145,15 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K3.0-r49 (2026-10-01)
+
+- Usage counts: besides the home Next (`next`), each Scenario 1 / Scenario 2 send tap on Confirm details now sends one GoatCounter count with a fixed name: `s1-wa`, `s2-wa`, `s1-sms-ja` or `s2-sms-ja`. Try another number, S3, S4 and S5 send none. The platform comes from GoatCounter's User-Agent data. `findpax-stats` must count each name separately.
+- Privacy lock (`verify_changed.py` and `locks.json` "privacy") updated with user approval to allow only these five names. Browser tests check each send's count name and that no count carries the phone number or a referrer.
+- `CACHE_REV` moves to `K3.0-r49`, so the app updates on phones. The home label stays `K3.0`.
+
 ### K3.0-r48 (2026-10-01)
 
 - Release K3.0: home label and `CACHE_REV` move from K1.1 to K3.0 (`K3.0-r48`), so the app updates on phones. App behaviour unchanged.
 - Browser tests run one after another by default again, with output identical to before. `--jobs 2|3` runs them in parallel as a quick look while editing only: same PASS/FAIL verdict, but a Back/Forward or language check may land in a different test. A test that raises now reports one FAIL line and the rest carry on.
 - `verify_behavior.py --only NAME` runs one test in seconds while editing; the handover check is still `--fast`.
 - AI-GUIDE is shorter and freezes the test files: change them only when an app change needs it, a test fails wrongly, or a bug reached a real phone.
-
-### K1.1-r47 (2026-10-01)
-
-- Tests only: app files and `CACHE_REV` (K1.1-r44) are unchanged, so nothing needs redeploying.
-- Browser tests run in parallel (CPU count + 2, at most 4; `FIND_PAX_WORKERS=1` runs them one by one), and each test prints its lines together. On one CPU the fast check went from about 70 s to 40 s with the same 1052 checks; the Service Worker suite still runs one test at a time.
-- `python3 verify_behavior.py --only NAME` runs one flow case, guard, state rule, validation row or `priority_suite` in seconds; AI-GUIDE says to use it after changing a browser test.

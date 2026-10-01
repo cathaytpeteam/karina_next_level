@@ -16,6 +16,10 @@ def ja_expected(scen, mode, flight=None, gate=None):
         return rx, 134
     return rx, 67
 
+def ck_send_count(r, want):
+    """A send tap sends exactly the expected usage count (S1 / S2), or none (other scenarios)."""
+    ck(f"[{r.name}] send usage count is {want or 'none'}", r.send_counts == ([want] if want else []), str(r.send_counts))
+
 # ---- forward branch cases ----------------------------------------------------
 async def case_s1(r, mode, flight, lang):
     await to_s1(r, mode, flight); await r.act("cta", "msec")
@@ -26,6 +30,7 @@ async def case_s1(r, mode, flight, lang):
     has = (f"{flight}/123",) if mode == "missJoin" and lang != "ordJa" else ()
     exact = ja_expected("s1", "join" if mode == "missJoin" else "transit") if lang == "ordJa" else None
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", has, exact=exact)
+    ck_send_count(r, "s1-sms-ja" if lang == "ordJa" else "s1-wa")
 
 async def case_s2(r, mode, flight, lang):
     await to_s2_gate(r, mode, flight)
@@ -34,12 +39,13 @@ async def case_s2(r, mode, flight, lang):
     has = ["CX" + flight, "C5"]
     exact = ja_expected("s2", "join" if mode == "callJoin" else "transit", "CX" + flight, "C5") if lang == "ordJa" else None
     await r.act("cta", "external:sms" if lang == "ordJa" else "external:whatsapp", tuple(has), exact=exact)
+    ck_send_count(r, "s2-sms-ja" if lang == "ordJa" else "s2-wa")
 
 async def case_direct(r):
     # Call Directly is its own entry on the Scenario page.
     await r.phone(); await r.act("goDirect", "preview")
     ck(f"[{r.name}] call-only preview hides message preview", not await r.pg.locator("#msgToggle").is_visible())
-    await r.act("cta", "external:whatsapp-call")
+    await r.act("cta", "external:whatsapp-call"); ck_send_count(r, "")
 
 async def case_s5(r, lang):
     await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
@@ -47,7 +53,7 @@ async def case_s5(r, lang):
     await r.fill("b2a", "BR"); await r.fill("b2n", "654321"); await r.act("cta", "preview")
     await r.act("ordEn"); await r.act("msgToggle"); await r.act("msgToggle")
     if lang == "ordZh": await r.act("ordZh")
-    await r.act("cta", "external:whatsapp", ("CX123", "CX123456", "BR654321"))
+    await r.act("cta", "external:whatsapp", ("CX123", "CX123456", "BR654321")); ck_send_count(r, "")
 
 async def case_s4(r, status, arrange, lang):
     await to_s4(r, status); await r.act("cta", "dtransfer")
@@ -61,7 +67,7 @@ async def case_s4(r, status, arrange, lang):
     await r.act("cta", "darrive"); await r.fill("arriveTime", "1400"); await r.act("cta", "preview")
     await r.act("ordZh" if lang == "ordZh" else "ordEn")
     if status == "stDelayed": has.append("18:00")
-    await r.act("cta", "external:whatsapp", tuple(has))
+    await r.act("cta", "external:whatsapp", tuple(has)); ck_send_count(r, "")
 
 S4_BRANCHES = {k[3:]: v for k, v in COPY.items() if k.startswith("s4.")}
 

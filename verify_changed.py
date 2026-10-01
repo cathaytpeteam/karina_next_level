@@ -318,9 +318,10 @@ PRIVACY_FORBIDDEN = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon', 'Eve
                      'sessionStorage', 'indexedDB', 'document.cookie', 'navigator.share', 'window.open(',
                      'importScripts', 'new Worker', 'eval(', 'new Function(']
 # postMessage is allowed: app.js only tells its own Service Worker to check for an update ({type:"refresh"}).
-# One approved exception: each home Next loads one GoatCounter image carrying only the fixed
-# name "next" (no phone number, page address or referrer); the CSP allows that one image host.
-USAGE_COUNT_URL = 'https://cathaytpeteam.goatcounter.com/count?p=next&e=true&rnd='
+# One approved exception: a home Next and each S1 / S2 WhatsApp or Japanese SMS send tap load one
+# GoatCounter image carrying only one fixed name (no phone number, page address or referrer);
+# the CSP allows that one image host.
+USAGE_COUNT_URL = 'https://cathaytpeteam.goatcounter.com/count?p='
 USAGE_COUNT_CSP = 'https://cathaytpeteam.goatcounter.com;'
 PRIVACY_URLS_ALLOWED = {'https://wa.me/', 'http://www.w3.org/2000/svg', USAGE_COUNT_URL, USAGE_COUNT_CSP}
 for f in ('app.js', 'copy.js', 'index.html'):
@@ -337,10 +338,21 @@ PRIVACY_SCHEMES_ALLOWED = {'whatsapp', 'https', 'http', 'sms', 'tel'}
 for f in ('app.js', 'copy.js', 'index.html'):
     schemes = sorted(set(re.findall(r'["\'`]([a-z][a-z0-9+.-]*):(?![a-z-]+\()', text(f))) - PRIVACY_SCHEMES_ALLOWED)
     ck(f'privacy lock: {f} opens only WhatsApp, SMS or the phone dialer', not schemes, ', '.join(schemes))
-ck('privacy lock: the usage count sends only the fixed name next, without referrer',
+USAGE_COUNT_NAMES = 'const USAGE_COUNT_NAMES=["next","s1-wa","s2-wa","s1-sms-ja","s2-sms-ja"];'
+USAGE_SEND_NAMES = ('function sendCountName(){\n'
+                    '    const sms=S.order==="ja";\n'
+                    '    if(flow==="miss") return sms?"s1-sms-ja":"s1-wa";\n'
+                    '    if(flow==="call"&&(S.callMode==="join"||S.callMode==="transit")) return sms?"s2-sms-ja":"s2-wa";\n'
+                    '    return "";\n  }')
+ck('privacy lock: the usage count sends only a fixed name from its list, without referrer',
    a.count('const USAGE_COUNT_URL="' + USAGE_COUNT_URL + '";') == 1 and a.count('USAGE_COUNT_URL') == 2
-   and 'img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+Date.now();' in a
-   and a.count('countNext()') == 2 and 'if(from==="phone"&&cur==="scenario") countNext();' in a)
+   and a.count(USAGE_COUNT_NAMES) == 1 and a.count('USAGE_COUNT_NAMES') == 2
+   and 'if(USAGE_COUNT_NAMES.indexOf(name)<0) return;' in a
+   and 'img.referrerPolicy="no-referrer";img.src=USAGE_COUNT_URL+name+"&e=true&rnd="+Date.now();' in a)
+ck('privacy lock: counts only home Next and the S1 / S2 WhatsApp and Japanese SMS send taps',
+   a.count('countUse(') == 3 and 'if(from==="phone"&&cur==="scenario") countUse("next");' in a
+   and a.count(USAGE_SEND_NAMES) == 1 and a.count('sendCountName(') == 2
+   and 'if(cur==="preview"&&!externalReturnReady){ armExternalReturn(); countUse(sendCountName()); }' in a)
 ck('privacy lock: the usage count host appears only in app.js and the CSP img-src',
    'goatcounter' not in cp and h.count('goatcounter') == 1 and "img-src 'self' data: " + USAGE_COUNT_CSP in h)
 ck('privacy lock: index.html loads only local scripts and styles',

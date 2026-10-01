@@ -221,9 +221,14 @@ STATE_JS = """() => {
   };
 }"""
 
-# The home Next usage count (one GoatCounter image) is answered locally in every test, so test
-# runs never reach the real counter; each request is recorded for the privacy checks.
+# Usage counts (one GoatCounter image per home Next or S1 / S2 send tap) are answered locally in
+# every test, so test runs never reach the real counter; each request is recorded for the privacy checks.
 COUNT_HOST = "https://cathaytpeteam.goatcounter.com/"
+COUNT_RX = re.compile(r"https://cathaytpeteam\.goatcounter\.com/count\?p=(next|s1-wa|s2-wa|s1-sms-ja|s2-sms-ja)&e=true&rnd=\d+")
+
+def count_names(counts):
+    """Fixed names of recorded usage counts; anything else (or one carrying a referrer) shows as '?'."""
+    return [m.group(1) if (m := COUNT_RX.fullmatch(c["url"])) and "referer" not in c["headers"] else "?" for c in counts]
 COUNT_GIF = bytes.fromhex("47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b")
 
 async def answer_count(route, seen):
@@ -232,7 +237,7 @@ async def answer_count(route, seen):
 
 class Run:
     def __init__(self, browser, name):
-        self.browser, self.name, self.nav, self.counts = browser, name, [], []
+        self.browser, self.name, self.nav, self.counts, self.send_counts = browser, name, [], [], []
 
     async def open(self):
         self.ctx = await self.browser.new_context(viewport={"width": 390, "height": 844})
@@ -303,13 +308,15 @@ class Run:
         if trigger == "cta" and before["cta_disabled"]:
             ck(f"[{self.name}] Next enabled on {before['screen']} ({before['title']})", False)
             return before
-        n0 = len(self.nav)
+        n0, c0 = len(self.nav), len(self.counts)
         await self.pg.click(sel)
         if before["screen"] == "preview" and trigger == "cta":
             for _ in range(40):
                 if len(self.nav) > n0:
                     break
                 await self.pg.wait_for_timeout(50)
+            await self.pg.wait_for_timeout(150)
+            self.send_counts = count_names(self.counts[c0:])
             urls = self.nav[n0:]
             url = urls[0] if urls else ""
             if url.startswith("whatsapp://send") and "&text=" in url:
