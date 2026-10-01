@@ -25,7 +25,9 @@ VERBOSE = '-v' in sys.argv
 # Files that are not deployed but belong to the release (everything else must be in sw.js ASSETS).
 CONTROL_FILES = {'README.md', 'AI-GUIDE.md', 'locks.json',
                  'flow-behavior-spec.json', 'verify_release.py', 'verify_behavior.py',
-                 'verify_changed.py', 'SHA256SUMS.txt'}
+                 'verify_changed.py', 'SHA256SUMS.txt',
+                 'vb_core.py', 'vb_flows.py', 'vb_guards.py', 'vb_guards_other.py', 'vb_guards_s4.py',
+                 'vb_priority.py', 'vb_sw.py', 'vb_validation.py'}
 SIZE_LIMITS = {'AI-GUIDE.md': 4096, 'README.md': 20480}
 MAX_CHANGELOG_ENTRIES = 2
 

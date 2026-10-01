@@ -1,10 +1,10 @@
 # AI guide — Find Pax (read this first)
 
-Do not read `locks.json`, `SHA256SUMS.txt`, the `verify_*.py` files, or all of `app.js`. Search for the name you need and read only that part. Read `README.md` only when a task touches behaviour or layout rules.
+Read only what the task needs: search for a name and read that part. Skip `locks.json`, `SHA256SUMS.txt`, `verify_*.py` and the whole of `app.js`; for browser tests read only the `vb_*.py` file you change. Read `README.md` only when a task touches behaviour or layout rules.
 
 ## Safety first (locked)
 
-This app handles passenger phone numbers. Never add code that stores them, contacts a server (the one approved exception is the home Next usage count, which feeds a daily report: keep it, and add or change a count only with README rule 3), loads external files, runs generated code, or opens WhatsApp / SMS / the phone dialer without a staff tap. If a request seems to need any of this, stop and ask; do not work around or edit the privacy lock, the Content-Security-Policy line in `index.html`, the phone library or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
+This app handles passenger phone numbers. Never add code that stores them, contacts a server, loads external files, runs generated code, or opens WhatsApp / SMS / the dialer without a staff tap. The one approved server call is the home Next usage count (daily report): keep it, and add or change a count only under README rule 3. If a request seems to need any of this, stop and ask. Do not touch the privacy lock, the CSP line in `index.html`, the phone library, or `sw.js` beyond `CACHE_REV` (README "Privacy and safety").
 
 ## Where to edit
 
@@ -19,25 +19,25 @@ This app handles passenger phone numbers. Never add code that stores them, conta
 
 ## app.js section markers
 
-Search these markers instead of reading the whole file: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[render]`, `[event wiring]`.
+Search these markers: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[render]`, `[event wiring]`.
 
 ## Workflow
 
 1. Start from the latest approved ZIP. One task per change; never mix a feature with cleanup.
-2. Make small targeted edits. Do not reformat or tidy code you were not asked to touch.
+2. Small targeted edits; do not reformat code you were not asked to touch.
 3. After each edit: `python3 verify_changed.py` (seconds, no browser).
-4. Before handing over: `python3 verify_release.py --fast`. Use `--full` only when the user asks for a release (完整檢查).
-5. Never edit `locks.json` to make a check pass. If a lock fails outside the task, stop and report it.
-6. `README.md` holds the current product rules and maintenance guidance. No future-phase plan is kept in the release ZIP.
+4. Before handover: `python3 verify_release.py --fast`; `--full` only when the user asks for a release (完整檢查).
+5. Never edit `locks.json` to make a check pass. A lock failing outside the task: stop and report.
+6. `README.md` holds the current product rules; no future-phase plan is kept in the ZIP.
 
 ## Rules that keep the project small
 
-- Trial builds: no change-log entry and no README rule change. When the user says a build is final, add one change-log entry and keep only two.
-- If browser tests cannot run in the current environment: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP filename, and never recommend uploading it to `main`.
-- Comments describe current behaviour. No `rNN`, `v1.x`, dates or "formerly" (verify_changed fails on them).
-- New colour, new file, bigger README: verify_changed fails. Ask the user instead of working around it.
-- Copy IDs are stable and hash-locked. Do not rename an ID or change its value as a side effect.
-- New field or rule: label/hint copy in `copy.js`, `app.js` rule + OK/HINT, a guard in `flow-behavior-spec.json`, a test value in `verify_behavior.py`, and one README line if it is a rule.
+- Trial builds: no change-log entry or README rule change. When the user says a build is final, add one change-log entry and keep only two.
+- Browser tests cannot run here: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP name, never recommend uploading it to `main`.
+- Comments describe current behaviour: no `rNN`, `v1.x`, dates or "formerly" (verify_changed fails).
+- New colour, new file or bigger README fails verify_changed: ask the user, do not work around it.
+- Copy IDs are stable and hash-locked: never rename or change one as a side effect.
+- New field or rule: copy in `copy.js`, `app.js` rule + OK/HINT, a row in `vb_validation.py`, one README line. A multi-step rule also needs a guard in `flow-behavior-spec.json` and `vb_guards_*.py`.
 
 ## Handoff (five lines at most)
 

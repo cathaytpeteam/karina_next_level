@@ -6,7 +6,7 @@ Product rules for Find Pax. How to work on the code (where to edit, how to verif
 
 Deployed (listed in `sw.js` ASSETS, plus `sw.js` itself): `index.html` (screen shell, layout-locked), `app.css` (all styling and colour variables), `copy.js` (all user-facing copy plus approved rule data), `app.js` (state, validation and navigation), `manifest.webmanifest`, `libphonenumber-mobile.js`, and the PNG icons.
 
-Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py`, `SHA256SUMS.txt` (written by the verifier after a passing check).
+Control (not deployed): `AI-GUIDE.md`, `README.md`, `locks.json` (hashes and approved values, read only by the verifiers), `flow-behavior-spec.json` (every screen, button and branch the browser test executes), `verify_changed.py`, `verify_release.py`, `verify_behavior.py` (browser-test entry) with `vb_core.py`, `vb_flows.py`, `vb_guards.py`, `vb_guards_other.py`, `vb_guards_s4.py`, `vb_priority.py`, `vb_sw.py`, `vb_validation.py` (field validation table), `SHA256SUMS.txt` (written by the verifier after a passing check).
 
 ## Maintenance principles
 
@@ -145,11 +145,12 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K1.0-r44 (2026-10-01)
+
+- Search engines: `index.html` carries `<meta name="robots" content="noindex, nofollow">`, so the app page is not listed. App behaviour unchanged.
+- Tests: `verify_behavior.py` is now the entry for `vb_*.py`, split by area. Field rules live in the `vb_validation.py` table; each row proves a valid value enables Next before an invalid one disables it. The fast check also runs sampled full-suite flows, guards and rules, and now catches Scenario 4 CX450/530/564 and digit airline codes. `verify_release.py` drops checks already covered by the layout, copy, function or `sw.js` locks or by browser tests.
+
 ### K1.0-r43 (2026-09-30)
 
 - Home Next usage count: each home Next that reaches the Scenario screen loads one GoatCounter image (`cathaytpeteam.goatcounter.com`) carrying only the fixed name `next`, with no phone number, page address or referrer; a failed or slow counter never delays the app. Privacy rules 3 and 4 updated; privacy lock recomputed with user approval (verify_changed privacy section, CSP `img-src`). Tests answer the counter locally. Cache revision bumped.
 - Docs: AI-GUIDE and privacy rule 3 note that the count feeds the three daily reports in the private `findpax-stats` repo, so it must be kept and any count change needs that report updated. App files unchanged.
-
-### K1.0-r42 (2026-09-30)
-
-- Phone home: keep the original top spacing inside the scrollable content so it remains in its original position and can scroll beneath the former blank area. Added guards for home scrollability and content movement.
