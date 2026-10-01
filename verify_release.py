@@ -124,28 +124,32 @@ def navigation_lock():
         exact=f'{key}:{{name:copy("progress.flow.{title_id}"),steps:[{steps}]}}'
         ck(f'{key} flow mapping', exact in s)
 
+    # Entry routes are compared with every S.order="..." assignment removed: the confirm page
+    # sets the language from defaultMessageOrder(), so that value does not change behaviour.
+    s_routes=re.sub(r'S\.order="[a-z]+";','',s)
+
     # Scenario 1 routes and labels must never move during other flow edits.
     for x in [
-     '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};',
-     '$("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
-     '$("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};',
-    ]: ck('Scenario 1 route '+x.split('"')[1], x in s)
+     '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();flow="miss";S.callNoMessage=false;S.orderSet=false;go("misstype");};',
+     '$("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.orderSet=false;go("mflight");};',
+     '$("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.orderSet=false;go("mflight");};',
+    ]: ck('Scenario 1 route '+x.split('"')[1], x in s_routes)
     ck('Scenario 1 progress label order', 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s)
 
     # Scenario 2 routes + approved Final Call labels.
     for x in [
-     '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};',
-     '$("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
-     '$("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};',
-     '$("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};'
-    ]: ck('Scenario 2 route '+x.split('"')[1], x in s)
+     '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();flow="call";S.orderSet=false;go("calltype");};',
+     '$("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.orderSet=false;go("callflight");};',
+     '$("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.orderSet=false;go("callflight");};',
+     '$("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.orderSet=false;clearDrafts();go("preview");};'
+    ]: ck('Scenario 2 route '+x.split('"')[1], x in s_routes)
     ck('Scenario 2 progress label order', 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s)
     ck('Browser Back/Forward state direction', 'history.replaceState({findPax:true,pos:0,id:"phone"}' in s and 'history.pushState({findPax:true,pos:navPos,id}' in s and 'navPos=st.pos;' in s and 'showScreen(st.id);' in s)
 
     # Scenario 4 structural + behavior regression checks.
     dstatus=section('s-dstatus')
     dflight=section('s-dflight')
-    ck('Scenario 4 entry routes to Flight Type', '$("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
+    ck('Scenario 4 entry routes to Flight Type', '$("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.orderSet=false;go("dstatus");};' in s_routes)
     # Passenger Type page. "At Gate" group: Already at Gate (tinted, full row);
     # "Not at the Airport" group: Tight Connection (full row, same size, neutral colour), then Delayed | Suspended.
     # Already at Gate sits alone in the "At Gate" group, above "Not at the Airport".
@@ -217,8 +221,6 @@ ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=t
 
 vp=ef('validatePhone') or ''
 
-ck('Scenario 5 language reset', '$("goWpp").onclick=()=>{if(!keepRetryCase("wpp"))clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};' in s)
-ck('Scenario 4 language reset', '$("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};' in s)
 ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();' in s)
 ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();' in s)
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s)
@@ -263,7 +265,6 @@ sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker cache revision', bool(re.search(r'const CACHE_REV="K\d+\.\d+-r\d+";', sw)))
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-mobile.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
-ck('C1R rejected by message gate helpers', 'z!==copy("rules.gate.b1rZone")&&n===copy("rules.gate.b1rNumber")' in ef('callGateFull') and 'z!==copy("rules.gate.b1rZone")&&x===copy("rules.gate.b1rNumber")' in ef('dnGateFull'))
 ck('B1R row reserves height', 'min-height:36px' in s and '@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}' in s)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
@@ -311,7 +312,6 @@ ck('legacy Android JS: no optional chaining', '?.' not in s)
 ck('legacy Android JS: no native replaceChildren dependency', '.replaceChildren(' not in s and 'replaceChildrenCompat' in s)
 ck('legacy Android Home: critical row geometry uses explicit flex margins', '#s-scenario .choice{min-height:80px;border-radius:18px;padding:8px 14px 8px 12px;display:flex;gap:0;' in s and '#s-scenario .ctext{flex:1 1 auto;' in s and 'margin-left:14px' in s and '#s-scenario .chev{flex:0 0 20px;margin-left:14px;' in s)
 ck('legacy Android Passenger Type: action-icon spacing is explicit', '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px' in s and '#s-calltype .choice .chev,#s-misstype .choice .chev{font-size:26px;width:14px;margin-left:10px' in s)
-ck('fresh case clears stale invalid borders', 'function clearInvalidMarks(ids)' in s and 'clearInvalidMarks(["dFlight","tA","tN","delayTime","altA","altN","altTime","arriveTime"]);' in s)
 
 # Layout lock: approved screen structure/field placement may change only with explicit user approval.
 _lay_ok,_lay_msgs=layout_lock()

@@ -47,6 +47,108 @@ async def guard_s2_sec_rules_history_and_summary_order(r, name="s2_sec_rules_his
     ck("[guard] Transit Sec prefix is its departure airport", await r.pg.locator("#mSecPrefix").inner_text() == "NRT")
 
 
+SUMMARY_ROWS_JS = "[...document.querySelectorAll('#sum > div')].map(d => [d.querySelector('dt').textContent.trim(), d.querySelector('dd').textContent.trim()])"
+
+async def guard_s2_transit_confirm_shows_dep_from(r, name="s2_transit_confirm_shows_dep_from"):
+    await to_s2_gate(r, "callTransit", "565"); await r.fill("callGate", "5"); await r.act("cta", "preview")
+    rows = dict(await r.pg.evaluate(SUMMARY_ROWS_JS))
+    want = COPY["rules.transit.origins"]["565"]
+    ck("[guard] Final Call Transit Confirm details show Dep from", rows.get("Dep from") == want, f"want {want}, rows {rows}")
+
+async def guard_direct_call_confirm_shows_grouped_phone(r, name="direct_call_confirm_shows_grouped_phone"):
+    await r.phone(); await r.act("goDirect", "preview")
+    rows = dict(await r.pg.evaluate(SUMMARY_ROWS_JS))
+    ck("[guard] Call Directly shows the flag and grouped number", rows.get("Phone Number") == "\U0001F1F9\U0001F1FC +886 983 952 902", str(rows))
+
+
+# Computed style of the first element matching a selector, plus its box.
+STYLE_JS = """([sel, props]) => { const e = document.querySelector(sel); if (!e) return null; const c = getComputedStyle(e), b = e.getBoundingClientRect();
+  return Object.assign(Object.fromEntries(props.map(p => [p, c[p]])), {left: b.left, top: b.top, width: b.width, height: b.height}); }"""
+VAR_COLOUR_JS = "v => { const d = document.createElement('i'); d.style.color = 'var(' + v + ')'; document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; }"
+
+async def style(r, sel, *props):
+    return await r.pg.evaluate(STYLE_JS, [sel, list(props)]) or {}
+
+async def guard_progress_title_style(r, name="progress_title_style"):
+    await to_s1(r, "missJoin", "407")
+    s = await style(r, "#step", "fontWeight", "fontSize")
+    ck("[guard] progress title is bold 17px", s.get("fontWeight") == "700" and s.get("fontSize") == "17px", str(s))
+
+async def guard_confirm_details_text_style(r, name="confirm_details_text_style"):
+    await to_s2_gate(r, "callJoin", "407"); await r.fill("callGate", "5"); await r.act("cta", "preview")
+    s = await style(r, ".msgToggle small", "fontSize", "fontWeight")
+    ck("[guard] message language label is 18px bold", s.get("fontSize") == "18px" and s.get("fontWeight") == "700", str(s))
+    s = await style(r, "#sum dt", "wordBreak", "overflowWrap")
+    ck("[guard] Confirm details labels never break inside a word", s.get("wordBreak") == "normal" and s.get("overflowWrap") == "normal", str(s))
+    await _back_to_scenario(r); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
+    await r.fill("b1n", "123456"); await r.act("cta", "bag2"); await r.fill("b2n", "654321"); await r.act("cta", "preview")
+    s = await style(r, "#sum .bagConfirmNote", "fontSize")
+    ck("[guard] Wrong Pick-up unclaimed-bag note is 18px", s.get("fontSize") == "18px", str(s))
+
+async def _back_to_scenario(r):
+    for _ in range(8):
+        s = await r.st()
+        if s["screen"] == "scenario":
+            return
+        await r.pg.click("#back"); await r.wait(lambda x: x["screen"] != s["screen"])
+
+async def guard_passenger_type_rows_full_width(r, name="passenger_type_rows_full_width"):
+    await r.phone()
+    for trig, scr, join, transit in (("goMiss", "misstype", "missJoin", "missTransit"), ("goCall", "calltype", "callJoin", "callTransit")):
+        await r.act(trig, scr)
+        a, b = await style(r, "#" + join), await style(r, "#" + transit)
+        ck(f"[guard] {scr}: Transit Passenger spans the full row like Joining Passenger", abs(a.get("width", 0) - b.get("width", -9)) < 1, f"{a.get('width')} vs {b.get('width')}")
+        await r.back("scenario")
+
+async def guard_scenario_icons_size(r, name="scenario_icons_size"):
+    await r.phone()
+    boxes = await r.pg.evaluate("[...document.querySelectorAll('#s-scenario .ico img, #s-scenario .ico .scIco')].map(e => { const b = e.getBoundingClientRect(); return [Math.round(b.width), Math.round(b.height)]; })")
+    ck("[guard] all five Scenario icons are 42 x 30", len(boxes) == 5 and all(b == [42, 30] for b in boxes), str(boxes))
+
+async def guard_s2_flight_field_aligns_with_sec(r, name="s2_flight_field_aligns_with_sec"):
+    await to_s2(r, "callJoin", "407")
+    code, flight = await style(r, "#s-callflight .field .code"), await style(r, "#callFlight")
+    await r.act("cta", "msec")
+    prefix, sec = await style(r, "#mSecPrefix"), await style(r, "#mSec")
+    ck("[guard] Final Call flight field lines up with the Sec field", abs(code.get("left", 0) - prefix.get("left", -9)) < 1 and abs(code.get("width", 0) - prefix.get("width", -9)) < 1
+       and abs(flight.get("left", 0) - sec.get("left", -9)) < 1, f"code {code.get('left')}/{code.get('width')} prefix {prefix.get('left')}/{prefix.get('width')} input {flight.get('left')} vs {sec.get('left')}")
+
+
+async def guard_phone_library_retries_after_bad_load(r, name="phone_library_retries_after_bad_load"):
+    # The app is served over a test origin. The first download of the phone library arrives but
+    # defines nothing (a broken or cut-off copy); the app must give up on it after its 2 s wait,
+    # load the library again and then recognise a non-Taiwan number.
+    origin, lib, asked = "http://findpax.test/", "libphonenumber-mobile.js", []
+    async def serve(route):
+        path = route.request.url[len(origin):].split("?")[0] or "index.html"
+        if path == lib:
+            asked.append(path)
+            if len(asked) == 1:
+                return await route.fulfill(status=200, content_type="text/javascript", body="/* cut-off copy */")
+        f = R / path
+        if not f.is_file():
+            return await route.fulfill(status=404, body="")
+        types = {".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json"}
+        await route.fulfill(status=200, content_type=types.get(f.suffix, "application/octet-stream"), body=f.read_bytes())
+    ctx = await r.browser.new_context(viewport={"width": 390, "height": 844}, service_workers="block")
+    await ctx.route(origin + "**", serve); await ctx.route(COUNT_HOST + "**", lambda route: route.fulfill(status=204, body=""))
+    pg = await ctx.new_page(); errors = []
+    pg.on("pageerror", lambda e: errors.append(str(e)))
+    await pg.goto(origin); await pg.wait_for_selector("#s-phone:not([hidden])")
+    ready = False
+    for _ in range(60):
+        ready = await pg.evaluate("!!window.libphonenumber")
+        if ready:
+            break
+        await pg.wait_for_timeout(100)
+    ck("[guard] phone library is loaded again after a broken first copy", ready and len(asked) >= 2, f"ready {ready}, library requests {len(asked)}")
+    await pg.fill("#phoneInput", PHONE_RETRY); await pg.wait_for_timeout(200)
+    badge = (await pg.locator("#badge").inner_text()).strip() if await pg.locator("#badge").is_visible() else ""
+    ck("[guard] after the retry a Japanese number shows the JP badge", "JP" in badge, badge)
+    ck(f"[{name}] no JavaScript errors", not errors, "; ".join(errors[:3]))
+    await ctx.close()
+
+
 async def guard_s5_call_by_phone_after_whatsapp(r, name="s5_call_by_phone_after_whatsapp"):
     await case_s5(r, "ordZh")
     ck("[guard] S5 Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
@@ -246,6 +348,10 @@ async def guard_header_number_on_passenger_type(r, name="header_number_on_passen
         await r.act(trig, scr)
         shown, num = await r.pg.evaluate(who_js)
         ck(f"[guard] {scr} shows the phone number top-right", shown and num == "+" + PHONE, num)
+        s = await style(r, "#who", "color", "fontWeight", "fontSize", "backgroundColor")
+        want = await r.pg.evaluate(VAR_COLOUR_JS, "--muted")
+        ck(f"[guard] {scr} header number is muted grey 15px weight 500, no background",
+           s.get("color") == want and s.get("fontWeight") == "500" and s.get("fontSize") == "15px" and s.get("backgroundColor") == "rgba(0, 0, 0, 0)", str(s))
         await r.back("scenario")
     await r.act("goDirect", "preview")
     shown, _ = await r.pg.evaluate(who_js)
@@ -320,4 +426,12 @@ GUARDS = {
     "phone_input_fits": guard_phone_input_fits,
     "phone_formats_normalize": guard_phone_formats_normalize,
     "progress_title_fits": guard_progress_title_fits,
+    "s2_transit_confirm_shows_dep_from": guard_s2_transit_confirm_shows_dep_from,
+    "direct_call_confirm_shows_grouped_phone": guard_direct_call_confirm_shows_grouped_phone,
+    "progress_title_style": guard_progress_title_style,
+    "confirm_details_text_style": guard_confirm_details_text_style,
+    "passenger_type_rows_full_width": guard_passenger_type_rows_full_width,
+    "scenario_icons_size": guard_scenario_icons_size,
+    "s2_flight_field_aligns_with_sec": guard_s2_flight_field_aligns_with_sec,
+    "phone_library_retries_after_bad_load": guard_phone_library_retries_after_bad_load,
 }

@@ -789,7 +789,20 @@
   "header_number_on_passenger_type",
   "phone_input_fits",
   "phone_formats_normalize",
-  "progress_title_fits"
+  "progress_title_fits",
+  "s2_transit_confirm_shows_dep_from",
+  "direct_call_confirm_shows_grouped_phone",
+  "s4_flight_type_has_no_next",
+  "s4_delayed_flight_focuses_time",
+  "s4_delayed_bad_time_shows_hint",
+  "progress_title_style",
+  "confirm_details_text_style",
+  "passenger_type_rows_full_width",
+  "scenario_icons_size",
+  "s2_flight_field_aligns_with_sec",
+  "s4_flight_type_look",
+  "s4_gate_b1r_row_keeps_height",
+  "phone_library_retries_after_bad_load"
  ],
  "state_rules": [
   "s1_mode_switch_clears_inputs",

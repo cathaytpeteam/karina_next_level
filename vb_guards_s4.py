@@ -18,6 +18,45 @@ async def guard_s4_delayed_requires_time(r, name="s4_delayed_requires_time"):
     await r.fill("delayTime", "1800"); await r.expect("Delayed 18:00 accepted", True)
     ck("[guard] Delayed-to shows full 18:00", await r.val("delayTime") == "18:00", await r.val("delayTime"))
 
+async def guard_s4_flight_type_has_no_next(r, name="s4_flight_type_has_no_next"):
+    await r.phone(); await r.act("goDp", "dstatus")
+    ck("[guard] S4 Flight Type page has no Next (choices navigate directly)", (await r.st())["foot_hidden"])
+
+async def guard_s4_delayed_flight_focuses_time(r, name="s4_delayed_flight_focuses_time"):
+    await to_s4(r, "stDelayed", delay=None)
+    await r.pg.wait_for_timeout(100)
+    focused = await r.pg.evaluate("document.activeElement.id")
+    ck("[guard] valid 3-digit Delayed flight moves the cursor to Delayed to", focused == "delayTime", focused)
+
+async def guard_s4_delayed_bad_time_shows_hint(r, name="s4_delayed_bad_time_shows_hint"):
+    await to_s4(r, "stDelayed", delay="2575"); await r.blur("delayTime")
+    hint = (await r.pg.locator("#hint").text_content() or "").strip()
+    ck("[guard] Delayed 25:75 shows the invalid-time hint", hint == COPY["error.time.invalid"], hint)
+
+
+async def guard_s4_flight_type_look(r, name="s4_flight_type_look"):
+    await r.phone(); await r.act("goDp", "dstatus")
+    look = await r.pg.evaluate("""() => { const c = s => getComputedStyle(document.querySelector(s));
+      const d = document.createElement('i'); d.style.background = 'var(--surface)'; document.body.appendChild(d); const surface = getComputedStyle(d).backgroundColor; d.remove();
+      return {tight: c('#stPossible').backgroundColor, gate: c('#stGate').backgroundColor, surface, align: c('#s-dstatus h1').textAlign}; }""")
+    ck("[guard] Tight Connection uses the neutral surface colour; Already at Gate stays tinted", look["tight"] == look["surface"] and look["gate"] != look["surface"], str(look))
+    ck("[guard] Flight Type title is not centred (same placement as Passenger Type)", look["align"] in ("start", "left"), look["align"])
+
+async def guard_s4_gate_b1r_row_keeps_height(r, name="s4_gate_b1r_row_keeps_height"):
+    # The B1R? suggestion has a reserved row, so the page height does not change when it appears or leaves.
+    height = "() => document.querySelector('.screen:not([hidden])').scrollHeight"
+    r2 = await Run(r.browser, name + " (Final Call)").open()
+    for run, walk, field, button in ((r, to_s4_gate(r, "407", "gsCancelled"), "gGate", "gGateR"),
+                                     (r2, to_s2_gate(r2, "callJoin", "407"), "callGate", "callGateR")):
+        await walk; before = await run.pg.evaluate(height)
+        await run.fill(field, "1"); await run.pg.wait_for_timeout(100)
+        shown = await run.pg.locator("#" + button).is_visible(); with_button = await run.pg.evaluate(height)
+        await run.fill(field, "5"); await run.pg.wait_for_timeout(100); without = await run.pg.evaluate(height)
+        ck(f"[guard] {field}: B1R? appearing or leaving does not change the page height", shown and before == with_button == without,
+           f"{before} / {with_button} / {without}, button shown {shown}")
+    await r2.close()
+
+
 async def guard_s4_delayed_time_display(r, name="s4_delayed_time_display"):
     await to_s4(r, "stDelayed", delay=None)
     info = await r.pg.locator("#delayTime").evaluate("""e => ({ph: e.placeholder, icon: getComputedStyle(e.parentElement, '::before').content,
@@ -150,6 +189,12 @@ async def guard_s4_gate_dep_and_proceed_required(r, name="s4_gate_dep_and_procee
     await r.act("cta", "dgateaction"); await r.expect("no Proceed choice keeps Next disabled", False)
     await r.act("gpWait"); await r.expect("Wait for Staff without a gate target keeps Next disabled", False)
     await r.act("gOriginalFlight"); await r.expect("original-flight target + Wait for Staff enables Next", True)
+    # A gate target alone (no ASAP / Wait for Staff) must not be enough: checked on a fresh case.
+    r2 = await Run(r.browser, name + " (target only)").open()
+    await to_s4_gate(r2, "407", "gsCancelled"); await fill_protect(r2, "401", "B", "9", "1955")
+    await r2.act("cta", "dgateaction"); await r2.act("gOriginalFlight")
+    await r2.expect("gate target without ASAP or Wait for Staff keeps Next disabled", False)
+    await r2.close()
 
 async def guard_s4_gate_fields_side_by_side(r, name="s4_gate_fields_side_by_side"):
     for W in (390, 360, 320):
@@ -185,4 +230,9 @@ GUARDS = {
     "s4_gate_requires_valid_gate": guard_s4_gate_requires_valid_gate,
     "s4_gate_dep_and_proceed_required": guard_s4_gate_dep_and_proceed_required,
     "s4_gate_fields_side_by_side": guard_s4_gate_fields_side_by_side,
+    "s4_flight_type_has_no_next": guard_s4_flight_type_has_no_next,
+    "s4_delayed_flight_focuses_time": guard_s4_delayed_flight_focuses_time,
+    "s4_delayed_bad_time_shows_hint": guard_s4_delayed_bad_time_shows_hint,
+    "s4_flight_type_look": guard_s4_flight_type_look,
+    "s4_gate_b1r_row_keeps_height": guard_s4_gate_b1r_row_keeps_height,
 }

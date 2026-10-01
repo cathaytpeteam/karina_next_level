@@ -145,14 +145,14 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
-### K1.1-r44 (2026-10-01)
+### K1.1-r46 (2026-10-01)
 
-- Release K1.1: home label and `CACHE_REV` move from K1.0 to K1.1.
-- Search engines: `index.html` carries `<meta name="robots" content="noindex, nofollow">`, so the app page is not listed. App behaviour unchanged.
-- Tests: `verify_behavior.py` is now the entry for `vb_*.py`, split by area. Field rules live in the `vb_validation.py` table; each row proves a valid value enables Next before an invalid one disables it. The fast check also runs sampled full-suite flows, guards and rules, and now catches Scenario 4 CX450/530/564 and digit airline codes. `verify_release.py` drops checks already covered by the layout, copy, function or `sw.js` locks or by browser tests.
-- Tests: the home scroll guard now measures with the keyboard open, the only state in which home content overflows; it previously failed on every machine because the closed-keyboard home page fits the screen.
+- Tests only: app files and `CACHE_REV` (K1.1-r44) are unchanged, so nothing needs redeploying.
+- `verify_release.py` drops source-text checks that guarded code with no effect on app behaviour: C1R rejection in the message gate helpers, the Scenario 4 invalid-border clear, and the Scenario 4 and 5 language resets. Each was proven by planting the error: no browser test failed.
+- The Scenario 1, 2 and 4 entry route checks no longer compare the `S.order` value, which the confirm page replaces with the default language; the rest of each route, including `S.orderSet=false`, is still compared exactly.
 
-### K1.0-r43 (2026-09-30)
+### K1.1-r45 (2026-10-01)
 
-- Home Next usage count: each home Next that reaches the Scenario screen loads one GoatCounter image (`cathaytpeteam.goatcounter.com`) carrying only the fixed name `next`, with no phone number, page address or referrer; a failed or slow counter never delays the app. Privacy rules 3 and 4 updated; privacy lock recomputed with user approval (verify_changed privacy section, CSP `img-src`). Tests answer the counter locally. Cache revision bumped.
-- Docs: AI-GUIDE and privacy rule 3 note that the count feeds the three daily reports in the private `findpax-stats` repo, so it must be kept and any count change needs that report updated. App files unchanged.
+- Tests only: app files and `CACHE_REV` (K1.1-r44) are unchanged, so nothing needs redeploying.
+- The fast check now covers behaviour that only source-text checks guarded: Final Call Transit "Dep from", the Call Directly grouped number, no Next on the S4 Flight Type page, the Delayed auto-focus and invalid-time hint, Proceed to Gate needing ASAP or Wait, the Already at Gate Flight status, and reloading the phone library after a broken first copy.
+- Browser style guards: progress title, header number, Confirm details labels and notes, Passenger Type row width, Scenario icon size, Final Call field alignment, S4 Flight Type colour and title, and the reserved B1R? row. Each new test was proven by planting the error it guards.

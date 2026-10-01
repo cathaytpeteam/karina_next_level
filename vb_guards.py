@@ -48,8 +48,11 @@ async def rule(r, name):
         await to_s1(r, "missJoin", "407"); await r.back("misstype"); await r.act("missJoin", "mflight")
         ck("[rule] S1 re-selecting Join keeps flight", await r.val("mFlight") == "407")
     elif name == "s2_mode_switch_clears_inputs":
-        await to_s2(r, "callJoin", "407"); await r.back("calltype"); await r.act("callTransit", "callflight")
+        await to_s2(r, "callJoin", "407"); await r.act("cta", "msec"); await r.fill("mSec", "123")
+        await r.back("callflight"); await r.back("calltype"); await r.act("callTransit", "callflight")
         ck("[rule] S2 Join -> Transit clears flight", await r.val("callFlight") == "")
+        await r.fill("callFlight", "450"); await r.act("cta", "msec")
+        ck("[rule] S2 Join -> Transit clears SEC", await r.val("mSec") == "", await r.val("mSec"))
     elif name == "s4_flight_type_switch_clears_delay_time":
         await to_s4(r, "stDelayed"); await r.back("dstatus"); await r.act("stPossible", "dflight")
         await r.back("dstatus"); await r.act("stDelayed", "dflight")
@@ -88,9 +91,61 @@ async def rule(r, name):
         await r.phone(); await r.act("goDp", "dstatus"); await r.back("scenario"); await r.act("goWpp", "wflight")
         ck("[rule] Picking another scenario after Try Another Number clears the kept case", await r.val("wFlight") == "", await r.val("wFlight"))
     elif name == "scenario_reentry_starts_clean":
-        await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123")
-        await r.back("scenario"); await r.act("goWpp", "wflight")
-        ck("[rule] Re-entering a scenario starts clean", await r.val("wFlight") == "")
+        for tag, num, steps, stale in REENTRY:
+            await _reentry(r, tag, num, steps, stale)
     else:
         return False
     return True
+
+
+# Re-entering a scenario from the Scenario page starts a clean case: empty fields, no stale red
+# border and the phone-based default language again. Each walk fills a case to Confirm details,
+# picks the other language, leaves one invalid field (red; S5 has no field that turns red), goes back
+# to the Scenario page and walks the same steps again. Steps: ("act", control, screen) or ("fill", field, value).
+# Each number's default language differs from the language the scenario button starts with (S1/S2/S5 中文,
+# S4 English), so a picked language that survives re-entry is visible.
+REENTRY = [
+    ("S1", PHONE_RETRY, [("act", "goMiss", "misstype"), ("act", "missJoin", "mflight"), ("fill", "mFlight", "407"), ("act", "cta", "msec"),
+            ("fill", "mSec", "123"), ("act", "cta", "preview")], ("msec", "mSec", "999")),
+    ("S2", PHONE_RETRY, [("act", "goCall", "calltype"), ("act", "callJoin", "callflight"), ("fill", "callFlight", "407"), ("act", "cta", "msec"),
+            ("fill", "mSec", "123"), ("act", "cta", "callgate"), ("fill", "callGate", "5"), ("act", "cta", "preview")], ("msec", "mSec", "999")),
+    ("S4", PHONE, [("act", "goDp", "dstatus"), ("act", "stPossible", "dflight"), ("fill", "dFlight", "407"), ("act", "cta", "dtransfer"),
+            ("fill", "tN", "888"), ("act", "cta", "darrange"), ("act", "arUnknown", None), ("act", "cta", "darrive"),
+            ("fill", "arriveTime", "1400"), ("act", "cta", "preview")], ("dflight", "dFlight", "450")),
+    ("S5", PHONE_RETRY, [("act", "goWpp", "wflight"), ("fill", "wFlight", "123"), ("act", "cta", "bag1"), ("fill", "b1n", "123456"),
+            ("act", "cta", "bag2"), ("fill", "b2n", "654321"), ("act", "cta", "preview")], None),
+]
+
+async def _back_to(r, screen):
+    for _ in range(8):
+        s = await r.st()
+        if s["screen"] == screen:
+            return True
+        await r.pg.click("#back"); await r.wait(lambda x: x["screen"] != s["screen"])
+    return False
+
+async def _walk(r, steps):
+    dirty = []
+    for kind, a, b in steps:
+        if kind == "act":
+            await r.act(a, b)
+            continue
+        if await r.val(a) or a in (await r.st())["bad"]:
+            dirty.append(f"{a}={await r.val(a)!r}")
+        await r.fill(a, b)
+    return dirty
+
+async def _reentry(r, tag, num, steps, stale):
+    await _back_to(r, "phone"); await r.phone(num)
+    await _walk(r, steps)
+    lang = [b for b in (await r.st())["pressed"] if b.startswith("ord")]
+    await r.act("ordZh" if lang == ["ordEn"] else "ordEn")
+    if stale:
+        screen, field, bad_value = stale
+        await _back_to(r, screen); await r.fill(field, bad_value); await r.blur(field)
+        ck(f"[rule] {tag} setup: {field}={bad_value} shows a red border", field in (await r.st())["bad"])
+    ck(f"[rule] {tag} setup: Back reaches the Scenario page", await _back_to(r, "scenario"))
+    dirty = await _walk(r, steps)
+    ck(f"[rule] {tag} re-entry starts with empty fields and no red border", not dirty, ", ".join(dirty))
+    again = [b for b in (await r.st())["pressed"] if b.startswith("ord")]
+    ck(f"[rule] {tag} re-entry restores the default language", again == lang, f"first {lang}, again {again}")

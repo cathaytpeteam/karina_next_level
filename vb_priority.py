@@ -326,8 +326,15 @@ async def priority_suite():
 PRIORITY_CASES = ["S1 missJoin ordZh", "Call Directly", "S4 stPossible arKnown ordEn",
                   "S4 Already at Gate gsDelayed gProtectedFlight gpAsap ordZh CX531", "Final Call B1R", "Protect to B1R"]
 PRIORITY_GUARDS = ["s2_sec_rules_history_and_summary_order", "header_number_on_passenger_type",
-                   "s1_join_short_message", "s4_gate_delayed_requires_time", "s4_gate_requires_valid_gate"]
-PRIORITY_RULES = ["s1_mode_switch_clears_inputs", "s4_flight_type_switch_clears_delay_time", "s4_leaving_gate_branch_clears_fields"]
+                   "s1_join_short_message", "s4_gate_delayed_requires_time", "s4_gate_requires_valid_gate",
+                   "s2_transit_confirm_shows_dep_from", "direct_call_confirm_shows_grouped_phone", "s4_flight_type_has_no_next",
+                   "s4_delayed_flight_focuses_time", "s4_delayed_bad_time_shows_hint", "s4_gate_status_required",
+                   "s4_gate_dep_and_proceed_required", "progress_title_style", "confirm_details_text_style",
+                   "passenger_type_rows_full_width", "scenario_icons_size", "s2_flight_field_aligns_with_sec",
+                   "s4_flight_type_look", "s4_gate_b1r_row_keeps_height",
+                   "phone_library_retries_after_bad_load"]
+PRIORITY_RULES = ["s1_mode_switch_clears_inputs", "s2_mode_switch_clears_inputs", "s4_flight_type_switch_clears_delay_time",
+                  "s4_leaving_gate_branch_clears_fields", "scenario_reentry_starts_clean"]
 
 async def priority_extra():
     from playwright.async_api import async_playwright
