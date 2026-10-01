@@ -182,6 +182,7 @@ async def guard_layout_does_not_jump(r, name="layout_does_not_jump"):
         if abs(n[5] - k[5]) > 1: header_jumps.append(f"{n[0]}: {n[5]} -> {k[5]}")
         if n[1:5] != k[1:5]: jumps.append(f"{n[0]}: {n[1:5]} -> {k[1:5]}")
     await probe()
+    await r.pg.evaluate(K, True)  # Home content only overflows while the keyboard is open.
     home_scroll = await r.pg.evaluate("""() => {
       const main = document.querySelector('#main'), screen = document.querySelector('#s-phone');
       const before = screen.getBoundingClientRect().top;
@@ -192,6 +193,7 @@ async def guard_layout_does_not_jump(r, name="layout_does_not_jump"):
       main.scrollTo(0, 0);
       return {canScroll, moved, before: Math.round(before), after: Math.round(after)};
     }""")
+    await r.pg.evaluate(K, False)
     ck("[guard] home content keeps its initial top spacing", home_scroll["before"] >= 0, str(home_scroll))
     ck("[guard] home content scrolls instead of being covered by a fixed blank block", home_scroll["canScroll"] and home_scroll["moved"], str(home_scroll))
     await r.phone(); await r.act("goDp", "dstatus"); await r.act("stDelayed", "dflight"); await probe()

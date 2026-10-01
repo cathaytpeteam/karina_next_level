@@ -1,4 +1,4 @@
-# Find Pax K1.0
+# Find Pax K1.1
 
 Product rules for Find Pax. How to work on the code (where to edit, how to verify, how to hand over) is in `AI-GUIDE.md`.
 
@@ -46,7 +46,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - No startup `reg.update()` and no `controllerchange -> location.reload()`. A new version takes effect on the next launch.
 - **Home Clear:** a grey `Clear` chip (`--muted` text on `--surface`, `--line` border) sits right-aligned under the phone field, below the country badge. It shows while the field has a number or Try Another Number keeps a case, and its row keeps its height when hidden. One tap empties the number, badge, warning and red border, drops the kept case, and leaves the cursor in the phone field.
 - Home icon-to-Next geometry is fixed (67 px gap in the reference viewport), measured at 390 / 360 / 320 px. Home divider is visually hidden.
-- The release label (currently `K1.0`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
+- The release label (currently `K1.1`) sits beside the icon's right foot, takes no layout height, and matches `CACHE_REV` in `sw.js`.
 - Home Scenario cards do not rely on CSS Grid / flex-gap for icon → text → arrow spacing.
 - Icons: `icon-maskable-*` must never be merged with `icon-*`. Maskable icons keep the safe-zone padding that Android crops to a circle or rounded square; plain icons have none and would be cut.
 
@@ -145,10 +145,12 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
-### K1.0-r44 (2026-10-01)
+### K1.1-r44 (2026-10-01)
 
+- Release K1.1: home label and `CACHE_REV` move from K1.0 to K1.1.
 - Search engines: `index.html` carries `<meta name="robots" content="noindex, nofollow">`, so the app page is not listed. App behaviour unchanged.
 - Tests: `verify_behavior.py` is now the entry for `vb_*.py`, split by area. Field rules live in the `vb_validation.py` table; each row proves a valid value enables Next before an invalid one disables it. The fast check also runs sampled full-suite flows, guards and rules, and now catches Scenario 4 CX450/530/564 and digit airline codes. `verify_release.py` drops checks already covered by the layout, copy, function or `sw.js` locks or by browser tests.
+- Tests: the home scroll guard now measures with the keyboard open, the only state in which home content overflows; it previously failed on every machine because the closed-keyboard home page fits the screen.
 
 ### K1.0-r43 (2026-09-30)
 
