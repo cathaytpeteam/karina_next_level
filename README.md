@@ -58,13 +58,13 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - Passengers always give a country code. Spaces, dashes, brackets and `+` are ignored, full-width digits count, and a leading `00` international prefix is dropped, so 886…, 00886… and ８８６… give the same number; the field shows the converted digits. Numbers without a country code are not guessed.
 - Phone field never clips the number: the font shrinks from 24px to 18px, then the badge shows the flag only and the font may go to 16px.
 - Japan +81 has its own rule, independent of the library: after 81 and up to three tolerated leading zeroes, a 10-digit mobile part starting 90 / 80 / 70 / 60. Japanese 020, 050, 0800, landlines and wrong lengths are rejected.
-- Header phone number: muted grey, grouped the way each country writes it (+886 983 952 902). Grouping is display-only; WhatsApp / SMS / call links use plain digits. Shown on every screen after the phone page, Passenger Type pages included, except Call Directly Confirm details (its summary already shows the number).
+- Header phone number: muted grey, grouped the way each country writes it (+886 983 952 902). Grouping is display-only; WhatsApp / SMS / call links use plain digits. Shown on every screen after the phone page, Passenger Type pages and Call Directly Confirm details included.
 
 ### 3. Navigation / state
 
 - Browser Back and Forward restore the correct screen and state.
-- **Home:** a solid house icon (`--brand-strong`, screen readers hear "Home") at the right end of the header, after the passenger number, on every screen after the phone page; it fits beside Back and the number at 320 px. One tap drops the number and the whole case, like Clear, and opens an empty phone page; it sends no usage count.
-- Back/Next inside a flow preserves entered values; re-entering a scenario from the Scenario page starts a clean case, including stale red borders.
+- **Home:** the passenger number and a solid house icon share one grey capsule (`--surface`, `--line` edge, no divider) at the right of the header, on every screen after the phone page. The whole capsule is one button (screen readers hear "Home"); it fits beside Back at 320 px (number 14px below 360 px). One tap drops the number and the whole case, like Clear, and opens an empty phone page; it sends no usage count.
+- Back/Next inside a flow preserves entered values (S4 passenger type changes clear only the delay time and Gate fields). Picking any scenario on the Scenario page clears every scenario's fields and the message, including stale red borders; the only exception is re-picking the scenario kept by Try Another Number.
 - Changing Passenger Type clears the previous type's fields; reselecting the same type after Back preserves them.
 - No step count, progress title, route, control order or screen order changes unless explicitly requested.
 
@@ -146,14 +146,15 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K3.0-r54 (2026-10-02)
+
+- Picking any scenario clears every scenario's fields and the message; only re-picking the scenario kept by Try Another Number keeps its case. S4 passenger type changes are unchanged. A browser guard checks all 20 switches.
+- Home: the passenger number and the solid house icon share one grey capsule (no divider, no label) that is a single button; tapping anywhere on it goes Home. Call Directly Confirm details now shows the number in the header too. Below 360 px the number is 14px.
+- Layout lock (header markup) recomputed with user approval; four frozen scenario-entry strings in `verify_release.py` follow the new clear call.
+- `CACHE_REV` moves to `K3.0-r54`, so the app updates on phones. The home label stays `K3.0`.
+
 ### K3.0-r51 (2026-10-02)
 
 - Home: a solid house icon at the right end of the header, after the passenger number, on every screen after the phone page. One tap drops the number and the whole case and opens an empty phone page; no usage count. The icon policy now allows it beside Call by Phone.
 - Layout lock (header markup) and copy lock (`cta.home`) recomputed with user approval. A browser guard checks every screen, the case reset, no count, and the 320 px header fit.
 - `CACHE_REV` moves to `K3.0-r51`, so the app updates on phones. The home label stays `K3.0`.
-
-### K3.0-r50 (2026-10-01)
-
-- Usage counts use readable names: `S1-WhatsApp`, `S2-WhatsApp`, `S1-SMS-JA` and `S2-SMS-JA` replace the r49 names (`s1-wa`, `s2-wa`, `s1-sms-ja`, `s2-sms-ja`); `next` is unchanged. New counts: `S3-WhatsApp Call` for the Scenario 3 WhatsApp call tap, and `S1-Call by phone`, `S2-Call by phone`, `S3-Call by phone` for each Call by Phone tap (Scenario 5 sends none). `findpax-stats` adds the r49 names to the new ones.
-- Privacy lock (`verify_changed.py` and `locks.json` "privacy") updated with user approval for these nine names. Browser tests check the count name of every send, WhatsApp call and Call by Phone tap.
-- `CACHE_REV` moves to `K3.0-r50`, so the app updates on phones. The home label stays `K3.0`.

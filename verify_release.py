@@ -134,7 +134,7 @@ def navigation_lock():
 
     # Scenario 1 routes and labels must never move during other flow edits.
     for x in [
-     '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();flow="miss";S.callNoMessage=false;S.orderSet=false;go("misstype");};',
+     '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearCaseData();flow="miss";S.callNoMessage=false;S.orderSet=false;go("misstype");};',
      '$("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.orderSet=false;go("mflight");};',
      '$("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.orderSet=false;go("mflight");};',
     ]: ck('Scenario 1 route '+x.split('"')[1], x in s_routes)
@@ -142,10 +142,10 @@ def navigation_lock():
 
     # Scenario 2 routes + approved Final Call labels.
     for x in [
-     '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();flow="call";S.orderSet=false;go("calltype");};',
+     '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCaseData();flow="call";S.orderSet=false;go("calltype");};',
      '$("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.orderSet=false;go("callflight");};',
      '$("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.orderSet=false;go("callflight");};',
-     '$("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.orderSet=false;clearDrafts();go("preview");};'
+     '$("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCaseData();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.orderSet=false;clearDrafts();go("preview");};'
     ]: ck('Scenario 2 route '+x.split('"')[1], x in s_routes)
     ck('Scenario 2 progress label order', 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s)
     ck('Browser Back/Forward state direction', 'history.replaceState({findPax:true,pos:0,id:"phone"}' in s and 'history.pushState({findPax:true,pos:navPos,id}' in s and 'navPos=st.pos;' in s and 'showScreen(st.id);' in s)
@@ -153,7 +153,7 @@ def navigation_lock():
     # Scenario 4 structural + behavior regression checks.
     dstatus=section('s-dstatus')
     dflight=section('s-dflight')
-    ck('Scenario 4 entry routes to Flight Type', '$("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.orderSet=false;go("dstatus");};' in s_routes)
+    ck('Scenario 4 entry routes to Flight Type', '$("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearCaseData();flow="dp";S.orderSet=false;go("dstatus");};' in s_routes)
     # Passenger Type page. "At Gate" group: Already at Gate (tinted, full row);
     # "Not at the Airport" group: Tight Connection (full row, same size, neutral colour), then Delayed | Suspended.
     # Already at Gate sits alone in the "At Gate" group, above "Not at the Airport".
@@ -225,8 +225,8 @@ ck('Final Call Transit Dep from row', 'if(S.callMode==="transit"){const origin=t
 
 vp=ef('validatePhone') or ''
 
-ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();' in s)
-ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();' in s)
+ck('Scenario 1 clean re-entry', '$("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearCaseData();' in s)
+ck('Scenario 2 clean re-entry', '$("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCaseData();' in s)
 ck('Scenario 2 type switch guard', 'clearCallForModeChange("join")' in s and 'clearCallForModeChange("transit")' in s)
 ck('Scenario 2 SEC clears on type change', '["callFlight","mSec","callGate"].forEach' in (ef('clearCallForModeChange') or ''))
 cp=ef('closePreviewEditor') or ''

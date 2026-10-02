@@ -741,6 +741,7 @@
   "phone_canned_number_blocked",
   "home_clear_resets_number_and_kept_case",
   "home_button_returns_home_without_number",
+  "scenario_pick_clears_every_case",
   "s1_join_rejects_non_whitelist",
   "s1_transit_rejects_join_only_flight",
   "s1_sec_over_580",

@@ -344,8 +344,8 @@ async def guard_header_number_on_passenger_type(r, name="header_number_on_passen
            s.get("color") == want and s.get("fontWeight") == "500" and s.get("fontSize") == "15px" and s.get("backgroundColor") == "rgba(0, 0, 0, 0)", str(s))
         await r.back("scenario")
     await r.act("goDirect", "preview")
-    shown, _ = await r.pg.evaluate(who_js)
-    ck("[guard] Call Directly Confirm details keeps the number out of the header", not shown)
+    shown, num = await r.pg.evaluate(who_js)
+    ck("[guard] Call Directly Confirm details shows the number in the header Home capsule", shown and num == "+" + PHONE, num)
 
 async def guard_phone_input_fits(r, name="phone_input_fits"):
     fit_js = "() => { const e = document.getElementById('phoneInput'), b = document.getElementById('badge'); return [e.scrollWidth <= e.clientWidth + 1, parseFloat(getComputedStyle(e).fontSize), !b.hidden, b.textContent]; }"
@@ -414,8 +414,11 @@ async def guard_home_button_returns_home_without_number(r, name="home_button_ret
     ck("[guard] Home hidden on the phone page", not h["shown"], str(h))
     await r.phone()
     await r.pg.set_viewport_size({"width": 320, "height": 640}); await r.pg.wait_for_timeout(150)
-    fit = await r.pg.evaluate("(() => { const g = id => document.getElementById(id).getBoundingClientRect(), w = document.getElementById('who'), b = g('back'), h = g('homeBtn'), n = g('who'); return {backOneLine: b.height <= 50, numberFits: w.scrollWidth <= w.clientWidth + 1 && n.left >= b.right, homeInside: h.left >= n.right && h.right <= innerWidth}; })()")
+    fit = await r.pg.evaluate("(() => { const g = id => document.getElementById(id).getBoundingClientRect(), w = document.getElementById('who'), b = g('back'), h = g('homeBtn'), n = g('who'); return {backOneLine: b.height <= 50, numberFits: w.scrollWidth <= w.clientWidth + 1 && n.left >= h.left && n.right <= h.right, homeInside: h.left >= b.right && h.right <= innerWidth}; })()")
     ck("[guard] Home icon, Back and the number fit the header at 320 px", all(fit.values()), str(fit))
+    await r.pg.click("#whoNum"); s_ = await r.wait(lambda x: x["screen"] == "phone")
+    ck("[guard] Tapping the number in the Home capsule also goes Home", s_["screen"] == "phone" and await r.val("phoneInput") == "", s_["screen"])
+    await r.pg.wait_for_timeout(150); await r.phone()
     await r.pg.set_viewport_size({"width": 390, "height": 844}); await r.pg.wait_for_timeout(150)
     await _home_from(r, "Scenario", "scenario")
     await r.phone(); await r.act("goMiss", "misstype"); await _home_from(r, "S1 Passenger Type", "misstype")
@@ -450,6 +453,29 @@ async def guard_home_button_returns_home_without_number(r, name="home_button_ret
     await _home_from(r, "Confirm details after return", "preview")
 
 
+CASE_TEXT_FIELDS = ["mFlight", "mSec", "callFlight", "callGate", "wFlight", "b1n", "b2n",
+                    "dFlight", "tN", "delayTime", "altN", "altTime", "arriveTime"]
+SCENARIO_FIELDS = {"miss": ["mFlight", "mSec"], "call": ["callFlight", "mSec", "callGate"],
+                   "wpp": ["wFlight", "b1n", "b2n"],
+                   "dp": ["dFlight", "tN", "delayTime", "altN", "altTime", "arriveTime"]}
+SCENARIO_PICK = {"miss": ("goMiss", "misstype"), "call": ("goCall", "calltype"), "wpp": ("goWpp", "wflight"),
+                 "dp": ("goDp", "dstatus"), "direct": ("goDirect", "preview")}
+
+
+async def guard_scenario_pick_clears_every_case(r, name="scenario_pick_clears_every_case"):
+    await r.phone()
+    for x, ids in SCENARIO_FIELDS.items():
+        for y, (btn, first) in SCENARIO_PICK.items():
+            await r.pg.click("#" + SCENARIO_PICK[x][0]); await r.wait(lambda s: s["screen"] == SCENARIO_PICK[x][1])
+            await r.pg.evaluate("ids => { ids.forEach(i => { const e = document.getElementById(i); e.value = '999'; e.dispatchEvent(new Event('input', {bubbles: true})); }); document.getElementById('msg').value = 'old 999'; }", ids)
+            await r.pg.click("#back"); await r.wait(lambda s: s["screen"] == "scenario")
+            await r.pg.click("#" + btn); await r.wait(lambda s, f=first: s["screen"] == f)
+            left = await r.pg.evaluate("ids => ids.filter(i => document.getElementById(i).value !== '')", CASE_TEXT_FIELDS)
+            msg = await r.pg.evaluate("document.getElementById('msg').value")
+            ck(f"[guard] {x} -> {y}: picking a scenario clears every case field and the message", not left and "999" not in msg, f"{left} {msg[:40]!r}")
+            await r.pg.click("#back"); await r.wait(lambda s: s["screen"] == "scenario")
+
+
 GUARDS = {
     "home_clear_resets_number_and_kept_case": guard_home_clear_resets_number_and_kept_case,
     "s2_sec_rules_history_and_summary_order": guard_s2_sec_rules_history_and_summary_order,
@@ -480,4 +506,5 @@ GUARDS = {
     "s2_flight_field_aligns_with_sec": guard_s2_flight_field_aligns_with_sec,
     "phone_library_retries_after_bad_load": guard_phone_library_retries_after_bad_load,
     "home_button_returns_home_without_number": guard_home_button_returns_home_without_number,
+    "scenario_pick_clears_every_case": guard_scenario_pick_clears_every_case,
 }

@@ -811,7 +811,7 @@
     returnHome();
     try{$("phoneInput").focus({preventScroll:true});}catch(e){}
   }
-  // Re-picking the kept scenario keeps its fields; any other scenario starts from a clean case.
+  // Re-picking the kept scenario keeps its fields; any other pick clears every scenario's fields and the message.
   function keepRetryCase(key){
     const keep=retryScenario===key;
     if(retryScenario&&!keep) clearCaseData();
@@ -846,7 +846,7 @@
     updateClear();
     if(cur==="phone") fitPhoneInput();
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
-    const hasWho=cur!=="phone"&&!directPreview&&S.phone;
+    const hasWho=cur!=="phone"&&S.phone;
     $("back").hidden=cur==="phone";
     $("homeBtn").hidden=cur==="phone";
     $("who").hidden=!hasWho;
@@ -1136,15 +1136,15 @@
       render();
     };
   });
-  $("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearMissCase();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
+  $("goMiss").onclick=()=>{if(!keepRetryCase("miss"))clearCaseData();flow="miss";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("misstype");};
   $("missJoin").onclick=()=>{clearMissForModeChange("join");flow="miss";S.missMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
   $("missTransit").onclick=()=>{clearMissForModeChange("transit");flow="miss";S.missMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("mflight");};
-  $("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCallCase();flow="call";S.order="zh";S.orderSet=false;go("calltype");};
+  $("goCall").onclick=()=>{if(!keepRetryCase("call"))clearCaseData();flow="call";S.order="zh";S.orderSet=false;go("calltype");};
   $("callJoin").onclick=()=>{clearCallForModeChange("join");S.callMode="join";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
   $("callTransit").onclick=()=>{clearCallForModeChange("transit");S.callMode="transit";S.callNoMessage=false;S.order="zh";S.orderSet=false;go("callflight");};
-  $("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCallCase();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
-  $("goWpp").onclick=()=>{if(!keepRetryCase("wpp"))clearWppCase();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
-  $("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearDpCase();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
+  $("goDirect").onclick=()=>{if(!keepRetryCase("direct"))clearCaseData();flow="call";S.missMode="";S.callMode="direct";S.callNoMessage=true;S.order="zh";S.orderSet=false;clearDrafts();go("preview");};
+  $("goWpp").onclick=()=>{if(!keepRetryCase("wpp"))clearCaseData();flow="wpp";S.order="zh";S.orderSet=false;go("wflight");};
+  $("goDp").onclick=()=>{if(!keepRetryCase("dp"))clearCaseData();flow="dp";S.order="en";S.orderSet=false;go("dstatus");};
 
   function selectDpFlightType(nextStatus){
     if(S.status&&S.status!==nextStatus) $("delayTime").value="";
