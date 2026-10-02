@@ -77,7 +77,7 @@ async def guard_progress_title_style(r, name="progress_title_style"):
 async def guard_confirm_details_text_style(r, name="confirm_details_text_style"):
     await to_s2_gate(r, "callJoin", "407"); await r.fill("callGate", "5"); await r.act("cta", "preview")
     s = await style(r, ".msgToggle small", "fontSize", "fontWeight")
-    ck("[guard] message language label is 18px bold", s.get("fontSize") == "18px" and s.get("fontWeight") == "700", str(s))
+    ck("[guard] message language label is 15px semibold", s.get("fontSize") == "15px" and s.get("fontWeight") == "600", str(s))
     s = await style(r, "#sum dt", "wordBreak", "overflowWrap")
     ck("[guard] Confirm details labels never break inside a word", s.get("wordBreak") == "normal" and s.get("overflowWrap") == "normal", str(s))
     await _back_to_scenario(r); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")

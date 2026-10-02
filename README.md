@@ -63,7 +63,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 ### 3. Navigation / state
 
 - Browser Back and Forward restore the correct screen and state.
-- **Home:** the passenger number and a solid house icon share one grey capsule (`--surface`, `--line` edge, no divider) at the right of the header, on every screen after the phone page. The whole capsule is one button (screen readers hear "Home"); it fits beside Back at 320 px (number 14px below 360 px). One tap drops the number and the whole case, like Clear, and opens an empty phone page; it sends no usage count.
+- **Home:** the passenger number and a thin-line house icon (1.8 stroke, `--brand-strong`) share one capsule on `--scenario-bg` with no edge and no divider at the right of the header, on every screen after the phone page. The whole capsule is one button (screen readers hear "Home"); it fits beside Back at 320 px (number 14px below 360 px). One tap drops the number and the whole case, like Clear, and opens an empty phone page; it sends no usage count.
 - Back/Next inside a flow preserves entered values (S4 passenger type changes clear only the delay time and Gate fields). Picking any scenario on the Scenario page clears every scenario's fields and the message, including stale red borders; the only exception is re-picking the scenario kept by Try Another Number.
 - Changing Passenger Type clears the previous type's fields; reselecting the same type after Back preserves them.
 - No step count, progress title, route, control order or screen order changes unless explicitly requested.
@@ -79,6 +79,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.
 - **Auto-advance:** a complete, valid field moves the cursor to the next empty field without scrolling: Protect to flight → DEP → Gate; Flight arrangement flight → dep time; airline code → number (Connecting flight, Flight arrangement, Bag 1/2); Disrupted flight → Delayed-to. An invalid value keeps the cursor.
 - **Message Preview is read-only:** no in-app Edit or Copy Text.
+- **Message Preview row (Confirm details):** white with a `--line` edge like the summary card; title 17px bold, language order label (e.g. 中文在前) 15px/600 `--muted`, `View ▾` 17px bold.
 - **Progress label:** 20px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
 - **No layout jump:** form pages keep the same sizes with or without the keyboard (title 24px, fields 64px; top-aligned except the single-field pages below); only the footer compacts. Header height is identical on every page. 0.16 s page fade, off with "reduce motion".
 - **Single-field pages sit lower:** Flight number (漏查, Final Call, Wrong Pick-up), Sec, Gate, Bag Tag 1/2, Connecting flight and Arrive airport before get `padding-top: clamp(0px, (resting height − 640px) × 0.65, 180px)` (18 px on small phones, ~132 px on 844 px phones, 180 px max). The resting height is kept by `app.js` (`--rest-h`), so the page never moves when the keyboard opens, and the field stays above Next with normal and 40 px taller keyboards on 360–430 px phones. Other pages stay top-aligned.
@@ -146,15 +147,16 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K3.0-r55 (2026-10-03)
+
+- Home capsule: the solid house becomes a thin-line house (1.8 stroke, `--brand-strong`); the capsule sits on `--scenario-bg` with no edge.
+- Message Preview row: `--line` edge instead of `--brand`; language order label 15px/600 (was 18px/700); `View ▾` 17px. Wording unchanged. The release check and browser guard for the label size follow, with user approval.
+- Layout lock (header markup) recomputed with user approval.
+- `CACHE_REV` moves to `K3.0-r55`, so the app updates on phones. The home label stays `K3.0`.
+
 ### K3.0-r54 (2026-10-02)
 
 - Picking any scenario clears every scenario's fields and the message; only re-picking the scenario kept by Try Another Number keeps its case. S4 passenger type changes are unchanged. A browser guard checks all 20 switches.
 - Home: the passenger number and the solid house icon share one grey capsule (no divider, no label) that is a single button; tapping anywhere on it goes Home. Call Directly Confirm details now shows the number in the header too. Below 360 px the number is 14px.
 - Layout lock (header markup) recomputed with user approval; four frozen scenario-entry strings in `verify_release.py` follow the new clear call.
 - `CACHE_REV` moves to `K3.0-r54`, so the app updates on phones. The home label stays `K3.0`.
-
-### K3.0-r51 (2026-10-02)
-
-- Home: a solid house icon at the right end of the header, after the passenger number, on every screen after the phone page. One tap drops the number and the whole case and opens an empty phone page; no usage count. The icon policy now allows it beside Call by Phone.
-- Layout lock (header markup) and copy lock (`cta.home`) recomputed with user approval. A browser guard checks every screen, the case reset, no count, and the 320 px header fit.
-- `CACHE_REV` moves to `K3.0-r51`, so the app updates on phones. The home label stays `K3.0`.

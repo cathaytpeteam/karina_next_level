@@ -257,7 +257,7 @@ ck('header number style', '.who{margin-left:auto;display:flex;align-items:center
 # Message Preview is intentionally read-only. Editing/copying is delegated to WhatsApp/SMS.
 
 # Explicitly authorized final visual/copy tuning.
-ck('language order labels 18px/700', '.msgToggle small{font-size:18px;font-weight:700' in s)
+ck('language order labels 15px/600', '.msgToggle small{font-size:15px;font-weight:600' in s)
 ck('Scenario 5 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
 
 # Consistency fixes.
