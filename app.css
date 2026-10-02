@@ -23,6 +23,10 @@ button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 .back[hidden]{visibility:hidden;display:block}
 .who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--clear);color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
 .who[hidden]{display:none}
+.home{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin-right:-8px;padding:0;border:0;background:var(--clear);color:var(--brand-strong);cursor:pointer}
+.home[hidden]{display:none}
+.who[hidden] + .home{margin-left:auto}
+.homeIcon{width:24px;height:24px;fill:currentColor}
 .bar{height:4px;border-radius:2px;background:var(--surface);margin-top:8px;overflow:hidden}
 .bar[hidden]{display:block;visibility:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}

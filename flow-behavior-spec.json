@@ -740,6 +740,7 @@
   "phone_invalid_blocks_next",
   "phone_canned_number_blocked",
   "home_clear_resets_number_and_kept_case",
+  "home_button_returns_home_without_number",
   "s1_join_rejects_non_whitelist",
   "s1_transit_rejects_join_only_flight",
   "s1_sec_over_580",

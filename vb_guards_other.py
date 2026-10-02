@@ -395,6 +395,61 @@ async def guard_progress_title_fits(r, name="progress_title_fits"):
         await r.act(st, "dflight"); await check(); await r.back("dstatus")
     await r.back("scenario"); await r.act("goCall", "calltype"); await r.act("callTransit", "callflight"); await check()
 
+HOME_BTN_JS = "(() => { const b = document.getElementById('homeBtn'), r = b.getBoundingClientRect(), e = document.getElementById('phoneInput'); return {shown: !b.hidden && b.offsetParent !== null && r.width > 0 && r.top >= 0 && r.bottom <= innerHeight, text: b.getAttribute('aria-label') || '', value: e.value, focused: document.activeElement === e, clear: document.getElementById('clearAll').hidden}; })()"
+
+
+async def _home_from(r, label, screen):
+    s_ = await r.st()
+    h = await r.pg.evaluate(HOME_BTN_JS)
+    ck(f"[guard] Home shown on {label}", s_["screen"] == screen and h["shown"] and h["text"] == "Home", f"{s_['screen']} {h}")
+    await r.pg.click("#homeBtn")
+    s_ = await r.wait(lambda x: x["screen"] == "phone")
+    h = await r.pg.evaluate(HOME_BTN_JS)
+    ck(f"[guard] Home from {label} opens an empty phone page", s_["screen"] == "phone" and h["value"] == "" and h["focused"] and h["clear"], f"{s_['screen']} {h}")
+    await r.pg.wait_for_timeout(150)
+
+
+async def guard_home_button_returns_home_without_number(r, name="home_button_returns_home_without_number"):
+    h = await r.pg.evaluate(HOME_BTN_JS)
+    ck("[guard] Home hidden on the phone page", not h["shown"], str(h))
+    await r.phone()
+    await r.pg.set_viewport_size({"width": 320, "height": 640}); await r.pg.wait_for_timeout(150)
+    fit = await r.pg.evaluate("(() => { const g = id => document.getElementById(id).getBoundingClientRect(), w = document.getElementById('who'), b = g('back'), h = g('homeBtn'), n = g('who'); return {backOneLine: b.height <= 50, numberFits: w.scrollWidth <= w.clientWidth + 1 && n.left >= b.right, homeInside: h.left >= n.right && h.right <= innerWidth}; })()")
+    ck("[guard] Home icon, Back and the number fit the header at 320 px", all(fit.values()), str(fit))
+    await r.pg.set_viewport_size({"width": 390, "height": 844}); await r.pg.wait_for_timeout(150)
+    await _home_from(r, "Scenario", "scenario")
+    await r.phone(); await r.act("goMiss", "misstype"); await _home_from(r, "S1 Passenger Type", "misstype")
+    await to_s1(r, "missJoin", "407"); await _home_from(r, "S1 Flight", "mflight")
+    await to_s1(r, "missJoin", "407"); await r.act("cta", "msec"); await r.fill("mSec", "123"); await _home_from(r, "S1 Sec", "msec")
+    await to_s1(r, "missJoin", "407"); await r.act("cta", "msec"); await r.fill("mSec", "123"); await r.act("cta", "preview"); await _home_from(r, "S1 Confirm details", "preview")
+    await r.phone(); await r.act("goCall", "calltype"); await _home_from(r, "S2 Passenger Type", "calltype")
+    await to_s2(r, "callJoin", "407"); await _home_from(r, "S2 Flight", "callflight")
+    await to_s2_gate(r, "callJoin", "407"); await r.fill("callGate", "5"); await _home_from(r, "S2 Gate", "callgate")
+    await to_s2_gate(r, "callJoin", "407"); await r.fill("callGate", "5"); await r.act("cta", "preview"); await _home_from(r, "S2 Confirm details", "preview")
+    await r.phone(); await r.act("goDirect", "preview"); await _home_from(r, "S3 Confirm details", "preview")
+    await r.phone(); await r.act("goDp", "dstatus"); await _home_from(r, "S4 Passenger Type", "dstatus")
+    await to_s4(r, "stPossible"); await _home_from(r, "S4 Flight from TPE", "dflight")
+    await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await _home_from(r, "S4 Connecting flight", "dtransfer")
+    await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange"); await _home_from(r, "S4 Flight arrangement", "darrange")
+    await to_s4(r, "stPossible"); await r.act("cta", "dtransfer"); await r.fill("tN", "888"); await r.act("cta", "darrange"); await r.act("arUnknown"); await r.act("cta", "darrive"); await _home_from(r, "S4 Arrival time", "darrive")
+    await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r); await _home_from(r, "S4 Protect to", "dnew")
+    await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r); await r.act("cta", "dgateaction"); await _home_from(r, "S4 Proceed to Gate", "dgateaction")
+    await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await _home_from(r, "S5 Arrival Flight", "wflight")
+    await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1"); await r.fill("b1n", "123456"); await _home_from(r, "S5 Bag 1", "bag1")
+    await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1"); await r.fill("b1n", "123456"); await r.act("cta", "bag2"); await _home_from(r, "S5 Bag 2", "bag2")
+    await r.phone(); await r.act("goWpp", "wflight")
+    ck("[guard] Home drops the case (S5 flight empty)", await r.val("wFlight") == "", await r.val("wFlight"))
+    await r.pg.click("#homeBtn"); await r.wait(lambda x: x["screen"] == "phone"); await r.pg.wait_for_timeout(150)
+    await r.phone(); await r.act("goDp", "dstatus"); await r.act("stPossible", "dflight")
+    ck("[guard] Home drops the case (S4 flight empty)", await r.val("dFlight") == "", await r.val("dFlight"))
+    await r.pg.click("#homeBtn"); await r.wait(lambda x: x["screen"] == "phone"); await r.pg.wait_for_timeout(150)
+    names = count_names(r.counts)
+    ck("[guard] Home sends no usage count (only home Next counts)", set(names) == {"next"}, str(names))
+    await case_s5(r, "ordZh")
+    await r.pg.evaluate(RETURN_FROM_APP_JS); await r.pg.wait_for_timeout(100)
+    await _home_from(r, "Confirm details after return", "preview")
+
+
 GUARDS = {
     "home_clear_resets_number_and_kept_case": guard_home_clear_resets_number_and_kept_case,
     "s2_sec_rules_history_and_summary_order": guard_s2_sec_rules_history_and_summary_order,
@@ -424,4 +479,5 @@ GUARDS = {
     "scenario_icons_size": guard_scenario_icons_size,
     "s2_flight_field_aligns_with_sec": guard_s2_flight_field_aligns_with_sec,
     "phone_library_retries_after_bad_load": guard_phone_library_retries_after_bad_load,
+    "home_button_returns_home_without_number": guard_home_button_returns_home_without_number,
 }

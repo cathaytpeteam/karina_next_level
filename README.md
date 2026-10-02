@@ -63,6 +63,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 ### 3. Navigation / state
 
 - Browser Back and Forward restore the correct screen and state.
+- **Home:** a solid house icon (`--brand-strong`, screen readers hear "Home") at the right end of the header, after the passenger number, on every screen after the phone page; it fits beside Back and the number at 320 px. One tap drops the number and the whole case, like Clear, and opens an empty phone page; it sends no usage count.
 - Back/Next inside a flow preserves entered values; re-entering a scenario from the Scenario page starts a clean case, including stale red borders.
 - Changing Passenger Type clears the previous type's fields; reselecting the same type after Back preserves them.
 - No step count, progress title, route, control order or screen order changes unless explicitly requested.
@@ -72,7 +73,7 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - **Scenario page order:** 漏查, Final Call, Call Directly, Disrupted Passenger, Wrong Pick-Up (no numbers on screen). Docs, tests and copy IDs number them S1–S5 in this order. Progress titles stay `Disrupted Pax - …` / `Wrong Pick-Up - …`.
 - **Call Directly (S3)** is its own Scenario entry, progress `Call Directly 1/1`, WhatsApp call-only, no message.
 - **After staff return from WhatsApp / SMS:** the main button reads `Try Another Number` (S1–S5). It returns to the phone page with the number field empty; re-picking the same scenario keeps every other field, picking another scenario clears the case. The language default follows the new number's country. A new number or any edited field reaches Confirm details with the single send button again; Back and Next without changes keep both return buttons. On S1, S2, S3 and S5 a `Call by Phone` button with a solid handset icon sits above it and opens the dialer (`tel:`) with the number filled in; Call by Phone takes the primary colours and Try Another Number the secondary ones. On S4 Try Another Number is the only button and takes the primary colours.
-- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button.
+- **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button and the header Home icon.
 - **Confirm details Sec:** when the origin prefix is not TPE (Transit: HKG / NRT / NGO / KIX), the three letters use `--brand`; the digits and a TPE prefix keep the normal value colour. Not red: a different origin is not a disruption.
 - **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.
@@ -145,14 +146,14 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
+### K3.0-r51 (2026-10-02)
+
+- Home: a solid house icon at the right end of the header, after the passenger number, on every screen after the phone page. One tap drops the number and the whole case and opens an empty phone page; no usage count. The icon policy now allows it beside Call by Phone.
+- Layout lock (header markup) and copy lock (`cta.home`) recomputed with user approval. A browser guard checks every screen, the case reset, no count, and the 320 px header fit.
+- `CACHE_REV` moves to `K3.0-r51`, so the app updates on phones. The home label stays `K3.0`.
+
 ### K3.0-r50 (2026-10-01)
 
 - Usage counts use readable names: `S1-WhatsApp`, `S2-WhatsApp`, `S1-SMS-JA` and `S2-SMS-JA` replace the r49 names (`s1-wa`, `s2-wa`, `s1-sms-ja`, `s2-sms-ja`); `next` is unchanged. New counts: `S3-WhatsApp Call` for the Scenario 3 WhatsApp call tap, and `S1-Call by phone`, `S2-Call by phone`, `S3-Call by phone` for each Call by Phone tap (Scenario 5 sends none). `findpax-stats` adds the r49 names to the new ones.
 - Privacy lock (`verify_changed.py` and `locks.json` "privacy") updated with user approval for these nine names. Browser tests check the count name of every send, WhatsApp call and Call by Phone tap.
 - `CACHE_REV` moves to `K3.0-r50`, so the app updates on phones. The home label stays `K3.0`.
-
-### K3.0-r49 (2026-10-01)
-
-- Usage counts: besides the home Next (`next`), each Scenario 1 / Scenario 2 send tap on Confirm details now sends one GoatCounter count with a fixed name: `s1-wa`, `s2-wa`, `s1-sms-ja` or `s2-sms-ja`. Try another number, S3, S4 and S5 send none. The platform comes from GoatCounter's User-Agent data. `findpax-stats` must count each name separately.
-- Privacy lock (`verify_changed.py` and `locks.json` "privacy") updated with user approval to allow only these five names. Browser tests check each send's count name and that no count carries the phone number or a referrer.
-- `CACHE_REV` moves to `K3.0-r49`, so the app updates on phones. The home label stays `K3.0`.

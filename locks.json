@@ -104,7 +104,7 @@
       "s-preview": "ead18087a2d045147c960aa4c392950e83b17c300bbfa8162a2fbba033720f10"
     },
     "chrome_sha256": {
-      "topbar": "4a7828ee7cdf3790a640d82e9b871b798bbd0b091cae6b0dca12cc81aca651ad",
+      "topbar": "dd363f58dab5a48dcb2aa35570064f4386c7158f59db94a09205bd474daa6d00",
       "footer": "48660d578caf4046c8c32512a407813e72ad303ae22dd843aaf5e7cf4d231812"
     },
     "control_order": {
@@ -306,6 +306,7 @@
       "cta.phone.call": "3dd32a33c43ed7dd3248384d4aa14898f64d7cff2c68d7bc045bab6422104235",
       "cta.retry.number": "39cacd4902c874600f51059b1a8f75dab397553fe184f3b4435801252c0b9e4e",
       "cta.phone.clear": "d0f86d2093269896341fb4121f115da27f07de0418653b34dff083fc56b5c0f1",
+      "cta.home": "d2187d527809f5324ca15ce87ab5b2f1364f08638da56782c4111c4a89c2cf43",
       "hint.time.empty": "223aa8eec43f4c75945ed8dd32cf418b924086f219e32f644457eb81f9121579",
       "hint.time.partial": "d5916405dcfab6a3533a870c42f28eed36553f5f9d6a20071621f95ca94303db",
       "error.time.invalid": "139e25d01dbad3fe6feed3c4c46ccbf5f99704e9379782423028ce3f4837f8d9",

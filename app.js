@@ -848,6 +848,7 @@
     const directPreview=cur==="preview"&&flow==="call"&&S.callNoMessage;
     const hasWho=cur!=="phone"&&!directPreview&&S.phone;
     $("back").hidden=cur==="phone";
+    $("homeBtn").hidden=cur==="phone";
     $("who").hidden=!hasWho;
     if(hasWho){
       $("whoFlag").textContent=S.country?flagFor(S.country):"";
@@ -1084,6 +1085,12 @@
   $("clearAll").addEventListener("click",function(){
     clearFields();
     render();
+    try{$("phoneInput").focus({preventScroll:true});}catch(e){}
+  });
+  // Home (every screen after the phone page): drops the number and the whole case and returns to an empty phone page.
+  $("homeBtn").setAttribute("aria-label",copy("cta.home"));
+  $("homeBtn").addEventListener("click",function(){
+    resetAll();
     try{$("phoneInput").focus({preventScroll:true});}catch(e){}
   });
   const numInputs={mFlight:3,mSec:3,wFlight:3,b1n:6,b2n:6,dFlight:3,tN:3,altN:3,gNewN:3};
