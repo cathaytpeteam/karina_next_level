@@ -64,6 +64,19 @@ async def focus_home_geometry(browser):
     await r.close()
 
 
+
+SEC_STYLE_JS = """() => {
+  const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
+  const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
+  const probe=document.createElement('i'); document.body.appendChild(probe);
+  const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
+  const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
+             brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
+  probe.remove(); return out;}"""
+
+async def _sec_style(r):
+    return await r.pg.evaluate(SEC_STYLE_JS)
+
 async def focus_s1_happy_path(browser):
     # Scenario 1 happy path + Joining Passenger label + unchanged progress wording.
     r = await Run(browser, "focus-s1").open(); await _focus_phone_to_scenario(r)
@@ -76,14 +89,7 @@ async def focus_s1_happy_path(browser):
     await _simple_click(r, "cta", "preview")
     ck("[focus] S1 reaches Confirm details", (await r.st())["screen"] == "preview")
     vb_core._LAYER.set("look")  # the colour checks below are appearance
-    sec = await r.pg.evaluate("""() => {
-      const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
-      const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
-      const probe=document.createElement('i'); document.body.appendChild(probe);
-      const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
-      const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
-                 brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
-      probe.remove(); return out;}""")
+    sec = await _sec_style(r)
     ck("[focus] S1 Join Sec TPE keeps the normal value colour", sec["origin"] is None and sec["text"] == "TPE 123" and sec["valueColour"] == sec["ink"], str(sec))
     await r.close()
 
@@ -101,14 +107,7 @@ async def focus_s2_happy_path(browser):
     await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5"); await r.expect("S2 valid gate enables Next", True, not_bad=["callGate"])
     await _simple_click(r, "cta", "preview"); ck("[focus] S2 reaches Confirm details", (await r.st())["screen"] == "preview")
     vb_core._LAYER.set("look")  # the colour checks below are appearance
-    sec = await r.pg.evaluate("""() => {
-      const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
-      const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
-      const probe=document.createElement('i'); document.body.appendChild(probe);
-      const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
-      const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
-                 brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
-      probe.remove(); return out;}""")
+    sec = await _sec_style(r)
     ck("[focus] S2 Join Sec TPE keeps the normal value colour", sec["origin"] is None and sec["text"] == "TPE 123" and sec["valueColour"] == sec["ink"], str(sec))
     g = await r.pg.evaluate(GATE_JS); ck("[focus] S2 Join Go to Gate is --brand", g["row"] == "Go to Gate" and g["colour"] == g["ink"], str(g))
     await r.close()
@@ -124,14 +123,7 @@ async def focus_sec_colours(browser):
         if gate:
             await _simple_click(r, "cta", "callgate"); await r.fill("callGate", "5")
         await _simple_click(r, "cta", "preview")
-        sec = await r.pg.evaluate("""() => {
-      const rows=[...document.querySelectorAll('#sum > div')].map(r=>[r.querySelector('dt').textContent.trim(), r.querySelector('dd')]);
-      const sec=rows.find(r=>r[0]==='Sec')[1], o=sec.querySelector('.secOrigin');
-      const probe=document.createElement('i'); document.body.appendChild(probe);
-      const rgb=n=>{probe.style.color='var('+n+')'; return getComputedStyle(probe).color;};
-      const out={text:sec.textContent.trim(), origin:o?o.textContent:null, originColour:o?getComputedStyle(o).color:null,
-                 brand:rgb('--brand'), valueColour:getComputedStyle(sec).color, ink:rgb('--input-ink')};
-      probe.remove(); return out;}""")
+        sec = await _sec_style(r)
         ck(f"[focus] {scen[2:]} Transit Sec {origin} prefix uses the brand colour", sec["origin"] == origin and sec["originColour"] == sec["brand"] and sec["text"] == origin + " 123", str(sec))
         ck(f"[focus] {scen[2:]} Transit Sec digits keep the value colour", sec["valueColour"] == sec["ink"], str(sec))
         if gate:

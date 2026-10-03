@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "hard_file_loc_limit": 600,
+  "max_total_loc": 4071,
+  "file_loc_limits": {
+    "vb_core.py": 545,
+    "vb_guards_other.py": 568,
+    "vb_priority.py": 539,
+    "verify_suite.py": 200
+  },
+  "duplicate_window_lines": 6,
+  "max_duplicate_windows": 3,
+  "min_case_rows": {
+    "GATE_MATRIX": 2,
+    "HOME_CASES": 5,
+    "HOME_DROP_CASES": 2,
+    "MATRIX": 19,
+    "REENTRY": 4
+  },
+  "files": [
+    "vb_core.py",
+    "vb_flows.py",
+    "vb_guards.py",
+    "vb_guards_other.py",
+    "vb_guards_s4.py",
+    "vb_priority.py",
+    "vb_sw.py",
+    "vb_validation.py",
+    "verify_architecture.py",
+    "verify_behavior.py",
+    "verify_changed.py",
+    "verify_release.py",
+    "verify_suite.py"
+  ],
+  "runtime": {
+    "performance_warn_seconds": {
+      "architecture_mutation": 7.0,
+      "verify_changed_all": 15.0,
+      "release_fast": 90.0,
+      "release_full": 300.0
+    },
+    "environment_block_markers": [
+      "ERR_BLOCKED_BY_ADMINISTRATOR"
+    ],
+    "environment_required": [
+      "Real HTTP origin CSP/privacy runtime check requires a Chromium environment that permits localhost navigation."
+    ],
+    "support_matrix": {
+      "primary": [
+        "Android Chrome current major",
+        "Android Chrome previous major"
+      ],
+      "smoke": [
+        "Low-end Android Chrome",
+        "Installed PWA / standalone"
+      ],
+      "optional_smoke": "Safari/iPhone smoke only when available; not release-blocking for the current user environment."
+    }
+  },
+  "document_byte_limits": {
+    "README.md": 8192,
+    "AI-GUIDE.md": 2560
+  }
+}

@@ -5,6 +5,13 @@ globals().update({k: v for k, v in vars(vb_core).items() if not k.startswith("__
 globals().update({k: v for k, v in vars(vb_flows).items() if not k.startswith("__")})
 
 
+async def _try_another_number(r):
+    """Return from the external app and activate the shared Try Another Number transition."""
+    await return_from_app(r)
+    await r.pg.click("#cta")
+    return await r.wait(lambda s: s["screen"] == "phone")
+
+
 async def guard_home_clear_resets_number_and_kept_case(r, name="home_clear_resets_number_and_kept_case"):
     clear_js = "(() => { const e = document.getElementById('phoneInput'), c = document.getElementById('clearAll'), i = document.querySelector('.phoneHeroIcon').getBoundingClientRect(); return {hidden: c.hidden, text: c.textContent.trim(), focused: document.activeElement === e, value: e.value, badge: document.getElementById('badge').hidden, warn: document.getElementById('warn').classList.contains('show'), iconTop: Math.round(i.top)}; })()"
     c0 = await r.pg.evaluate(clear_js)
@@ -19,8 +26,7 @@ async def guard_home_clear_resets_number_and_kept_case(r, name="home_clear_reset
     await r.expect("Home Clear leaves Next disabled and no red border", cta_enabled=False, not_bad=["phoneInput"])
     s_ = await r.st(); ck("[guard] Home Clear stays on the phone page", s_["screen"] == "phone", s_["screen"])
     await case_s5(r, "ordZh")
-    await return_from_app(r)
-    await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+    await _try_another_number(r)
     c3 = await r.pg.evaluate(clear_js)
     ck("[guard] Home Clear shows after Try Another Number while a case is kept", not c3["hidden"] and c3["value"] == "", str(c3))
     await r.act("clearAll")
@@ -80,17 +86,10 @@ async def guard_confirm_details_text_style(r, name="confirm_details_text_style")
     ck("[guard] message language label is 15px semibold", s.get("fontSize") == "15px" and s.get("fontWeight") == "600", str(s))
     s = await style(r, "#sum dt", "wordBreak", "overflowWrap")
     ck("[guard] Confirm details labels never break inside a word", s.get("wordBreak") == "normal" and s.get("overflowWrap") == "normal", str(s))
-    await _back_to_scenario(r); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
+    await _back_to(r, "scenario"); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1")
     await r.fill("b1n", "123456"); await r.act("cta", "bag2"); await r.fill("b2n", "654321"); await r.act("cta", "preview")
     s = await style(r, "#sum .bagConfirmNote", "fontSize")
     ck("[guard] Wrong Pick-up unclaimed-bag note is 18px", s.get("fontSize") == "18px", str(s))
-
-async def _back_to_scenario(r):
-    for _ in range(8):
-        s = await r.st()
-        if s["screen"] == "scenario":
-            return
-        await r.pg.click("#back"); await r.wait(lambda x: x["screen"] != s["screen"])
 
 async def guard_passenger_type_rows_full_width(r, name="passenger_type_rows_full_width"):
     await r.phone()
@@ -134,7 +133,8 @@ async def guard_phone_library_retries_after_bad_load(r, name="phone_library_retr
     await ctx.route(origin + "**", serve); await ctx.route(COUNT_HOST + "**", lambda route: route.fulfill(status=204, body=""))
     pg = await ctx.new_page(); errors = []
     pg.on("pageerror", lambda e: errors.append(str(e)))
-    await pg.goto(origin); await pg.wait_for_selector("#s-phone:not([hidden])")
+    doc = HTML.replace("<head>", f'<head><base href="{origin}">', 1)
+    await pg.set_content(doc, wait_until="domcontentloaded"); await pg.wait_for_selector("#s-phone:not([hidden])")
     ready = False
     for _ in range(60):
         ready = await pg.evaluate("!!window.libphonenumber")
@@ -152,29 +152,12 @@ async def guard_phone_library_retries_after_bad_load(r, name="phone_library_retr
 async def guard_s5_call_by_phone_after_whatsapp(r, name="s5_call_by_phone_after_whatsapp"):
     await case_s5(r, "ordZh")
     ck("[guard] S5 Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
-    await r.pg.evaluate("""() => {
-        const setHidden = h => Object.defineProperty(document, 'hidden', {configurable: true, get: () => h});
-        setHidden(true); document.dispatchEvent(new Event('visibilitychange'));
-        setHidden(false); document.dispatchEvent(new Event('visibilitychange'));
-    }""")
-    await settle(r.pg)
-    ck("[guard] S5 return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
-    ck("[guard] S5 Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
-    ck("[guard] S5 Call by Phone label", (await r.pg.locator("#callPhone").inner_text()).strip() == "Call by Phone")
-    ck("[guard] S5 Call by Phone has a phone icon", await r.pg.locator("#callPhone svg").count() == 1)
-    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-    ck("[guard] S5 Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
-    await tap_call_by_phone(r, "S5", "")
+    await call_by_phone_return(r, "S5", True, label=True, icon=True)
 
 async def guard_direct_call_by_phone_after_whatsapp(r, name="direct_call_by_phone_after_whatsapp"):
     await case_direct(r)
     ck("[guard] Call Directly: Call by Phone hidden until staff return from WhatsApp", await r.pg.locator("#callPhone").is_hidden())
-    await return_from_app(r)
-    ck("[guard] Call Directly return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
-    ck("[guard] Call Directly: Call by Phone shown after return", await r.pg.locator("#callPhone").is_visible())
-    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
-    ck("[guard] Call Directly: Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
-    await tap_call_by_phone(r, "Call Directly:", "S3-Call by phone")
+    await call_by_phone_return(r, "Call Directly", True, "S3-Call by phone")
 
 async def guard_s1_call_by_phone_after_whatsapp(r, name="s1_call_by_phone_after_whatsapp"):
     await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); await r.act("cta", "preview")
@@ -188,8 +171,7 @@ async def guard_s2_call_by_phone_after_sms(r, name="s2_call_by_phone_after_sms")
 
 async def guard_try_another_number_keeps_case(r, name="try_another_number_keeps_case"):
     await case_s5(r, "ordZh")
-    await return_from_app(r)
-    await r.pg.click("#cta"); s_ = await r.wait(lambda s: s["screen"] == "phone")
+    s_ = await _try_another_number(r)
     ck("[guard] Try Another Number returns to the phone page", s_["screen"] == "phone", s_["screen"])
     sel = await r.pg.evaluate("(() => { const e = document.getElementById('phoneInput'); return [document.activeElement === e, e.value, document.getElementById('badge').hidden]; })()")
     ck("[guard] Try Another Number empties the number field and focuses it", sel == [True, "", True], str(sel))
@@ -198,10 +180,8 @@ async def guard_try_another_number_keeps_case(r, name="try_another_number_keeps_
     ck("[guard] Try Another Number keeps the Wrong Pick-up fields", [await r.val(x) for x in ("wFlight", "b1n", "b2a", "b2n")] == ["123", "123456", "BR", "654321"])
     await r.act("cta", "bag1"); await r.act("cta", "bag2"); s_ = await r.act("cta", "preview")
     ck("[guard] Retry language default follows the new number (Japan on Wrong Pick-up: English)", "ordEn" in s_["pressed"] and "ordZh" not in s_["pressed"], str(s_["pressed"]))
-    n0 = len(r.nav); await r.pg.click("#cta")
-    for _ in range(40):
-        if len(r.nav) > n0: break
-        await r.pg.wait_for_timeout(50)
+    n0, c0 = len(r.nav), len(r.counts); await r.pg.click("#cta")
+    await await_external(r.pg, r.nav, n0, r.counts, c0)
     url = urllib.parse.unquote(r.nav[n0]) if len(r.nav) > n0 else ""
     ck("[guard] Retry sends to the new number with the kept case", PHONE_RETRY in url and PHONE not in url and "BR654321" in url, url[:90])
 
@@ -226,8 +206,7 @@ async def guard_try_another_number_language_follows_new_number(r, name="try_anot
     await to_s1(r, "missJoin", "450"); await r.act("cta", "msec"); await r.fill("mSec", "12"); s_ = await r.act("cta", "preview")
     ck("[guard] Taiwan number defaults to 中文 on 漏查", "ordZh" in s_["pressed"], str(s_["pressed"]))
     await r.act("cta", "external:whatsapp")
-    await return_from_app(r)
-    await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+    await _try_another_number(r)
     await r.phone(PHONE_RETRY); await r.act("goMiss", "misstype"); await r.act("missJoin", "mflight")
     ck("[guard] Retry keeps 漏查 flight", await r.val("mFlight") == "450", await r.val("mFlight"))
     await r.act("cta", "msec"); ck("[guard] Retry keeps 漏查 SEC", await r.val("mSec") == "12", await r.val("mSec"))
@@ -398,6 +377,27 @@ async def guard_progress_title_fits(r, name="progress_title_fits"):
 
 HOME_BTN_JS = "(() => { const b = document.getElementById('homeBtn'), r = b.getBoundingClientRect(), e = document.getElementById('phoneInput'); return {shown: !b.hidden && b.offsetParent !== null && r.width > 0 && r.top >= 0 && r.bottom <= innerHeight, text: b.getAttribute('aria-label') || '', value: e.value, focused: document.activeElement === e, clear: document.getElementById('clearAll').hidden}; })()"
 
+def A(control, screen=None): return ("act", control, screen)
+def F(field, value): return ("fill", field, value)
+def B(field): return ("blur", field, None)
+
+# Re-entry owns the canonical typed route for each scenario. Home coverage reuses those routes
+# where it visits the same screen, so the setup cannot silently drift between guards.
+REENTRY = {
+    "S1": (PHONE_RETRY, (A("goMiss", "misstype"), A("missJoin", "mflight"), F("mFlight", "407"), A("cta", "msec"), F("mSec", "123"), A("cta", "preview")), ("msec", "mSec", "999")),
+    "S2": (PHONE_RETRY, (A("goCall", "calltype"), A("callJoin", "callflight"), F("callFlight", "407"), A("cta", "msec"), F("mSec", "123"), A("cta", "callgate"), F("callGate", "5"), A("cta", "preview")), ("msec", "mSec", "999")),
+    "S4": (PHONE, (A("goDp", "dstatus"), A("stPossible", "dflight"), F("dFlight", "407"), A("cta", "dtransfer"), F("tN", "888"), A("cta", "darrange"), A("arUnknown"), A("cta", "darrive"), F("arriveTime", "1400"), A("cta", "preview")), ("dflight", "dFlight", "450")),
+    "S5": (PHONE_RETRY, (A("goWpp", "wflight"), F("wFlight", "123"), A("cta", "bag1"), F("b1n", "123456"), A("cta", "bag2"), F("b2n", "654321"), A("cta", "preview")), None),
+}
+HOME_CASES = (
+    ("S1 Sec", "msec", REENTRY["S1"][1][:5]), ("S2 Confirm details", "preview", REENTRY["S2"][1]),
+    ("S3 Confirm details", "preview", (A("goDirect", "preview"),)),
+    ("S4 Protect to", "dnew", (A("goDp", "dstatus"), A("stGate", "dflight"), F("dFlight", "407"), A("gsCancelled"), A("cta", "dnew"), F("gNewN", "401"), F("gGateZone", "B"), F("gGate", "5"), F("gDepTime", "1945"), B("gDepTime"))),
+    ("S5 Bag 2", "bag2", REENTRY["S5"][1][:5]),
+)
+HOME_DROP_CASES = (("S5 flight", "wflight", "wFlight", REENTRY["S5"][1][:1]),
+                   ("S4 flight", "dflight", "dFlight", (A("goDp", "dstatus"), A("stPossible", "dflight"))))
+
 
 async def _home_from(r, label, screen):
     s_ = await r.st()
@@ -423,17 +423,12 @@ async def guard_home_button_returns_home_without_number(r, name="home_button_ret
     await r.pg.set_viewport_size({"width": 390, "height": 844}); await r.pg.wait_for_timeout(150)
     # The Home capsule is one shared header control: one page per kind (choice, field, Confirm details, branch) is enough.
     await _home_from(r, "Scenario", "scenario")
-    await to_s1(r, "missJoin", "407"); await r.act("cta", "msec"); await r.fill("mSec", "123"); await _home_from(r, "S1 Sec", "msec")
-    await to_s2_gate(r, "callJoin", "407"); await r.fill("callGate", "5"); await r.act("cta", "preview"); await _home_from(r, "S2 Confirm details", "preview")
-    await r.phone(); await r.act("goDirect", "preview"); await _home_from(r, "S3 Confirm details", "preview")
-    await to_s4_gate(r, "407", "gsCancelled"); await fill_protect(r); await _home_from(r, "S4 Protect to", "dnew")
-    await r.phone(); await r.act("goWpp", "wflight"); await r.fill("wFlight", "123"); await r.act("cta", "bag1"); await r.fill("b1n", "123456"); await r.act("cta", "bag2"); await _home_from(r, "S5 Bag 2", "bag2")
-    await r.phone(); await r.act("goWpp", "wflight")
-    ck("[guard] Home drops the case (S5 flight empty)", await r.val("wFlight") == "", await r.val("wFlight"))
-    await r.pg.click("#homeBtn"); await r.wait(lambda x: x["screen"] == "phone"); await home_done(r.pg)
-    await r.phone(); await r.act("goDp", "dstatus"); await r.act("stPossible", "dflight")
-    ck("[guard] Home drops the case (S4 flight empty)", await r.val("dFlight") == "", await r.val("dFlight"))
-    await r.pg.click("#homeBtn"); await r.wait(lambda x: x["screen"] == "phone"); await home_done(r.pg)
+    for label, screen, steps in HOME_CASES:
+        await r.phone(); await _walk(r, steps); await _home_from(r, label, screen)
+    for label, screen, field, steps in HOME_DROP_CASES:
+        await r.phone(); await _walk(r, steps)
+        ck(f"[guard] Home drops the case ({label} empty)", await r.val(field) == "", await r.val(field))
+        await _home_from(r, label, screen)
     names = count_names(r.counts)
     ck("[guard] Home sends no usage count (only home Next counts)", set(names) == {"next"}, str(names))
     await case_s5(r, "ordZh")
@@ -466,18 +461,16 @@ async def _pick_matrix(r, xs):
             await r.pg.click("#back"); await r.wait(lambda s: s["screen"] == "scenario")
 
 async def _reentry_some(r, tags):
-    """Re-entering a scenario after a full typed case: empty fields, no stale red border, default language again.
-    S2 runs on the same page right after S1, so the Sec typed in S1 must not reach S2 either."""
-    for tag, num, steps, stale in REENTRY:
-        if tag in tags:
-            await _reentry(r, tag, num, steps, stale)
+    """Re-enter typed scenarios cleanly; S2 also proves S1's shared Sec cannot leak."""
+    for tag in tags:
+        num, steps, stale = REENTRY[tag]
+        await _reentry(r, tag, num, steps, stale)
 
 async def _pick_after_retry(r):
     """After Try Another Number, picking another scenario drops the kept case."""
     await _back_to(r, "phone")
     await case_s5(r, "ordZh")
-    await return_from_app(r)
-    await r.pg.click("#cta"); await r.wait(lambda s: s["screen"] == "phone")
+    await _try_another_number(r)
     await r.phone(); await r.act("goDp", "dstatus"); await r.back("scenario"); await r.act("goWpp", "wflight")
     ck("[guard] Picking another scenario after Try Another Number clears the kept case", await r.val("wFlight") == "", await r.val("wFlight"))
 
@@ -503,18 +496,6 @@ async def guard_scenario_pick_clears_every_case(r, name="scenario_pick_clears_ev
 # to the Scenario page and walks the same steps again. Steps: ("act", control, screen) or ("fill", field, value).
 # Each number's default language differs from the language the scenario button starts with (S1/S2/S5 中文,
 # S4 English), so a picked language that survives re-entry is visible.
-REENTRY = [
-    ("S1", PHONE_RETRY, [("act", "goMiss", "misstype"), ("act", "missJoin", "mflight"), ("fill", "mFlight", "407"), ("act", "cta", "msec"),
-            ("fill", "mSec", "123"), ("act", "cta", "preview")], ("msec", "mSec", "999")),
-    ("S2", PHONE_RETRY, [("act", "goCall", "calltype"), ("act", "callJoin", "callflight"), ("fill", "callFlight", "407"), ("act", "cta", "msec"),
-            ("fill", "mSec", "123"), ("act", "cta", "callgate"), ("fill", "callGate", "5"), ("act", "cta", "preview")], ("msec", "mSec", "999")),
-    ("S4", PHONE, [("act", "goDp", "dstatus"), ("act", "stPossible", "dflight"), ("fill", "dFlight", "407"), ("act", "cta", "dtransfer"),
-            ("fill", "tN", "888"), ("act", "cta", "darrange"), ("act", "arUnknown", None), ("act", "cta", "darrive"),
-            ("fill", "arriveTime", "1400"), ("act", "cta", "preview")], ("dflight", "dFlight", "450")),
-    ("S5", PHONE_RETRY, [("act", "goWpp", "wflight"), ("fill", "wFlight", "123"), ("act", "cta", "bag1"), ("fill", "b1n", "123456"),
-            ("act", "cta", "bag2"), ("fill", "b2n", "654321"), ("act", "cta", "preview")], None),
-]
-
 async def _back_to(r, screen):
     for _ in range(8):
         s = await r.st()
@@ -526,11 +507,9 @@ async def _back_to(r, screen):
 async def _walk(r, steps):
     dirty = []
     for kind, a, b in steps:
-        if kind == "act":
-            await r.act(a, b)
-            continue
-        if await r.val(a) or a in (await r.st())["bad"]:
-            dirty.append(f"{a}={await r.val(a)!r}")
+        if kind == "act": await r.act(a, b); continue
+        if kind == "blur": await r.blur(a); continue
+        if await r.val(a) or a in (await r.st())["bad"]: dirty.append(f"{a}={await r.val(a)!r}")
         await r.fill(a, b)
     return dirty
 

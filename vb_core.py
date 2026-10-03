@@ -10,9 +10,18 @@ HTML = (R / "index.html").read_text(encoding="utf-8")
 _APP_CSS = (R / "app.css").read_text(encoding="utf-8")
 _COPY_JS = (R / "copy.js").read_text(encoding="utf-8")
 _APP_JS = (R / "app.js").read_text(encoding="utf-8")
+# Browser-flow tests must observe the exact external URL without letting headless Chromium replace
+# the app document with an error page for whatsapp:/sms:/tel:. Patch only the in-memory test copy.
+for _src, _dst, _n in (("window.location.href=webUrl;", "window.__findPaxTestNavigate(webUrl);", 2),
+                       ("window.location.href=appUrl;", "window.__findPaxTestNavigate(appUrl);", 1),
+                       ('window.location.href="sms:"+recipient+(isiOS?"&":"?")+"body="+encoded;', 'window.__findPaxTestNavigate("sms:"+recipient+(isiOS?"&":"?")+"body="+encoded);', 1),
+                       ('window.location.href="tel:+"+S.phone;', 'window.__findPaxTestNavigate("tel:+"+S.phone);', 1)):
+    if _APP_JS.count(_src) != _n: raise RuntimeError(f"external-navigation test anchor drift: {_src}")
+    _APP_JS = _APP_JS.replace(_src, _dst)
+_TEST_NAV_JS = "window.__findPaxTestNav=[];window.__findPaxTestNavigate=u=>window.__findPaxTestNav.push(u);"
 HTML = HTML.replace('<link rel="stylesheet" href="./app.css">', '<style>'+_APP_CSS+'</style>')
 HTML = HTML.replace('<script src="./copy.js"></script>', '<script>'+_COPY_JS+'</script>')
-HTML = HTML.replace('<script src="./app.js"></script>', '<script>'+_APP_JS+'</script>')
+HTML = HTML.replace('<script src="./app.js"></script>', '<script>'+_TEST_NAV_JS+'</script><script>'+_APP_JS+'</script>')
 # The inlined test page cannot satisfy the app's Content-Security-Policy (script-src 'self' forbids
 # inline code), so it is removed here only. The CSP itself is verified on a real http origin in the
 # safety layer's privacy check, exactly as a phone loads the app.
@@ -281,13 +290,14 @@ async def until(get, ok, ms=2000):
         await asyncio.sleep(0.02)
 
 async def await_external(pg, nav, n0, counts, c0):
-    """After a send or Call by Phone tap: wait for the external URL (up to 2 s), then for its usage count.
-    A count normally arrives with the URL; S4/S5 send none, so the wait for one ends after 150 ms.
-    40 ms of quiet after the last count lets a duplicate count show up in the check."""
+    """Capture the external URL without leaving the test document, then wait for its usage count.
+    A count normally arrives with the URL; S4/S5 send none, so that wait ends after 150 ms."""
     loop = asyncio.get_running_loop()
     t_end = loop.time() + 2
     while len(nav) <= n0 and loop.time() < t_end:
-        await asyncio.sleep(0.01)
+        test_nav = await pg.evaluate("window.__findPaxTestNav || []")
+        if len(test_nav) > len(nav): nav[:] = test_nav
+        if len(nav) <= n0: await asyncio.sleep(0.01)
     t_end = loop.time() + 0.15
     while len(counts) <= c0 and loop.time() < t_end:
         await asyncio.sleep(0.01)

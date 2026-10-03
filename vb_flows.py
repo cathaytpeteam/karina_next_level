@@ -284,17 +284,26 @@ async def return_from_app(r):
     """Staff come back from WhatsApp / SMS (the page is hidden, then shown again)."""
     await r.pg.evaluate(RETURN_FROM_APP_JS); await settle(r.pg)
 
-async def call_by_phone_return(r, tag, want, tel_count=""):
-    """After staff return from WhatsApp/SMS: label, visibility, position, colours and tel: link."""
+async def call_by_phone_return(r, tag, want, tel_count="", label=False, icon=False):
+    """After staff return from WhatsApp/SMS: visibility, ordering, colours and tel: link.
+
+    label/icon opt into the two extra presentation assertions used by S5, while keeping
+    the common return behaviour in one place for S1/S2/S3/S5.
+    """
     await return_from_app(r)
     ck(f"[guard] {tag} return shows Try Another Number", (await r.pg.locator("#cta").inner_text()).strip() == "Try Another Number")
-    ck(f"[guard] {tag} Call by Phone {'shown' if want else 'hidden'} after return", (await r.pg.locator("#callPhone").is_visible()) == want)
+    call = r.pg.locator("#callPhone")
+    ck(f"[guard] {tag} Call by Phone {'shown' if want else 'hidden'} after return", (await call.is_visible()) == want)
     brand = await r.pg.evaluate("(() => { const e = document.createElement('i'); e.style.color = 'var(--brand)'; document.body.append(e); const c = getComputedStyle(e).color; e.remove(); return c; })()")
     if not want:
         solo = await r.pg.evaluate("getComputedStyle(document.getElementById('cta')).backgroundColor")
         ck(f"[guard] {tag} Try Another Number alone takes the primary colour", solo == brand, solo)
         return
-    a = await r.pg.locator("#callPhone").bounding_box(); b = await r.pg.locator("#cta").bounding_box()
+    if label:
+        ck(f"[guard] {tag} Call by Phone label", (await call.inner_text()).strip() == "Call by Phone")
+    if icon:
+        ck(f"[guard] {tag} Call by Phone has a phone icon", await call.locator("svg").count() == 1)
+    a = await call.bounding_box(); b = await r.pg.locator("#cta").bounding_box()
     ck(f"[guard] {tag} Call by Phone sits above Try Another Number", bool(a and b) and a["y"] + a["height"] <= b["y"], f"{a} {b}")
     bg = await r.pg.evaluate("['callPhone','cta'].map(i => getComputedStyle(document.getElementById(i)).backgroundColor)")
     ck(f"[guard] {tag} Call by Phone takes the primary colour, Try Another Number the secondary", bg[0] == brand and bg[1] != brand, str(bg))

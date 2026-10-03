@@ -27,8 +27,9 @@ CONTROL_FILES = {'README.md', 'AI-GUIDE.md', 'locks.json',
                  'flow-behavior-spec.json', 'verify_release.py', 'verify_behavior.py',
                  'verify_changed.py', 'SHA256SUMS.txt',
                  'vb_core.py', 'vb_flows.py', 'vb_guards.py', 'vb_guards_other.py', 'vb_guards_s4.py',
-                 'vb_priority.py', 'vb_sw.py', 'vb_validation.py'}
-SIZE_LIMITS = {'AI-GUIDE.md': 4096, 'README.md': 20480}
+                 'vb_priority.py', 'vb_sw.py', 'vb_validation.py', 'verify_architecture.py', 'verify_suite.py',
+                 'verification_budget.json', 'verification_report.json'}
+SIZE_LIMITS = json.loads((R / 'verification_budget.json').read_text(encoding='utf-8'))['document_byte_limits']
 MAX_CHANGELOG_ENTRIES = 2
 
 # No historical comments or unused selectors are allowed.
@@ -193,6 +194,17 @@ if not NO_STATIC:
         elif VERBOSE and line.startswith(('PASS', '  PASS')):
             print(line)
     ck('static locks (verify_release.py --static)', r.returncode == 0, '' if r.returncode == 0 else (r.stderr.strip()[-300:] or 'see FAIL lines above'))
+
+# Verification architecture/budget is part of every edit gate, so test code cannot grow silently.
+ar = subprocess.run([sys.executable, '-B', str(R / 'verify_architecture.py')] + (['-v'] if VERBOSE else []),
+                    cwd=R, capture_output=True, text=True, encoding='utf-8', errors='replace')
+for line in ar.stdout.splitlines():
+    if line.startswith('FAIL') and not line.startswith('FAIL:'):
+        print(line)
+    elif VERBOSE and line.startswith(('PASS', 'METRIC')):
+        print(line)
+ck('verification architecture and anti-bloat budget', ar.returncode == 0,
+   '' if ar.returncode == 0 else (ar.stderr.strip()[-300:] or 'see FAIL lines above'))
 
 # ---- colour lock -------------------------------------------------------------------
 def norm_hex(x):

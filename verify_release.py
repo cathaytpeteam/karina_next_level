@@ -27,6 +27,7 @@ FAST='--fast' in sys.argv
 FULL='--full' in sys.argv
 STATIC='--static' in sys.argv  # internal: used by verify_changed.py (static lock checks only)
 VERBOSE='-v' in sys.argv or '--verbose' in sys.argv
+METRICS='--metrics' in sys.argv
 
 for _old,_new in (('--quick','python3 verify_changed.py'),('--gate','python3 verify_release.py --fast')):
     if _old in sys.argv:
@@ -344,10 +345,19 @@ ck('test probe exists only under automated tests (navigator.webdriver)', app_js.
 _junk=[p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and ('__pycache__' in p.parts or p.suffix in ('.pyc','.pyo'))]
 ck('release tree contains no Python temp files', not _junk)
 
+# Anti-bloat budget is lock-protected: raising it is a reviewed lock change, not a way to silence the gate.
+_vbudget=r/'verification_budget.json'
+_vlock=LOCKS.get('verification',{})
+ck('verification budget file is present', _vbudget.is_file())
+ck('verification budget unchanged (locks.json verification)', _vbudget.is_file() and hashlib.sha256(_vbudget.read_bytes()).hexdigest()==_vlock.get('budget_sha256'))
+
 if STATIC:
     # Called by verify_changed.py: static lock checks only, no browser, no SHA write.
     print(('FAIL' if bad else 'PASS')+f': static lock checks ({N_PASS} passed)')
     sys.exit(1 if bad else 0)
+
+STATIC_LOCK_PASS=N_PASS
+STATIC_LOCK_BAD=bad
 
 # Hygiene, colour lock and wiring for the whole tree (the static locks above already ran).
 # A failing privacy line from verify_changed.py is a safety failure.
@@ -377,6 +387,7 @@ _rc,_n,_priv=run_live([sys.executable,str(r/'verify_changed.py'),'--all','--no-s
 N_PASS+=_n
 ck('hygiene, colour lock and wiring (verify_changed.py --all)', _rc==0, safety=_priv>0)
 STATIC_BAD=bad
+STATIC_PASS=N_PASS
 
 # Appearance ("look") in --fast runs only when something that shapes the screen changed since the last
 # passing check: app.css, index.html, the layout part of app.js (from its [render] marker to the end) or a
@@ -423,8 +434,15 @@ print('層級：靜態 '+('✓' if not STATIC_BAD else '✗')+'  '+'  '.join(f'{
 # Repository / hosting plumbing is not part of the release: .git*, .github, .nojekyll, CNAME.
 def _release_file(p):
     rel=p.relative_to(r)
-    if p.name in ('SHA256SUMS.txt','.nojekyll','CNAME') or '__pycache__' in rel.parts: return False
+    if p.name in ('SHA256SUMS.txt','verification_report.json','.nojekyll','CNAME') or '__pycache__' in rel.parts: return False
     return not any(x.startswith('.git') for x in rel.parts)
+if METRICS:
+    print(f'METRIC static {STATIC_LOCK_PASS} '+('PASS' if not STATIC_LOCK_BAD else 'FAIL'))
+    for _k,_ in LAYERS:
+        _p,_f=LAYER_SUM[_k]
+        _state='SKIP' if _k in LAYER_SKIP and not (_p or _f) else ('PASS' if _f==0 else 'FAIL')
+        print(f'METRIC layer {_k} {_p} {_f} {_state}')
+
 if not bad:
     _files=sorted(p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and _release_file(p))
     _lines=[hashlib.sha256((r/f).read_bytes()).hexdigest()+'  '+f for f in _files]
