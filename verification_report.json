@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "generated_at_utc": "2026-10-03T14:10:06+00:00",
+  "mode": "full",
+  "overall_status": "PASS",
+  "elapsed_seconds": 104.351,
+  "suites": [
+    {
+      "name": "architecture_mutation",
+      "status": "PASS",
+      "returncode": 0,
+      "elapsed_seconds": 1.404,
+      "checks": 50,
+      "performance_status": "PASS",
+      "performance_warn_seconds": 7.0,
+      "failures": []
+    },
+    {
+      "name": "verify_changed_all",
+      "status": "PASS",
+      "returncode": 0,
+      "elapsed_seconds": 1.599,
+      "checks": 97,
+      "performance_status": "PASS",
+      "performance_warn_seconds": 15.0,
+      "failures": []
+    },
+    {
+      "name": "release_full",
+      "status": "PASS",
+      "returncode": 0,
+      "elapsed_seconds": 101.344,
+      "checks": 2056,
+      "performance_status": "PASS",
+      "performance_warn_seconds": 300.0,
+      "failures": [],
+      "environment_blockers": [],
+      "layers": {
+        "safety": {
+          "passed": 30,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "send": {
+          "passed": 608,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "clear": {
+          "passed": 351,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "input": {
+          "passed": 363,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "flow": {
+          "passed": 88,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "open": {
+          "passed": 53,
+          "failed": 0,
+          "status": "PASS"
+        },
+        "look": {
+          "passed": 410,
+          "failed": 0,
+          "status": "PASS"
+        }
+      },
+      "static": {
+        "status": "PASS",
+        "checks": 147
+      }
+    }
+  ],
+  "anti_bloat": {
+    "status": "PASS",
+    "budget_file": "verification_budget.json"
+  },
+  "deploy_hash": {
+    "status": "PASS",
+    "deployed_files": 16,
+    "missing": [],
+    "different_from_last_verified": []
+  },
+  "performance": {
+    "status": "PASS",
+    "warnings": []
+  },
+  "support_matrix": {
+    "primary": [
+      "Android Chrome current major",
+      "Android Chrome previous major"
+    ],
+    "smoke": [
+      "Low-end Android Chrome",
+      "Installed PWA / standalone"
+    ],
+    "optional_smoke": "Safari/iPhone smoke only when available; not release-blocking for the current user environment."
+  },
+  "environment_required": [
+    "Real HTTP origin CSP/privacy runtime check requires a Chromium environment that permits localhost navigation."
+  ]
+}
