@@ -8,7 +8,9 @@
   document.querySelectorAll('[data-scenario-label="transit"]').forEach(el=>{const t=copy("s.passenger.transit");el.textContent=t;el.closest("button").setAttribute("aria-label",t+" & Message");});
   const replaceChildrenCompat=(el,...nodes)=>{while(el.firstChild)el.removeChild(el.firstChild);nodes.forEach(node=>el.appendChild(node));};
   const digits=s=>String(s||"").replace(/\D/g,"");
-  const v=id=>$(id).value;
+  // Under automated tests the test probe reads its own values instead of the page (see [test probe]).
+  let probeFields=null;
+  const v=id=>probeFields?probeField(id):$(id).value;
 
   const blocked=new Set(["85289648964","85262374313"]);
   const flagFor=cc=>cc&&cc.length===2?String.fromCodePoint(...[...cc].map(ch=>127397+ch.charCodeAt(0))):"🌐";
@@ -335,10 +337,10 @@
 
   // Flight-related inputs turn red only when the entered value can no longer satisfy its rule.
   function markInvalidFields(){
-    const bad=(id,cond)=>{const el=$(id);if(el){const f=el.closest(".field");if(f)f.classList.toggle("bad",!!cond);}};
+    const bad=(id,cond)=>{if(probeBad){if(cond)probeBad.push(id);return;}const el=$(id);if(el){const f=el.closest(".field");if(f)f.classList.toggle("bad",!!cond);}};
     const filled=id=>v(id)!=="";
     // While typing, keep a partial value neutral if it can still match an allowed flight.
-    const typing=id=>document.activeElement===$(id);
+    const typing=id=>probeFields?probeFocus===id:document.activeElement===$(id);
     const canStillMatch=(raw,set)=>{const d=digits(raw);if(!d)return true;const n=String(Number(d));if(d.length>=3)return set.has(n);for(const x of set){if(x.startsWith(n))return true;}return false;};
     const listBad=(id,raw,set)=>filled(id)&&!set.has(String(Number(digits(raw))))&&(!typing(id)||!canStillMatch(raw,set));
     const codeBad=id=>filled(id)&&!isCarrier(v(id))&&!(typing(id)&&v(id).length<2);
@@ -817,6 +819,52 @@
     if(retryScenario&&!keep) clearCaseData();
     retryScenario="";
     return keep;
+  }
+
+  // ==== [test probe] ====
+  // Automated tests only (navigator.webdriver): answers rule questions with the app's own rules for the
+  // field values a test gives. It never reads or changes the page fields, the case or the passenger number,
+  // and it does not answer for the phone page or Call Directly.
+  const PROBE_FIELD_IDS=["mFlight","mSec","wFlight","b1a","b1n","b2a","b2n","dFlight","delayTime","tA","tN","altA","altN","altTime","arriveTime","gNewN","gDepTime","gGateZone","gGate","callFlight","callGateZone","callGate"];
+  const PROBE_STATE_KEYS=["country","status","arrange","gateStatus","gateGo","gateTarget","order","callMode","missMode"];
+  const PROBE_STEPS=["mflight","msec","wflight","bag1","bag2","dstatus","dflight","dtransfer","darrange","darrive","dnew","dgateaction","callflight","callgate"];
+  const PROBE_FLOWS=["miss","call","wpp","dp"];
+  let probeBad=null, probeFocus="";
+  function probeField(id){
+    if(!Object.prototype.hasOwnProperty.call(probeFields,id)) throw new Error("Probe has no field "+id);
+    return probeFields[id];
+  }
+  function probeRun(c,fn){
+    if(probeFields) throw new Error("Probe is busy");
+    const fields={}, given=c.fields||{}, state=c.state||{};
+    PROBE_FIELD_IDS.forEach(id=>{fields[id]="";});
+    Object.keys(given).forEach(id=>{if(PROBE_FIELD_IDS.indexOf(id)<0)throw new Error("Probe has no field "+id);fields[id]=String(given[id]);});
+    Object.keys(state).forEach(k=>{if(PROBE_STATE_KEYS.indexOf(k)<0)throw new Error("Probe has no state "+k);});
+    const savedS=Object.assign({},S), savedFlow=flow;
+    try{
+      Object.assign(S,{phone:"",country:"",status:"",arrange:"",gateStatus:"",gateGo:"",gateTarget:"",order:"zh",orderSet:false,callNoMessage:false,callMode:"",missMode:""},state);
+      probeFields=fields;
+      return fn();
+    }finally{
+      probeFields=null;probeBad=null;probeFocus="";
+      Object.assign(S,savedS);flow=savedFlow;
+    }
+  }
+  function probeCheck(c){
+    c=c||{};
+    if(PROBE_STEPS.indexOf(c.step)<0) throw new Error("Probe has no step "+c.step);
+    return probeRun(c,()=>{
+      probeFocus=String(c.focus||"");probeBad=[];markInvalidFields();
+      return {ok:!!OK[c.step](),bad:probeBad.slice(),hint:String((HINT[c.step]&&HINT[c.step]())||"")};
+    });
+  }
+  function probeMessage(c){
+    c=c||{};
+    if(PROBE_FLOWS.indexOf(c.flow)<0) throw new Error("Probe has no flow "+c.flow);
+    return probeRun(c,()=>{flow=c.flow;return {text:buildText(),rows:buildRows().map(r=>[r[0],r[1]])};});
+  }
+  if(navigator.webdriver===true){
+    Object.defineProperty(window,"__findPaxProbe",{value:Object.freeze({check:probeCheck,message:probeMessage})});
   }
 
   // ==== [render] ====

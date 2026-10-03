@@ -11,7 +11,7 @@ This app handles passenger phone numbers. Never add code that stores them, conta
 | Task | Edit |
 |---|---|
 | User-facing text, approved rule data | `copy.js` (lock change: ask the user unless already approved) |
-| Validation, flow, navigation | `app.js`, search a marker: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[render]`, `[event wiring]` |
+| Validation, flow, navigation | `app.js`, search a marker: `[phone validation]`, `[state]`, `[flow definitions]`, `[field validation]`, `[flight and gate rules]`, `[hints and validation messages]`, `[message generation]`, `[message draft state]`, `[test probe]` (tests only), `[render]`, `[event wiring]` |
 | Flow or step count | `app.js`, `flow-behavior-spec.json`; with user approval, the `locks.json` navigation lock and its checks |
 | Visual change, only if asked | `app.css`, existing colour variables only |
 | Screen structure | `index.html` (layout-locked: ask the user) |
@@ -28,7 +28,7 @@ This app handles passenger phone numbers. Never add code that stores them, conta
 ## Rules that keep the project small
 
 - Trial builds: no change-log entry or README rule change. When the user says a build is final, add one change-log entry and keep only two.
-- Browser tests cannot run here: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP name, never recommend uploading it to `main`.
+- Browser tests here: `export FIND_PAX_CHROMIUM=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell`. If none runs: write `FAST 未執行` in Check, add `-UNVERIFIED` to the ZIP name, never recommend uploading it to `main`.
 - Comments describe current behaviour: no `rNN`, `v1.x`, dates or "formerly".
 - New colour, new file or bigger README fails verify_changed: ask the user, do not work around it.
 - Copy IDs are stable and hash-locked: never rename or change one as a side effect.

@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Find Pax — release gate.
 
-  python3 verify_release.py --fast    normal changes: static locks + hygiene + focused browser gate
-  python3 verify_release.py --full    release only: --fast plus exhaustive browser + Service Worker suites
+  python3 verify_release.py --fast    normal changes: static locks + hygiene + FAST browser checks
+  python3 verify_release.py --full    release only: every browser test once + Service Worker suite
   python3 verify_release.py ... -v    also print every PASS line (default prints only FAIL lines + a summary)
-  python3 verify_release.py ... --jobs 1|2|3    browser jobs at the same time (default 1, one after another)
+  python3 verify_release.py ... --jobs 1|2|3    browser jobs at the same time (default 3 with --fast, 1 with --full;
+                                                the two Service Worker modes run side by side unless --jobs is given)
+  python3 verify_release.py --fast --look | --no-look    force or skip the appearance layer
+  add --timing to list the slowest browser jobs
+
+Browser checks run in layers (安全, 送出內容, 資料清除, 輸入規則, 流程, 能開能更新, 外觀; see vb_priority.py).
+Safety runs first and is the only layer whose failure stops the rest; a summary line per layer ends the run.
+In --fast the appearance layer runs only when app.css, index.html, the app.js layout part or a test file
+changed since the last passing check (recorded in SHA256SUMS.txt).
 
 While editing, use verify_changed.py instead (no browser, a few seconds).
 On success, --fast/--full rewrite SHA256SUMS.txt so it records the verified tree.
@@ -23,7 +31,7 @@ VERBOSE='-v' in sys.argv or '--verbose' in sys.argv
 for _old,_new in (('--quick','python3 verify_changed.py'),('--gate','python3 verify_release.py --fast')):
     if _old in sys.argv:
         print(f'{_old} was removed. Use: {_new}'); raise SystemExit(2)
-JOBS=sys.argv[sys.argv.index('--jobs')+1] if '--jobs' in sys.argv and sys.argv.index('--jobs')+1<len(sys.argv) else '1'
+JOBS=sys.argv[sys.argv.index('--jobs')+1] if '--jobs' in sys.argv and sys.argv.index('--jobs')+1<len(sys.argv) else ('3' if FAST else '1')
 if JOBS not in ('1','2','3'):
     print(f'ERROR: --jobs must be 1, 2 or 3 (got {JOBS!r}). No verification was run.'); raise SystemExit(2)
 _mode_count=sum((FAST, FULL, STATIC))
@@ -157,15 +165,7 @@ def navigation_lock():
     # Passenger Type page. "At Gate" group: Already at Gate (tinted, full row);
     # "Not at the Airport" group: Tight Connection (full row, same size, neutral colour), then Delayed | Suspended.
     # Already at Gate sits alone in the "At Gate" group, above "Not at the Airport".
-    ck('Scenario 4 Already at Gate choice', '<div class="choiceGroup">At Gate</div>' in dstatus and '<div class="choiceGroup">Not at the Airport</div>' in dstatus and dstatus.index('>At Gate<') < dstatus.index('id="stGate"') < dstatus.index('>Not at the Airport<') < dstatus.index('id="stPossible"') and '#s-dstatus #stPossible.passengerPrimary{background:var(--surface)}' in s and '#s-dstatus .choiceGroup::after' in s and '#s-dstatus .choiceGroup::before' not in s)
-
-    # Flight Type uses the same default heading placement as Passenger Type: no special center override.
-    css=(re.search(r'<style>(.*?)</style>',s,re.S) or [None,''])[1]
-    centered=False
-    for sel,body in re.findall(r'([^{}]+)\{([^{}]*)\}',css,re.S):
-        if '#s-dstatus h1' in sel and 'text-align:center' in re.sub(r'\s+','',body):
-            centered=True
-    ck('Scenario 4 Flight Type title placement matches Passenger Type', not centered)
+    ck('Scenario 4 Already at Gate choice', '<div class="choiceGroup">At Gate</div>' in dstatus and '<div class="choiceGroup">Not at the Airport</div>' in dstatus and dstatus.index('>At Gate<') < dstatus.index('id="stGate"') < dstatus.index('>Not at the Airport<') < dstatus.index('id="stPossible"') and '#s-dstatus .choiceGroup::after' in s and '#s-dstatus .choiceGroup::before' not in s)
 
     # Choice pages navigate immediately; there is no footer/Next and no NEXT[dstatus] path.
     ck('Scenario 4 Flight Type footer/Next hidden', 'const showFoot=cur!=="scenario"&&cur!=="calltype"&&cur!=="misstype"&&cur!=="dstatus";' in s)
@@ -196,7 +196,6 @@ def navigation_lock():
     ICON_PHONE='<rect x="4.5" y="3" width="10.5" height="18" rx="2.4"/><path d="M8.6 17.6h2.3M18.2 8.6a4.6 4.6 0 0 1 0 6.8M20.9 6a8.4 8.4 0 0 1 0 12"/>'
     def btn(sec,bid):
         m=re.search(r'<button[^>]*\bid="'+bid+r'".*?</button>',sec,re.S); return m.group(0) if m else ''
-    ck('Passenger Type rows full width, icons one column', '#s-calltype .choice.passengerSecondary,#s-misstype .choice.passengerSecondary{grid-column:1/-1}' in s and '#s-calltype .actIco,#s-misstype .actIco{flex:none;width:26px;height:26px;margin-left:10px;color:var(--brand-strong)}' in s)
     # ICON POLICY: small action icons (message) appear ONLY on the Scenario 1 and 2
     # Passenger Type pages. Scenario 4 Disrupted Passenger always sends a message, so its pages stay icon-free.
     # The Scenario page uses the illustrated scenario icons (not action icons).
@@ -204,19 +203,21 @@ def navigation_lock():
     # no numbers; Final Call uses the carry-on runner illustration, Call Directly scenario-icon-2.png.
     sc=section('s-scenario')
     order=[sc.index(f'id="{i}"') for i in ('goMiss','goCall','goDirect','goDp','goWpp')]
-    ck('Scenario page icon size', '#s-scenario .ico img,#s-scenario .ico .scIco{width:42px;height:30px;' in s and '#s-scenario .ctext span{white-space:normal;overflow-wrap:normal;text-wrap:balance}' in s)
+    ck('Scenario page card text wraps evenly', '#s-scenario .ctext span{white-space:normal;overflow-wrap:normal;text-wrap:balance}' in s)
     return checks
 
 bad=False
 N_PASS=0
-def ck(n,x):
-    global bad,N_PASS
+SAFETY_FAIL=0  # static privacy-lock failures: they stop the browser checks
+def ck(n,x,safety=False):
+    global bad,N_PASS,SAFETY_FAIL
     ok=bool(x)
     if ok:
         N_PASS+=1
         if VERBOSE: print('PASS',n)
     else:
         print('FAIL',n,flush=True); bad=True
+        if safety: SAFETY_FAIL+=1
 
 
 # Flight rules and exceptions.
@@ -248,28 +249,20 @@ for section in ('phone_validation','japanese_sms','datetime'):
         ck('protected '+n, body is not None and sh(body)==h)
 
 # UI regression checks: passenger type in progress and Direct phone placement.
-ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'function renderProgressTitle(label,count)' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and '.step{font-size:17px;font-weight:700' in s and 'className:"progressCount"' in s and '.step .progressCount{margin-left:auto;color:var(--progress-count)' in s)
+ck('progress labels approved', 'const progressText=(idx+1)+"/"+f.steps.length;' in s and 'function renderProgressTitle(label,count)' in s and 'renderProgressTitle(f.name+" - "+passengerType,progressText)' in s and 'flow==="miss" && cur!=="misstype" && (S.missMode==="join"||S.missMode==="transit")' in s and 'flow==="call" && cur!=="calltype" && (S.callMode==="join"||S.callMode==="transit")' in s and 'className:"progressCount"' in s and '.step .progressCount{margin-left:auto;color:var(--progress-count)' in s)
 ck('direct phone in confirm details', 'rows.push(["Phone Number",(S.country?flagFor(S.country)+" ":"")+groupedPhone(S.phone)])' in s)
-# Header number: no background, muted grey, regular weight, grouped by country
-# (+886 983 952 902); shown on Confirm details too, so there is no "Send to" row. Links keep the plain digits.
-ck('header number style', '.who{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--clear);color:var(--muted);border-radius:0;padding:6px 0;font-size:15px;font-weight:500;' in s)
 
 # Message Preview is intentionally read-only. Editing/copying is delegated to WhatsApp/SMS.
+# Sizes, colours and alignment are checked once, in the browser (appearance layer), never as CSS strings here.
 
-# Explicitly authorized final visual/copy tuning.
-ck('language order labels 15px/600', '.msgToggle small{font-size:15px;font-weight:600' in s)
-ck('Scenario 5 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s and '.sum dd .bagConfirmNote{font-size:18px' in s)
+ck('Scenario 5 step 2/4 restored and 4/4 unclaimed bag label aligned', '<section class="screen" id="s-bag1" hidden>\n      <h1>Bag Tag 1</h1>\n      <p class="bagHelp" lang="zh-Hant">無人領取的行李</p>' in s and 'className="bagConfirmNote"' in s)
 
-# Consistency fixes.
-ck('Arrangement no arbitrary break', '.sum dt{color:var(--muted);flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;overflow-wrap:normal;word-break:normal}' in s)
-ck('Final Call flight alignment selectors', '#s-callflight .field .code, #s-callgate .field .code{width:72px' in s and '#s-callflight .field input:not(.code), #s-callgate .field input:not(.code){flex:0 0 auto' in s and '#s-callflight .field .code .code' not in s and '#s-callflight .field input:not(.code) input:not(.code)' not in s)
 
 # Service Worker checks: defined runtime list, existing local assets, current cache version.
 sw=(r/'sw.js').read_text(encoding='utf-8')
 ck('service worker cache revision', bool(re.search(r'const CACHE_REV="K\d+\.\d+-r\d+";', sw)))
 ck('phone library preload', '<link rel="preload" href="./libphonenumber-mobile.js" as="script">' in s)
 ck('phone library retries after timeout', 'setTimeout(()=>{if(!phoneLibReady){old.dataset.failed="1";retryPhoneLibrary();}},2000);' in s)
-ck('B1R row reserves height', 'min-height:36px' in s and '@media(max-width:380px){#s-dnew #gGateField .code{width:44px}}' in s)
 _app_m=re.search(r'const APP_VERSION="([^"]+)";',sw)
 _rev_m=re.search(r'const CACHE_REV="([^"]+)";',sw)
 _display_version=(_rev_m.group(1).split('-r',1)[0] if _rev_m else '')
@@ -330,28 +323,22 @@ for _n,_v in _nav:
     if not _v: print('FAIL',_n)
     elif VERBOSE: print('  PASS',_n)
 
-def run_live(cmd):
-    """Stream a sub-suite. Prints only non-PASS lines unless -v. Returns (returncode, pass_count)."""
-    pr=subprocess.Popen(cmd,cwd=r,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace',bufsize=1)
-    n=0
-    for line in pr.stdout:
-        if line.startswith('PASS'):
-            n+=1
-            if VERBOSE: print(line,end='',flush=True)
-        else:
-            print(line,end='',flush=True)
-    return pr.wait(),n
-
 # Privacy lock: the privacy section of verify_changed.py is itself hash-locked, so it cannot be
 # weakened quietly. Changing it means recomputing locks.json "privacy", which the handoff must list.
 _vc=(r/'verify_changed.py').read_text(encoding='utf-8')
 _pm=re.search(r'# ---- privacy lock .*?(?=# ---- summary)',_vc,re.S)
-ck('privacy lock present in verify_changed.py', bool(_pm))
-ck('privacy lock unchanged (locks.json privacy)', bool(_pm) and hashlib.sha256(_pm.group(0).encode()).hexdigest()==LOCKS.get('privacy',{}).get('verify_changed_sha256'))
+ck('privacy lock present in verify_changed.py', bool(_pm),safety=True)
+ck('privacy lock unchanged (locks.json privacy)', bool(_pm) and hashlib.sha256(_pm.group(0).encode()).hexdigest()==LOCKS.get('privacy',{}).get('verify_changed_sha256'),safety=True)
 _priv=LOCKS.get('privacy',{})
-ck('privacy lock: phone library is the pinned official build', hashlib.sha256((r/'libphonenumber-mobile.js').read_bytes()).hexdigest()==_priv.get('phone_library_sha256'))
-ck('privacy lock: sw.js unchanged apart from CACHE_REV', hashlib.sha256(re.sub(r'const CACHE_REV="[^"]+";','const CACHE_REV="*";',sw).encode()).hexdigest()==_priv.get('service_worker_sha256'))
-ck('privacy lock: Content-Security-Policy present and unchanged', '<meta http-equiv="Content-Security-Policy" content="'+_priv.get('csp','-')+'">' in s and s.find('Content-Security-Policy')<s.find('<link rel="stylesheet"'))
+ck('privacy lock: phone library is the pinned official build', hashlib.sha256((r/'libphonenumber-mobile.js').read_bytes()).hexdigest()==_priv.get('phone_library_sha256'),safety=True)
+ck('privacy lock: sw.js unchanged apart from CACHE_REV', hashlib.sha256(re.sub(r'const CACHE_REV="[^"]+";','const CACHE_REV="*";',sw).encode()).hexdigest()==_priv.get('service_worker_sha256'),safety=True)
+ck('privacy lock: Content-Security-Policy present and unchanged', '<meta http-equiv="Content-Security-Policy" content="'+_priv.get('csp','-')+'">' in s and s.find('Content-Security-Policy')<s.find('<link rel="stylesheet"'),safety=True)
+
+# Test probe (app.js [test probe]): built only when navigator.webdriver is true, so it never exists on a
+# staff phone. The browser safety layer also checks it is absent when webdriver is false.
+_probe_js='if(navigator.webdriver===true){\n    Object.defineProperty(window,"__findPaxProbe",{value:Object.freeze({check:probeCheck,message:probeMessage})});\n  }'
+ck('test probe exists only under automated tests (navigator.webdriver)', app_js.count('__findPaxProbe')==1 and app_js.count(_probe_js)==1
+   and app_js.count('probeCheck')==2 and app_js.count('probeMessage')==2 and '__findPaxProbe' not in copy_js+s_html,safety=True)
 
 # Packaging hygiene: temporary Python files are never valid release content.
 _junk=[p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and ('__pycache__' in p.parts or p.suffix in ('.pyc','.pyo'))]
@@ -363,29 +350,74 @@ if STATIC:
     sys.exit(1 if bad else 0)
 
 # Hygiene, colour lock and wiring for the whole tree (the static locks above already ran).
-_rc,_n=run_live([sys.executable,str(r/'verify_changed.py'),'--all','--no-static'])
-N_PASS+=_n
-ck('hygiene, colour lock and wiring (verify_changed.py --all)', _rc==0)
+# A failing privacy line from verify_changed.py is a safety failure.
+def run_live(cmd):
+    """Stream a sub-suite. Prints only non-PASS lines unless -v; collects its LAYER totals.
+    Returns (returncode, pass_count, privacy_fail_lines)."""
+    pr=subprocess.Popen(cmd,cwd=r,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace',bufsize=1)
+    n=priv=0
+    for line in pr.stdout:
+        if line.startswith('LAYER '):
+            k,*v=line.split()[1:]
+            if v==['skip']: LAYER_SKIP.add(k)
+            else: LAYER_SUM[k][0]+=int(v[0]); LAYER_SUM[k][1]+=int(v[1])
+            continue
+        if line.startswith('PASS'):
+            n+=1
+            if VERBOSE: print(line,end='',flush=True)
+            continue
+        if line.startswith('FAIL privacy lock'): priv+=1
+        print(line,end='',flush=True)
+    return pr.wait(),n,priv
 
-# Browser verification is layered: the focused priority gate first; the exhaustive
-# suite and the Service Worker matrix only in --full and only after the gate passes.
-print('--- PRIORITY GATE: phone, Home geometry, S1/S2 Next, S5 confirm, S4 validation ---', flush=True)
-_rc,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--priority', '--jobs', JOBS]); N_PASS+=_n
-ck('priority release gate (focused user-facing regressions)', _rc==0)
-if FULL:
-    if _rc==0:
-        print('--- EXHAUSTIVE FLOW SUITE ---', flush=True)
-        _rc2,_n=run_live([sys.executable, str(r/'verify_behavior.py'), '--jobs', JOBS]); N_PASS+=_n
-        ck('flow behaviour (all branches, Back/Forward, guards, state rules)', _rc2==0)
+LAYERS=[('safety','安全'),('send','送出內容'),('clear','資料清除'),('input','輸入規則'),('flow','流程'),('open','能開能更新'),('look','外觀')]
+LAYER_SUM={k:[0,0] for k,_ in LAYERS}
+LAYER_SKIP=set()
+_rc,_n,_priv=run_live([sys.executable,str(r/'verify_changed.py'),'--all','--no-static'])
+N_PASS+=_n
+ck('hygiene, colour lock and wiring (verify_changed.py --all)', _rc==0, safety=_priv>0)
+STATIC_BAD=bad
+
+# Appearance ("look") in --fast runs only when something that shapes the screen changed since the last
+# passing check: app.css, index.html, the layout part of app.js (from its [render] marker to the end) or a
+# browser-test file. SHA256SUMS.txt records each file plus that app.js part as "app.js#layout".
+LAYOUT_MARK='  // ==== [render] ===='
+def _sha_file(f): return hashlib.sha256((r/f).read_bytes()).hexdigest() if (r/f).is_file() else ''
+def _app_layout_sha(): return hashlib.sha256(app_js[app_js.find(LAYOUT_MARK):].encode('utf-8')).hexdigest() if LAYOUT_MARK in app_js else ''
+def look_changed():
+    sums={}
+    for line in ((r/'SHA256SUMS.txt').read_text(encoding='utf-8') if (r/'SHA256SUMS.txt').is_file() else '').splitlines():
+        if '  ' in line: h,f=line.split('  ',1); sums[f]=h
+    now={f:_sha_file(f) for f in ['app.css','index.html','verify_behavior.py']+sorted(p.name for p in r.glob('vb_*.py'))}
+    now['app.js#layout']=_app_layout_sha()
+    return sorted(f for f,h in now.items() if not h or sums.get(f)!=h)
+
+if SAFETY_FAIL:
+    print('FAIL 安全（靜態隱私鎖）失敗：瀏覽器檢查沒有執行。先修好上面的 privacy lock。',flush=True)
+    LAYER_SUM['safety'][1]+=SAFETY_FAIL
+    LAYER_SKIP.update(k for k,_ in LAYERS if k!='safety')
+else:
+    look=FULL or '--look' in sys.argv
+    if FAST and not look and '--no-look' not in sys.argv:
+        _changed=look_changed(); look=bool(_changed)
+        print('--- 外觀：'+('有改動，會執行（'+', '.join(_changed[:4])+('…' if len(_changed)>4 else '')+'）' if look else '沒有改動，略過')+' ---',flush=True)
+    print('--- BROWSER: '+('FULL' if FULL else 'FAST')+' (安全先跑；安全失敗才中斷) ---',flush=True)
+    cmd=[sys.executable,str(r/'verify_behavior.py'),'--full' if FULL else '--fast','--jobs',JOBS]+([] if look else ['--no-look'])+(['--timing'] if '--timing' in sys.argv else [])
+    _rc,_n,_=run_live(cmd); N_PASS+=_n
+    ck('browser checks ('+('every test once' if FULL else 'FAST selection')+')', _rc==0)
+    if FULL and 'safety' not in LAYER_SKIP and LAYER_SUM['safety'][1]==0:
         # Service Worker: install, launch, offline, update, broken deploy, cache miss, with and
         # without Static Routing (plus upgrade from a previous build when --previous DIR is given).
-        print('--- SERVICE WORKER SUITE ---', flush=True)
-        sw_cmd=[sys.executable, str(r/'verify_behavior.py'), '--sw']
+        print('--- SERVICE WORKER (能開能更新) ---', flush=True)
+        sw_cmd=[sys.executable, str(r/'verify_behavior.py'), '--sw', '--jobs', JOBS if '--jobs' in sys.argv else '2']  # the two modes are independent
         if '--previous' in sys.argv: sw_cmd+=['--previous', sys.argv[sys.argv.index('--previous')+1]]
-        _rc3,_n=run_live(sw_cmd); N_PASS+=_n
+        _rc3,_n,_=run_live(sw_cmd); N_PASS+=_n
         ck('service worker scenarios (install, launch, offline, update, broken deploy, cache miss)', _rc3==0)
-    else:
-        ck('exhaustive suites (skipped because the priority gate failed)', False)
+
+def _mark(k):
+    if k in LAYER_SKIP and not sum(LAYER_SUM[k]): return '未執行' if LAYER_SUM['safety'][1] or k!='look' else '略過'
+    return '✓' if not LAYER_SUM[k][1] else f'✗ {LAYER_SUM[k][1]}'
+print('層級：靜態 '+('✓' if not STATIC_BAD else '✗')+'  '+'  '.join(f'{name} {_mark(k)}' for k,name in LAYERS),flush=True)
 
 # SHA256SUMS records the verified tree. Written only when every check passed.
 # Repository / hosting plumbing is not part of the release: .git*, .github, .nojekyll, CNAME.
@@ -395,7 +427,9 @@ def _release_file(p):
     return not any(x.startswith('.git') for x in rel.parts)
 if not bad:
     _files=sorted(p.relative_to(r).as_posix() for p in r.rglob('*') if p.is_file() and _release_file(p))
-    (r/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((r/f).read_bytes()).hexdigest()+'  '+f+'\n' for f in _files),encoding='utf-8')
+    _lines=[hashlib.sha256((r/f).read_bytes()).hexdigest()+'  '+f for f in _files]
+    _lines.insert(_files.index('app.js')+1,_app_layout_sha()+'  app.js#layout')
+    (r/'SHA256SUMS.txt').write_text(''.join(x+'\n' for x in _lines),encoding='utf-8')
 
 _mode='FULL' if FULL else 'FAST'
 if bad:

@@ -24,101 +24,46 @@ Moving a page or re-routing a button changes the static route set and the runtim
 transitions, so the run fails until the spec lists every outgoing branch of that
 screen - and then all of those branches are executed on every run.
 
-Service Worker scenarios run separately:  python3 verify_behavior.py --sw [--previous DIR]
-(verify_release.py runs both).
+Every test belongs to one layer (vb_core.LAYERS: 安全, 送出內容, 資料清除, 輸入規則, 流程, 能開能更新, 外觀);
+vb_priority.py holds the plan. The safety layer runs first and stops the run if it fails.
 
-One test while editing it:  python3 verify_behavior.py --only NAME
-  NAME is a flow case, guard, state rule or validation row name, or priority_suite.
-Browser jobs: --jobs 1 (default, one after another), 2 or 3 (in parallel). Parallel runs give the same
-PASS/FAIL verdict, but a Back/Forward or language check may land in a different test, so use 2/3 only as a
-quick look while editing; the handover check uses the default. The Service Worker suite always runs one by one.
+  python3 verify_behavior.py --full          every test once (default)
+  python3 verify_behavior.py --fast          the FAST selection; add --no-look to skip appearance
+  python3 verify_behavior.py --sw [--previous DIR]   Service Worker scenarios (its two modes at once with --jobs 2/3)
+  python3 verify_behavior.py --only NAME     one test while editing (flow case, guard, state rule,
+                                             validation row or plan name such as "privacy at run time")
+  --jobs 1|2|3   browser jobs at the same time (default 3 with --fast, otherwise 1)   --timing   list the slowest jobs
+verify_release.py runs these for you and prints one summary per layer.
 
 Requires:  pip install playwright  &&  python -m playwright install chromium
 """
-import asyncio, difflib, sys
+import asyncio, sys
 sys.dont_write_bytecode = True  # keep the release tree free of __pycache__
 
-import vb_core, vb_flows, vb_guards, vb_priority, vb_sw, vb_validation
-globals().update({k: v for k, v in vars(vb_core).items() if not k.startswith("__")})
-globals().update({k: v for k, v in vars(vb_flows).items() if not k.startswith("__")})
-globals().update({k: v for k, v in vars(vb_guards).items() if not k.startswith("__")})
+import vb_core, vb_priority, vb_sw
+from vb_core import ck, static_checks, workers
 
 
-async def runtime():
-    try:
-        from playwright.async_api import async_playwright
-    except ImportError:
-        ck("runtime: playwright installed (pip install playwright && python -m playwright install chromium)", False)
-        return
-    async with async_playwright() as p:
-        try:
-            browser = await launch_chromium(p)
-        except Exception as ex:
-            ck("runtime: Chromium available (Playwright-managed or /usr/bin/chromium)", False, str(ex)[:120])
-            return
-        async def guard(r, name): ck(f"guard implemented: {name}", await g(r, name))
-        async def state_rule(r, name): ck(f"state rule implemented: {name}", await rule(r, name))
-        jobs = [run_job(browser, name, fn) for name, fn in CASES]
-        jobs += [run_job(browser, name, lambda r, name=name: guard(r, name)) for name in SPEC["guards"]]
-        jobs += [run_job(browser, name, lambda r, name=name: state_rule(r, name)) for name in SPEC["state_rules"]]
-        await run_jobs(jobs)
-        await browser.close()
-
-    ck("runtime: no transition outside the spec", not unexpected, " | ".join(sorted(set(unexpected))[:8]))
-    miss = [k for k in EDGE_INDEX if k not in covered]
-    ck(f"runtime: all {len(EDGE_INDEX)} spec branches executed ({len(covered)} hit)", not miss,
-       " | ".join(f"{k[0]} '{k[1]}' {list(k[5])} --{k[2]}--> {k[3]} '{k[4]}'" for k in miss[:8]))
-    nav = [k for k in covered if not k[3].startswith("external:")]
-    ck(f"runtime: Back + Forward verified for all {len(nav)} in-app branches", all(k in back_verified for k in nav))
-    tg = {(s, t) for s, ts in SPEC["toggles"].items() for t in ts}
-    ck("runtime: every toggle control exercised", tg <= toggles_hit, str(sorted(tg - toggles_hit)))
-    lm = [t for t in SPEC["preview_languages"] if t not in lang_checked]
-    ck("runtime: language buttons checked on every preview type", not lm, str(lm))
-
-
-async def only(name):
-    """Run one named test; a mistyped name lists the closest names."""
-    from playwright.async_api import async_playwright
-    cases = dict(CASES)
-    async def guard(r): ck(f"guard implemented: {name}", await g(r, name))
-    async def state_rule(r): ck(f"state rule implemented: {name}", await rule(r, name))
-    if name == "priority_suite":
-        await vb_priority.priority_suite(); return
-    fn = (cases.get(name) or (guard if name in SPEC["guards"] else None)
-          or (state_rule if name in SPEC["state_rules"] else None)
-          or ((lambda r: vb_validation.check_row(r, vb_validation.ROWS[name])) if name in vb_validation.ROWS else None))
-    if fn is None:
-        names = list(cases) + SPEC["guards"] + SPEC["state_rules"] + list(vb_validation.ROWS) + ["priority_suite"]
-        ck(f"--only: no test named {name!r}", False, "closest: " + ", ".join(difflib.get_close_matches(name, names, 8, 0.3)))
-        return
-    async with async_playwright() as p:
-        browser = await launch_chromium(p)
-        r = await Run(browser, name).open(); await fn(r); await r.close()
-        await browser.close()
+def finish(label, skipped=()):
+    if "--timing" in sys.argv:
+        for t, name in sorted(vb_core.JOB_TIMES, reverse=True)[:15]:
+            print(f"TIME {t:5.1f}s  {name}")
+    vb_core.print_layer_counts(skipped)
+    print(f"PASS: {label}" if not vb_core.failed else f"FAIL: {label}")
+    sys.exit(1 if vb_core.failed else 0)
 
 
 if __name__ == "__main__":
     workers()  # reject a bad --jobs value before any test starts
-
-if __name__ == "__main__" and "--only" in sys.argv:
-    asyncio.run(only(sys.argv[sys.argv.index("--only") + 1]))
-    print("PASS: --only" if not vb_core.failed else "FAIL: --only")
-    sys.exit(1 if vb_core.failed else 0)
-
-if __name__ == "__main__" and "--priority" in sys.argv:
-    static_checks()
-    asyncio.run(vb_priority.priority_gate())
-    print("PASS: priority release gate" if not vb_core.failed else "FAIL: priority release gate")
-    sys.exit(1 if vb_core.failed else 0)
-
-if __name__ == "__main__" and "--sw" in sys.argv:
-    prev = sys.argv[sys.argv.index("--previous") + 1] if "--previous" in sys.argv else None
-    asyncio.run(vb_sw.sw_suite(prev))
-    print("PASS: service worker scenarios" if not vb_core.failed else "FAIL: service worker scenarios")
-    sys.exit(1 if vb_core.failed else 0)
-
-if __name__ == "__main__":
-    static_checks()
-    asyncio.run(runtime())
-    print("PASS: flow behaviour" if not vb_core.failed else "FAIL: flow behaviour")
-    sys.exit(1 if vb_core.failed else 0)
+    if "--only" in sys.argv:
+        asyncio.run(vb_priority.only(sys.argv[sys.argv.index("--only") + 1]))
+        finish("--only")
+    if "--sw" in sys.argv:
+        vb_core._LAYER.set("open")
+        prev = sys.argv[sys.argv.index("--previous") + 1] if "--previous" in sys.argv else None
+        asyncio.run(vb_sw.sw_suite(prev))
+        finish("service worker scenarios", set(vb_priority.LAYER_ORDER) - {"open"})
+    fast = "--fast" in sys.argv
+    static_checks()  # route scan and control inventory (flow layer)
+    skipped = asyncio.run(vb_priority.run(fast, look="--no-look" not in sys.argv))
+    finish("fast browser checks" if fast else "full browser checks", skipped)

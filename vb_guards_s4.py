@@ -154,13 +154,14 @@ async def guard_s4_gate_status_required(r, name="s4_gate_status_required"):
 
 async def guard_s4_gate_delayed_requires_time(r, name="s4_gate_delayed_requires_time"):
     await to_s4_gate(r); await r.act("gsDelayed")
-    await r.pg.wait_for_timeout(400)  # Delayed to slides open (0.23 s) in the Already at Gate branch
+    # Delayed to opens in the Already at Gate branch (a 0.23 s slide on a phone; at once with reduced motion).
+    await until(lambda: r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height'), lambda h: h > 40)
     ck("[guard] gate Delayed shows Delayed to", (await r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height')) > 40 and await r.pg.locator("#delayWrap").evaluate("e => e.classList.contains('gateDelayOpen')"))
     await r.expect("gate Delayed without time keeps Next disabled", False)
     await r.fill("delayTime", "2575"); await r.expect("gate Delayed 25:75 rejected", False, ["delayTime"])
     await r.fill("delayTime", "2100"); await r.expect("gate Delayed 21:00 accepted", True, not_bad=["delayTime"])
     await r.act("gsCancelled")
-    await r.pg.wait_for_timeout(400)
+    await until(lambda: r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height'), lambda h: h < 2)
     ck("[guard] Cancelled hides and clears Delayed to", (await r.pg.locator('#delayWrap').evaluate('e => e.getBoundingClientRect().height')) < 2 and await r.val("delayTime") == "" and not await r.pg.locator("#delayWrap").evaluate("e => e.classList.contains('gateDelayOpen')"))
 
 async def guard_s4_gate_protect_rules(r, name="s4_gate_protect_rules"):

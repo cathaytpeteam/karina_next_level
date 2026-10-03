@@ -81,7 +81,7 @@ files = release_files()
 listed = {}
 for line in text('SHA256SUMS.txt').splitlines():
     parts = line.split('  ', 1)
-    if len(parts) == 2:
+    if len(parts) == 2 and '#' not in parts[1]:  # "app.js#layout" is a part of app.js, not a file
         listed[parts[1]] = parts[0]
 if ARGS:
     changed = sorted(Path(a).name for a in ARGS)

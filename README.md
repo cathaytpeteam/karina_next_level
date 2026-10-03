@@ -24,11 +24,12 @@ Find Pax handles passenger phone numbers, so these rules are locked like the lay
 3. **No server, apart from usage counts.** A home Next that reaches the Scenario screen, each Scenario 1 / Scenario 2 WhatsApp or Japanese SMS send tap and the Scenario 3 WhatsApp call tap on Confirm details, and each Scenario 1-3 Call by Phone tap load one image from `https://cathaytpeteam.goatcounter.com/count` carrying only one fixed name: `next`, `S1-WhatsApp`, `S2-WhatsApp`, `S1-SMS-JA`, `S2-SMS-JA`, `S3-WhatsApp Call`, `S1-Call by phone`, `S2-Call by phone` or `S3-Call by phone` (Try another number, Scenario 4 and Scenario 5 send none). No phone number, page address or referrer, and it never delays the screen change or the send. Otherwise the only network use is the Service Worker loading the app's own files. The platform comes from GoatCounter's User-Agent data, not from the app. A separate private repo (`findpax-stats`) turns these counts into three reports a day from this GoatCounter site and must count each name separately, so keep these counts, keep GoatCounter's User-Agent collection on, and update that report whenever a count is added, renamed or removed.
 4. **Only four ways out:** `whatsapp://send`, `https://wa.me/`, `sms:` and `tel:`. No other links, external scripts, fonts, images, analytics or generated code; the usage-count images above are the only outside request, allowed by the CSP `img-src` for that one host.
 
-Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the priority gate (nothing stored, nothing loaded from another site except exactly one `next` count per home Next and one fixed-name count per S1-S3 send, WhatsApp call or Call by Phone tap with no referrer, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
+Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks.json` "privacy", which pins that lock, the phone library (official libphonenumber-js 1.12.29 mobile bundle) and `sw.js` so none can change quietly; a Content-Security-Policy in `index.html`, so the phone's browser itself refuses any other site, external file or generated code; and a run-time check in the safety layer, which runs first and stops every other browser check if it fails (nothing stored, nothing loaded from another site except exactly one `next` count per home Next and one fixed-name count per S1-S3 send, WhatsApp call or Call by Phone tap with no referrer, CSP blocking). Changing any of these rules needs explicit user approval as its own task, never as part of another change.
 
 ## Test environment limits
 
 - The tests answer the usage counts locally; they never reach the real GoatCounter.
+- Only under automated tests (`navigator.webdriver`) the app adds a test probe (`app.js` `[test probe]`) that answers rule and message questions for given values; it never reads the page, the case or the number. A browser check proves it is absent otherwise.
 - Only Chromium is available. The no-Static-Routing path (iOS Safari / older Chrome) is emulated in Chromium; real Safari and real devices are not tested.
 - Without Static Routing, a deployed update appears after GitHub Pages' HTTP cache (max-age 600 s) expires, on the next launch.
 
@@ -75,12 +76,12 @@ Enforced four ways: the privacy lock in `verify_changed.py` (every edit); `locks
 - **After staff return from WhatsApp / SMS:** the main button reads `Try Another Number` (S1–S5). It returns to the phone page with the number field empty; re-picking the same scenario keeps every other field, picking another scenario clears the case. The language default follows the new number's country. A new number or any edited field reaches Confirm details with the single send button again; Back and Next without changes keep both return buttons. On S1, S2, S3 and S5 a `Call by Phone` button with a solid handset icon sits above it and opens the dialer (`tel:`) with the number filled in; Call by Phone takes the primary colours and Try Another Number the secondary ones. On S4 Try Another Number is the only button and takes the primary colours.
 - **Icon policy:** action icons appear only on the Scenario 1/2 Passenger Type pages (single-colour message icon beside the arrow; screen readers still hear "& Message"). Every other screen is icon-free, except the Call by Phone button and the header Home icon.
 - **Confirm details Sec:** when the origin prefix is not TPE (Transit: HKG / NRT / NGO / KIX), the three letters use `--brand`; the digits and a TPE prefix keep the normal value colour. Not red: a different origin is not a disruption.
-- **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The priority gate checks every button on every screen.
+- **Button text colours:** option buttons use `--brand-strong` (the `.opt` default, because `button` inherits the body ink otherwise); the original delayed/cancelled flight uses `--delay-ink`; Next is `--on-brand` on `--brand`; secondary text uses `--muted`. Body ink (`--ink`) and black are never used for button text. The appearance layer checks every button on every screen.
 - **Confirm details colours:** a Sec whose origin is not TPE shows the three-letter prefix in `--brand`; TPE and the digits keep the value colour. The gate row (Final Call `Go to Gate`, Already at Gate `Proceed to Gate`) uses the same `--brand`. Neither is red: nothing is delayed.
 - **Auto-advance:** a complete, valid field moves the cursor to the next empty field without scrolling: Protect to flight → DEP → Gate; Flight arrangement flight → dep time; airline code → number (Connecting flight, Flight arrangement, Bag 1/2); Disrupted flight → Delayed-to. An invalid value keeps the cursor.
 - **Message Preview is read-only:** no in-app Edit or Copy Text.
 - **Message Preview row (Confirm details):** white with a `--line` edge like the summary card; title 17px bold, language order label (e.g. 中文在前) 15px/600 `--muted`, `View ▾` 17px bold.
-- **Progress label:** 20px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
+- **Progress label:** 17px / 700, single line, auto-shrinks to min 13px (ellipsis only as a last resort); the numeric part (`2/4`) is a lighter grey-green.
 - **No layout jump:** form pages keep the same sizes with or without the keyboard (title 24px, fields 64px; top-aligned except the single-field pages below); only the footer compacts. Header height is identical on every page. 0.16 s page fade, off with "reduce motion".
 - **Single-field pages sit lower:** Flight number (漏查, Final Call, Wrong Pick-up), Sec, Gate, Bag Tag 1/2, Connecting flight and Arrive airport before get `padding-top: clamp(0px, (resting height − 640px) × 0.65, 180px)` (18 px on small phones, ~132 px on 844 px phones, 180 px max). The resting height is kept by `app.js` (`--rest-h`), so the page never moves when the keyboard opens, and the field stays above Next with normal and 40 px taller keyboards on 360–430 px phones. Other pages stay top-aligned.
 - **Red borders:** blank fields stay neutral; a field stays neutral while its digits can still become valid (e.g. `4`, `40` → 407) and turns red when no valid value can start that way, when complete and invalid, or on leaving the field. Error red (`--danger`) is for invalid state only.
@@ -147,16 +148,14 @@ CX407, CX489, CX477, CX499, CX461, CX450, CX564, CX530, CX495, CX443, CX421, CX4
 
 Only the latest two final releases. Trials are not recorded. Older history is in git.
 
-### K3.0-r55 (2026-10-03)
+### K3.0-r56 checks (2026-10-03)
 
-- Home capsule: the solid house becomes a thin-line house (1.8 stroke, `--brand-strong`); the capsule sits on `--scenario-bg` with no edge.
-- Message Preview row: `--line` edge instead of `--brand`; language order label 15px/600 (was 18px/700); `View ▾` 17px. Wording unchanged. The release check and browser guard for the label size follow, with user approval.
-- Layout lock (header markup) recomputed with user approval.
-- `CACHE_REV` moves to `K3.0-r55`, so the app updates on phones. The home label stays `K3.0`.
+- Service Worker checks wait for the worker to finish (update check sent, network quiet, no worker installing or waiting) instead of fixed pauses, with the old pauses as upper limits; `verify_release.py --full` runs the two SW modes side by side unless `--jobs` is given. SW suite about 107 s → 35 s.
+- New SW checks: an update with a new `CACHE_REV` leaves only the new cache; the new worker takes over while an older page stays open (`skipWaiting`); without Static Routing a cache miss is stored by the fetch handler before the background refresh.
+- Test files only: no deployed file, lock or `CACHE_REV` changed.
 
-### K3.0-r54 (2026-10-02)
+### K3.0-r56 (2026-10-03)
 
-- Picking any scenario clears every scenario's fields and the message; only re-picking the scenario kept by Try Another Number keeps its case. S4 passenger type changes are unchanged. A browser guard checks all 20 switches.
-- Home: the passenger number and the solid house icon share one grey capsule (no divider, no label) that is a single button; tapping anywhere on it goes Home. Call Directly Confirm details now shows the number in the header too. Below 360 px the number is 14px.
-- Layout lock (header markup) recomputed with user approval; four frozen scenario-entry strings in `verify_release.py` follow the new clear call.
-- `CACHE_REV` moves to `K3.0-r54`, so the app updates on phones. The home label stays `K3.0`.
+- Test probe: only under automated tests (`navigator.webdriver`) the app answers rule and message questions for given values (`[test probe]`); it never reads the page, the case or the number. A static check and a safety-layer browser check prove it is absent otherwise.
+- Checks: validation rows on one path share a page and each value is cross-checked with the probe; the probe also checks every flight 1-999, time, SEC and gate on every rule, and every message branch for every allowed flight. No locks recomputed.
+- `CACHE_REV` moves to `K3.0-r56`, so the app updates on phones. The home label stays `K3.0`.

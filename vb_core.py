@@ -15,7 +15,7 @@ HTML = HTML.replace('<script src="./copy.js"></script>', '<script>'+_COPY_JS+'</
 HTML = HTML.replace('<script src="./app.js"></script>', '<script>'+_APP_JS+'</script>')
 # The inlined test page cannot satisfy the app's Content-Security-Policy (script-src 'self' forbids
 # inline code), so it is removed here only. The CSP itself is verified on a real http origin in the
-# priority gate's privacy check, exactly as a phone loads the app.
+# safety layer's privacy check, exactly as a phone loads the app.
 HTML = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', '', HTML)
 _COPY_MATCH = re.search(r'window\.FIND_PAX_COPY\s*=\s*Object\.freeze\((\{.*\})\);', _COPY_JS, re.S)
 COPY = json.loads(_COPY_MATCH.group(1)) if _COPY_MATCH else {}
@@ -24,6 +24,18 @@ PHONE = "886983952902"
 PHONE_RETRY = "819012345678"
 
 failed = False
+
+# Check layers, in run order and ordered by what goes wrong when a check fails. Every ck() line is
+# counted under the layer of the job that runs it; only a failed safety layer stops the other layers.
+LAYERS = [("safety", "安全"), ("send", "送出內容"), ("clear", "資料清除"), ("input", "輸入規則"),
+          ("flow", "流程"), ("open", "能開能更新"), ("look", "外觀")]
+LAYER_COUNTS = {k: [0, 0] for k, _ in LAYERS}
+_LAYER = contextvars.ContextVar("find_pax_layer", default="flow")
+
+def print_layer_counts(skipped=()):
+    """Machine-readable per-layer totals for verify_release.py: LAYER key passed failed|skip."""
+    for k, _ in LAYERS:
+        print(f"LAYER {k} skip" if k in skipped else f"LAYER {k} {LAYER_COUNTS[k][0]} {LAYER_COUNTS[k][1]}", flush=True)
 
 async def launch_chromium(p):
     local_browser = os.environ.get('FIND_PAX_CHROMIUM')
@@ -46,6 +58,7 @@ def ck(name, ok, detail=""):
         print(line)
     else:
         buf.append(line)
+    LAYER_COUNTS[_LAYER.get()][0 if ok else 1] += 1
     if not ok:
         failed = True
     return ok
@@ -53,12 +66,14 @@ def ck(name, ok, detail=""):
 JOB_CHOICES = ("1", "2", "3")
 
 def workers():
-    """Browser jobs run at the same time: --jobs 1, 2 or 3 (default 1, one after another)."""
-    v = sys.argv[sys.argv.index("--jobs") + 1] if "--jobs" in sys.argv and sys.argv.index("--jobs") + 1 < len(sys.argv) else "1"
+    """Browser jobs run at the same time: --jobs 1, 2 or 3 (default 3 with --fast, otherwise 1)."""
+    v = sys.argv[sys.argv.index("--jobs") + 1] if "--jobs" in sys.argv and sys.argv.index("--jobs") + 1 < len(sys.argv) else ("3" if "--fast" in sys.argv else "1")
     if v not in JOB_CHOICES:
         print(f"ERROR: --jobs must be 1, 2 or 3 (got {v!r}). No browser test was run.")
         raise SystemExit(2)
     return int(v)
+
+JOB_TIMES = []  # (seconds, label) of every finished job, printed by --timing
 
 async def run_jobs(jobs):
     """Run independent browser jobs (no-argument coroutine functions) workers() at a time, started in list order.
@@ -66,12 +81,15 @@ async def run_jobs(jobs):
     Shared records (failed, covered, unexpected, toggles_hit) only grow, so the totals do not depend on order.
     back_verified and lang_checked make the first job to reach an edge or preview do its one Back/Forward
     or language check; with --jobs 2/3 that can be a different job from run to run.
-    A job that raises is reported as one FAIL line (test file and line) and the other jobs carry on."""
+    A job that raises is reported as one FAIL line (test file and line) and the other jobs carry on.
+    A job's checks are counted under its .layer (see LAYERS)."""
     sem = asyncio.Semaphore(workers())
     async def one(job):
         async with sem:
             buf = []
             _OUT.set(buf)
+            _LAYER.set(getattr(job, "layer", "flow"))
+            t0 = asyncio.get_running_loop().time()
             try:
                 await job()
             except Exception as e:
@@ -81,12 +99,13 @@ async def run_jobs(jobs):
                 msg = (str(e).strip().splitlines() or [""])[0][:160]
                 ck(f"[{getattr(job, 'label', job.__name__)}] test ran to the end", False, f"{type(e).__name__} at {where}: {msg}")
             finally:
+                JOB_TIMES.append((asyncio.get_running_loop().time() - t0, getattr(job, "label", job.__name__)))
                 if buf:
                     print("\n".join(buf), flush=True)
     await asyncio.gather(*(one(j) for j in jobs))
 
-def run_job(browser, name, fn):
-    """A job that opens a fresh page as Run(name), calls fn(r) and closes it."""
+def run_job(browser, name, fn, layer="flow"):
+    """A job that opens a fresh page as Run(name), calls fn(r) and closes it; its checks count under layer."""
     async def job():
         r = await Run(browser, name).open()
         try:
@@ -95,7 +114,7 @@ def run_job(browser, name, fn):
             await r.ctx.close()
             raise
         await r.close()
-    job.label = name
+    job.label, job.layer = name, layer
     return job
 
 # ---------------------------------------------------------------------------
@@ -240,12 +259,59 @@ async def answer_count(route, seen):
     seen.append({"url": route.request.url, "headers": await route.request.all_headers()})
     await route.fulfill(status=200, content_type="image/gif", body=COUNT_GIF)
 
+# The app's reaction to a tap or a typed value ends in zero-delay timers (render after focusout) and
+# animation frames (focus moves). SETTLE_JS resolves once those queued before it have run; the 300 ms
+# cap only matters if the page cannot draw frames.
+SETTLE_JS = """() => new Promise(done => {
+  const cap = setTimeout(done, 300);
+  requestAnimationFrame(() => setTimeout(() => { clearTimeout(cap); done(); }, 0));
+})"""
+
+async def settle(pg):
+    """Wait until the app has finished reacting to the last tap or input (see SETTLE_JS)."""
+    await pg.evaluate(SETTLE_JS)
+
+async def until(get, ok, ms=2000):
+    """Call get() until ok(value) holds or ms pass; return the last value (the check reports it)."""
+    t_end = asyncio.get_running_loop().time() + ms / 1000
+    while True:
+        v = await get()
+        if ok(v) or asyncio.get_running_loop().time() > t_end:
+            return v
+        await asyncio.sleep(0.02)
+
+async def await_external(pg, nav, n0, counts, c0):
+    """After a send or Call by Phone tap: wait for the external URL (up to 2 s), then for its usage count.
+    A count normally arrives with the URL; S4/S5 send none, so the wait for one ends after 150 ms.
+    40 ms of quiet after the last count lets a duplicate count show up in the check."""
+    loop = asyncio.get_running_loop()
+    t_end = loop.time() + 2
+    while len(nav) <= n0 and loop.time() < t_end:
+        await asyncio.sleep(0.01)
+    t_end = loop.time() + 0.15
+    while len(counts) <= c0 and loop.time() < t_end:
+        await asyncio.sleep(0.01)
+    n = -1
+    while n != len(counts):
+        n = len(counts)
+        await asyncio.sleep(0.04)
+    await settle(pg)
+
+HOME_DONE_JS = "() => !!(history.state && history.state.findPax && history.state.pos === 0)"
+
+async def home_done(pg):
+    """After Home / a tap on the header number: wait until the browser history is back on the phone
+    page (the app rewinds it with history.go, which finishes a moment after the screen changes)."""
+    await until(lambda: pg.evaluate(HOME_DONE_JS), bool)
+    await settle(pg)
+
 class Run:
     def __init__(self, browser, name):
         self.browser, self.name, self.nav, self.counts, self.send_counts = browser, name, [], [], []
 
     async def open(self):
-        self.ctx = await self.browser.new_context(viewport={"width": 390, "height": 844})
+        # Reduced motion (the app's own prefers-reduced-motion rules) makes screens and panels appear at once.
+        self.ctx = await self.browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
         await self.ctx.route(COUNT_HOST + "**", lambda route: answer_count(route, self.counts))
         self.pg = await self.ctx.new_page()
         self.errors = []
@@ -282,11 +348,11 @@ class Run:
             await loc.select_option(val)
         else:
             await loc.fill(val)
-        await self.pg.wait_for_timeout(30)
+        await settle(self.pg)
 
     async def blur(self, id_):
         await self.pg.locator("#" + id_).evaluate("e => e.blur()")
-        await self.pg.wait_for_timeout(60)
+        await settle(self.pg)
 
     async def val(self, id_):
         return await self.pg.locator("#" + id_).input_value()
@@ -316,11 +382,7 @@ class Run:
         n0, c0 = len(self.nav), len(self.counts)
         await self.pg.click(sel)
         if before["screen"] == "preview" and trigger == "cta":
-            for _ in range(40):
-                if len(self.nav) > n0:
-                    break
-                await self.pg.wait_for_timeout(50)
-            await self.pg.wait_for_timeout(150)
+            await await_external(self.pg, self.nav, n0, self.counts, c0)
             self.send_counts = count_names(self.counts[c0:])
             urls = self.nav[n0:]
             url = urls[0] if urls else ""
@@ -399,6 +461,18 @@ class Run:
         ck(f"[{self.name}] {label}", ok, ", ".join(why))
         return s
 
+# ---- test probe (window.__findPaxProbe, app.js [test probe]) -------------------------
+# Under automated tests the app answers rule questions with its own rules for given field values:
+# check({step, fields, state, focus}) -> {ok, bad, hint}; message({flow, fields, state}) -> {text, rows}.
+PROBE_FIELDS = ["mFlight", "mSec", "wFlight", "b1a", "b1n", "b2a", "b2n", "dFlight", "delayTime", "tA", "tN", "altA", "altN",
+                "altTime", "arriveTime", "gNewN", "gDepTime", "gGateZone", "gGate", "callFlight", "callGateZone", "callGate"]
+PROBE_STEPS = ("mflight", "msec", "wflight", "bag1", "bag2", "dstatus", "dflight", "dtransfer", "darrange", "darrive",
+               "dnew", "dgateaction", "callflight", "callgate")
+
+async def probe_all(pg, kind, cases):
+    """Ask the probe many questions in one call (kind is "check" or "message"); answers come back in order."""
+    return await pg.evaluate("([k, cs]) => cs.map(c => window.__findPaxProbe[k](c))", [kind, cases])
+
 # ---- helpers to reach screens ----------------------------------------------
 async def to_s1(r, mode, flight):
     await r.phone(); await r.act("goMiss", "misstype"); await r.act(mode, "mflight")
@@ -437,26 +511,25 @@ async def fill_protect(r, n="401", zone="B", gate="5", dep="1945"):
     # continue with r.act("cta", "dgateaction") and select there.
     await r.fill("gNewN", n); await r.fill("gGateZone", zone); await r.fill("gGate", gate); await r.fill("gDepTime", dep); await r.blur("gDepTime")
 
-# ---- priority release gate -----------------------------------------------------
+# ---- focused checks (vb_priority.py) -----------------------------------------------
 async def _simple_click(r, id_, screen=None):
     await r.pg.locator("#" + id_).click()
     if screen:
         st = await r.wait(lambda x: x["screen"] == screen, 2000)
-        ck(f"[priority] {id_} opens {screen}", st["screen"] == screen, st["screen"])
+        ck(f"[focus] {id_} opens {screen}", st["screen"] == screen, st["screen"])
         return st
-    await r.pg.wait_for_timeout(60)
+    await settle(r.pg)
     return await r.st()
 
-async def _priority_phone_to_scenario(r):
+async def _focus_phone_to_scenario(r):
     st = await r.st()
-    ck("[priority] Phone starts with Next disabled", st["screen"] == "phone" and st["cta_disabled"])
-    ck("[priority] Phone starts without a stale red border", "phoneInput" not in st["bad"])
-    ck("[priority] Phone country badge starts hidden", await r.pg.locator("#badge").is_hidden())
+    ck("[focus] Phone starts with Next disabled", st["screen"] == "phone" and st["cta_disabled"])
+    ck("[focus] Phone starts without a stale red border", "phoneInput" not in st["bad"])
+    ck("[focus] Phone country badge starts hidden", await r.pg.locator("#badge").is_hidden())
     await r.fill("phoneInput", PHONE)
-    await r.pg.wait_for_timeout(100)
-    st = await r.st()
+    st = await until(r.st, lambda x: not x["cta_disabled"])
     badge_visible = await r.pg.locator("#badge").is_visible()
     badge_text = (await r.pg.locator("#badge").inner_text()).strip() if badge_visible else ""
-    ck("[priority] valid Taiwan phone shows country badge", badge_visible and "TW" in badge_text, badge_text)
-    ck("[priority] valid Taiwan phone enables Next", not st["cta_disabled"], str(st))
+    ck("[focus] valid Taiwan phone shows country badge", badge_visible and "TW" in badge_text, badge_text)
+    ck("[focus] valid Taiwan phone enables Next", not st["cta_disabled"], str(st))
     await _simple_click(r, "cta", "scenario")

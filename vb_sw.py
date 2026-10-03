@@ -44,6 +44,28 @@ def _copy_build(src, dst):
     shutil.rmtree(dst, ignore_errors=True)
     shutil.copytree(src, dst, ignore=shutil.ignore_patterns(".git", ".github", "__pycache__"))
 
+_SW_IDLE_JS = "navigator.serviceWorker.getRegistration().then(r=>!!r&&!r.installing&&!r.waiting)"
+
+async def _sw_quiet(pg, srv, start, limit, need_sw=True, quiet=0.4, floor=0.0):
+    """Wait until the Service Worker has finished this launch's work, at most limit ms.
+    Done means: the browser's update check for sw.js reached the server (Chrome sends it about
+    a second after load, so an update is not missed), no request for quiet s, no worker
+    installing or waiting, and at least floor s since start. Offline there is no update
+    check, so only the time conditions apply. Never waits longer than the old fixed limit."""
+    loop = asyncio.get_running_loop(); end = loop.time() + limit / 1000
+    seen, last = len(srv.hits), loop.time()
+    while loop.time() < end:
+        now = loop.time()
+        if len(srv.hits) != seen: seen, last = len(srv.hits), now
+        online = srv.httpd is not None
+        sw_checked = not (online and need_sw) or any(h.endswith("/sw.js") for h in srv.hits[start:])
+        if sw_checked and now - last >= quiet and now - (end - limit / 1000) >= floor:
+            try:
+                if await pg.evaluate(_SW_IDLE_JS): return
+            except Exception:
+                return
+        await asyncio.sleep(0.05)
+
 async def _sw_launch(ctx, srv, settle=3000):
     n = len(srv.hits); pg = await ctx.new_page(); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -51,7 +73,9 @@ async def _sw_launch(ctx, srv, settle=3000):
     except Exception as e: errs.append("goto: " + str(e)[:80])
     await pg.wait_for_timeout(500)
     early = len(srv.hits) - n if srv.httpd else 0
-    await pg.wait_for_timeout(settle)
+    # settle is the upper limit; short settles (300 ms) only read the cache and skip the update check.
+    # Offline the failed background refresh (phone-input window, ~0.6 s after load) must have run: floor 0.8 s.
+    await _sw_quiet(pg, srv, n, settle, need_sw=settle > 1000, floor=0 if srv.httpd else min(0.8, settle / 1000))
     return pg, early, errs
 
 async def _sw_flow(pg):
@@ -114,7 +138,10 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     pg = await ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
     await pg.goto(srv.url, wait_until="domcontentloaded")
     ck(T + "1 first visit: SW not registered during first paint", not await pg.evaluate("navigator.serviceWorker.getRegistration().then(r=>!!r)"))
-    await pg.wait_for_timeout(4000)
+    loop = asyncio.get_running_loop(); end = loop.time() + 4
+    while loop.time() < end and not await pg.evaluate("navigator.serviceWorker.getRegistration().then(r=>!!(r&&r.active&&r.active.state==='activated'))"):
+        await asyncio.sleep(0.05)
+    await _sw_quiet(pg, srv, 0, max(0, (end - loop.time()) * 1000), need_sw=False)
     ck(T + "1 first visit: SW registered and active in the phone-input idle window", await pg.evaluate("navigator.serviceWorker.getRegistration().then(r=>!!(r&&r.active))"))
     cs = await pg.evaluate(_CACHE_JS)
     ck(T + f"1 first visit: one cache with all {N_ASSETS} assets", len(cs) == 1 and list(cs.values()) == [N_ASSETS], str(cs))
@@ -152,18 +179,25 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     if noroutes: ck(T + "4 update: ./index.html cache entry refreshed", idx and "UPD-A" in idx)
     else: ck(T + "4 update: ./ and ./index.html cache entries both refreshed", idx and root_ and "UPD-A" in idx and "UPD-A" in root_)
     await pg.close()
-    # 5 update: sw.js + index.html
-    open(os.path.join(root, "sw.js"), "a").write('\nself.addEventListener("message",e=>{if(e.data==="ver")e.source.postMessage("UPD-B");});\n')
+    # 5 update: sw.js + index.html, with a new CACHE_REV as every release has, while an older copy of the
+    # app stays open (a second tab, or the PWA left in the background): skipWaiting must still let the
+    # new SW take over, and activate must delete the old cache.
+    keeper, _, _ = await _sw_launch(ctx, srv)
+    sw_path = os.path.join(root, "sw.js"); src = open(sw_path, encoding="utf-8").read()
+    src_b = re.sub(r'const CACHE_REV="([^"]*)";', r'const CACHE_REV="\1-UPD-B";', src, count=1)
+    ck(T + "5 update: test build moves CACHE_REV", src_b != src)
+    open(sw_path, "w", encoding="utf-8").write(src_b + '\nself.addEventListener("message",e=>{if(e.data==="ver")e.source.postMessage("UPD-B");});\n')
     open(os.path.join(root, "index.html"), "a").write("\n<!-- UPD-B -->\n")
     n = await _until(ctx, srv, "UPD-B", expire=noroutes)
     ck(T + "5 update (sw.js + index.html): new version by 3rd launch" + exp, n is not None and n <= 3, f"launch {n}")
     pg, early, _ = await _sw_launch(ctx, srv)
     ver = await pg.evaluate("""()=>new Promise(res=>{const c=navigator.serviceWorker.controller;if(!c)return res(null);
       navigator.serviceWorker.addEventListener("message",e=>res(e.data),{once:true});c.postMessage("ver");setTimeout(()=>res("timeout"),2000)})""")
-    ck(T + "5 update: new SW controls the page", ver == "UPD-B", str(ver))
-    ck(T + "5 update: old caches removed", len(await pg.evaluate(_CACHE_JS)) == 1)
+    ck(T + "5 update: new SW controls the page while an older page stays open", ver == "UPD-B", str(ver))
+    cs = await pg.evaluate(_CACHE_JS)
+    ck(T + "5 update: old cache removed, only the new CACHE_REV cache left", len(cs) == 1 and next(iter(cs)).endswith("-UPD-B"), str(sorted(cs)))
     if not noroutes: ck(T + "5 update: launch still makes zero network requests", early == 0, f"{early}")
-    await pg.close()
+    await pg.close(); await keeper.close()
     # 6 broken deploy
     srv.fail404 = {"/scenario-icon-4.png"}
     open(os.path.join(root, "index.html"), "a").write("\n<!-- UPD-C -->\n")
@@ -176,9 +210,26 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     pg, _, _ = await _sw_launch(ctx, srv, settle=300)
     await pg.evaluate("async()=>{for(const k of await caches.keys()){const c=await caches.open(k);await c.delete(new URL('./libphonenumber-mobile.js',location).href);}}")
     await pg.close()
-    pg, _, errs = await _sw_launch(ctx, srv)
+    # Without Static Routing the fetch handler answers the miss and must store the copy at once, before the
+    # background refresh (phone-input window) could restore it. A routed miss goes to the network directly,
+    # so with Static Routing only the refresh writes it back (checked below).
+    n0 = len(srv.hits); pg = await ctx.new_page(); errs = []
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    await pg.goto(srv.url)
+    early_put = refreshed = False
+    for _ in range(60):  # up to 3 s
+        cached = (await _cached_text(pg, "./libphonenumber-mobile.js")) is not None
+        refreshed = any(h not in ("/libphonenumber-mobile.js", "/sw.js") for h in srv.hits[n0:])
+        if cached or refreshed:
+            early_put = cached and not refreshed; break
+        await pg.wait_for_timeout(50)
+    if noroutes: ck(T + "7 cache miss: fetch handler stores the network copy before the background refresh", early_put,
+                    "refresh ran first" if refreshed else "never stored")
+    await _sw_quiet(pg, srv, n0, 3000)
     ck(T + "7 cache miss: asset fetched from network, app works", await pg.evaluate("!!window.libphonenumber") and not errs, "; ".join(errs[:3]))
-    await pg.wait_for_timeout(1500)
+    for _ in range(30):  # up to 1.5 s for the write-back
+        if (await _cached_text(pg, "./libphonenumber-mobile.js")) is not None: break
+        await pg.wait_for_timeout(50)
     ck(T + "7 cache miss: asset written back to cache", (await _cached_text(pg, "./libphonenumber-mobile.js")) is not None)
     await pg.close(); await ctx.close()
     # 8 upgrade from a previous build
@@ -204,10 +255,29 @@ async def _sw_mode(p, tag, noroutes, port, previous, tmp):
     srv.stop(); await b.close()
 
 async def sw_suite(previous):
+    """Both modes, each with its own server, port, build copy and browser. With --jobs 2/3 they run at the
+    same time (each mode's steps stay in order, since every step builds on the one before); --jobs 1 runs
+    them one after the other. verify_release.py runs them with --jobs 2 unless --jobs is given.
+    Each mode prints its lines together when it ends."""
     from playwright.async_api import async_playwright
+    modes = [("static-routing", False, 8931), ("no-static-routing", True, 8932)]
     with tempfile.TemporaryDirectory() as tmp:
         async with async_playwright() as p:
-            await _sw_mode(p, "static-routing", False, 8931, previous, tmp)
-            await _sw_mode(p, "no-static-routing", True, 8932, previous, tmp)
+            async def one(tag, noroutes, port):
+                buf = []
+                vb_core._OUT.set(buf)
+                try:
+                    await _sw_mode(p, tag, noroutes, port, previous, tmp)
+                finally:
+                    if buf:
+                        print("\n".join(buf), flush=True)
+            if workers() > 1:
+                done = await asyncio.gather(*(one(*m) for m in modes), return_exceptions=True)
+                for e in done:
+                    if isinstance(e, BaseException):
+                        raise e
+            else:
+                for m in modes:
+                    await one(*m)
     if not previous:
         print("SKIP [SW] 8 upgrade from a previous build (run with --previous DIR to include)")
